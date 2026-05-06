@@ -67,6 +67,10 @@ def _fallback_extract(text: str) -> dict[str, Any]:
             extracted["province"] = province
             break
 
+    if any(token in text for token in ("外省", "全国", "地域不限", "地区不限", "哪里都可以")):
+        extracted["province"] = None
+        extracted["province_relaxed"] = True
+
     if "临床" in text:
         extracted["major"] = "临床医学"
     elif "计算机" in text:
@@ -79,10 +83,15 @@ def _fallback_extract(text: str) -> dict[str, Any]:
 
 def _merge_constraints(current: dict[str, Any], extracted: dict[str, Any]) -> dict[str, Any]:
     merged = {**DEFAULT_CONSTRAINTS, **(current or {})}
+    if extracted.get("province_relaxed"):
+        merged["province"] = None
+        merged["province_relaxed"] = True
     for key in ("score", "province", "major", "budget"):
         value = extracted.get(key)
         if value not in (None, ""):
             merged[key] = value
+    if extracted.get("province"):
+        merged.pop("province_relaxed", None)
     return merged
 
 
@@ -94,6 +103,7 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
                 "你是高考志愿约束抽取器。只输出 JSON，不要解释。"
                 "字段固定为 score(int|null), province(str|null), major(str|null), budget(int|null)。"
                 "province 表示目标院校所在地。major 使用用户提到的专业关键词。"
+                "如果用户明确表示外省、全国或地域不限，province 输出 null。"
             )
         ),
         SystemMessage(content=f"当前已知约束: {json.dumps(current or {}, ensure_ascii=False)}"),
@@ -112,7 +122,9 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
     extracted = await _extract_constraints(text, current)
     constraints = _merge_constraints(current, extracted)
 
-    missing = [key for key in ("score", "province", "major") if not constraints.get(key)]
+    missing = [key for key in ("score", "major") if not constraints.get(key)]
+    if not constraints.get("province") and not constraints.get("province_relaxed"):
+        missing.append("province")
     if missing:
         message = AIMessage(content=f"我还需要补充这些硬约束：{', '.join(missing)}。")
         return {
