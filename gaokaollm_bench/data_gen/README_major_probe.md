@@ -31,7 +31,7 @@
 
 ```bash
 python -m gaokaollm_bench.data_gen.major_embedding_cache \
-  --input gaokaollm_bench/outputs/major_training/splits/train.jsonl \
+  --input gaokaollm_bench/outputs/major_training/data.jsonl \
   --output gaokaollm_bench/outputs/major_training/embeddings.npz \
   --text-field normalized_text \
   --batch-size 128
@@ -65,7 +65,7 @@ python -m gaokaollm_bench.data_gen.major_probe_train \
   --output-dir gaokaollm_bench/outputs/major_training_probe \
   --label-field leaf_id \
   --batch-size 64 \
-  --epochs 8 \
+  --epochs 64 \
   --lr 0.001 \
   --seed 42
 ```

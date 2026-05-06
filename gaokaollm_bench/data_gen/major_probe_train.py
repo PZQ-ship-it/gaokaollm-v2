@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 from pathlib import Path
 from typing import Any
@@ -61,6 +62,22 @@ def _parse_args() -> argparse.Namespace:
         "--history-output",
         default=None,
         help="Optional JSONL path for per-epoch training history.",
+    )
+    parser.add_argument(
+        "--selection-metric",
+        choices=["val_accuracy", "val_macro_f1", "val_loss", "train_accuracy", "train_loss"],
+        default="val_accuracy",
+        help="Metric used to select the final best probe when available.",
+    )
+    parser.add_argument(
+        "--save-epoch-checkpoints",
+        action="store_true",
+        help="Save checkpoint_epoch_XXXX.pt for every epoch.",
+    )
+    parser.add_argument(
+        "--checkpoint-dir",
+        default=None,
+        help="Optional directory for epoch checkpoints. Defaults to output-dir/checkpoints.",
     )
     return parser.parse_args()
 
@@ -208,6 +225,22 @@ def _auto_val_path(train_path: Path) -> Path | None:
     return candidate if candidate.exists() else None
 
 
+def _metric_is_better(metric_name: str, score: float, best_score: float) -> bool:
+    if metric_name in {"val_loss", "train_loss"}:
+        return score <= best_score
+    return score >= best_score
+
+
+def _initial_best_score(metric_name: str) -> float:
+    if metric_name in {"val_loss", "train_loss"}:
+        return float("inf")
+    return -float("inf")
+
+
+def _copy_state_dict(model: nn.Module) -> dict[str, torch.Tensor]:
+    return {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}
+
+
 def main() -> None:
     args = _parse_args()
     if args.eval_every < 1:
@@ -280,8 +313,13 @@ def main() -> None:
     if history_path.exists():
         history_path.unlink()
 
+    checkpoint_dir = Path(args.checkpoint_dir) if args.checkpoint_dir else output_dir / "checkpoints"
+    if args.save_epoch_checkpoints:
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
     best_state = None
-    best_score = -1.0
+    best_score = _initial_best_score(args.selection_metric)
+    best_metric_name = args.selection_metric
     history: list[dict[str, Any]] = []
 
     for epoch in range(1, args.epochs + 1):
@@ -311,7 +349,8 @@ def main() -> None:
             "missing_train_texts": int(missing_train),
         }
 
-        if y_val.size and epoch % args.eval_every == 0:
+        has_val_metrics = bool(y_val.size and epoch % args.eval_every == 0)
+        if has_val_metrics:
             val_metrics = _evaluate(model, X_val, y_val, num_classes=len(label_map))
             epoch_log.update(
                 {
@@ -323,13 +362,50 @@ def main() -> None:
                     "unknown_val_labels": int(skipped_val_unknown_label),
                 }
             )
-            score = val_metrics["macro_f1"]
-        else:
+        if args.selection_metric in epoch_log:
+            metric_name = args.selection_metric
+            score = float(epoch_log[metric_name])
+        elif args.selection_metric.startswith("val_") and has_val_metrics:
+            metric_name = args.selection_metric
+            score = float(epoch_log[metric_name])
+        elif args.selection_metric.startswith("val_") and not y_val.size:
+            metric_name = "train_accuracy"
             score = train_acc
+        elif args.selection_metric.startswith("val_") and not has_val_metrics:
+            metric_name = best_metric_name
+            score = best_score
+        else:
+            metric_name = args.selection_metric
+            score = float(epoch_log[metric_name])
 
-        if score >= best_score:
+        is_evaluated_epoch = metric_name in epoch_log
+        is_best = is_evaluated_epoch and _metric_is_better(metric_name, score, best_score)
+        if is_best:
             best_score = score
-            best_state = {"state_dict": model.state_dict(), "epoch": epoch, "score": score}
+            best_metric_name = metric_name
+            best_state = {
+                "state_dict": _copy_state_dict(model),
+                "epoch": epoch,
+                "score": score,
+                "selection_metric": metric_name,
+                "epoch_log": copy.deepcopy(epoch_log),
+            }
+
+        epoch_log["selection_metric"] = metric_name
+        epoch_log["selection_score"] = None if not is_evaluated_epoch else score
+        epoch_log["is_best"] = bool(is_best)
+
+        if args.save_epoch_checkpoints:
+            torch.save(
+                {
+                    "state_dict": _copy_state_dict(model),
+                    "epoch": epoch,
+                    "selection_metric": metric_name,
+                    "selection_score": None if not is_evaluated_epoch else score,
+                    "epoch_log": epoch_log,
+                },
+                checkpoint_dir / f"checkpoint_epoch_{epoch:04d}.pt",
+            )
 
         history.append(epoch_log)
         with history_path.open("a", encoding="utf-8") as f:
@@ -348,10 +424,13 @@ def main() -> None:
                     f"missing_val={missing_val}",
                 ]
             )
+        if is_best:
+            parts.append(f"best_{metric_name}={score:.4f}")
         print(" ".join(parts))
 
     if best_state:
         torch.save(best_state, output_dir / "probe.pt")
+        torch.save(best_state, output_dir / "best_probe.pt")
 
     (output_dir / "label_map.json").write_text(
         json.dumps(label_map, ensure_ascii=False, indent=2), encoding="utf-8"
@@ -360,6 +439,8 @@ def main() -> None:
         "epochs": args.epochs,
         "best_epoch": int(best_state["epoch"]) if best_state else None,
         "best_score": float(best_score),
+        "selection_metric": best_metric_name,
+        "best_epoch_log": best_state.get("epoch_log") if best_state else None,
         "label_count": len(label_map),
         "input_rows": len(rows),
         "train_samples": int(X_train.shape[0]),
@@ -376,6 +457,7 @@ def main() -> None:
     )
 
     print(f"Saved probe to {output_dir / 'probe.pt'}")
+    print(f"Saved best probe to {output_dir / 'best_probe.pt'}")
     print(f"Saved history to {history_path}")
     print(f"Saved metrics to {output_dir / 'metrics.json'}")
 
