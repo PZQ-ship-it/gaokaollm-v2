@@ -115,6 +115,18 @@ python -m gaokaollm_bench.data_gen.major_probe_validate \
   --probe gaokaollm_bench/outputs/major_training_probe/probe.pt
 ```
 
+评估单条容易错分类样本：
+```bash
+python -m gaokaollm_bench.data_gen.major_probe_predict \
+  --text 中文 \
+  --text '中文(南校区)' \
+  --text '中文(青云谱校区)' \
+  --text 汉语言文学 \
+  --top-k 10
+  --probe gaokaollm_bench/outputs/major_training_probe/best_probe.pt
+
+```
+
 ---
 
 ## 5) 输出文件说明
