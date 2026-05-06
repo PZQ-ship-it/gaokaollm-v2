@@ -30,8 +30,8 @@
 **运行命令**：
 
 ```bash
-C:/ProgramData/anaconda3/envs/gaokao_pg/python.exe -m gaokaollm_bench.data_gen.major_embedding_cache \
-  --input gaokaollm_bench/outputs/major_training/train.jsonl \
+python -m gaokaollm_bench.data_gen.major_embedding_cache \
+  --input gaokaollm_bench/outputs/major_training/splits/train.jsonl \
   --output gaokaollm_bench/outputs/major_training/embeddings.npz \
   --text-field normalized_text \
   --batch-size 128
@@ -59,8 +59,8 @@ C:/ProgramData/anaconda3/envs/gaokao_pg/python.exe -m gaokaollm_bench.data_gen.m
 **运行命令**：
 
 ```bash
-C:/ProgramData/anaconda3/envs/gaokao_pg/python.exe -m gaokaollm_bench.data_gen.major_probe_train \
-  --input-jsonl gaokaollm_bench/outputs/major_training/train.jsonl \
+python -m gaokaollm_bench.data_gen.major_probe_train \
+  --input-jsonl gaokaollm_bench/outputs/major_training/splits/train.jsonl \
   --embeddings gaokaollm_bench/outputs/major_training/embeddings.npz \
   --output-dir gaokaollm_bench/outputs/major_training_probe \
   --label-field leaf_id \
@@ -108,7 +108,7 @@ C:/ProgramData/anaconda3/envs/gaokao_pg/python.exe -m gaokaollm_bench.data_gen.m
 **运行命令**：
 
 ```bash
-C:/ProgramData/anaconda3/envs/gaokao_pg/python.exe -m gaokaollm_bench.data_gen.major_probe_validate \
+python -m gaokaollm_bench.data_gen.major_probe_validate \
   --input-jsonl gaokaollm_bench/outputs/major_training/splits/val.jsonl \
   --embeddings gaokaollm_bench/outputs/major_training/embeddings.npz \
   --label-map gaokaollm_bench/outputs/major_training_probe/label_map.json \

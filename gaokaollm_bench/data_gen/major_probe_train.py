@@ -9,8 +9,6 @@ from typing import Any
 
 import numpy as np
 import torch
-from sklearn.metrics import classification_report, f1_score
-from sklearn.model_selection import train_test_split
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -56,21 +54,32 @@ def main() -> None:
     rows = _read_jsonl(Path(args.input_jsonl))
     labels = [row.get(args.label_field) for row in rows]
 
-    label_map = {label: idx for idx, label in enumerate(sorted(set(labels)))}
-    y = np.asarray([label_map[label] for label in labels], dtype=np.int64)
+    label_counts: dict[Any, int] = {}
+    for label in labels:
+        label_counts[label] = label_counts.get(label, 0) + 1
+    keep_labels = {label for label, count in label_counts.items() if count >= 2}
+    if len(keep_labels) < len(label_counts):
+        dropped = len(label_counts) - len(keep_labels)
+        print(f"Dropping {dropped} labels with <2 samples for stratified split")
+
+    keep_mask = np.asarray([label in keep_labels for label in labels], dtype=bool)
+    filtered_labels = [label for label in labels if label in keep_labels]
+
+    label_map = {label: idx for idx, label in enumerate(sorted(set(filtered_labels)))}
+    y = np.asarray([label_map[label] for label in filtered_labels], dtype=np.int64)
 
     data = np.load(Path(args.embeddings), allow_pickle=True)
     embeddings = data["embeddings"].astype(np.float32)
 
+    if embeddings.shape[0] != len(labels):
+        raise ValueError("Embeddings count does not match labels")
+
+    embeddings = embeddings[keep_mask]
+
     if embeddings.shape[0] != y.shape[0]:
         raise ValueError("Embeddings count does not match labels")
 
-    X_train, X_temp, y_train, y_temp = train_test_split(
-        embeddings, y, test_size=0.2, random_state=args.seed, stratify=y
-    )
-    X_val, X_test, y_val, y_test = train_test_split(
-        X_temp, y_temp, test_size=0.5, random_state=args.seed, stratify=y_temp
-    )
+    X_train, y_train = embeddings, y
 
     torch.manual_seed(args.seed)
 
@@ -79,22 +88,10 @@ def main() -> None:
         batch_size=args.batch_size,
         shuffle=True,
     )
-    val_loader = DataLoader(
-        TensorDataset(torch.from_numpy(X_val), torch.from_numpy(y_val)),
-        batch_size=args.batch_size,
-        shuffle=False,
-    )
-    test_loader = DataLoader(
-        TensorDataset(torch.from_numpy(X_test), torch.from_numpy(y_test)),
-        batch_size=args.batch_size,
-        shuffle=False,
-    )
-
     model = nn.Linear(embeddings.shape[1], len(label_map))
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
     loss_fn = nn.CrossEntropyLoss()
 
-    best_val = 0.0
     best_state = None
 
     for epoch in range(1, args.epochs + 1):
@@ -106,42 +103,12 @@ def main() -> None:
             loss.backward()
             optimizer.step()
 
-        model.eval()
-        val_preds = []
-        val_true = []
-        with torch.no_grad():
-            for xb, yb in val_loader:
-                logits = model(xb)
-                val_preds.extend(torch.argmax(logits, dim=1).cpu().numpy())
-                val_true.extend(yb.cpu().numpy())
-
-        val_f1 = f1_score(val_true, val_preds, average="macro")
-        if val_f1 > best_val:
-            best_val = val_f1
-            best_state = {"state_dict": model.state_dict()}
-        print(f"epoch={epoch} val_macro_f1={val_f1:.4f}")
+        best_state = {"state_dict": model.state_dict()}
+        print(f"epoch={epoch} done")
 
     if best_state:
         torch.save(best_state, output_dir / "probe.pt")
 
-    model.eval()
-    test_preds = []
-    test_true = []
-    with torch.no_grad():
-        for xb, yb in test_loader:
-            logits = model(xb)
-            test_preds.extend(torch.argmax(logits, dim=1).cpu().numpy())
-            test_true.extend(yb.cpu().numpy())
-
-    report = classification_report(test_true, test_preds, output_dict=True)
-    metrics = {
-        "val_macro_f1_best": best_val,
-        "test_macro_f1": report["macro avg"]["f1-score"],
-        "test_accuracy": report["accuracy"],
-    }
-    (output_dir / "metrics.json").write_text(
-        json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
     (output_dir / "label_map.json").write_text(
         json.dumps(label_map, ensure_ascii=False, indent=2), encoding="utf-8"
     )
