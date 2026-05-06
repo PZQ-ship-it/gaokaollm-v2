@@ -127,6 +127,19 @@ python -m gaokaollm_bench.data_gen.major_probe_predict \
 
 ```
 
+全量分类未分类样本：
+```bash
+python -m gaokaollm_bench.data_gen.major_probe_review_candidates \
+  --unassigned gaokaollm_bench/sample_data/major_tree_unassigned_full.json \
+  --probe gaokaollm_bench/outputs/major_training_probe/best_probe.pt \
+  --label-map gaokaollm_bench/outputs/major_training_probe/label_map.json \
+  --output gaokaollm_bench/outputs/major_probe_review_candidates.json \
+  --top-k 5 \
+  --batch-size 128 \
+  --min-confidence 0.35
+
+```
+
 ---
 
 ## 5) 输出文件说明

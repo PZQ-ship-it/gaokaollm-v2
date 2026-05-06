@@ -10,7 +10,11 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from gaokaollm_bench.data_gen.major_embedding import OpenAIEmbeddingClient, _normalize_text
+from gaokaollm_bench.data_gen.major_embedding import (
+    EmbeddingClient,
+    OpenAIEmbeddingClient,
+    _normalize_text,
+)
 from gaokaollm_bench.data_gen.major_tree import load_major_tree
 
 
@@ -45,31 +49,63 @@ def _load_texts(args: argparse.Namespace) -> list[str]:
     return texts
 
 
-async def _predict(args: argparse.Namespace) -> list[dict]:
-    texts = _load_texts(args)
-    normalized_texts = [_normalize_text(text) for text in texts]
-
-    label_map = json.loads(Path(args.label_map).read_text(encoding="utf-8"))
+def _load_probe(
+    *,
+    probe_path: str | Path,
+    label_map_path: str | Path,
+    major_tree_path: str | Path,
+) -> tuple[torch.nn.Linear, dict[int, str], dict]:
+    label_map = json.loads(Path(label_map_path).read_text(encoding="utf-8"))
     inv_label_map = {int(v): k for k, v in label_map.items()}
-    tree = load_major_tree(args.major_tree)
+    tree = load_major_tree(major_tree_path)
     nodes = tree.get("nodes") or tree.get("clusters") or {}
 
-    client = OpenAIEmbeddingClient()
-    embeddings = np.asarray(await client.embed(normalized_texts), dtype=np.float32)
-
-    state = torch.load(Path(args.probe), map_location="cpu")
+    state = torch.load(Path(probe_path), map_location="cpu")
     weight = state["state_dict"]["weight"]
     model = torch.nn.Linear(weight.shape[1], len(label_map))
     model.load_state_dict(state["state_dict"])
     model.eval()
+    return model, inv_label_map, nodes
 
-    with torch.no_grad():
-        logits = model(torch.from_numpy(embeddings))
-        probs = torch.softmax(logits, dim=1).cpu().numpy()
+
+async def predict_major_labels(
+    texts: list[str],
+    *,
+    embedding_client: EmbeddingClient | None = None,
+    probe_path: str | Path = Path("gaokaollm_bench/outputs/major_training_probe/probe.pt"),
+    label_map_path: str | Path = Path("gaokaollm_bench/outputs/major_training_probe/label_map.json"),
+    major_tree_path: str | Path = Path("gaokaollm_bench/data_gen/major_clusters.json"),
+    top_k: int = 5,
+    batch_size: int = 128,
+) -> list[dict]:
+    """Predict top-k leaf labels for major texts."""
+
+    if not texts:
+        return []
+    if top_k < 1:
+        raise ValueError("top_k must be at least 1")
+    if batch_size < 1:
+        raise ValueError("batch_size must be at least 1")
+
+    normalized_texts = [_normalize_text(text) for text in texts]
+    model, inv_label_map, nodes = _load_probe(
+        probe_path=probe_path,
+        label_map_path=label_map_path,
+        major_tree_path=major_tree_path,
+    )
+    client = embedding_client or OpenAIEmbeddingClient()
+
+    all_probs: list[np.ndarray] = []
+    for start in range(0, len(normalized_texts), batch_size):
+        batch = normalized_texts[start : start + batch_size]
+        embeddings = np.asarray(await client.embed(batch), dtype=np.float32)
+        with torch.no_grad():
+            logits = model(torch.from_numpy(embeddings))
+            all_probs.extend(torch.softmax(logits, dim=1).cpu().numpy())
 
     results = []
-    top_k = max(1, min(args.top_k, len(label_map)))
-    for text, normalized, row_probs in zip(texts, normalized_texts, probs):
+    top_k = max(1, min(top_k, len(inv_label_map)))
+    for text, normalized, row_probs in zip(texts, normalized_texts, all_probs):
         top_indices = np.argsort(row_probs)[::-1][:top_k]
         predictions = []
         for idx in top_indices:
@@ -90,6 +126,17 @@ async def _predict(args: argparse.Namespace) -> list[dict]:
             }
         )
     return results
+
+
+async def _predict(args: argparse.Namespace) -> list[dict]:
+    texts = _load_texts(args)
+    return await predict_major_labels(
+        texts,
+        probe_path=args.probe,
+        label_map_path=args.label_map,
+        major_tree_path=args.major_tree,
+        top_k=args.top_k,
+    )
 
 
 def main() -> None:
