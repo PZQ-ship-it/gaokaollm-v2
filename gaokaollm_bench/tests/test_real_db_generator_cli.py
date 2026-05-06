@@ -26,6 +26,7 @@ from gaokaollm_bench.data_gen.major_tree import (
     UnknownMajorError,
     build_relaxation_stages,
     collect_observed_major_names,
+    get_major_cluster_patterns_from_tree,
     resolve_major_node,
 )
 from gaokaollm_bench.schemas import IcebergPersona
@@ -302,6 +303,41 @@ def test_build_relaxation_stages_adds_probe_neighbor_categories_and_any_major():
     assert stages[-1]["include_patterns"] == []
 
 
+def test_filtered_cluster_patterns_drop_polluted_observed_names():
+    tree = {
+        "nodes": {
+            "root": {
+                "id": "root",
+                "label": "root",
+                "parent": None,
+                "level": 0,
+                "include_keywords": [],
+                "exclude_keywords": [],
+                "observed_names": [],
+            },
+            "medical_stomatology": {
+                "id": "medical_stomatology",
+                "label": "口腔医学类",
+                "parent": "root",
+                "level": 1,
+                "include_keywords": ["口腔医学"],
+                "exclude_keywords": [],
+                "observed_names": ["医学技术类", "口腔医学"],
+            },
+        }
+    }
+    include_patterns, _ = get_major_cluster_patterns_from_tree(
+        tree,
+        ["medical_stomatology"],
+        filter_observed=True,
+        max_observed_name_length=60,
+        exclude_special_observed=True,
+    )
+
+    assert "%口腔医学%" in include_patterns
+    assert "%医学技术类%" not in include_patterns
+
+
 @pytest.mark.asyncio
 async def test_collect_major_name_counts_reads_distinct_db_names():
     captured = {}
@@ -524,6 +560,8 @@ def test_build_deterministic_persona_from_hierarchical_major_relax_gap_set():
     restored = IcebergPersona.model_validate_json(persona.model_dump_json())
 
     assert restored.background["relaxation_kind"] == "hierarchical_major"
+    assert restored.background["preferred_major"] == "临床医学"
+    assert restored.implicit_flexibilities["accepted_major_examples"] == ["药学类"]
     assert restored.implicit_flexibilities["relaxation_stage"] == 2
     assert restored.implicit_flexibilities["target_major_clusters"] == [
         "medical_technology",
@@ -712,3 +750,379 @@ async def test_hierarchical_major_relax_can_fall_back_to_any_major():
     assert gap_sets[0]["relaxation_stage"] == 5
     assert gap_sets[0]["stage_relaxation_kind"] == "any_major"
     assert gap_sets[0]["volunteer_count"] == 2
+
+
+@pytest.mark.asyncio
+async def test_hierarchical_major_relax_audits_below_threshold_before_stage5():
+    async def mock_db(query, *params):
+        if "a.major_name_raw LIKE" in query and params[-1] == 1:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "浙江医学学院",
+                    "school_province": "浙江",
+                    "school_city": "杭州",
+                    "is_985": False,
+                    "is_211": False,
+                    "is_double_first_class": False,
+                    "education_level": "本科",
+                    "major_id": 10,
+                    "major_name": "临床医学",
+                    "min_score": 600,
+                    "min_rank": 50000,
+                    "tier": 2,
+                }
+            ]
+
+        if "a.major_name_raw NOT LIKE" in query:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 100 + idx // 2,
+                    "school_name": f"兜底大学{idx // 2}",
+                    "school_province": "浙江",
+                    "school_city": "杭州",
+                    "is_985": False,
+                    "is_211": True,
+                    "is_double_first_class": True,
+                    "education_level": "本科",
+                    "major_id": 200 + idx,
+                    "major_name": f"普通专业{idx}",
+                    "min_score": 590 + idx,
+                    "min_rank": 40000 + idx,
+                    "tier": 3,
+                }
+                for idx in range(10)
+            ]
+
+        return [
+            {
+                "year": 2025,
+                "school_id": 20 + idx,
+                "school_name": f"三阶段大学{idx}",
+                "school_province": "浙江",
+                "school_city": "杭州",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 30 + idx,
+                "major_name": "预防医学",
+                "min_score": 590 + idx,
+                "min_rank": 45000 + idx,
+                "tier": 3,
+            }
+            for idx in range(2)
+        ]
+
+    gap_sets = await find_hierarchical_major_relax_gap_sets(
+        mock_db,
+        count=1,
+        prov="浙江",
+        strict_major="临床医学",
+        relaxation_stages=[
+            {
+                "stage": 3,
+                "label": "三阶段",
+                "strategy": "cousin_leaf_clusters",
+                "cluster_ids": ["stage3"],
+                "include_patterns": ["%stage3%"],
+                "exclude_patterns": [],
+            },
+            {
+                "stage": 5,
+                "label": "去除专业限制",
+                "strategy": "any_major",
+                "cluster_ids": [],
+                "include_patterns": [],
+                "exclude_patterns": [],
+                "relaxation_kind": "any_major",
+            },
+        ],
+        score_min=600,
+        score_max=600,
+        recommendation_threshold=10,
+        max_volunteers_per_school=2,
+        include_special_majors=False,
+        strict_target_quality=False,
+        relax_scope="national",
+    )
+
+    assert len(gap_sets) == 1
+    assert gap_sets[0]["relaxation_stage"] == 5
+    attempts = gap_sets[0]["stage_attempts"]
+    assert attempts[0]["stage"] == 3
+    assert attempts[0]["raw_candidate_count"] == 2
+    assert attempts[0]["filtered_volunteer_count"] == 2
+    assert attempts[0]["failure_reason"] == "below_threshold"
+    assert attempts[1]["stage"] == 5
+    assert attempts[1]["accepted"] is True
+
+
+@pytest.mark.asyncio
+async def test_hierarchical_major_relax_limits_volunteers_per_school():
+    async def mock_db(query, *params):
+        if "a.major_name_raw LIKE" in query and params[-1] == 1:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "浙江医学学院",
+                    "school_province": "浙江",
+                    "school_city": "杭州",
+                    "is_985": False,
+                    "is_211": False,
+                    "is_double_first_class": False,
+                    "education_level": "本科",
+                    "major_id": 10,
+                    "major_name": "临床医学",
+                    "min_score": 600,
+                    "min_rank": 50000,
+                    "tier": 2,
+                }
+            ]
+
+        rows = []
+        for idx in range(5):
+            rows.append(
+                {
+                    "year": 2025,
+                    "school_id": 2,
+                    "school_name": "同校大学",
+                    "school_province": "浙江",
+                    "school_city": "杭州",
+                    "is_985": False,
+                    "is_211": True,
+                    "is_double_first_class": True,
+                    "education_level": "本科",
+                    "major_id": 20 + idx,
+                    "major_name": f"专业{idx}",
+                    "min_score": 590 + idx,
+                    "min_rank": 45000 + idx,
+                    "tier": 3,
+                }
+            )
+        rows.append(
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "另一所大学",
+                "school_province": "浙江",
+                "school_city": "杭州",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 99,
+                "major_name": "专业A",
+                "min_score": 595,
+                "min_rank": 44000,
+                "tier": 3,
+            }
+        )
+        return rows
+
+    gap_sets = await find_hierarchical_major_relax_gap_sets(
+        mock_db,
+        count=1,
+        prov="浙江",
+        strict_major="临床医学",
+        relaxation_stages=[
+            {
+                "stage": 3,
+                "label": "三阶段",
+                "strategy": "cousin_leaf_clusters",
+                "cluster_ids": ["stage3"],
+                "include_patterns": ["%stage3%"],
+                "exclude_patterns": [],
+            }
+        ],
+        score_min=600,
+        score_max=600,
+        recommendation_threshold=3,
+        max_volunteers_per_school=2,
+        strict_target_quality=False,
+        relax_scope="national",
+    )
+
+    volunteers = gap_sets[0]["volunteer_set"]
+    assert [row["school_name"] for row in volunteers].count("同校大学") == 2
+    assert [row["school_name"] for row in volunteers].count("另一所大学") == 1
+    assert gap_sets[0]["stage_attempts"][0]["skipped"]["school_cap"] == 3
+
+
+@pytest.mark.asyncio
+async def test_hierarchical_major_relax_filters_special_majors_by_default():
+    async def mock_db(query, *params):
+        if "a.major_name_raw LIKE" in query and params[-1] == 1:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "浙江医学学院",
+                    "school_province": "浙江",
+                    "school_city": "杭州",
+                    "is_985": False,
+                    "is_211": False,
+                    "is_double_first_class": False,
+                    "education_level": "本科",
+                    "major_id": 10,
+                    "major_name": "临床医学",
+                    "min_score": 600,
+                    "min_rank": 50000,
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "特殊大学",
+                "school_province": "浙江",
+                "school_city": "杭州",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 20,
+                "major_name": "工商管理(中外合作办学)",
+                "min_score": 590,
+                "min_rank": 45000,
+                "tier": 3,
+            },
+            {
+                "year": 2024,
+                "school_id": 3,
+                "school_name": "普通大学",
+                "school_province": "浙江",
+                "school_city": "杭州",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 21,
+                "major_name": "药学类",
+                "min_score": 590,
+                "min_rank": 45000,
+                "tier": 3,
+            },
+        ]
+
+    common_kwargs = dict(
+        count=1,
+        prov="浙江",
+        strict_major="临床医学",
+        relaxation_stages=[
+            {
+                "stage": 3,
+                "label": "三阶段",
+                "strategy": "cousin_leaf_clusters",
+                "cluster_ids": ["stage3"],
+                "include_patterns": ["%stage3%"],
+                "exclude_patterns": [],
+            }
+        ],
+        score_min=600,
+        score_max=600,
+        recommendation_threshold=1,
+        max_volunteers_per_school=2,
+        strict_target_quality=False,
+        relax_scope="national",
+    )
+
+    filtered = await find_hierarchical_major_relax_gap_sets(mock_db, **common_kwargs)
+    included = await find_hierarchical_major_relax_gap_sets(
+        mock_db,
+        include_special_majors=True,
+        **common_kwargs,
+    )
+
+    assert filtered[0]["volunteer_set"][0]["major_name"] == "药学类"
+    assert filtered[0]["stage_attempts"][0]["skipped"]["special_major"] == 1
+    assert included[0]["volunteer_set"][0]["major_name"] == "工商管理(中外合作办学)"
+    assert included[0]["years_used"] == [2025]
+
+
+@pytest.mark.asyncio
+async def test_hierarchical_major_relax_prefers_latest_year_before_backfill():
+    async def mock_db(query, *params):
+        if "a.major_name_raw LIKE" in query and params[-1] == 1:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "浙江医学学院",
+                    "school_province": "浙江",
+                    "school_city": "杭州",
+                    "is_985": False,
+                    "is_211": False,
+                    "is_double_first_class": False,
+                    "education_level": "本科",
+                    "major_id": 10,
+                    "major_name": "临床医学",
+                    "min_score": 600,
+                    "min_rank": 50000,
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2024,
+                "school_id": 2,
+                "school_name": "旧年大学",
+                "school_province": "浙江",
+                "school_city": "杭州",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 20,
+                "major_name": "药学类",
+                "min_score": 590,
+                "min_rank": 45000,
+                "tier": 3,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "新年大学",
+                "school_province": "浙江",
+                "school_city": "杭州",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 21,
+                "major_name": "药学类",
+                "min_score": 591,
+                "min_rank": 44000,
+                "tier": 3,
+            },
+        ]
+
+    gap_sets = await find_hierarchical_major_relax_gap_sets(
+        mock_db,
+        count=1,
+        prov="浙江",
+        strict_major="临床医学",
+        relaxation_stages=[
+            {
+                "stage": 3,
+                "label": "三阶段",
+                "strategy": "cousin_leaf_clusters",
+                "cluster_ids": ["stage3"],
+                "include_patterns": ["%stage3%"],
+                "exclude_patterns": [],
+            }
+        ],
+        score_min=600,
+        score_max=600,
+        recommendation_threshold=1,
+        max_volunteers_per_school=2,
+        strict_target_quality=False,
+        relax_scope="national",
+    )
+
+    assert gap_sets[0]["volunteer_set"][0]["school_name"] == "新年大学"
+    assert gap_sets[0]["years_used"] == [2025]

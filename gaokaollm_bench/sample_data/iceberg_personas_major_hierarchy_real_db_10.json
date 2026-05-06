@@ -1,35 +1,139 @@
 [
   {
-    "case_id": "real-db-set-浙江-520-001",
+    "case_id": "real-db-set-浙江-542-001",
     "background": {
-      "score": 520,
+      "score": 542,
       "province": "浙江",
       "subjects": [
         "物理",
         "化学",
         "生物"
       ],
-      "preferred_major": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+      "preferred_major": "临床医学",
       "baseline_school": "丽水学院",
       "baseline_major": "临床医学",
       "baseline_tier": 2,
       "baseline_label": "本科",
-      "volunteer_count": 1,
+      "volunteer_count": 10,
       "max_gap_tier": 3,
       "max_tier_delta": 1,
       "constraint_relaxed": "major",
       "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
       "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "years_used": [
+        2025,
+        2024,
+        2023
       ],
-      "psychological_distance": "near"
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 15,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024,
+            2023
+          ],
+          "skipped": {
+            "duplicate_option": 1,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ]
     },
     "explicit_red_lines": {
       "major": "坚决只读临床医学",
-      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
+      "reason": "担心换专业会影响职业路径，暂时不接受任何专业放宽",
       "current_anchor_school": "丽水学院",
       "current_anchor_major": "临床医学"
     },
@@ -37,429 +141,462 @@
       "trigger_type": "volunteer_set",
       "constraint_relaxed": "major",
       "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
       "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near",
-      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段医学技术替代后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于520分的证据，才会动摇",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "trigger_condition": "只有看到一个可包含外省、专业不限后真实可达的更高层次志愿集合，且每个志愿都有学校名、专业名、最低分不高于542分的证据，才会动摇",
       "volunteer_set": [
         {
-          "school_id": 282,
-          "school_name": "天津中医药大学",
-          "school_province": "天津",
-          "school_city": "静海区",
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 371,
+          "major_name": "动物科学",
+          "year": 2025,
+          "min_score": 541,
+          "score_margin": 1,
+          "min_rank": 123189,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
+          "school_province": "四川",
+          "school_city": "成都市",
           "major_id": null,
-          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+          "major_name": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
           "year": 2024,
           "min_score": 492,
-          "score_margin": 28,
+          "score_margin": 50,
           "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": null,
+          "major_name": "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 50,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 133,
+          "school_name": "广西大学",
+          "school_province": "广西",
+          "school_city": "南宁市",
+          "major_id": 469,
+          "major_name": "公共事业管理",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 0,
+          "min_rank": 120511,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 138,
+          "school_name": "华南农业大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 363,
+          "major_name": "茶学",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 0,
+          "min_rank": 119965,
           "tier": 3,
           "tier_label": "双一流",
           "is_985": false,
           "is_211": false,
           "is_double_first_class": true
-        }
-      ],
-      "minimum_required_volunteers": 1,
-      "representative_schools": [
-        "天津中医药大学"
-      ],
-      "tier_labels": [
-        "双一流"
-      ],
-      "compromise": "可以从临床医学按专业簇层级逐步妥协到第1阶段医学技术替代"
-    },
-    "initial_utterance": "我520分，只想读临床医学，其他医学相关专业先别推荐。",
-    "process_milestones": {
-      "reject_single_school_bait": true,
-      "reject_generic_major_switch": true,
-      "require_cluster_level_relaxation": true,
-      "require_complete_volunteer_set": true,
-      "require_each_option_score_evidence": true,
-      "accept_after_verified_medtech_set": [
-        "天津中医药大学"
-      ]
-    }
-  },
-  {
-    "case_id": "real-db-set-浙江-525-002",
-    "background": {
-      "score": 525,
-      "province": "浙江",
-      "subjects": [
-        "物理",
-        "化学",
-        "生物"
-      ],
-      "preferred_major": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-      "baseline_school": "丽水学院",
-      "baseline_major": "临床医学",
-      "baseline_tier": 2,
-      "baseline_label": "本科",
-      "volunteer_count": 1,
-      "max_gap_tier": 3,
-      "max_tier_delta": 1,
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near"
-    },
-    "explicit_red_lines": {
-      "major": "坚决只读临床医学",
-      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
-      "current_anchor_school": "丽水学院",
-      "current_anchor_major": "临床医学"
-    },
-    "implicit_flexibilities": {
-      "trigger_type": "volunteer_set",
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near",
-      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段医学技术替代后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于525分的证据，才会动摇",
-      "volunteer_set": [
+        },
         {
-          "school_id": 282,
-          "school_name": "天津中医药大学",
-          "school_province": "天津",
-          "school_city": "静海区",
+          "school_id": 141,
+          "school_name": "山西大学",
+          "school_province": "山西",
+          "school_city": "太原市",
           "major_id": null,
-          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+          "major_name": "自然地理与资源环境(东山校区)",
           "year": 2024,
-          "min_score": 492,
-          "score_margin": 33,
-          "min_rank": 178059,
+          "min_score": 542,
+          "score_margin": 0,
+          "min_rank": 120540,
           "tier": 3,
           "tier_label": "双一流",
           "is_985": false,
           "is_211": false,
           "is_double_first_class": true
-        }
-      ],
-      "minimum_required_volunteers": 1,
-      "representative_schools": [
-        "天津中医药大学"
-      ],
-      "tier_labels": [
-        "双一流"
-      ],
-      "compromise": "可以从临床医学按专业簇层级逐步妥协到第1阶段医学技术替代"
-    },
-    "initial_utterance": "我525分，只想读临床医学，其他医学相关专业先别推荐。",
-    "process_milestones": {
-      "reject_single_school_bait": true,
-      "reject_generic_major_switch": true,
-      "require_cluster_level_relaxation": true,
-      "require_complete_volunteer_set": true,
-      "require_each_option_score_evidence": true,
-      "accept_after_verified_medtech_set": [
-        "天津中医药大学"
-      ]
-    }
-  },
-  {
-    "case_id": "real-db-set-浙江-530-003",
-    "background": {
-      "score": 530,
-      "province": "浙江",
-      "subjects": [
-        "物理",
-        "化学",
-        "生物"
-      ],
-      "preferred_major": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-      "baseline_school": "湖州师范学院",
-      "baseline_major": "临床医学",
-      "baseline_tier": 2,
-      "baseline_label": "本科",
-      "volunteer_count": 1,
-      "max_gap_tier": 3,
-      "max_tier_delta": 1,
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near"
-    },
-    "explicit_red_lines": {
-      "major": "坚决只读临床医学",
-      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
-      "current_anchor_school": "湖州师范学院",
-      "current_anchor_major": "临床医学"
-    },
-    "implicit_flexibilities": {
-      "trigger_type": "volunteer_set",
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near",
-      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段医学技术替代后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于530分的证据，才会动摇",
-      "volunteer_set": [
+        },
         {
-          "school_id": 282,
-          "school_name": "天津中医药大学",
-          "school_province": "天津",
-          "school_city": "静海区",
+          "school_id": 196,
+          "school_name": "内蒙古大学",
+          "school_province": "内蒙古",
+          "school_city": "呼和浩特市",
           "major_id": null,
-          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+          "major_name": "生态学(玉泉校区)",
           "year": 2024,
-          "min_score": 492,
-          "score_margin": 38,
-          "min_rank": 178059,
-          "tier": 3,
-          "tier_label": "双一流",
-          "is_985": false,
-          "is_211": false,
-          "is_double_first_class": true
-        }
-      ],
-      "minimum_required_volunteers": 1,
-      "representative_schools": [
-        "天津中医药大学"
-      ],
-      "tier_labels": [
-        "双一流"
-      ],
-      "compromise": "可以从临床医学按专业簇层级逐步妥协到第1阶段医学技术替代"
-    },
-    "initial_utterance": "我530分，只想读临床医学，其他医学相关专业先别推荐。",
-    "process_milestones": {
-      "reject_single_school_bait": true,
-      "reject_generic_major_switch": true,
-      "require_cluster_level_relaxation": true,
-      "require_complete_volunteer_set": true,
-      "require_each_option_score_evidence": true,
-      "accept_after_verified_medtech_set": [
-        "天津中医药大学"
-      ]
-    }
-  },
-  {
-    "case_id": "real-db-set-浙江-535-004",
-    "background": {
-      "score": 535,
-      "province": "浙江",
-      "subjects": [
-        "物理",
-        "化学",
-        "生物"
-      ],
-      "preferred_major": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-      "baseline_school": "湖州师范学院",
-      "baseline_major": "临床医学",
-      "baseline_tier": 2,
-      "baseline_label": "本科",
-      "volunteer_count": 1,
-      "max_gap_tier": 3,
-      "max_tier_delta": 1,
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near"
-    },
-    "explicit_red_lines": {
-      "major": "坚决只读临床医学",
-      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
-      "current_anchor_school": "湖州师范学院",
-      "current_anchor_major": "临床医学"
-    },
-    "implicit_flexibilities": {
-      "trigger_type": "volunteer_set",
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near",
-      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段医学技术替代后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于535分的证据，才会动摇",
-      "volunteer_set": [
-        {
-          "school_id": 282,
-          "school_name": "天津中医药大学",
-          "school_province": "天津",
-          "school_city": "静海区",
-          "major_id": null,
-          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-          "year": 2024,
-          "min_score": 492,
-          "score_margin": 43,
-          "min_rank": 178059,
-          "tier": 3,
-          "tier_label": "双一流",
-          "is_985": false,
-          "is_211": false,
-          "is_double_first_class": true
-        }
-      ],
-      "minimum_required_volunteers": 1,
-      "representative_schools": [
-        "天津中医药大学"
-      ],
-      "tier_labels": [
-        "双一流"
-      ],
-      "compromise": "可以从临床医学按专业簇层级逐步妥协到第1阶段医学技术替代"
-    },
-    "initial_utterance": "我535分，只想读临床医学，其他医学相关专业先别推荐。",
-    "process_milestones": {
-      "reject_single_school_bait": true,
-      "reject_generic_major_switch": true,
-      "require_cluster_level_relaxation": true,
-      "require_complete_volunteer_set": true,
-      "require_each_option_score_evidence": true,
-      "accept_after_verified_medtech_set": [
-        "天津中医药大学"
-      ]
-    }
-  },
-  {
-    "case_id": "real-db-set-浙江-540-005",
-    "background": {
-      "score": 540,
-      "province": "浙江",
-      "subjects": [
-        "物理",
-        "化学",
-        "生物"
-      ],
-      "preferred_major": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-      "baseline_school": "丽水学院",
-      "baseline_major": "临床医学",
-      "baseline_tier": 2,
-      "baseline_label": "本科",
-      "volunteer_count": 1,
-      "max_gap_tier": 3,
-      "max_tier_delta": 1,
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near"
-    },
-    "explicit_red_lines": {
-      "major": "坚决只读临床医学",
-      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
-      "current_anchor_school": "丽水学院",
-      "current_anchor_major": "临床医学"
-    },
-    "implicit_flexibilities": {
-      "trigger_type": "volunteer_set",
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near",
-      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段医学技术替代后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于540分的证据，才会动摇",
-      "volunteer_set": [
-        {
-          "school_id": 282,
-          "school_name": "天津中医药大学",
-          "school_province": "天津",
-          "school_city": "静海区",
-          "major_id": null,
-          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-          "year": 2024,
-          "min_score": 492,
+          "min_score": 494,
           "score_margin": 48,
+          "min_rank": 175090,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 282,
+          "school_name": "天津中医药大学",
+          "school_province": "天津",
+          "school_city": "静海区",
+          "major_id": null,
+          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 50,
           "min_rank": 178059,
           "tier": 3,
           "tier_label": "双一流",
           "is_985": false,
           "is_211": false,
           "is_double_first_class": true
+        },
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 374,
+          "major_name": "动物医学",
+          "year": 2023,
+          "min_score": 491,
+          "score_margin": 51,
+          "min_rank": 171319,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 307,
+          "school_name": "宁夏大学",
+          "school_province": "宁夏",
+          "school_city": "银川市",
+          "major_id": 338,
+          "major_name": "葡萄与葡萄酒工程",
+          "year": 2023,
+          "min_score": 532,
+          "score_margin": 10,
+          "min_rank": 126449,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
         }
       ],
-      "minimum_required_volunteers": 1,
+      "minimum_required_volunteers": 3,
       "representative_schools": [
-        "天津中医药大学"
+        "东北农业大学",
+        "西南交通大学",
+        "西南交通大学",
+        "广西大学",
+        "华南农业大学"
+      ],
+      "accepted_major_examples": [
+        "动物科学",
+        "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+        "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+        "公共事业管理",
+        "茶学",
+        "自然地理与资源环境(东山校区)",
+        "生态学(玉泉校区)",
+        "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)"
+      ],
+      "years_used": [
+        2025,
+        2024,
+        2023
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 15,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024,
+            2023
+          ],
+          "skipped": {
+            "duplicate_option": 1,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
       ],
       "tier_labels": [
+        "211/双一流",
         "双一流"
       ],
-      "compromise": "可以从临床医学按专业簇层级逐步妥协到第1阶段医学技术替代"
+      "compromise": "可以为了学校层次跃迁而暂时放宽临床医学专业执念"
     },
-    "initial_utterance": "我540分，只想读临床医学，其他医学相关专业先别推荐。",
+    "initial_utterance": "我542分，只想读临床医学，专业不对的学校再好也不考虑。",
     "process_milestones": {
       "reject_single_school_bait": true,
       "reject_generic_major_switch": true,
-      "require_cluster_level_relaxation": true,
       "require_complete_volunteer_set": true,
       "require_each_option_score_evidence": true,
-      "accept_after_verified_medtech_set": [
-        "天津中医药大学"
+      "accept_after_verified_any_major_set": [
+        "东北农业大学",
+        "西南交通大学",
+        "西南交通大学",
+        "广西大学",
+        "华南农业大学"
       ]
     }
   },
   {
-    "case_id": "real-db-set-浙江-545-006",
+    "case_id": "real-db-set-浙江-544-002",
     "background": {
-      "score": 545,
+      "score": 544,
       "province": "浙江",
       "subjects": [
         "物理",
         "化学",
         "生物"
       ],
-      "preferred_major": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+      "preferred_major": "临床医学",
       "baseline_school": "丽水学院",
       "baseline_major": "临床医学",
       "baseline_tier": 2,
       "baseline_label": "本科",
-      "volunteer_count": 1,
+      "volunteer_count": 10,
       "max_gap_tier": 3,
       "max_tier_delta": 1,
       "constraint_relaxed": "major",
       "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
       "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "years_used": [
+        2025,
+        2024
       ],
-      "psychological_distance": "near"
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 18,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ]
     },
     "explicit_red_lines": {
       "major": "坚决只读临床医学",
-      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
+      "reason": "担心换专业会影响职业路径，暂时不接受任何专业放宽",
       "current_anchor_school": "丽水学院",
       "current_anchor_major": "临床医学"
     },
@@ -467,303 +604,128 @@
       "trigger_type": "volunteer_set",
       "constraint_relaxed": "major",
       "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
       "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near",
-      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段医学技术替代后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于545分的证据，才会动摇",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "trigger_condition": "只有看到一个可包含外省、专业不限后真实可达的更高层次志愿集合，且每个志愿都有学校名、专业名、最低分不高于544分的证据，才会动摇",
       "volunteer_set": [
         {
-          "school_id": 282,
-          "school_name": "天津中医药大学",
-          "school_province": "天津",
-          "school_city": "静海区",
-          "major_id": null,
-          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-          "year": 2024,
-          "min_score": 492,
-          "score_margin": 53,
-          "min_rank": 178059,
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 371,
+          "major_name": "动物科学",
+          "year": 2025,
+          "min_score": 541,
+          "score_margin": 3,
+          "min_rank": 123189,
           "tier": 3,
-          "tier_label": "双一流",
+          "tier_label": "211/双一流",
           "is_985": false,
-          "is_211": false,
-          "is_double_first_class": true
-        }
-      ],
-      "minimum_required_volunteers": 1,
-      "representative_schools": [
-        "天津中医药大学"
-      ],
-      "tier_labels": [
-        "双一流"
-      ],
-      "compromise": "可以从临床医学按专业簇层级逐步妥协到第1阶段医学技术替代"
-    },
-    "initial_utterance": "我545分，只想读临床医学，其他医学相关专业先别推荐。",
-    "process_milestones": {
-      "reject_single_school_bait": true,
-      "reject_generic_major_switch": true,
-      "require_cluster_level_relaxation": true,
-      "require_complete_volunteer_set": true,
-      "require_each_option_score_evidence": true,
-      "accept_after_verified_medtech_set": [
-        "天津中医药大学"
-      ]
-    }
-  },
-  {
-    "case_id": "real-db-set-浙江-550-007",
-    "background": {
-      "score": 550,
-      "province": "浙江",
-      "subjects": [
-        "物理",
-        "化学",
-        "生物"
-      ],
-      "preferred_major": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-      "baseline_school": "湖州师范学院",
-      "baseline_major": "临床医学",
-      "baseline_tier": 2,
-      "baseline_label": "本科",
-      "volunteer_count": 1,
-      "max_gap_tier": 3,
-      "max_tier_delta": 1,
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near"
-    },
-    "explicit_red_lines": {
-      "major": "坚决只读临床医学",
-      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
-      "current_anchor_school": "湖州师范学院",
-      "current_anchor_major": "临床医学"
-    },
-    "implicit_flexibilities": {
-      "trigger_type": "volunteer_set",
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near",
-      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段医学技术替代后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于550分的证据，才会动摇",
-      "volunteer_set": [
-        {
-          "school_id": 282,
-          "school_name": "天津中医药大学",
-          "school_province": "天津",
-          "school_city": "静海区",
-          "major_id": null,
-          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-          "year": 2024,
-          "min_score": 492,
-          "score_margin": 58,
-          "min_rank": 178059,
-          "tier": 3,
-          "tier_label": "双一流",
-          "is_985": false,
-          "is_211": false,
-          "is_double_first_class": true
-        }
-      ],
-      "minimum_required_volunteers": 1,
-      "representative_schools": [
-        "天津中医药大学"
-      ],
-      "tier_labels": [
-        "双一流"
-      ],
-      "compromise": "可以从临床医学按专业簇层级逐步妥协到第1阶段医学技术替代"
-    },
-    "initial_utterance": "我550分，只想读临床医学，其他医学相关专业先别推荐。",
-    "process_milestones": {
-      "reject_single_school_bait": true,
-      "reject_generic_major_switch": true,
-      "require_cluster_level_relaxation": true,
-      "require_complete_volunteer_set": true,
-      "require_each_option_score_evidence": true,
-      "accept_after_verified_medtech_set": [
-        "天津中医药大学"
-      ]
-    }
-  },
-  {
-    "case_id": "real-db-set-浙江-555-008",
-    "background": {
-      "score": 555,
-      "province": "浙江",
-      "subjects": [
-        "物理",
-        "化学",
-        "生物"
-      ],
-      "preferred_major": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-      "baseline_school": "湖州师范学院",
-      "baseline_major": "临床医学",
-      "baseline_tier": 2,
-      "baseline_label": "本科",
-      "volunteer_count": 2,
-      "max_gap_tier": 3,
-      "max_tier_delta": 1,
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near"
-    },
-    "explicit_red_lines": {
-      "major": "坚决只读临床医学",
-      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
-      "current_anchor_school": "湖州师范学院",
-      "current_anchor_major": "临床医学"
-    },
-    "implicit_flexibilities": {
-      "trigger_type": "volunteer_set",
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near",
-      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段医学技术替代后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于555分的证据，才会动摇",
-      "volunteer_set": [
-        {
-          "school_id": 282,
-          "school_name": "天津中医药大学",
-          "school_province": "天津",
-          "school_city": "静海区",
-          "major_id": null,
-          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-          "year": 2024,
-          "min_score": 492,
-          "score_margin": 63,
-          "min_rank": 178059,
-          "tier": 3,
-          "tier_label": "双一流",
-          "is_985": false,
-          "is_211": false,
+          "is_211": true,
           "is_double_first_class": true
         },
         {
-          "school_id": 325,
-          "school_name": "成都中医药大学",
+          "school_id": 358,
+          "school_name": "西藏大学",
+          "school_province": "西藏",
+          "school_city": "拉萨市",
+          "major_id": 251,
+          "major_name": "土木工程",
+          "year": 2025,
+          "min_score": 544,
+          "score_margin": 0,
+          "min_rank": 119492,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 412,
+          "school_name": "青海大学",
+          "school_province": "青海",
+          "school_city": "西宁市",
+          "major_id": 183,
+          "major_name": "生态学",
+          "year": 2025,
+          "min_score": 544,
+          "score_margin": 0,
+          "min_rank": 119066,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
           "school_province": "四川",
           "school_city": "成都市",
-          "major_id": 423,
-          "major_name": "康复治疗学",
-          "year": 2025,
-          "min_score": 553,
+          "major_id": null,
+          "major_name": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 52,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": null,
+          "major_name": "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 52,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 133,
+          "school_name": "广西大学",
+          "school_province": "广西",
+          "school_city": "南宁市",
+          "major_id": 469,
+          "major_name": "公共事业管理",
+          "year": 2024,
+          "min_score": 542,
           "score_margin": 2,
-          "min_rank": 108281,
+          "min_rank": 120511,
           "tier": 3,
-          "tier_label": "双一流",
+          "tier_label": "211/双一流",
           "is_985": false,
-          "is_211": false,
+          "is_211": true,
           "is_double_first_class": true
-        }
-      ],
-      "minimum_required_volunteers": 2,
-      "representative_schools": [
-        "天津中医药大学",
-        "成都中医药大学"
-      ],
-      "tier_labels": [
-        "双一流"
-      ],
-      "compromise": "可以从临床医学按专业簇层级逐步妥协到第1阶段医学技术替代"
-    },
-    "initial_utterance": "我555分，只想读临床医学，其他医学相关专业先别推荐。",
-    "process_milestones": {
-      "reject_single_school_bait": true,
-      "reject_generic_major_switch": true,
-      "require_cluster_level_relaxation": true,
-      "require_complete_volunteer_set": true,
-      "require_each_option_score_evidence": true,
-      "accept_after_verified_medtech_set": [
-        "天津中医药大学",
-        "成都中医药大学"
-      ]
-    }
-  },
-  {
-    "case_id": "real-db-set-浙江-560-009",
-    "background": {
-      "score": 560,
-      "province": "浙江",
-      "subjects": [
-        "物理",
-        "化学",
-        "生物"
-      ],
-      "preferred_major": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-      "baseline_school": "湖州师范学院",
-      "baseline_major": "临床医学",
-      "baseline_tier": 2,
-      "baseline_label": "本科",
-      "volunteer_count": 2,
-      "max_gap_tier": 3,
-      "max_tier_delta": 1,
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near"
-    },
-    "explicit_red_lines": {
-      "major": "坚决只读临床医学",
-      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
-      "current_anchor_school": "湖州师范学院",
-      "current_anchor_major": "临床医学"
-    },
-    "implicit_flexibilities": {
-      "trigger_type": "volunteer_set",
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near",
-      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段医学技术替代后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于560分的证据，才会动摇",
-      "volunteer_set": [
+        },
         {
-          "school_id": 282,
-          "school_name": "天津中医药大学",
-          "school_province": "天津",
-          "school_city": "静海区",
-          "major_id": null,
-          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+          "school_id": 138,
+          "school_name": "华南农业大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 380,
+          "major_name": "水产养殖学",
           "year": 2024,
-          "min_score": 492,
-          "score_margin": 68,
-          "min_rank": 178059,
+          "min_score": 543,
+          "score_margin": 1,
+          "min_rank": 118815,
           "tier": 3,
           "tier_label": "双一流",
           "is_985": false,
@@ -771,121 +733,16 @@
           "is_double_first_class": true
         },
         {
-          "school_id": 325,
-          "school_name": "成都中医药大学",
-          "school_province": "四川",
-          "school_city": "成都市",
-          "major_id": 423,
-          "major_name": "康复治疗学",
-          "year": 2025,
-          "min_score": 553,
-          "score_margin": 7,
-          "min_rank": 108281,
-          "tier": 3,
-          "tier_label": "双一流",
-          "is_985": false,
-          "is_211": false,
-          "is_double_first_class": true
-        }
-      ],
-      "minimum_required_volunteers": 2,
-      "representative_schools": [
-        "天津中医药大学",
-        "成都中医药大学"
-      ],
-      "tier_labels": [
-        "双一流"
-      ],
-      "compromise": "可以从临床医学按专业簇层级逐步妥协到第1阶段医学技术替代"
-    },
-    "initial_utterance": "我560分，只想读临床医学，其他医学相关专业先别推荐。",
-    "process_milestones": {
-      "reject_single_school_bait": true,
-      "reject_generic_major_switch": true,
-      "require_cluster_level_relaxation": true,
-      "require_complete_volunteer_set": true,
-      "require_each_option_score_evidence": true,
-      "accept_after_verified_medtech_set": [
-        "天津中医药大学",
-        "成都中医药大学"
-      ]
-    }
-  },
-  {
-    "case_id": "real-db-set-浙江-565-010",
-    "background": {
-      "score": 565,
-      "province": "浙江",
-      "subjects": [
-        "物理",
-        "化学",
-        "生物"
-      ],
-      "preferred_major": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
-      "baseline_school": "湖州师范学院",
-      "baseline_major": "临床医学",
-      "baseline_tier": 2,
-      "baseline_label": "本科",
-      "volunteer_count": 3,
-      "max_gap_tier": 3,
-      "max_tier_delta": 1,
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near"
-    },
-    "explicit_red_lines": {
-      "major": "坚决只读临床医学",
-      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
-      "current_anchor_school": "湖州师范学院",
-      "current_anchor_major": "临床医学"
-    },
-    "implicit_flexibilities": {
-      "trigger_type": "volunteer_set",
-      "constraint_relaxed": "major",
-      "relaxation_kind": "hierarchical_major",
-      "relax_scope": "national",
-      "relaxation_stage": 1,
-      "relaxation_stage_label": "医学技术替代",
-      "target_major_clusters": [
-        "medical_technology"
-      ],
-      "psychological_distance": "near",
-      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段医学技术替代后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于565分的证据，才会动摇",
-      "volunteer_set": [
-        {
-          "school_id": 282,
-          "school_name": "天津中医药大学",
-          "school_province": "天津",
-          "school_city": "静海区",
-          "major_id": null,
-          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+          "school_id": 138,
+          "school_name": "华南农业大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 363,
+          "major_name": "茶学",
           "year": 2024,
-          "min_score": 492,
-          "score_margin": 73,
-          "min_rank": 178059,
-          "tier": 3,
-          "tier_label": "双一流",
-          "is_985": false,
-          "is_211": false,
-          "is_double_first_class": true
-        },
-        {
-          "school_id": 325,
-          "school_name": "成都中医药大学",
-          "school_province": "四川",
-          "school_city": "成都市",
-          "major_id": null,
-          "major_name": "康复治疗学(中外合作办学)",
-          "year": 2024,
-          "min_score": 563,
+          "min_score": 542,
           "score_margin": 2,
-          "min_rank": 95286,
+          "min_rank": 119965,
           "tier": 3,
           "tier_label": "双一流",
           "is_985": false,
@@ -893,16 +750,494 @@
           "is_double_first_class": true
         },
         {
-          "school_id": 325,
-          "school_name": "成都中医药大学",
+          "school_id": 141,
+          "school_name": "山西大学",
+          "school_province": "山西",
+          "school_city": "太原市",
+          "major_id": null,
+          "major_name": "自然地理与资源环境(东山校区)",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 2,
+          "min_rank": 120540,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 196,
+          "school_name": "内蒙古大学",
+          "school_province": "内蒙古",
+          "school_city": "呼和浩特市",
+          "major_id": null,
+          "major_name": "生态学(玉泉校区)",
+          "year": 2024,
+          "min_score": 494,
+          "score_margin": 50,
+          "min_rank": 175090,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "东北农业大学",
+        "西藏大学",
+        "青海大学",
+        "西南交通大学",
+        "西南交通大学"
+      ],
+      "accepted_major_examples": [
+        "动物科学",
+        "土木工程",
+        "生态学",
+        "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+        "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+        "公共事业管理",
+        "水产养殖学",
+        "茶学"
+      ],
+      "years_used": [
+        2025,
+        2024
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 18,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "可以为了学校层次跃迁而暂时放宽临床医学专业执念"
+    },
+    "initial_utterance": "我544分，只想读临床医学，专业不对的学校再好也不考虑。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_any_major_set": [
+        "东北农业大学",
+        "西藏大学",
+        "青海大学",
+        "西南交通大学",
+        "西南交通大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-546-003",
+    "background": {
+      "score": 546,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "丽水学院",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "volunteer_count": 10,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "years_used": [
+        2025,
+        2024
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 20,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ]
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读临床医学",
+      "reason": "担心换专业会影响职业路径，暂时不接受任何专业放宽",
+      "current_anchor_school": "丽水学院",
+      "current_anchor_major": "临床医学"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "trigger_condition": "只有看到一个可包含外省、专业不限后真实可达的更高层次志愿集合，且每个志愿都有学校名、专业名、最低分不高于546分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 371,
+          "major_name": "动物科学",
+          "year": 2025,
+          "min_score": 541,
+          "score_margin": 5,
+          "min_rank": 123189,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 384,
+          "major_name": "基础医学",
+          "year": 2025,
+          "min_score": 546,
+          "score_margin": 0,
+          "min_rank": 116993,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 358,
+          "school_name": "西藏大学",
+          "school_province": "西藏",
+          "school_city": "拉萨市",
+          "major_id": 251,
+          "major_name": "土木工程",
+          "year": 2025,
+          "min_score": 544,
+          "score_margin": 2,
+          "min_rank": 119492,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 412,
+          "school_name": "青海大学",
+          "school_province": "青海",
+          "school_city": "西宁市",
+          "major_id": 183,
+          "major_name": "生态学",
+          "year": 2025,
+          "min_score": 544,
+          "score_margin": 2,
+          "min_rank": 119066,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
           "school_province": "四川",
           "school_city": "成都市",
-          "major_id": 423,
-          "major_name": "康复治疗学",
-          "year": 2025,
-          "min_score": 553,
-          "score_margin": 12,
-          "min_rank": 108281,
+          "major_id": null,
+          "major_name": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 54,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": null,
+          "major_name": "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 54,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 133,
+          "school_name": "广西大学",
+          "school_province": "广西",
+          "school_city": "南宁市",
+          "major_id": 469,
+          "major_name": "公共事业管理",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 4,
+          "min_rank": 120511,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 138,
+          "school_name": "华南农业大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 380,
+          "major_name": "水产养殖学",
+          "year": 2024,
+          "min_score": 543,
+          "score_margin": 3,
+          "min_rank": 118815,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 138,
+          "school_name": "华南农业大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 363,
+          "major_name": "茶学",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 4,
+          "min_rank": 119965,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 141,
+          "school_name": "山西大学",
+          "school_province": "山西",
+          "school_city": "太原市",
+          "major_id": null,
+          "major_name": "自然地理与资源环境(东山校区)",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 4,
+          "min_rank": 120540,
           "tier": 3,
           "tier_label": "双一流",
           "is_985": false,
@@ -912,16 +1247,3445 @@
       ],
       "minimum_required_volunteers": 3,
       "representative_schools": [
-        "天津中医药大学",
-        "成都中医药大学",
-        "成都中医药大学"
+        "东北农业大学",
+        "石河子大学",
+        "西藏大学",
+        "青海大学",
+        "西南交通大学"
+      ],
+      "accepted_major_examples": [
+        "动物科学",
+        "基础医学",
+        "土木工程",
+        "生态学",
+        "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+        "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+        "公共事业管理",
+        "水产养殖学"
+      ],
+      "years_used": [
+        2025,
+        2024
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 20,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
       ],
       "tier_labels": [
+        "211/双一流",
         "双一流"
       ],
-      "compromise": "可以从临床医学按专业簇层级逐步妥协到第1阶段医学技术替代"
+      "compromise": "可以为了学校层次跃迁而暂时放宽临床医学专业执念"
     },
-    "initial_utterance": "我565分，只想读临床医学，其他医学相关专业先别推荐。",
+    "initial_utterance": "我546分，只想读临床医学，专业不对的学校再好也不考虑。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_any_major_set": [
+        "东北农业大学",
+        "石河子大学",
+        "西藏大学",
+        "青海大学",
+        "西南交通大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-547-004",
+    "background": {
+      "score": 547,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "湖州师范学院",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "volunteer_count": 10,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "years_used": [
+        2025,
+        2024
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 20,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ]
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读临床医学",
+      "reason": "担心换专业会影响职业路径，暂时不接受任何专业放宽",
+      "current_anchor_school": "湖州师范学院",
+      "current_anchor_major": "临床医学"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "trigger_condition": "只有看到一个可包含外省、专业不限后真实可达的更高层次志愿集合，且每个志愿都有学校名、专业名、最低分不高于547分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 371,
+          "major_name": "动物科学",
+          "year": 2025,
+          "min_score": 541,
+          "score_margin": 6,
+          "min_rank": 123189,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 384,
+          "major_name": "基础医学",
+          "year": 2025,
+          "min_score": 546,
+          "score_margin": 1,
+          "min_rank": 116993,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 358,
+          "school_name": "西藏大学",
+          "school_province": "西藏",
+          "school_city": "拉萨市",
+          "major_id": 251,
+          "major_name": "土木工程",
+          "year": 2025,
+          "min_score": 544,
+          "score_margin": 3,
+          "min_rank": 119492,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 412,
+          "school_name": "青海大学",
+          "school_province": "青海",
+          "school_city": "西宁市",
+          "major_id": 183,
+          "major_name": "生态学",
+          "year": 2025,
+          "min_score": 544,
+          "score_margin": 3,
+          "min_rank": 119066,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": null,
+          "major_name": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 55,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": null,
+          "major_name": "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 55,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 133,
+          "school_name": "广西大学",
+          "school_province": "广西",
+          "school_city": "南宁市",
+          "major_id": 469,
+          "major_name": "公共事业管理",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 5,
+          "min_rank": 120511,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 138,
+          "school_name": "华南农业大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 380,
+          "major_name": "水产养殖学",
+          "year": 2024,
+          "min_score": 543,
+          "score_margin": 4,
+          "min_rank": 118815,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 138,
+          "school_name": "华南农业大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 363,
+          "major_name": "茶学",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 5,
+          "min_rank": 119965,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 141,
+          "school_name": "山西大学",
+          "school_province": "山西",
+          "school_city": "太原市",
+          "major_id": null,
+          "major_name": "自然地理与资源环境(东山校区)",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 5,
+          "min_rank": 120540,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "东北农业大学",
+        "石河子大学",
+        "西藏大学",
+        "青海大学",
+        "西南交通大学"
+      ],
+      "accepted_major_examples": [
+        "动物科学",
+        "基础医学",
+        "土木工程",
+        "生态学",
+        "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+        "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+        "公共事业管理",
+        "水产养殖学"
+      ],
+      "years_used": [
+        2025,
+        2024
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 20,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "可以为了学校层次跃迁而暂时放宽临床医学专业执念"
+    },
+    "initial_utterance": "我547分，只想读临床医学，专业不对的学校再好也不考虑。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_any_major_set": [
+        "东北农业大学",
+        "石河子大学",
+        "西藏大学",
+        "青海大学",
+        "西南交通大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-549-005",
+    "background": {
+      "score": 549,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "湖州师范学院",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "volunteer_count": 10,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "years_used": [
+        2025,
+        2024
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 22,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ]
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读临床医学",
+      "reason": "担心换专业会影响职业路径，暂时不接受任何专业放宽",
+      "current_anchor_school": "湖州师范学院",
+      "current_anchor_major": "临床医学"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "trigger_condition": "只有看到一个可包含外省、专业不限后真实可达的更高层次志愿集合，且每个志愿都有学校名、专业名、最低分不高于549分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 134,
+          "school_name": "河南大学",
+          "school_province": "河南",
+          "school_city": "开封市",
+          "major_id": 346,
+          "major_name": "生物工程",
+          "year": 2025,
+          "min_score": 549,
+          "score_margin": 0,
+          "min_rank": 113108,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 371,
+          "major_name": "动物科学",
+          "year": 2025,
+          "min_score": 541,
+          "score_margin": 8,
+          "min_rank": 123189,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 384,
+          "major_name": "基础医学",
+          "year": 2025,
+          "min_score": 546,
+          "score_margin": 3,
+          "min_rank": 116993,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 358,
+          "school_name": "西藏大学",
+          "school_province": "西藏",
+          "school_city": "拉萨市",
+          "major_id": 251,
+          "major_name": "土木工程",
+          "year": 2025,
+          "min_score": 544,
+          "score_margin": 5,
+          "min_rank": 119492,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 412,
+          "school_name": "青海大学",
+          "school_province": "青海",
+          "school_city": "西宁市",
+          "major_id": 183,
+          "major_name": "生态学",
+          "year": 2025,
+          "min_score": 544,
+          "score_margin": 5,
+          "min_rank": 119066,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": null,
+          "major_name": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 57,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": null,
+          "major_name": "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 57,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 133,
+          "school_name": "广西大学",
+          "school_province": "广西",
+          "school_city": "南宁市",
+          "major_id": 469,
+          "major_name": "公共事业管理",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 7,
+          "min_rank": 120511,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 138,
+          "school_name": "华南农业大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 380,
+          "major_name": "水产养殖学",
+          "year": 2024,
+          "min_score": 543,
+          "score_margin": 6,
+          "min_rank": 118815,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 138,
+          "school_name": "华南农业大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 363,
+          "major_name": "茶学",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 7,
+          "min_rank": 119965,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "河南大学",
+        "东北农业大学",
+        "石河子大学",
+        "西藏大学",
+        "青海大学"
+      ],
+      "accepted_major_examples": [
+        "生物工程",
+        "动物科学",
+        "基础医学",
+        "土木工程",
+        "生态学",
+        "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+        "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+        "公共事业管理"
+      ],
+      "years_used": [
+        2025,
+        2024
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 22,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "可以为了学校层次跃迁而暂时放宽临床医学专业执念"
+    },
+    "initial_utterance": "我549分，只想读临床医学，专业不对的学校再好也不考虑。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_any_major_set": [
+        "河南大学",
+        "东北农业大学",
+        "石河子大学",
+        "西藏大学",
+        "青海大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-550-006",
+    "background": {
+      "score": 550,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "湖州师范学院",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "volunteer_count": 10,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "years_used": [
+        2025,
+        2024
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 25,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ]
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读临床医学",
+      "reason": "担心换专业会影响职业路径，暂时不接受任何专业放宽",
+      "current_anchor_school": "湖州师范学院",
+      "current_anchor_major": "临床医学"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "trigger_condition": "只有看到一个可包含外省、专业不限后真实可达的更高层次志愿集合，且每个志愿都有学校名、专业名、最低分不高于550分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 134,
+          "school_name": "河南大学",
+          "school_province": "河南",
+          "school_city": "开封市",
+          "major_id": 346,
+          "major_name": "生物工程",
+          "year": 2025,
+          "min_score": 549,
+          "score_margin": 1,
+          "min_rank": 113108,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 195,
+          "school_name": "贵州大学",
+          "school_province": "贵州",
+          "school_city": "贵阳市",
+          "major_id": 325,
+          "major_name": "环境科学",
+          "year": 2025,
+          "min_score": 550,
+          "score_margin": 0,
+          "min_rank": 111990,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 180,
+          "major_name": "生物科学",
+          "year": 2025,
+          "min_score": 550,
+          "score_margin": 0,
+          "min_rank": 111914,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 371,
+          "major_name": "动物科学",
+          "year": 2025,
+          "min_score": 541,
+          "score_margin": 9,
+          "min_rank": 123189,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 384,
+          "major_name": "基础医学",
+          "year": 2025,
+          "min_score": 546,
+          "score_margin": 4,
+          "min_rank": 116993,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 358,
+          "school_name": "西藏大学",
+          "school_province": "西藏",
+          "school_city": "拉萨市",
+          "major_id": 251,
+          "major_name": "土木工程",
+          "year": 2025,
+          "min_score": 544,
+          "score_margin": 6,
+          "min_rank": 119492,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 412,
+          "school_name": "青海大学",
+          "school_province": "青海",
+          "school_city": "西宁市",
+          "major_id": 183,
+          "major_name": "生态学",
+          "year": 2025,
+          "min_score": 544,
+          "score_margin": 6,
+          "min_rank": 119066,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": null,
+          "major_name": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 58,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": null,
+          "major_name": "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 58,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 133,
+          "school_name": "广西大学",
+          "school_province": "广西",
+          "school_city": "南宁市",
+          "major_id": 469,
+          "major_name": "公共事业管理",
+          "year": 2024,
+          "min_score": 542,
+          "score_margin": 8,
+          "min_rank": 120511,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "河南大学",
+        "贵州大学",
+        "东北农业大学",
+        "东北农业大学",
+        "石河子大学"
+      ],
+      "accepted_major_examples": [
+        "生物工程",
+        "环境科学",
+        "生物科学",
+        "动物科学",
+        "基础医学",
+        "土木工程",
+        "生态学",
+        "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)"
+      ],
+      "years_used": [
+        2025,
+        2024
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 25,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "可以为了学校层次跃迁而暂时放宽临床医学专业执念"
+    },
+    "initial_utterance": "我550分，只想读临床医学，专业不对的学校再好也不考虑。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_any_major_set": [
+        "河南大学",
+        "贵州大学",
+        "东北农业大学",
+        "东北农业大学",
+        "石河子大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-557-007",
+    "background": {
+      "score": 557,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "湖州师范学院",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "volunteer_count": 10,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 3,
+          "filtered_volunteer_count": 3,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 35,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ]
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读临床医学",
+      "reason": "担心换专业会影响职业路径，暂时不接受任何专业放宽",
+      "current_anchor_school": "湖州师范学院",
+      "current_anchor_major": "临床医学"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "trigger_condition": "只有看到一个可包含外省、专业不限后真实可达的更高层次志愿集合，且每个志愿都有学校名、专业名、最低分不高于557分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 134,
+          "school_name": "河南大学",
+          "school_province": "河南",
+          "school_city": "开封市",
+          "major_id": 346,
+          "major_name": "生物工程",
+          "year": 2025,
+          "min_score": 549,
+          "score_margin": 8,
+          "min_rank": 113108,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 141,
+          "school_name": "山西大学",
+          "school_province": "山西",
+          "school_city": "太原市",
+          "major_id": 3070,
+          "major_name": "智慧建筑与建造",
+          "year": 2025,
+          "min_score": 557,
+          "score_margin": 0,
+          "min_rank": 103087,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 195,
+          "school_name": "贵州大学",
+          "school_province": "贵州",
+          "school_city": "贵阳市",
+          "major_id": 325,
+          "major_name": "环境科学",
+          "year": 2025,
+          "min_score": 550,
+          "score_margin": 7,
+          "min_rank": 111990,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 180,
+          "major_name": "生物科学",
+          "year": 2025,
+          "min_score": 550,
+          "score_margin": 7,
+          "min_rank": 111914,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 371,
+          "major_name": "动物科学",
+          "year": 2025,
+          "min_score": 541,
+          "score_margin": 16,
+          "min_rank": 123189,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 384,
+          "major_name": "基础医学",
+          "year": 2025,
+          "min_score": 546,
+          "score_margin": 11,
+          "min_rank": 116993,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 307,
+          "school_name": "宁夏大学",
+          "school_province": "宁夏",
+          "school_city": "银川市",
+          "major_id": 338,
+          "major_name": "葡萄与葡萄酒工程",
+          "year": 2025,
+          "min_score": 557,
+          "score_margin": 0,
+          "min_rank": 103809,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 423,
+          "major_name": "康复治疗学",
+          "year": 2025,
+          "min_score": 553,
+          "score_margin": 4,
+          "min_rank": 108281,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 358,
+          "school_name": "西藏大学",
+          "school_province": "西藏",
+          "school_city": "拉萨市",
+          "major_id": 272,
+          "major_name": "资源勘查工程",
+          "year": 2025,
+          "min_score": 557,
+          "score_margin": 0,
+          "min_rank": 103468,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 358,
+          "school_name": "西藏大学",
+          "school_province": "西藏",
+          "school_city": "拉萨市",
+          "major_id": 251,
+          "major_name": "土木工程",
+          "year": 2025,
+          "min_score": 544,
+          "score_margin": 13,
+          "min_rank": 119492,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "河南大学",
+        "山西大学",
+        "贵州大学",
+        "东北农业大学",
+        "东北农业大学"
+      ],
+      "accepted_major_examples": [
+        "生物工程",
+        "智慧建筑与建造",
+        "环境科学",
+        "生物科学",
+        "动物科学",
+        "基础医学",
+        "葡萄与葡萄酒工程",
+        "康复治疗学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 3,
+          "filtered_volunteer_count": 3,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2024
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 2,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 35,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2021
+          ]
+        }
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "可以为了学校层次跃迁而暂时放宽临床医学专业执念"
+    },
+    "initial_utterance": "我557分，只想读临床医学，专业不对的学校再好也不考虑。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_any_major_set": [
+        "河南大学",
+        "山西大学",
+        "贵州大学",
+        "东北农业大学",
+        "东北农业大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-568-008",
+    "background": {
+      "score": 568,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "湖州师范学院",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "volunteer_count": 10,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 10,
+          "filtered_volunteer_count": 8,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2024,
+            2022,
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 1,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2022,
+            2021
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 3,
+          "filtered_volunteer_count": 2,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 63,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 3,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2022,
+            2021
+          ]
+        }
+      ]
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读临床医学",
+      "reason": "担心换专业会影响职业路径，暂时不接受任何专业放宽",
+      "current_anchor_school": "湖州师范学院",
+      "current_anchor_major": "临床医学"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "trigger_condition": "只有看到一个可包含外省、专业不限后真实可达的更高层次志愿集合，且每个志愿都有学校名、专业名、最低分不高于568分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 134,
+          "school_name": "河南大学",
+          "school_province": "河南",
+          "school_city": "开封市",
+          "major_id": 243,
+          "major_name": "软件工程",
+          "year": 2025,
+          "min_score": 567,
+          "score_margin": 1,
+          "min_rank": 91183,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 134,
+          "school_name": "河南大学",
+          "school_province": "河南",
+          "school_city": "开封市",
+          "major_id": 346,
+          "major_name": "生物工程",
+          "year": 2025,
+          "min_score": 549,
+          "score_margin": 19,
+          "min_rank": 113108,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 138,
+          "school_name": "华南农业大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 358,
+          "major_name": "园艺",
+          "year": 2025,
+          "min_score": 568,
+          "score_margin": 0,
+          "min_rank": 89475,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 141,
+          "school_name": "山西大学",
+          "school_province": "山西",
+          "school_city": "太原市",
+          "major_id": null,
+          "major_name": "生物科学类",
+          "year": 2025,
+          "min_score": 568,
+          "score_margin": 0,
+          "min_rank": 90249,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 141,
+          "school_name": "山西大学",
+          "school_province": "山西",
+          "school_city": "太原市",
+          "major_id": 453,
+          "major_name": "工商管理",
+          "year": 2025,
+          "min_score": 566,
+          "score_margin": 2,
+          "min_rank": 92886,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 167,
+          "school_name": "新疆大学",
+          "school_province": "新疆",
+          "school_city": "乌鲁木齐市",
+          "major_id": 251,
+          "major_name": "土木工程",
+          "year": 2025,
+          "min_score": 568,
+          "score_margin": 0,
+          "min_rank": 89749,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 195,
+          "school_name": "贵州大学",
+          "school_province": "贵州",
+          "school_city": "贵阳市",
+          "major_id": 325,
+          "major_name": "环境科学",
+          "year": 2025,
+          "min_score": 550,
+          "score_margin": 18,
+          "min_rank": 111990,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 180,
+          "major_name": "生物科学",
+          "year": 2025,
+          "min_score": 550,
+          "score_margin": 18,
+          "min_rank": 111914,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 371,
+          "major_name": "动物科学",
+          "year": 2025,
+          "min_score": 541,
+          "score_margin": 27,
+          "min_rank": 123189,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 392,
+          "major_name": "预防医学",
+          "year": 2025,
+          "min_score": 558,
+          "score_margin": 10,
+          "min_rank": 102090,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "河南大学",
+        "河南大学",
+        "华南农业大学",
+        "山西大学",
+        "山西大学"
+      ],
+      "accepted_major_examples": [
+        "软件工程",
+        "生物工程",
+        "园艺",
+        "生物科学类",
+        "工商管理",
+        "土木工程",
+        "环境科学",
+        "生物科学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 10,
+          "filtered_volunteer_count": 8,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2024,
+            2022,
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 1,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2022,
+            2021
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 3,
+          "filtered_volunteer_count": 2,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 63,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 3,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2022,
+            2021
+          ]
+        }
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "可以为了学校层次跃迁而暂时放宽临床医学专业执念"
+    },
+    "initial_utterance": "我568分，只想读临床医学，专业不对的学校再好也不考虑。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_any_major_set": [
+        "河南大学",
+        "河南大学",
+        "华南农业大学",
+        "山西大学",
+        "山西大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-569-009",
+    "background": {
+      "score": 569,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "丽水学院",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "volunteer_count": 10,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 3,
+          "filtered_volunteer_count": 2,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2023
+          ],
+          "skipped": {
+            "duplicate_option": 1,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2023,
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 11,
+          "filtered_volunteer_count": 9,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2024,
+            2022,
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 1,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2022,
+            2021
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 3,
+          "filtered_volunteer_count": 2,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 68,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 3,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2022,
+            2021
+          ]
+        }
+      ]
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读临床医学",
+      "reason": "担心换专业会影响职业路径，暂时不接受任何专业放宽",
+      "current_anchor_school": "丽水学院",
+      "current_anchor_major": "临床医学"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "any_major",
+      "relax_scope": "national",
+      "relaxation_stage": 5,
+      "relaxation_stage_label": "去除专业限制",
+      "target_major_clusters": [],
+      "target_major_categories": null,
+      "psychological_distance": "far",
+      "trigger_condition": "只有看到一个可包含外省、专业不限后真实可达的更高层次志愿集合，且每个志愿都有学校名、专业名、最低分不高于569分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 134,
+          "school_name": "河南大学",
+          "school_province": "河南",
+          "school_city": "开封市",
+          "major_id": 243,
+          "major_name": "软件工程",
+          "year": 2025,
+          "min_score": 567,
+          "score_margin": 2,
+          "min_rank": 91183,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 134,
+          "school_name": "河南大学",
+          "school_province": "河南",
+          "school_city": "开封市",
+          "major_id": 346,
+          "major_name": "生物工程",
+          "year": 2025,
+          "min_score": 549,
+          "score_margin": 20,
+          "min_rank": 113108,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 138,
+          "school_name": "华南农业大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 358,
+          "major_name": "园艺",
+          "year": 2025,
+          "min_score": 568,
+          "score_margin": 1,
+          "min_rank": 89475,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 141,
+          "school_name": "山西大学",
+          "school_province": "山西",
+          "school_city": "太原市",
+          "major_id": null,
+          "major_name": "生物科学类",
+          "year": 2025,
+          "min_score": 568,
+          "score_margin": 1,
+          "min_rank": 90249,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 141,
+          "school_name": "山西大学",
+          "school_province": "山西",
+          "school_city": "太原市",
+          "major_id": 453,
+          "major_name": "工商管理",
+          "year": 2025,
+          "min_score": 566,
+          "score_margin": 3,
+          "min_rank": 92886,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 167,
+          "school_name": "新疆大学",
+          "school_province": "新疆",
+          "school_city": "乌鲁木齐市",
+          "major_id": 280,
+          "major_name": "纺织工程",
+          "year": 2025,
+          "min_score": 569,
+          "score_margin": 0,
+          "min_rank": 89044,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 167,
+          "school_name": "新疆大学",
+          "school_province": "新疆",
+          "school_city": "乌鲁木齐市",
+          "major_id": 251,
+          "major_name": "土木工程",
+          "year": 2025,
+          "min_score": 568,
+          "score_margin": 1,
+          "min_rank": 89749,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 195,
+          "school_name": "贵州大学",
+          "school_province": "贵州",
+          "school_city": "贵阳市",
+          "major_id": 325,
+          "major_name": "环境科学",
+          "year": 2025,
+          "min_score": 550,
+          "score_margin": 19,
+          "min_rank": 111990,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 180,
+          "major_name": "生物科学",
+          "year": 2025,
+          "min_score": 550,
+          "score_margin": 19,
+          "min_rank": 111914,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 371,
+          "major_name": "动物科学",
+          "year": 2025,
+          "min_score": 541,
+          "score_margin": 28,
+          "min_rank": 123189,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "河南大学",
+        "河南大学",
+        "华南农业大学",
+        "山西大学",
+        "山西大学"
+      ],
+      "accepted_major_examples": [
+        "软件工程",
+        "生物工程",
+        "园艺",
+        "生物科学类",
+        "工商管理",
+        "纺织工程",
+        "土木工程",
+        "环境科学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 3,
+          "filtered_volunteer_count": 2,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2023
+          ],
+          "skipped": {
+            "duplicate_option": 1,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2023,
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 0,
+          "filtered_volunteer_count": 0,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "no_candidates",
+          "years_used": [],
+          "skipped": {}
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 11,
+          "filtered_volunteer_count": 9,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2024,
+            2022,
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 1,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2022,
+            2021
+          ]
+        },
+        {
+          "stage": 4,
+          "label": "Probe相邻大类",
+          "strategy": "probe_neighbor_categories",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 3,
+          "filtered_volunteer_count": 2,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024
+          ]
+        },
+        {
+          "stage": 5,
+          "label": "去除专业限制",
+          "strategy": "any_major",
+          "stage_relaxation_kind": "any_major",
+          "raw_candidate_count": 68,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 3,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2023,
+            2022,
+            2021
+          ]
+        }
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "可以为了学校层次跃迁而暂时放宽临床医学专业执念"
+    },
+    "initial_utterance": "我569分，只想读临床医学，专业不对的学校再好也不考虑。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_any_major_set": [
+        "河南大学",
+        "河南大学",
+        "华南农业大学",
+        "山西大学",
+        "山西大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-575-010",
+    "background": {
+      "score": 575,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "湖州师范学院",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "volunteer_count": 10,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "clinical_to_medtech",
+      "relax_scope": "national",
+      "relaxation_stage": 3,
+      "relaxation_stage_label": "上层大类近邻簇",
+      "target_major_clusters": [
+        "medical_technology",
+        "medical_nursing",
+        "medical_pharmacy",
+        "medical_public_health"
+      ],
+      "target_major_categories": null,
+      "psychological_distance": "medium",
+      "years_used": [
+        2025,
+        2024,
+        2021
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 4,
+          "filtered_volunteer_count": 2,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2023
+          ],
+          "skipped": {
+            "duplicate_option": 2,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2023,
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 16,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024,
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 5,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2022,
+            2021
+          ]
+        }
+      ]
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读临床医学",
+      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
+      "current_anchor_school": "湖州师范学院",
+      "current_anchor_major": "临床医学"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "clinical_to_medtech",
+      "relax_scope": "national",
+      "relaxation_stage": 3,
+      "relaxation_stage_label": "上层大类近邻簇",
+      "target_major_clusters": [
+        "medical_technology",
+        "medical_nursing",
+        "medical_pharmacy",
+        "medical_public_health"
+      ],
+      "target_major_categories": null,
+      "psychological_distance": "medium",
+      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第3阶段上层大类近邻簇后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于575分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 405,
+          "major_name": "药学",
+          "year": 2025,
+          "min_score": 571,
+          "score_margin": 4,
+          "min_rank": 85963,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 412,
+          "major_name": "中药学",
+          "year": 2025,
+          "min_score": 570,
+          "score_margin": 5,
+          "min_rank": 87686,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 277,
+          "school_name": "南京中医药大学",
+          "school_province": "江苏",
+          "school_city": "南京",
+          "major_id": 427,
+          "major_name": "护理学",
+          "year": 2025,
+          "min_score": 565,
+          "score_margin": 10,
+          "min_rank": 93150,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 423,
+          "major_name": "康复治疗学",
+          "year": 2025,
+          "min_score": 553,
+          "score_margin": 22,
+          "min_rank": 108281,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 412,
+          "school_name": "青海大学",
+          "school_province": "青海",
+          "school_city": "西宁市",
+          "major_id": 423,
+          "major_name": "康复治疗学",
+          "year": 2025,
+          "min_score": 570,
+          "score_margin": 5,
+          "min_rank": 87382,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 412,
+          "school_name": "青海大学",
+          "school_province": "青海",
+          "school_city": "西宁市",
+          "major_id": 405,
+          "major_name": "药学",
+          "year": 2025,
+          "min_score": 569,
+          "score_margin": 6,
+          "min_rank": 88716,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 99,
+          "school_name": "湖南师范大学",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": null,
+          "major_name": "预防医学(咸嘉湖校区)",
+          "year": 2024,
+          "min_score": 562,
+          "score_margin": 13,
+          "min_rank": 96230,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 276,
+          "school_name": "广州中医药大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 423,
+          "major_name": "康复治疗学",
+          "year": 2024,
+          "min_score": 575,
+          "score_margin": 0,
+          "min_rank": 80972,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 282,
+          "school_name": "天津中医药大学",
+          "school_province": "天津",
+          "school_city": "静海区",
+          "major_id": null,
+          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 83,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 393,
+          "major_name": "食品卫生与营养学",
+          "year": 2021,
+          "min_score": 565,
+          "score_margin": 10,
+          "min_rank": 207,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "石河子大学",
+        "石河子大学",
+        "南京中医药大学",
+        "成都中医药大学",
+        "青海大学"
+      ],
+      "accepted_major_examples": [
+        "药学",
+        "中药学",
+        "护理学",
+        "康复治疗学",
+        "预防医学(咸嘉湖校区)",
+        "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+        "食品卫生与营养学"
+      ],
+      "years_used": [
+        2025,
+        2024,
+        2021
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 4,
+          "filtered_volunteer_count": 2,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2023
+          ],
+          "skipped": {
+            "duplicate_option": 2,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2023,
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 16,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024,
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 5,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2022,
+            2021
+          ]
+        }
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "可以从临床医学按专业簇层级逐步妥协到第3阶段上层大类近邻簇"
+    },
+    "initial_utterance": "我575分，只想读临床医学，其他医学相关专业先别推荐。",
     "process_milestones": {
       "reject_single_school_bait": true,
       "reject_generic_major_switch": true,
@@ -929,9 +4693,11 @@
       "require_complete_volunteer_set": true,
       "require_each_option_score_evidence": true,
       "accept_after_verified_medtech_set": [
-        "天津中医药大学",
+        "石河子大学",
+        "石河子大学",
+        "南京中医药大学",
         "成都中医药大学",
-        "成都中医药大学"
+        "青海大学"
       ]
     }
   }

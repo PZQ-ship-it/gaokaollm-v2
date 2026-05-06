@@ -58,6 +58,26 @@ _LANGUAGE_HINTS = (
 )
 
 
+def _repair_ssl_env() -> list[str]:
+    """Remove broken SSL env vars before httpx/OpenAI creates its SSL context."""
+
+    changed: list[str] = []
+    for env_name in ("SSL_CERT_FILE", "REQUESTS_CA_BUNDLE"):
+        value = os.getenv(env_name)
+        if value and not os.path.exists(value):
+            os.environ.pop(env_name, None)
+            changed.append(env_name)
+
+    if not os.getenv("SSL_CERT_FILE"):
+        conda_prefix = os.getenv("CONDA_PREFIX")
+        if conda_prefix:
+            conda_cert = os.path.join(conda_prefix, "Library", "ssl", "cacert.pem")
+            if os.path.exists(conda_cert):
+                os.environ["SSL_CERT_FILE"] = conda_cert
+                changed.append("SSL_CERT_FILE")
+    return changed
+
+
 def _normalize_text(text: str) -> str:
     if not text:
         return ""
@@ -109,6 +129,7 @@ class OpenAIEmbeddingClient:
     async def embed(self, texts: list[str]) -> list[list[float]]:
         from openai import AsyncOpenAI
 
+        _repair_ssl_env()
         client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
         response = await client.embeddings.create(model=self.model, input=texts)
         return [item.embedding for item in response.data]

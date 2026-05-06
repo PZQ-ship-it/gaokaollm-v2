@@ -4,6 +4,18 @@ from __future__ import annotations
 
 from typing import Any
 
+SPECIAL_MAJOR_TERMS = (
+    "中外合作",
+    "合作办学",
+    "学分互认",
+    "国际班",
+    "国际贸易班",
+    "外语成绩",
+    "不低于",
+    "留学",
+    "双文凭",
+)
+
 
 BASE_SELECT = """
 SELECT
@@ -67,6 +79,101 @@ def _tier(row: dict[str, Any] | None) -> int:
     if not row:
         return 0
     return int(row.get("tier") or 0)
+
+
+def _is_special_major_name(
+    major_name: str | None,
+    *,
+    include_special_majors: bool,
+    max_major_name_length: int | None,
+) -> bool:
+    if include_special_majors:
+        return False
+    major_name = major_name or ""
+    if max_major_name_length is not None and len(major_name) > max_major_name_length:
+        return True
+    return any(term in major_name for term in SPECIAL_MAJOR_TERMS)
+
+
+def _candidate_year(candidate: dict[str, Any]) -> int:
+    year = candidate["tier_b"].get("year")
+    return int(year or 0)
+
+
+def _select_volunteers_from_candidates(
+    candidates: list[dict[str, Any]],
+    *,
+    max_volunteers_per_case: int | None,
+    max_volunteers_per_school: int | None,
+    include_special_majors: bool,
+    max_major_name_length: int | None,
+    minimum_volunteers: int = 1,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    volunteers: list[dict[str, Any]] = []
+    seen_options: set[tuple[Any, Any]] = set()
+    school_counts: dict[Any, int] = {}
+    skipped = {
+        "duplicate_option": 0,
+        "school_cap": 0,
+        "special_major": 0,
+    }
+
+    years = sorted({_candidate_year(candidate) for candidate in candidates}, reverse=True)
+    for year in years:
+        for candidate in candidates:
+            if _candidate_year(candidate) != year:
+                continue
+            tier_b = candidate["tier_b"]
+            if _is_special_major_name(
+                tier_b.get("major_name"),
+                include_special_majors=include_special_majors,
+                max_major_name_length=max_major_name_length,
+            ):
+                skipped["special_major"] += 1
+                continue
+
+            option_key = (
+                tier_b.get("school_id"),
+                tier_b.get("major_id") or tier_b.get("major_name"),
+            )
+            if option_key in seen_options:
+                skipped["duplicate_option"] += 1
+                continue
+
+            school_key = tier_b.get("school_id") or tier_b.get("school_name")
+            if (
+                max_volunteers_per_school is not None
+                and school_counts.get(school_key, 0) >= max_volunteers_per_school
+            ):
+                skipped["school_cap"] += 1
+                continue
+
+            seen_options.add(option_key)
+            school_counts[school_key] = school_counts.get(school_key, 0) + 1
+            volunteers.append(tier_b)
+            if max_volunteers_per_case and len(volunteers) >= max_volunteers_per_case:
+                break
+        if max_volunteers_per_case and len(volunteers) >= max_volunteers_per_case:
+            break
+        if max_volunteers_per_case is None and len(volunteers) >= minimum_volunteers:
+            break
+
+    return volunteers, {
+        "years_considered": [year for year in years if year],
+        "years_used": sorted({int(row.get("year") or 0) for row in volunteers if row.get("year")}, reverse=True),
+        "skipped": skipped,
+    }
+
+
+def _first_unique_school_ids(volunteers: list[dict[str, Any]], limit: int = 4) -> tuple[Any, ...]:
+    school_ids: list[Any] = []
+    for row in volunteers:
+        school_id = row.get("school_id") or row.get("school_name")
+        if school_id not in school_ids:
+            school_ids.append(school_id)
+        if len(school_ids) >= limit:
+            break
+    return tuple(school_ids)
 
 
 async def find_pareto_gaps(db_pool: Any, score: int, prov: str) -> dict[str, Any]:
@@ -448,6 +555,9 @@ async def find_major_relax_gap_sets(
     score_step: int = 10,
     candidates_per_score: int = 120,
     max_volunteers_per_case: int | None = None,
+    max_volunteers_per_school: int | None = None,
+    include_special_majors: bool = True,
+    max_major_name_length: int | None = None,
     exclude_name_patterns: list[str] | None = None,
     strict_target_quality: bool = True,
 ) -> list[dict[str, Any]]:
@@ -457,9 +567,13 @@ async def find_major_relax_gap_sets(
         raise ValueError("count must be at least 1")
     if max_volunteers_per_case is not None and max_volunteers_per_case < 1:
         raise ValueError("max_volunteers_per_case must be at least 1 when provided")
+    if max_volunteers_per_school is not None and max_volunteers_per_school < 1:
+        raise ValueError("max_volunteers_per_school must be at least 1 when provided")
+    if max_major_name_length is not None and max_major_name_length < 1:
+        raise ValueError("max_major_name_length must be at least 1 when provided")
 
     gap_sets: list[dict[str, Any]] = []
-    seen_cases: set[tuple[Any, int, str]] = set()
+    seen_cases: set[tuple[Any, ...]] = set()
 
     for score in range(score_min, score_max + 1, score_step):
         candidates = await find_major_relax_gap_candidates(
@@ -483,17 +597,14 @@ async def find_major_relax_gap_sets(
         if case_key in seen_cases:
             continue
 
-        seen_options: set[tuple[Any, Any]] = set()
-        volunteers: list[dict[str, Any]] = []
-        for candidate in candidates:
-            tier_b = candidate["tier_b"]
-            option_key = (tier_b.get("school_id"), tier_b.get("major_id") or tier_b.get("major_name"))
-            if option_key in seen_options:
-                continue
-            seen_options.add(option_key)
-            volunteers.append(tier_b)
-            if max_volunteers_per_case and len(volunteers) >= max_volunteers_per_case:
-                break
+        volunteers, selection_audit = _select_volunteers_from_candidates(
+            candidates,
+            max_volunteers_per_case=max_volunteers_per_case,
+            max_volunteers_per_school=max_volunteers_per_school,
+            include_special_majors=include_special_majors,
+            max_major_name_length=max_major_name_length,
+            minimum_volunteers=1,
+        )
 
         if not volunteers:
             continue
@@ -510,6 +621,7 @@ async def find_major_relax_gap_sets(
                 "tier_a": tier_a,
                 "volunteer_set": volunteers,
                 "volunteer_count": len(volunteers),
+                "years_used": selection_audit["years_used"],
                 "max_tier_delta": max(_tier(row) - _tier(tier_a) for row in volunteers),
             }
         )
@@ -532,6 +644,9 @@ async def find_hierarchical_major_relax_gap_sets(
     candidates_per_score: int = 120,
     recommendation_threshold: int = 1,
     max_volunteers_per_case: int | None = None,
+    max_volunteers_per_school: int | None = 2,
+    include_special_majors: bool = False,
+    max_major_name_length: int | None = 60,
     relax_scope: str = "province",
     exclude_name_patterns: list[str] | None = None,
     strict_target_quality: bool = True,
@@ -542,13 +657,20 @@ async def find_hierarchical_major_relax_gap_sets(
         raise ValueError("count must be at least 1")
     if recommendation_threshold < 1:
         raise ValueError("recommendation_threshold must be at least 1")
+    if max_volunteers_per_case is not None and max_volunteers_per_case < 1:
+        raise ValueError("max_volunteers_per_case must be at least 1 when provided")
+    if max_volunteers_per_school is not None and max_volunteers_per_school < 1:
+        raise ValueError("max_volunteers_per_school must be at least 1 when provided")
+    if max_major_name_length is not None and max_major_name_length < 1:
+        raise ValueError("max_major_name_length must be at least 1 when provided")
     if not relaxation_stages:
         raise ValueError("relaxation_stages must not be empty")
 
     gap_sets: list[dict[str, Any]] = []
-    seen_cases: set[tuple[Any, int, str]] = set()
+    seen_cases: set[tuple[Any, ...]] = set()
 
     for score in range(score_min, score_max + 1, score_step):
+        stage_attempts: list[dict[str, Any]] = []
         for stage in relaxation_stages:
             include_patterns = stage.get("include_patterns") or []
             exclude_patterns = stage.get("exclude_patterns") or []
@@ -571,35 +693,57 @@ async def find_hierarchical_major_relax_gap_sets(
                 exclude_name_patterns=exclude_name_patterns,
                 strict_target_quality=strict_target_quality,
             )
+            attempt = {
+                "stage": stage.get("stage"),
+                "label": stage.get("label"),
+                "strategy": stage.get("strategy"),
+                "stage_relaxation_kind": stage_relaxation_kind,
+                "raw_candidate_count": len(candidates),
+                "filtered_volunteer_count": 0,
+                "recommendation_threshold": recommendation_threshold,
+                "accepted": False,
+                "failure_reason": None,
+                "years_used": [],
+                "skipped": {},
+            }
             if not candidates:
+                attempt["failure_reason"] = "no_candidates"
+                stage_attempts.append(attempt)
                 continue
 
             tier_a = candidates[0]["tier_a"]
             stage_id = str(stage.get("stage"))
-            case_key = (tier_a.get("school_id"), int(score), stage_id)
-            if case_key in seen_cases:
-                break
 
-            seen_options: set[tuple[Any, Any]] = set()
-            volunteers: list[dict[str, Any]] = []
-            for candidate in candidates:
-                tier_b = candidate["tier_b"]
-                option_key = (
-                    tier_b.get("school_id"),
-                    tier_b.get("major_id") or tier_b.get("major_name"),
-                )
-                if option_key in seen_options:
-                    continue
-                seen_options.add(option_key)
-                volunteers.append(tier_b)
-                if max_volunteers_per_case and len(volunteers) >= max_volunteers_per_case:
-                    break
+            volunteers, selection_audit = _select_volunteers_from_candidates(
+                candidates,
+                max_volunteers_per_case=max_volunteers_per_case,
+                max_volunteers_per_school=max_volunteers_per_school,
+                include_special_majors=include_special_majors,
+                max_major_name_length=max_major_name_length,
+                minimum_volunteers=recommendation_threshold,
+            )
+            attempt["filtered_volunteer_count"] = len(volunteers)
+            attempt["years_used"] = selection_audit["years_used"]
+            attempt["years_considered"] = selection_audit["years_considered"]
+            attempt["skipped"] = selection_audit["skipped"]
 
             if not volunteers:
+                attempt["failure_reason"] = "filtered_empty"
+                stage_attempts.append(attempt)
                 continue
             if len(volunteers) < recommendation_threshold:
+                attempt["failure_reason"] = "below_threshold"
+                stage_attempts.append(attempt)
                 continue
 
+            case_key = (tier_a.get("school_id"), stage_id, _first_unique_school_ids(volunteers))
+            if case_key in seen_cases:
+                attempt["failure_reason"] = "duplicate_case"
+                stage_attempts.append(attempt)
+                continue
+
+            attempt["accepted"] = True
+            stage_attempts.append(attempt)
             seen_cases.add(case_key)
             gap_sets.append(
                 {
@@ -614,7 +758,10 @@ async def find_hierarchical_major_relax_gap_sets(
                     "relaxation_stage": stage.get("stage"),
                     "relaxation_stage_label": stage.get("label"),
                     "target_major_clusters": stage.get("cluster_ids"),
+                    "target_major_categories": stage.get("category_ids"),
                     "psychological_distance": stage.get("psychological_distance"),
+                    "stage_attempts": list(stage_attempts),
+                    "years_used": selection_audit["years_used"],
                     "tier_a": tier_a,
                     "volunteer_set": volunteers,
                     "volunteer_count": len(volunteers),

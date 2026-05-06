@@ -273,6 +273,10 @@ hallucination_rate = failed_mentions / total_mentions
 ```text
 gaokaollm_bench/tests/test_real_db_generator_cli.py
 ```
+运行命令
+```bash
+python -m pytest gaokaollm_bench/tests/test_real_db_generator_cli.py -q
+```
 
 该 TDD 路径保证了每次扩展都能被最小闭环验证。
 

@@ -166,16 +166,26 @@ def build_deterministic_persona_from_gap_set(
     volunteers = [_volunteer_entry(row, score) for row in gap_set["volunteer_set"]]
     best_labels = sorted({item["tier_label"] for item in volunteers})
     best_names = [item["school_name"] for item in volunteers[:5]]
-    major_name = volunteers[0].get("major_name") or tier_a.get("major_name") or "目标专业"
     relaxed_constraint = gap_set.get("constraint_relaxed", "province")
     relaxation_kind = gap_set.get("relaxation_kind")
+    stage_relaxation_kind = gap_set.get("stage_relaxation_kind")
     relax_scope = gap_set.get("relax_scope", "province")
     relaxation_stage = gap_set.get("relaxation_stage")
     target_major_clusters = gap_set.get("target_major_clusters")
+    accepted_major_examples = list(
+        dict.fromkeys(
+            item["major_name"]
+            for item in volunteers
+            if item.get("major_name")
+        )
+    )[:8]
 
     if relaxed_constraint == "major":
         strict_major = str(gap_set.get("strict_major") or tier_a.get("major_name") or "原专业")
-        if relaxation_kind in {"clinical_to_medtech", "hierarchical_major"}:
+        if (
+            relaxation_kind in {"clinical_to_medtech", "hierarchical_major"}
+            and stage_relaxation_kind != "any_major"
+        ):
             explicit_red_lines = {
                 "major": f"坚决只读{strict_major}",
                 "reason": f"认为只有{strict_major}才算真正的医学路线，不接受未经证明的专业替代",
@@ -224,6 +234,7 @@ def build_deterministic_persona_from_gap_set(
                 "accept_after_verified_any_major_set": best_names,
             }
     else:
+        major_name = volunteers[0].get("major_name") or tier_a.get("major_name") or "目标专业"
         explicit_red_lines = {
             "geo": f"坚决不出{province}",
             "reason": f"认为留在{province}更安全，只愿意先看本省的{tier_a_label}选择",
@@ -249,7 +260,7 @@ def build_deterministic_persona_from_gap_set(
             "score": score,
             "province": province,
             "subjects": ["物理", "化学", "生物"],
-            "preferred_major": major_name,
+            "preferred_major": strict_major if relaxed_constraint == "major" else major_name,
             "baseline_school": tier_a_name,
             "baseline_major": tier_a.get("major_name"),
             "baseline_tier": tier_a.get("tier"),
@@ -259,26 +270,35 @@ def build_deterministic_persona_from_gap_set(
             "max_tier_delta": gap_set["max_tier_delta"],
             "constraint_relaxed": relaxed_constraint,
             "relaxation_kind": relaxation_kind,
+            "stage_relaxation_kind": stage_relaxation_kind,
             "relax_scope": relax_scope,
             "relaxation_stage": relaxation_stage,
             "relaxation_stage_label": gap_set.get("relaxation_stage_label"),
             "target_major_clusters": target_major_clusters,
+            "target_major_categories": gap_set.get("target_major_categories"),
             "psychological_distance": gap_set.get("psychological_distance"),
+            "years_used": gap_set.get("years_used"),
+            "stage_attempts": gap_set.get("stage_attempts"),
         },
         explicit_red_lines=explicit_red_lines,
         implicit_flexibilities={
             "trigger_type": "volunteer_set",
             "constraint_relaxed": relaxed_constraint,
             "relaxation_kind": relaxation_kind,
+            "stage_relaxation_kind": stage_relaxation_kind,
             "relax_scope": relax_scope,
             "relaxation_stage": relaxation_stage,
             "relaxation_stage_label": gap_set.get("relaxation_stage_label"),
             "target_major_clusters": target_major_clusters,
+            "target_major_categories": gap_set.get("target_major_categories"),
             "psychological_distance": gap_set.get("psychological_distance"),
             "trigger_condition": trigger_condition,
             "volunteer_set": volunteers,
             "minimum_required_volunteers": min(3, len(volunteers)),
             "representative_schools": best_names,
+            "accepted_major_examples": accepted_major_examples,
+            "years_used": gap_set.get("years_used"),
+            "stage_attempts": gap_set.get("stage_attempts"),
             "tier_labels": best_labels,
             "compromise": compromise,
         },
@@ -317,6 +337,9 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                     neighbor_category_level=args.neighbor_category_level,
                     skip_ancestor_category=True,
                     include_any_major_stage=True,
+                    filter_observed_patterns=True,
+                    max_observed_name_length=args.max_major_name_length,
+                    exclude_special_observed=not args.include_special_majors,
                 )
             except UnknownMajorError as exc:
                 raise ValueError(
@@ -335,6 +358,9 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                 candidates_per_score=args.candidates_per_score,
                 recommendation_threshold=args.recommendation_threshold,
                 max_volunteers_per_case=args.max_volunteers_per_case,
+                max_volunteers_per_school=args.max_volunteers_per_school,
+                include_special_majors=args.include_special_majors,
+                max_major_name_length=args.max_major_name_length,
                 relax_scope=args.major_relax_scope,
                 exclude_name_patterns=[] if args.include_suspect_schools else DEFAULT_EXCLUDE_PATTERNS,
                 strict_target_quality=not args.no_strict_target_quality,
@@ -365,6 +391,9 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                 score_step=args.score_step,
                 candidates_per_score=args.candidates_per_score,
                 max_volunteers_per_case=args.max_volunteers_per_case,
+                max_volunteers_per_school=args.max_volunteers_per_school,
+                include_special_majors=args.include_special_majors,
+                max_major_name_length=args.max_major_name_length,
                 exclude_name_patterns=[] if args.include_suspect_schools else DEFAULT_EXCLUDE_PATTERNS,
                 strict_target_quality=not args.no_strict_target_quality,
             )
@@ -511,6 +540,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="Optional cap for volunteers inside each generated case; omitted means as complete as the candidate scan allows.",
     )
     parser.add_argument(
+        "--max-volunteers-per-school",
+        type=int,
+        default=2,
+        help="Maximum volunteers kept per school in each generated major-relaxation case.",
+    )
+    parser.add_argument(
         "--recommendation-threshold",
         type=int,
         default=None,
@@ -526,6 +561,17 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "--include-suspect-schools",
         action="store_true",
         help="Do not exclude obvious independent/vocational-school name patterns.",
+    )
+    parser.add_argument(
+        "--include-special-majors",
+        action="store_true",
+        help="Keep special/noisy major names such as cooperation programs, credit-transfer programs, or long admissions notes.",
+    )
+    parser.add_argument(
+        "--max-major-name-length",
+        type=int,
+        default=60,
+        help="Maximum major-name length kept by default quality filters.",
     )
     parser.add_argument(
         "--no-strict-target-quality",
@@ -549,8 +595,17 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     if args.neighbor_count < 1:
         raise ValueError("--neighbor-count must be at least 1")
+    if args.max_volunteers_per_school is not None and args.max_volunteers_per_school < 1:
+        raise ValueError("--max-volunteers-per-school must be at least 1")
+    if args.max_major_name_length is not None and args.max_major_name_length < 1:
+        raise ValueError("--max-major-name-length must be at least 1")
     if args.recommendation_threshold is None:
-        args.recommendation_threshold = args.min_volunteers_per_case or 1
+        if args.min_volunteers_per_case is not None:
+            args.recommendation_threshold = args.min_volunteers_per_case
+        elif args.relaxation == "major_hierarchy":
+            args.recommendation_threshold = 10
+        else:
+            args.recommendation_threshold = 1
     personas = asyncio.run(_generate(args))
 
     output_path = Path(args.output)

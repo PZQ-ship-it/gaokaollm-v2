@@ -10,6 +10,17 @@ from typing import Any
 
 
 DEFAULT_CLUSTER_PATH = Path(__file__).with_name("major_clusters.json")
+SPECIAL_MAJOR_TERMS = (
+    "中外合作",
+    "合作办学",
+    "学分互认",
+    "国际班",
+    "国际贸易班",
+    "外语成绩",
+    "不低于",
+    "留学",
+    "双文凭",
+)
 
 
 class UnknownMajorError(ValueError):
@@ -115,10 +126,32 @@ def get_major_cluster_patterns(
     node_ids: list[str],
     *,
     path: str | Path | None = None,
+    filter_observed: bool = False,
+    max_observed_name_length: int | None = None,
+    exclude_special_observed: bool = False,
 ) -> tuple[list[str], list[str]]:
     """Return SQL LIKE include and exclude patterns for one or more tree nodes."""
 
-    nodes = _nodes(load_major_tree(path))
+    return get_major_cluster_patterns_from_tree(
+        load_major_tree(path),
+        node_ids,
+        filter_observed=filter_observed,
+        max_observed_name_length=max_observed_name_length,
+        exclude_special_observed=exclude_special_observed,
+    )
+
+
+def get_major_cluster_patterns_from_tree(
+    tree: dict[str, Any],
+    node_ids: list[str],
+    *,
+    filter_observed: bool = False,
+    max_observed_name_length: int | None = None,
+    exclude_special_observed: bool = False,
+) -> tuple[list[str], list[str]]:
+    """Return SQL LIKE patterns for one or more nodes from an in-memory tree."""
+
+    nodes = _nodes(tree)
     include_terms: list[str] = []
     exclude_terms: list[str] = []
 
@@ -126,13 +159,45 @@ def get_major_cluster_patterns(
         if node_id not in nodes:
             raise KeyError(f"Unknown major tree node: {node_id}")
         node = nodes[node_id]
-        include_terms.extend(node.observed_names)
+        if filter_observed:
+            include_terms.extend(
+                name
+                for name in node.observed_names
+                if _observed_name_matches_node(
+                    name,
+                    node,
+                    max_length=max_observed_name_length,
+                    exclude_special=exclude_special_observed,
+                )
+            )
+        else:
+            include_terms.extend(node.observed_names)
         include_terms.extend(node.include_keywords)
         exclude_terms.extend(node.exclude_keywords)
 
     include_patterns = [f"%{term}%" for term in dict.fromkeys(include_terms) if term]
     exclude_patterns = [f"%{term}%" for term in dict.fromkeys(exclude_terms) if term]
     return include_patterns, exclude_patterns
+
+
+def _observed_name_matches_node(
+    name: str,
+    node: MajorNode,
+    *,
+    max_length: int | None,
+    exclude_special: bool,
+) -> bool:
+    if not name:
+        return False
+    if max_length is not None and len(name) > max_length:
+        return False
+    if exclude_special and any(term in name for term in SPECIAL_MAJOR_TERMS):
+        return False
+    if any(term and term in name for term in node.exclude_keywords):
+        return False
+    if node.include_keywords and not any(term and term in name for term in node.include_keywords):
+        return False
+    return True
 
 
 def _children(parent_id: str, nodes: dict[str, MajorNode]) -> list[MajorNode]:
@@ -176,6 +241,9 @@ def build_relaxation_stages(
     neighbor_category_level: int = 1,
     skip_ancestor_category: bool = False,
     include_any_major_stage: bool = False,
+    filter_observed_patterns: bool = True,
+    max_observed_name_length: int | None = 60,
+    exclude_special_observed: bool = True,
 ) -> list[dict[str, Any]]:
     """Build generic staged relaxations from any source major or source node."""
 
@@ -216,7 +284,13 @@ def build_relaxation_stages(
             continue
 
         cluster_ids = [node.id for node in target_nodes]
-        include_patterns, exclude_patterns = get_major_cluster_patterns(cluster_ids, path=path)
+        include_patterns, exclude_patterns = get_major_cluster_patterns(
+            cluster_ids,
+            path=path,
+            filter_observed=filter_observed_patterns,
+            max_observed_name_length=max_observed_name_length,
+            exclude_special_observed=exclude_special_observed,
+        )
         stages.append(
             {
                 "stage": policy_stage["stage"],
@@ -256,7 +330,13 @@ def build_relaxation_stages(
             if leaf.id != source.id and leaf.id not in used_cluster_ids
         ]
         if cluster_ids:
-            include_patterns, exclude_patterns = get_major_cluster_patterns(cluster_ids, path=path)
+            include_patterns, exclude_patterns = get_major_cluster_patterns(
+                cluster_ids,
+                path=path,
+                filter_observed=filter_observed_patterns,
+                max_observed_name_length=max_observed_name_length,
+                exclude_special_observed=exclude_special_observed,
+            )
             stages.append(
                 {
                     "stage": 4,
