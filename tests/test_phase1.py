@@ -1,0 +1,42 @@
+import pytest
+from langchain_core.messages import HumanMessage
+
+from app.core.db_pg import close_pool, fetch_query
+from app.core.llm_client import get_chat_model
+from app.schemas.models import UserConstraints
+from app.schemas.state import AgentState
+
+
+def test_agent_state_and_user_constraints_contract():
+    constraints = UserConstraints(
+        score=600,
+        province="北京",
+        major="临床医学",
+        budget=30000,
+    )
+    state: AgentState = {
+        "messages": [HumanMessage(content="600分必须在北京读临床")],
+        "constraints": constraints.model_dump(),
+        "baseline_results": [],
+        "score_waste": 0,
+        "pareto_opportunities": {},
+    }
+
+    assert state["constraints"]["score"] == 600
+    assert state["messages"][0].content == "600分必须在北京读临床"
+
+
+@pytest.mark.asyncio
+async def test_fetch_query_select_one():
+    rows = await fetch_query("SELECT 1 AS value")
+    await close_pool()
+
+    assert rows == [{"value": 1}]
+
+
+@pytest.mark.asyncio
+async def test_llm_ping():
+    llm = get_chat_model()
+    response = await llm.ainvoke([HumanMessage(content="ping")])
+
+    assert response.content
