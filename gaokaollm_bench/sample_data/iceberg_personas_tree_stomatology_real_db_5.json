@@ -1,0 +1,897 @@
+[
+  {
+    "case_id": "real-db-set-浙江-520-001",
+    "background": {
+      "score": 520,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "口腔医学",
+      "baseline_school": "浙江长征职业技术学院",
+      "baseline_major": "口腔医学技术",
+      "baseline_tier": 1,
+      "baseline_label": "专科",
+      "volunteer_count": 6,
+      "max_gap_tier": 2,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "relax_scope": "national",
+      "relaxation_stage": 1,
+      "relaxation_stage_label": "同叶子簇变体",
+      "target_major_clusters": [
+        "medical_stomatology"
+      ],
+      "psychological_distance": "very_near"
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读口腔医学",
+      "reason": "认为只有口腔医学才算真正的医学路线，不接受未经证明的专业替代",
+      "current_anchor_school": "浙江长征职业技术学院",
+      "current_anchor_major": "口腔医学技术"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "relax_scope": "national",
+      "relaxation_stage": 1,
+      "relaxation_stage_label": "同叶子簇变体",
+      "target_major_clusters": [
+        "medical_stomatology"
+      ],
+      "psychological_distance": "very_near",
+      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段同叶子簇变体后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于520分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 585,
+          "school_name": "海南医学院",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2022,
+          "min_score": 498,
+          "score_margin": 22,
+          "min_rank": 168638,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 1081,
+          "school_name": "新疆第二医学院",
+          "school_province": "新疆",
+          "school_city": "乌鲁木齐市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2025,
+          "min_score": 507,
+          "score_margin": 13,
+          "min_rank": 164162,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 1176,
+          "school_name": "长沙医学院",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2025,
+          "min_score": 520,
+          "score_margin": 0,
+          "min_rank": 148482,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": 424,
+          "major_name": "口腔医学技术",
+          "year": 2023,
+          "min_score": 488,
+          "score_margin": 32,
+          "min_rank": 175424,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": null,
+          "major_name": "口腔医学技术(云龙校区)",
+          "year": 2023,
+          "min_score": 488,
+          "score_margin": 32,
+          "min_rank": 175424,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": null,
+          "major_name": "口腔医学技术(云龙校区。)",
+          "year": 2023,
+          "min_score": 426,
+          "score_margin": 94,
+          "min_rank": 227398,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "海南医学院",
+        "新疆第二医学院",
+        "长沙医学院",
+        "海南科技职业大学",
+        "海南科技职业大学"
+      ],
+      "tier_labels": [
+        "本科"
+      ],
+      "compromise": "可以从口腔医学按专业簇层级逐步妥协到第1阶段同叶子簇变体"
+    },
+    "initial_utterance": "我520分，只想读口腔医学，其他医学相关专业先别推荐。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_cluster_level_relaxation": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_medtech_set": [
+        "海南医学院",
+        "新疆第二医学院",
+        "长沙医学院",
+        "海南科技职业大学",
+        "海南科技职业大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-525-002",
+    "background": {
+      "score": 525,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "口腔医学",
+      "baseline_school": "浙江长征职业技术学院",
+      "baseline_major": "口腔医学技术",
+      "baseline_tier": 1,
+      "baseline_label": "专科",
+      "volunteer_count": 6,
+      "max_gap_tier": 2,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "relax_scope": "national",
+      "relaxation_stage": 1,
+      "relaxation_stage_label": "同叶子簇变体",
+      "target_major_clusters": [
+        "medical_stomatology"
+      ],
+      "psychological_distance": "very_near"
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读口腔医学",
+      "reason": "认为只有口腔医学才算真正的医学路线，不接受未经证明的专业替代",
+      "current_anchor_school": "浙江长征职业技术学院",
+      "current_anchor_major": "口腔医学技术"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "relax_scope": "national",
+      "relaxation_stage": 1,
+      "relaxation_stage_label": "同叶子簇变体",
+      "target_major_clusters": [
+        "medical_stomatology"
+      ],
+      "psychological_distance": "very_near",
+      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段同叶子簇变体后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于525分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 585,
+          "school_name": "海南医学院",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2022,
+          "min_score": 498,
+          "score_margin": 27,
+          "min_rank": 168638,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 1081,
+          "school_name": "新疆第二医学院",
+          "school_province": "新疆",
+          "school_city": "乌鲁木齐市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2025,
+          "min_score": 507,
+          "score_margin": 18,
+          "min_rank": 164162,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 1176,
+          "school_name": "长沙医学院",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2025,
+          "min_score": 520,
+          "score_margin": 5,
+          "min_rank": 148482,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": 424,
+          "major_name": "口腔医学技术",
+          "year": 2023,
+          "min_score": 488,
+          "score_margin": 37,
+          "min_rank": 175424,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": null,
+          "major_name": "口腔医学技术(云龙校区)",
+          "year": 2023,
+          "min_score": 488,
+          "score_margin": 37,
+          "min_rank": 175424,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": null,
+          "major_name": "口腔医学技术(云龙校区。)",
+          "year": 2023,
+          "min_score": 426,
+          "score_margin": 99,
+          "min_rank": 227398,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "海南医学院",
+        "新疆第二医学院",
+        "长沙医学院",
+        "海南科技职业大学",
+        "海南科技职业大学"
+      ],
+      "tier_labels": [
+        "本科"
+      ],
+      "compromise": "可以从口腔医学按专业簇层级逐步妥协到第1阶段同叶子簇变体"
+    },
+    "initial_utterance": "我525分，只想读口腔医学，其他医学相关专业先别推荐。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_cluster_level_relaxation": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_medtech_set": [
+        "海南医学院",
+        "新疆第二医学院",
+        "长沙医学院",
+        "海南科技职业大学",
+        "海南科技职业大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-530-003",
+    "background": {
+      "score": 530,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "口腔医学",
+      "baseline_school": "浙江长征职业技术学院",
+      "baseline_major": "口腔医学技术",
+      "baseline_tier": 1,
+      "baseline_label": "专科",
+      "volunteer_count": 6,
+      "max_gap_tier": 2,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "relax_scope": "national",
+      "relaxation_stage": 1,
+      "relaxation_stage_label": "同叶子簇变体",
+      "target_major_clusters": [
+        "medical_stomatology"
+      ],
+      "psychological_distance": "very_near"
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读口腔医学",
+      "reason": "认为只有口腔医学才算真正的医学路线，不接受未经证明的专业替代",
+      "current_anchor_school": "浙江长征职业技术学院",
+      "current_anchor_major": "口腔医学技术"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "relax_scope": "national",
+      "relaxation_stage": 1,
+      "relaxation_stage_label": "同叶子簇变体",
+      "target_major_clusters": [
+        "medical_stomatology"
+      ],
+      "psychological_distance": "very_near",
+      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段同叶子簇变体后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于530分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 585,
+          "school_name": "海南医学院",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2022,
+          "min_score": 498,
+          "score_margin": 32,
+          "min_rank": 168638,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 1081,
+          "school_name": "新疆第二医学院",
+          "school_province": "新疆",
+          "school_city": "乌鲁木齐市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2025,
+          "min_score": 507,
+          "score_margin": 23,
+          "min_rank": 164162,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 1176,
+          "school_name": "长沙医学院",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2024,
+          "min_score": 529,
+          "score_margin": 1,
+          "min_rank": 135581,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": 424,
+          "major_name": "口腔医学技术",
+          "year": 2023,
+          "min_score": 488,
+          "score_margin": 42,
+          "min_rank": 175424,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": null,
+          "major_name": "口腔医学技术(云龙校区)",
+          "year": 2023,
+          "min_score": 488,
+          "score_margin": 42,
+          "min_rank": 175424,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": null,
+          "major_name": "口腔医学技术(云龙校区。)",
+          "year": 2023,
+          "min_score": 426,
+          "score_margin": 104,
+          "min_rank": 227398,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "海南医学院",
+        "新疆第二医学院",
+        "长沙医学院",
+        "海南科技职业大学",
+        "海南科技职业大学"
+      ],
+      "tier_labels": [
+        "本科"
+      ],
+      "compromise": "可以从口腔医学按专业簇层级逐步妥协到第1阶段同叶子簇变体"
+    },
+    "initial_utterance": "我530分，只想读口腔医学，其他医学相关专业先别推荐。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_cluster_level_relaxation": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_medtech_set": [
+        "海南医学院",
+        "新疆第二医学院",
+        "长沙医学院",
+        "海南科技职业大学",
+        "海南科技职业大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-535-004",
+    "background": {
+      "score": 535,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "口腔医学",
+      "baseline_school": "浙江长征职业技术学院",
+      "baseline_major": "口腔医学技术",
+      "baseline_tier": 1,
+      "baseline_label": "专科",
+      "volunteer_count": 6,
+      "max_gap_tier": 2,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "relax_scope": "national",
+      "relaxation_stage": 1,
+      "relaxation_stage_label": "同叶子簇变体",
+      "target_major_clusters": [
+        "medical_stomatology"
+      ],
+      "psychological_distance": "very_near"
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读口腔医学",
+      "reason": "认为只有口腔医学才算真正的医学路线，不接受未经证明的专业替代",
+      "current_anchor_school": "浙江长征职业技术学院",
+      "current_anchor_major": "口腔医学技术"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "relax_scope": "national",
+      "relaxation_stage": 1,
+      "relaxation_stage_label": "同叶子簇变体",
+      "target_major_clusters": [
+        "medical_stomatology"
+      ],
+      "psychological_distance": "very_near",
+      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段同叶子簇变体后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于535分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 585,
+          "school_name": "海南医学院",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2022,
+          "min_score": 498,
+          "score_margin": 37,
+          "min_rank": 168638,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 1081,
+          "school_name": "新疆第二医学院",
+          "school_province": "新疆",
+          "school_city": "乌鲁木齐市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2025,
+          "min_score": 507,
+          "score_margin": 28,
+          "min_rank": 164162,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 1176,
+          "school_name": "长沙医学院",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2024,
+          "min_score": 529,
+          "score_margin": 6,
+          "min_rank": 135581,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": 424,
+          "major_name": "口腔医学技术",
+          "year": 2023,
+          "min_score": 488,
+          "score_margin": 47,
+          "min_rank": 175424,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": null,
+          "major_name": "口腔医学技术(云龙校区)",
+          "year": 2023,
+          "min_score": 488,
+          "score_margin": 47,
+          "min_rank": 175424,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": null,
+          "major_name": "口腔医学技术(云龙校区。)",
+          "year": 2023,
+          "min_score": 426,
+          "score_margin": 109,
+          "min_rank": 227398,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "海南医学院",
+        "新疆第二医学院",
+        "长沙医学院",
+        "海南科技职业大学",
+        "海南科技职业大学"
+      ],
+      "tier_labels": [
+        "本科"
+      ],
+      "compromise": "可以从口腔医学按专业簇层级逐步妥协到第1阶段同叶子簇变体"
+    },
+    "initial_utterance": "我535分，只想读口腔医学，其他医学相关专业先别推荐。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_cluster_level_relaxation": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_medtech_set": [
+        "海南医学院",
+        "新疆第二医学院",
+        "长沙医学院",
+        "海南科技职业大学",
+        "海南科技职业大学"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-540-005",
+    "background": {
+      "score": 540,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "口腔医学",
+      "baseline_school": "浙江长征职业技术学院",
+      "baseline_major": "口腔医学技术",
+      "baseline_tier": 1,
+      "baseline_label": "专科",
+      "volunteer_count": 6,
+      "max_gap_tier": 2,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "relax_scope": "national",
+      "relaxation_stage": 1,
+      "relaxation_stage_label": "同叶子簇变体",
+      "target_major_clusters": [
+        "medical_stomatology"
+      ],
+      "psychological_distance": "very_near"
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读口腔医学",
+      "reason": "认为只有口腔医学才算真正的医学路线，不接受未经证明的专业替代",
+      "current_anchor_school": "浙江长征职业技术学院",
+      "current_anchor_major": "口腔医学技术"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "relax_scope": "national",
+      "relaxation_stage": 1,
+      "relaxation_stage_label": "同叶子簇变体",
+      "target_major_clusters": [
+        "medical_stomatology"
+      ],
+      "psychological_distance": "very_near",
+      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第1阶段同叶子簇变体后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于540分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 585,
+          "school_name": "海南医学院",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2022,
+          "min_score": 498,
+          "score_margin": 42,
+          "min_rank": 168638,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 1081,
+          "school_name": "新疆第二医学院",
+          "school_province": "新疆",
+          "school_city": "乌鲁木齐市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2024,
+          "min_score": 539,
+          "score_margin": 1,
+          "min_rank": 124115,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 1176,
+          "school_name": "长沙医学院",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 391,
+          "major_name": "口腔医学",
+          "year": 2024,
+          "min_score": 529,
+          "score_margin": 11,
+          "min_rank": 135581,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": 424,
+          "major_name": "口腔医学技术",
+          "year": 2023,
+          "min_score": 488,
+          "score_margin": 52,
+          "min_rank": 175424,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": null,
+          "major_name": "口腔医学技术(云龙校区)",
+          "year": 2023,
+          "min_score": 488,
+          "score_margin": 52,
+          "min_rank": 175424,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        },
+        {
+          "school_id": 3091,
+          "school_name": "海南科技职业大学",
+          "school_province": "海南",
+          "school_city": "海口市",
+          "major_id": null,
+          "major_name": "口腔医学技术(云龙校区。)",
+          "year": 2023,
+          "min_score": 426,
+          "score_margin": 114,
+          "min_rank": 227398,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "海南医学院",
+        "新疆第二医学院",
+        "长沙医学院",
+        "海南科技职业大学",
+        "海南科技职业大学"
+      ],
+      "tier_labels": [
+        "本科"
+      ],
+      "compromise": "可以从口腔医学按专业簇层级逐步妥协到第1阶段同叶子簇变体"
+    },
+    "initial_utterance": "我540分，只想读口腔医学，其他医学相关专业先别推荐。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_cluster_level_relaxation": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_medtech_set": [
+        "海南医学院",
+        "新疆第二医学院",
+        "长沙医学院",
+        "海南科技职业大学",
+        "海南科技职业大学"
+      ]
+    }
+  }
+]

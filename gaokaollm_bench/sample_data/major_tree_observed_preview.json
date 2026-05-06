@@ -1,0 +1,3097 @@
+{
+  "version": 3,
+  "description": "Auditable major cluster forest. The skeleton is human-reviewed; observed_names should be populated by scanning admission_scores.major_name_raw.",
+  "tree_policy": {
+    "stages": [
+      {
+        "stage": 1,
+        "strategy": "same_leaf_variants",
+        "label": "同叶子簇变体",
+        "psychological_distance": "very_near",
+        "description": "Keep the source leaf cluster but allow observed name variants inside that cluster."
+      },
+      {
+        "stage": 2,
+        "strategy": "sibling_leaf_clusters",
+        "label": "同父节点近邻簇",
+        "psychological_distance": "near",
+        "description": "Relax to sibling leaf clusters under the same parent as the source leaf."
+      },
+      {
+        "stage": 3,
+        "strategy": "cousin_leaf_clusters",
+        "label": "上层大类近邻簇",
+        "psychological_distance": "medium",
+        "description": "Relax to other leaf clusters under the grandparent/root category, excluding the source branch."
+      },
+      {
+        "stage": 4,
+        "strategy": "ancestor_category",
+        "label": "大类兜底",
+        "psychological_distance": "far",
+        "description": "Use the broad ancestor/root category as a final fallback."
+      }
+    ]
+  },
+  "nodes": {
+    "medical_all": {
+      "id": "medical_all",
+      "label": "医学大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": [
+        "临床医学",
+        "口腔医学",
+        "中医学",
+        "中西医临床",
+        "针灸推拿",
+        "麻醉学",
+        "儿科学",
+        "精神医学",
+        "医学影像学",
+        "医学检验",
+        "医学影像",
+        "康复治疗",
+        "卫生检验",
+        "医学实验",
+        "眼视光",
+        "智能医学",
+        "护理",
+        "助产",
+        "药学",
+        "中药学",
+        "药物",
+        "预防医学",
+        "公共卫生",
+        "食品卫生"
+      ],
+      "exclude_keywords": [
+        "动物医学",
+        "兽医"
+      ],
+      "observed_names": [
+        "中医养生保健",
+        "中医养生学",
+        "中医学",
+        "中医学(5+3一体化)",
+        "中医康复学",
+        "中医康复技术",
+        "中药学",
+        "中西医临床医学",
+        "临床医学",
+        "临床医学(5+3一体化)",
+        "临床医学(儿科方向)",
+        "临床药学",
+        "儿科学",
+        "公共卫生与预防医学",
+        "助产",
+        "助产学",
+        "医学实验技术",
+        "医学影像学",
+        "医学影像技术",
+        "医学检验技术",
+        "卫生检验与检疫",
+        "口腔医学",
+        "口腔医学技术",
+        "听力与言语康复学",
+        "康复治疗学",
+        "康复治疗技术",
+        "护理",
+        "护理学",
+        "智能医学工程",
+        "海洋药学",
+        "眼视光医学",
+        "眼视光学",
+        "眼视光技术",
+        "精神医学",
+        "药学",
+        "药学类",
+        "药物分析",
+        "药物制剂",
+        "针灸推拿",
+        "针灸推拿学",
+        "预防医学",
+        "食品卫生与营养学",
+        "麻醉学"
+      ]
+    },
+    "medical_doctoring": {
+      "id": "medical_doctoring",
+      "label": "医学执业医师相关类",
+      "parent": "medical_all",
+      "level": 1,
+      "include_keywords": [
+        "临床医学",
+        "口腔医学",
+        "中医学",
+        "中西医临床",
+        "针灸推拿",
+        "麻醉学",
+        "儿科学",
+        "精神医学",
+        "医学影像学"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "中医养生保健",
+        "中医养生学",
+        "中医学",
+        "中医学(5+3一体化)",
+        "中医康复学",
+        "中医康复技术",
+        "中西医临床医学",
+        "临床医学",
+        "临床医学(5+3一体化)",
+        "临床医学(儿科方向)",
+        "儿科学",
+        "医学影像学",
+        "口腔医学",
+        "口腔医学技术",
+        "精神医学",
+        "针灸推拿",
+        "针灸推拿学",
+        "麻醉学"
+      ]
+    },
+    "medical_support": {
+      "id": "medical_support",
+      "label": "医学支持与健康服务类",
+      "parent": "medical_all",
+      "level": 1,
+      "include_keywords": [
+        "医学检验",
+        "医学影像技术",
+        "康复治疗",
+        "卫生检验",
+        "医学实验",
+        "眼视光",
+        "智能医学",
+        "护理",
+        "助产"
+      ],
+      "exclude_keywords": [
+        "临床医学",
+        "口腔医学",
+        "中医学",
+        "中西医临床"
+      ],
+      "observed_names": [
+        "助产",
+        "助产学",
+        "医学实验技术",
+        "医学影像技术",
+        "医学检验技术",
+        "卫生检验与检疫",
+        "听力与言语康复学",
+        "康复治疗学",
+        "康复治疗技术",
+        "护理",
+        "护理学",
+        "智能医学工程",
+        "眼视光医学",
+        "眼视光学",
+        "眼视光技术"
+      ]
+    },
+    "medical_life_science": {
+      "id": "medical_life_science",
+      "label": "药学与公共卫生类",
+      "parent": "medical_all",
+      "level": 1,
+      "include_keywords": [
+        "药学",
+        "中药学",
+        "药物",
+        "预防医学",
+        "公共卫生",
+        "食品卫生"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "中药学",
+        "临床药学",
+        "公共卫生与预防医学",
+        "卫生检验与检疫",
+        "海洋药学",
+        "药学",
+        "药学类",
+        "药物分析",
+        "药物制剂",
+        "预防医学",
+        "食品卫生与营养学"
+      ]
+    },
+    "medical_clinical": {
+      "id": "medical_clinical",
+      "label": "临床医学类",
+      "parent": "medical_doctoring",
+      "level": 2,
+      "include_keywords": [
+        "临床医学",
+        "麻醉学",
+        "儿科学",
+        "精神医学",
+        "医学影像学"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "临床医学",
+        "临床医学(5+3一体化)",
+        "临床医学(儿科方向)",
+        "儿科学",
+        "医学影像学",
+        "精神医学",
+        "麻醉学"
+      ]
+    },
+    "medical_stomatology": {
+      "id": "medical_stomatology",
+      "label": "口腔医学类",
+      "parent": "medical_doctoring",
+      "level": 2,
+      "include_keywords": [
+        "口腔医学"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "口腔医学",
+        "口腔医学技术"
+      ]
+    },
+    "medical_tcm": {
+      "id": "medical_tcm",
+      "label": "中医中药临床类",
+      "parent": "medical_doctoring",
+      "level": 2,
+      "include_keywords": [
+        "中医学",
+        "针灸推拿",
+        "中西医临床",
+        "中医康复",
+        "中医养生"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "中医养生保健",
+        "中医养生学",
+        "中医学",
+        "中医学(5+3一体化)",
+        "中医康复学",
+        "中医康复技术",
+        "中西医临床医学",
+        "针灸推拿",
+        "针灸推拿学"
+      ]
+    },
+    "medical_technology": {
+      "id": "medical_technology",
+      "label": "医学技术类",
+      "parent": "medical_support",
+      "level": 2,
+      "include_keywords": [
+        "医学检验",
+        "医学影像技术",
+        "康复治疗",
+        "卫生检验",
+        "医学实验",
+        "眼视光",
+        "智能医学",
+        "听力与言语康复"
+      ],
+      "exclude_keywords": [
+        "临床医学",
+        "口腔医学",
+        "中医学",
+        "中西医临床"
+      ],
+      "observed_names": [
+        "医学实验技术",
+        "医学影像技术",
+        "医学检验技术",
+        "卫生检验与检疫",
+        "听力与言语康复学",
+        "康复治疗学",
+        "康复治疗技术",
+        "智能医学工程",
+        "眼视光医学",
+        "眼视光学",
+        "眼视光技术"
+      ]
+    },
+    "medical_nursing": {
+      "id": "medical_nursing",
+      "label": "护理类",
+      "parent": "medical_support",
+      "level": 2,
+      "include_keywords": [
+        "护理",
+        "助产"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "助产",
+        "助产学",
+        "护理",
+        "护理学"
+      ]
+    },
+    "medical_pharmacy": {
+      "id": "medical_pharmacy",
+      "label": "药学类",
+      "parent": "medical_life_science",
+      "level": 2,
+      "include_keywords": [
+        "药学",
+        "临床药学",
+        "中药学",
+        "药物",
+        "海洋药学"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "中药学",
+        "临床药学",
+        "海洋药学",
+        "药学",
+        "药学类",
+        "药物分析",
+        "药物制剂"
+      ]
+    },
+    "medical_public_health": {
+      "id": "medical_public_health",
+      "label": "公共卫生与预防医学类",
+      "parent": "medical_life_science",
+      "level": 2,
+      "include_keywords": [
+        "预防医学",
+        "公共卫生",
+        "食品卫生",
+        "卫生检验"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "公共卫生与预防医学",
+        "卫生检验与检疫",
+        "预防医学",
+        "食品卫生与营养学"
+      ]
+    },
+    "computer_all": {
+      "id": "computer_all",
+      "label": "计算机与电子信息大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": [
+        "计算机",
+        "软件",
+        "网络",
+        "数据",
+        "人工智能",
+        "信息安全",
+        "物联网",
+        "电子信息",
+        "通信",
+        "自动化",
+        "集成电路"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "人工智能",
+        "人工智能技术应用",
+        "信息安全",
+        "信息安全技术应用",
+        "信息工程",
+        "光电信息科学与工程",
+        "农业机械化及其自动化",
+        "医学信息工程",
+        "地理空间信息工程",
+        "大数据与审计",
+        "大数据与财务管理",
+        "大数据技术",
+        "大数据管理与应用",
+        "微电子科学与工程",
+        "数字媒体技术",
+        "数据科学与大数据技术",
+        "智能电网信息工程",
+        "智能科学与技术",
+        "智能装备与系统",
+        "机器人工程",
+        "机械制造及自动化",
+        "物联网工程",
+        "电力系统自动化技术",
+        "电子信息工程",
+        "电子信息工程技术",
+        "电子信息科学与技术",
+        "电子信息类",
+        "电子科学与技术",
+        "电气自动化技术",
+        "网络工程",
+        "网络空间安全",
+        "自动化",
+        "自动化类",
+        "计算机科学与技术",
+        "计算机类",
+        "财税大数据应用",
+        "软件工程",
+        "软件技术",
+        "通信工程",
+        "集成电路技术",
+        "集成电路设计与集成系统"
+      ]
+    },
+    "computer_core": {
+      "id": "computer_core",
+      "label": "计算机软件与数据类",
+      "parent": "computer_all",
+      "level": 1,
+      "include_keywords": [
+        "计算机",
+        "软件",
+        "网络",
+        "数据",
+        "人工智能",
+        "信息安全",
+        "物联网"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "人工智能",
+        "人工智能技术应用",
+        "信息安全",
+        "信息安全技术应用",
+        "大数据与审计",
+        "大数据与财务管理",
+        "大数据技术",
+        "大数据管理与应用",
+        "数字媒体技术",
+        "数据科学与大数据技术",
+        "智能科学与技术",
+        "物联网工程",
+        "网络工程",
+        "网络空间安全",
+        "计算机科学与技术",
+        "计算机类",
+        "财税大数据应用",
+        "软件工程",
+        "软件技术"
+      ]
+    },
+    "electronic_information": {
+      "id": "electronic_information",
+      "label": "电子信息与自动化类",
+      "parent": "computer_all",
+      "level": 1,
+      "include_keywords": [
+        "电子信息",
+        "通信",
+        "自动化",
+        "集成电路",
+        "微电子",
+        "光电信息",
+        "电子科学"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "信息工程",
+        "光电信息科学与工程",
+        "农业机械化及其自动化",
+        "医学信息工程",
+        "地理空间信息工程",
+        "微电子科学与工程",
+        "智能电网信息工程",
+        "智能装备与系统",
+        "机器人工程",
+        "机械制造及自动化",
+        "电力系统自动化技术",
+        "电子信息工程",
+        "电子信息工程技术",
+        "电子信息科学与技术",
+        "电子信息类",
+        "电子科学与技术",
+        "电气自动化技术",
+        "自动化",
+        "自动化类",
+        "通信工程",
+        "集成电路技术",
+        "集成电路设计与集成系统"
+      ]
+    },
+    "computer_science": {
+      "id": "computer_science",
+      "label": "计算机科学类",
+      "parent": "computer_core",
+      "level": 2,
+      "include_keywords": [
+        "计算机科学",
+        "计算机类",
+        "数字媒体技术"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "数字媒体技术",
+        "计算机科学与技术",
+        "计算机类"
+      ]
+    },
+    "software_engineering": {
+      "id": "software_engineering",
+      "label": "软件工程类",
+      "parent": "computer_core",
+      "level": 2,
+      "include_keywords": [
+        "软件工程",
+        "软件技术"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "软件工程",
+        "软件技术"
+      ]
+    },
+    "data_ai": {
+      "id": "data_ai",
+      "label": "数据与人工智能类",
+      "parent": "computer_core",
+      "level": 2,
+      "include_keywords": [
+        "数据科学",
+        "大数据",
+        "人工智能",
+        "智能科学"
+      ],
+      "exclude_keywords": [
+        "大数据与会计",
+        "商务数据分析"
+      ],
+      "observed_names": [
+        "人工智能",
+        "人工智能技术应用",
+        "大数据与审计",
+        "大数据与财务管理",
+        "大数据技术",
+        "大数据管理与应用",
+        "数据科学与大数据技术",
+        "智能科学与技术",
+        "财税大数据应用"
+      ]
+    },
+    "network_security": {
+      "id": "network_security",
+      "label": "网络与安全类",
+      "parent": "computer_core",
+      "level": 2,
+      "include_keywords": [
+        "网络工程",
+        "信息安全",
+        "网络空间安全",
+        "物联网工程"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "信息安全",
+        "信息安全技术应用",
+        "物联网工程",
+        "网络工程",
+        "网络空间安全"
+      ]
+    },
+    "electronic_info": {
+      "id": "electronic_info",
+      "label": "电子信息类",
+      "parent": "electronic_information",
+      "level": 2,
+      "include_keywords": [
+        "电子信息",
+        "电子科学",
+        "微电子",
+        "光电信息",
+        "集成电路"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "光电信息科学与工程",
+        "微电子科学与工程",
+        "电子信息工程",
+        "电子信息工程技术",
+        "电子信息科学与技术",
+        "电子信息类",
+        "电子科学与技术",
+        "集成电路技术",
+        "集成电路设计与集成系统"
+      ]
+    },
+    "communication_engineering": {
+      "id": "communication_engineering",
+      "label": "通信工程类",
+      "parent": "electronic_information",
+      "level": 2,
+      "include_keywords": [
+        "通信工程",
+        "信息工程",
+        "电信工程"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "信息工程",
+        "医学信息工程",
+        "地理空间信息工程",
+        "智能电网信息工程",
+        "通信工程"
+      ]
+    },
+    "automation_control": {
+      "id": "automation_control",
+      "label": "自动化与控制类",
+      "parent": "electronic_information",
+      "level": 2,
+      "include_keywords": [
+        "自动化",
+        "机器人工程",
+        "智能装备"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "农业机械化及其自动化",
+        "智能装备与系统",
+        "机器人工程",
+        "机械制造及自动化",
+        "电力系统自动化技术",
+        "电气自动化技术",
+        "自动化",
+        "自动化类"
+      ]
+    },
+    "engineering_all": {
+      "id": "engineering_all",
+      "label": "传统工科大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": [
+        "机械",
+        "车辆",
+        "土木",
+        "建筑",
+        "电气",
+        "能源",
+        "材料",
+        "化工",
+        "环境",
+        "安全工程",
+        "交通运输",
+        "航空航天"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "交通工程",
+        "交通运输",
+        "交通运输类",
+        "人文地理与城乡规划",
+        "储能科学与工程",
+        "制药工程",
+        "功能材料",
+        "化学工程与工艺",
+        "土木工程",
+        "城乡规划",
+        "城市轨道交通工程技术",
+        "复合材料与工程",
+        "安全工程",
+        "宝石及材料工艺学",
+        "工业设计",
+        "工程管理",
+        "应急技术与管理",
+        "建筑学",
+        "建设工程管理",
+        "新能源材料与器件",
+        "新能源汽车工程",
+        "新能源汽车技术",
+        "新能源汽车检测与维修技术",
+        "新能源科学与工程",
+        "无机非金属材料工程",
+        "智能制造工程",
+        "智能制造装备技术",
+        "智能车辆工程",
+        "机械工程",
+        "机械电子工程",
+        "机械类",
+        "机械设计与制造",
+        "机械设计制造及其自动化",
+        "材料化学",
+        "材料成型及控制工程",
+        "材料物理",
+        "材料科学与工程",
+        "材料类",
+        "环境工程",
+        "环境工程技术",
+        "环境科学",
+        "环境科学与工程",
+        "环境科学与工程类",
+        "电气工程与智能控制",
+        "电气工程及其自动化",
+        "给排水科学与工程",
+        "能源与动力工程",
+        "能源化学工程",
+        "航空航天工程",
+        "车辆工程",
+        "金属材料工程",
+        "飞行器制造工程",
+        "飞行器数字化制造技术",
+        "飞行器设计与工程",
+        "高分子材料与工程"
+      ]
+    },
+    "engineering_manufacturing": {
+      "id": "engineering_manufacturing",
+      "label": "制造能源材料类",
+      "parent": "engineering_all",
+      "level": 1,
+      "include_keywords": [
+        "机械",
+        "车辆",
+        "电气",
+        "能源",
+        "材料",
+        "化工",
+        "航空航天"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "储能科学与工程",
+        "制药工程",
+        "功能材料",
+        "化学工程与工艺",
+        "复合材料与工程",
+        "宝石及材料工艺学",
+        "工业设计",
+        "新能源材料与器件",
+        "新能源汽车工程",
+        "新能源汽车技术",
+        "新能源汽车检测与维修技术",
+        "新能源科学与工程",
+        "无机非金属材料工程",
+        "智能制造工程",
+        "智能制造装备技术",
+        "智能车辆工程",
+        "机械工程",
+        "机械电子工程",
+        "机械类",
+        "机械设计与制造",
+        "机械设计制造及其自动化",
+        "材料化学",
+        "材料成型及控制工程",
+        "材料物理",
+        "材料科学与工程",
+        "材料类",
+        "电气工程与智能控制",
+        "电气工程及其自动化",
+        "能源与动力工程",
+        "能源化学工程",
+        "车辆工程",
+        "金属材料工程",
+        "高分子材料与工程"
+      ]
+    },
+    "engineering_built_environment": {
+      "id": "engineering_built_environment",
+      "label": "建造交通环境类",
+      "parent": "engineering_all",
+      "level": 1,
+      "include_keywords": [
+        "土木",
+        "建筑",
+        "交通运输",
+        "环境",
+        "安全工程",
+        "给排水"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "交通工程",
+        "交通运输",
+        "交通运输类",
+        "人文地理与城乡规划",
+        "土木工程",
+        "城乡规划",
+        "城市轨道交通工程技术",
+        "安全工程",
+        "工程管理",
+        "应急技术与管理",
+        "建筑学",
+        "建设工程管理",
+        "环境工程",
+        "环境工程技术",
+        "环境科学",
+        "环境科学与工程",
+        "环境科学与工程类",
+        "给排水科学与工程",
+        "航空航天工程",
+        "飞行器制造工程",
+        "飞行器数字化制造技术",
+        "飞行器设计与工程"
+      ]
+    },
+    "mechanical_vehicle": {
+      "id": "mechanical_vehicle",
+      "label": "机械与车辆类",
+      "parent": "engineering_manufacturing",
+      "level": 2,
+      "include_keywords": [
+        "机械",
+        "车辆工程",
+        "智能制造",
+        "工业设计"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "工业设计",
+        "智能制造工程",
+        "智能制造装备技术",
+        "智能车辆工程",
+        "机械工程",
+        "机械电子工程",
+        "机械类",
+        "机械设计与制造",
+        "机械设计制造及其自动化",
+        "车辆工程"
+      ]
+    },
+    "electrical_energy": {
+      "id": "electrical_energy",
+      "label": "电气与能源类",
+      "parent": "engineering_manufacturing",
+      "level": 2,
+      "include_keywords": [
+        "电气工程",
+        "能源与动力",
+        "新能源",
+        "储能"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "储能科学与工程",
+        "新能源材料与器件",
+        "新能源汽车工程",
+        "新能源汽车技术",
+        "新能源汽车检测与维修技术",
+        "新能源科学与工程",
+        "电气工程与智能控制",
+        "电气工程及其自动化",
+        "能源与动力工程"
+      ]
+    },
+    "materials_chemical": {
+      "id": "materials_chemical",
+      "label": "材料与化工类",
+      "parent": "engineering_manufacturing",
+      "level": 2,
+      "include_keywords": [
+        "材料",
+        "化学工程",
+        "制药工程",
+        "高分子"
+      ],
+      "exclude_keywords": [
+        "药学"
+      ],
+      "observed_names": [
+        "制药工程",
+        "功能材料",
+        "化学工程与工艺",
+        "复合材料与工程",
+        "宝石及材料工艺学",
+        "无机非金属材料工程",
+        "材料化学",
+        "材料成型及控制工程",
+        "材料物理",
+        "材料科学与工程",
+        "材料类",
+        "能源化学工程",
+        "金属材料工程",
+        "高分子材料与工程"
+      ]
+    },
+    "civil_architecture": {
+      "id": "civil_architecture",
+      "label": "土木建筑类",
+      "parent": "engineering_built_environment",
+      "level": 2,
+      "include_keywords": [
+        "土木工程",
+        "建筑学",
+        "城乡规划",
+        "工程管理",
+        "给排水"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "人文地理与城乡规划",
+        "土木工程",
+        "城乡规划",
+        "工程管理",
+        "建筑学",
+        "建设工程管理",
+        "给排水科学与工程"
+      ]
+    },
+    "transportation_aerospace": {
+      "id": "transportation_aerospace",
+      "label": "交通运输与航空航天类",
+      "parent": "engineering_built_environment",
+      "level": 2,
+      "include_keywords": [
+        "交通运输",
+        "交通工程",
+        "航空航天",
+        "飞行器"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "交通工程",
+        "交通运输",
+        "交通运输类",
+        "城市轨道交通工程技术",
+        "航空航天工程",
+        "飞行器制造工程",
+        "飞行器数字化制造技术",
+        "飞行器设计与工程"
+      ]
+    },
+    "environment_safety": {
+      "id": "environment_safety",
+      "label": "环境与安全类",
+      "parent": "engineering_built_environment",
+      "level": 2,
+      "include_keywords": [
+        "环境工程",
+        "环境科学",
+        "安全工程",
+        "应急技术"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "安全工程",
+        "应急技术与管理",
+        "环境工程",
+        "环境工程技术",
+        "环境科学",
+        "环境科学与工程",
+        "环境科学与工程类"
+      ]
+    },
+    "econ_mgmt_all": {
+      "id": "econ_mgmt_all",
+      "label": "经济管理商科大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": [
+        "经济",
+        "金融",
+        "会计",
+        "财务",
+        "贸易",
+        "工商管理",
+        "市场营销",
+        "电子商务",
+        "物流",
+        "旅游管理",
+        "审计"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "互联网金融",
+        "人力资源管理",
+        "会计信息管理",
+        "会计学",
+        "供应链管理",
+        "供应链运营",
+        "创业管理",
+        "国际经济与贸易",
+        "国际金融",
+        "大数据与会计",
+        "审计学",
+        "工商管理",
+        "工商管理类",
+        "市场营销",
+        "数字经济",
+        "旅游管理",
+        "旅游管理类",
+        "物流管理",
+        "现代物流管理",
+        "电子商务",
+        "税收学",
+        "经济与金融",
+        "经济学",
+        "经济学类",
+        "航空物流管理",
+        "财务管理",
+        "贸易经济",
+        "跨境电子商务",
+        "酒店管理",
+        "酒店管理与数字化运营",
+        "金融学",
+        "金融学类",
+        "金融工程",
+        "金融数学",
+        "金融服务与管理",
+        "金融科技",
+        "金融科技应用"
+      ]
+    },
+    "econ_finance_group": {
+      "id": "econ_finance_group",
+      "label": "经济金融会计类",
+      "parent": "econ_mgmt_all",
+      "level": 1,
+      "include_keywords": [
+        "经济",
+        "金融",
+        "会计",
+        "财务",
+        "贸易",
+        "审计",
+        "税收"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "互联网金融",
+        "会计信息管理",
+        "会计学",
+        "国际经济与贸易",
+        "国际金融",
+        "大数据与会计",
+        "审计学",
+        "数字经济",
+        "税收学",
+        "经济与金融",
+        "经济学",
+        "经济学类",
+        "财务管理",
+        "贸易经济",
+        "金融学",
+        "金融学类",
+        "金融工程",
+        "金融数学",
+        "金融服务与管理",
+        "金融科技",
+        "金融科技应用"
+      ]
+    },
+    "business_group": {
+      "id": "business_group",
+      "label": "工商管理与服务贸易类",
+      "parent": "econ_mgmt_all",
+      "level": 1,
+      "include_keywords": [
+        "工商管理",
+        "市场营销",
+        "电子商务",
+        "物流",
+        "旅游管理",
+        "人力资源"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "人力资源管理",
+        "供应链管理",
+        "供应链运营",
+        "创业管理",
+        "工商管理",
+        "工商管理类",
+        "市场营销",
+        "旅游管理",
+        "旅游管理类",
+        "物流管理",
+        "现代物流管理",
+        "电子商务",
+        "航空物流管理",
+        "跨境电子商务",
+        "酒店管理",
+        "酒店管理与数字化运营"
+      ]
+    },
+    "economics_trade": {
+      "id": "economics_trade",
+      "label": "经济与贸易类",
+      "parent": "econ_finance_group",
+      "level": 2,
+      "include_keywords": [
+        "经济学",
+        "国际经济与贸易",
+        "贸易经济",
+        "数字经济"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "国际经济与贸易",
+        "数字经济",
+        "经济学",
+        "经济学类",
+        "贸易经济"
+      ]
+    },
+    "finance_accounting": {
+      "id": "finance_accounting",
+      "label": "金融会计财务类",
+      "parent": "econ_finance_group",
+      "level": 2,
+      "include_keywords": [
+        "金融",
+        "会计",
+        "财务管理",
+        "审计",
+        "税收"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "互联网金融",
+        "会计信息管理",
+        "会计学",
+        "国际金融",
+        "大数据与会计",
+        "审计学",
+        "税收学",
+        "经济与金融",
+        "财务管理",
+        "金融学",
+        "金融学类",
+        "金融工程",
+        "金融数学",
+        "金融服务与管理",
+        "金融科技",
+        "金融科技应用"
+      ]
+    },
+    "business_management": {
+      "id": "business_management",
+      "label": "工商管理营销类",
+      "parent": "business_group",
+      "level": 2,
+      "include_keywords": [
+        "工商管理",
+        "市场营销",
+        "人力资源",
+        "创业管理"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "人力资源管理",
+        "创业管理",
+        "工商管理",
+        "工商管理类",
+        "市场营销"
+      ]
+    },
+    "ecommerce_logistics_tourism": {
+      "id": "ecommerce_logistics_tourism",
+      "label": "电商物流旅游类",
+      "parent": "business_group",
+      "level": 2,
+      "include_keywords": [
+        "电子商务",
+        "物流管理",
+        "供应链",
+        "旅游管理",
+        "酒店管理"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "供应链管理",
+        "供应链运营",
+        "旅游管理",
+        "旅游管理类",
+        "物流管理",
+        "现代物流管理",
+        "电子商务",
+        "航空物流管理",
+        "跨境电子商务",
+        "酒店管理",
+        "酒店管理与数字化运营"
+      ]
+    },
+    "humanities_all": {
+      "id": "humanities_all",
+      "label": "人文社科教育大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": [
+        "法学",
+        "社会工作",
+        "汉语言",
+        "英语",
+        "日语",
+        "教育",
+        "心理",
+        "新闻",
+        "传播",
+        "历史",
+        "哲学"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "传播与策划",
+        "传播学",
+        "全媒体广告策划与营销",
+        "公共事业管理",
+        "劳动与社会保障",
+        "历史学",
+        "历史学(师范)",
+        "历史学类",
+        "哲学",
+        "商务日语",
+        "商务英语",
+        "外国语言文学类",
+        "学前教育",
+        "学前教育(师范)",
+        "小学教育",
+        "小学教育(师范)",
+        "小学英语教育",
+        "小学英语教育(师范)",
+        "广告学",
+        "广告艺术设计",
+        "广播电视学",
+        "应用心理学",
+        "应用日语",
+        "应用英语",
+        "心理学",
+        "政治学与行政学",
+        "教育学",
+        "文物与博物馆学",
+        "新闻传播学类",
+        "新闻学",
+        "新闻采编与制作",
+        "旅游英语",
+        "日语",
+        "档案学",
+        "汉语言文学",
+        "汉语言文学(师范)",
+        "法学",
+        "法学类",
+        "特殊教育",
+        "特殊教育(师范)",
+        "知识产权",
+        "社会工作",
+        "网络与新媒体",
+        "网络新闻与传播",
+        "翻译",
+        "英语",
+        "英语(师范)",
+        "行政管理"
+      ]
+    },
+    "law_public_group": {
+      "id": "law_public_group",
+      "label": "法政公共类",
+      "parent": "humanities_all",
+      "level": 1,
+      "include_keywords": [
+        "法学",
+        "社会工作",
+        "行政管理",
+        "政治学",
+        "公安"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "公共事业管理",
+        "劳动与社会保障",
+        "政治学与行政学",
+        "法学",
+        "法学类",
+        "知识产权",
+        "社会工作",
+        "行政管理"
+      ]
+    },
+    "language_education_group": {
+      "id": "language_education_group",
+      "label": "语言教育心理类",
+      "parent": "humanities_all",
+      "level": 1,
+      "include_keywords": [
+        "汉语言",
+        "英语",
+        "日语",
+        "翻译",
+        "教育",
+        "心理"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "商务日语",
+        "商务英语",
+        "外国语言文学类",
+        "学前教育",
+        "学前教育(师范)",
+        "小学教育",
+        "小学教育(师范)",
+        "小学英语教育",
+        "小学英语教育(师范)",
+        "应用心理学",
+        "应用日语",
+        "应用英语",
+        "心理学",
+        "教育学",
+        "旅游英语",
+        "日语",
+        "汉语言文学",
+        "汉语言文学(师范)",
+        "特殊教育",
+        "特殊教育(师范)",
+        "翻译",
+        "英语",
+        "英语(师范)"
+      ]
+    },
+    "media_history_group": {
+      "id": "media_history_group",
+      "label": "新闻传播历史哲学类",
+      "parent": "humanities_all",
+      "level": 1,
+      "include_keywords": [
+        "新闻",
+        "传播",
+        "广告",
+        "历史",
+        "哲学",
+        "档案"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "传播与策划",
+        "传播学",
+        "全媒体广告策划与营销",
+        "历史学",
+        "历史学(师范)",
+        "历史学类",
+        "哲学",
+        "广告学",
+        "广告艺术设计",
+        "广播电视学",
+        "文物与博物馆学",
+        "新闻传播学类",
+        "新闻学",
+        "新闻采编与制作",
+        "档案学",
+        "网络与新媒体",
+        "网络新闻与传播"
+      ]
+    },
+    "law_politics": {
+      "id": "law_politics",
+      "label": "法学政治类",
+      "parent": "law_public_group",
+      "level": 2,
+      "include_keywords": [
+        "法学",
+        "政治学",
+        "知识产权",
+        "公安"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "政治学与行政学",
+        "法学",
+        "法学类",
+        "知识产权"
+      ]
+    },
+    "public_social_work": {
+      "id": "public_social_work",
+      "label": "公共管理社会工作类",
+      "parent": "law_public_group",
+      "level": 2,
+      "include_keywords": [
+        "社会工作",
+        "行政管理",
+        "公共事业管理",
+        "劳动与社会保障"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "公共事业管理",
+        "劳动与社会保障",
+        "社会工作",
+        "行政管理"
+      ]
+    },
+    "languages_literature": {
+      "id": "languages_literature",
+      "label": "语言文学类",
+      "parent": "language_education_group",
+      "level": 2,
+      "include_keywords": [
+        "汉语言",
+        "英语",
+        "日语",
+        "翻译",
+        "商务英语",
+        "外国语言"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "商务日语",
+        "商务英语",
+        "外国语言文学类",
+        "小学英语教育",
+        "小学英语教育(师范)",
+        "应用日语",
+        "应用英语",
+        "旅游英语",
+        "日语",
+        "汉语言文学",
+        "汉语言文学(师范)",
+        "翻译",
+        "英语",
+        "英语(师范)"
+      ]
+    },
+    "education_psychology": {
+      "id": "education_psychology",
+      "label": "教育心理类",
+      "parent": "language_education_group",
+      "level": 2,
+      "include_keywords": [
+        "教育学",
+        "学前教育",
+        "小学教育",
+        "特殊教育",
+        "心理学",
+        "应用心理"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "学前教育",
+        "学前教育(师范)",
+        "小学教育",
+        "小学教育(师范)",
+        "应用心理学",
+        "心理学",
+        "教育学",
+        "特殊教育",
+        "特殊教育(师范)"
+      ]
+    },
+    "journalism_media": {
+      "id": "journalism_media",
+      "label": "新闻传播广告类",
+      "parent": "media_history_group",
+      "level": 2,
+      "include_keywords": [
+        "新闻",
+        "传播",
+        "广告",
+        "网络与新媒体",
+        "广播电视"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "传播与策划",
+        "传播学",
+        "全媒体广告策划与营销",
+        "广告学",
+        "广告艺术设计",
+        "广播电视学",
+        "新闻传播学类",
+        "新闻学",
+        "新闻采编与制作",
+        "网络与新媒体",
+        "网络新闻与传播"
+      ]
+    },
+    "history_philosophy_archives": {
+      "id": "history_philosophy_archives",
+      "label": "历史哲学档案类",
+      "parent": "media_history_group",
+      "level": 2,
+      "include_keywords": [
+        "历史学",
+        "哲学",
+        "档案学",
+        "文物"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "历史学",
+        "历史学(师范)",
+        "历史学类",
+        "哲学",
+        "文物与博物馆学",
+        "档案学"
+      ]
+    },
+    "science_agri_all": {
+      "id": "science_agri_all",
+      "label": "理学农学大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": [
+        "数学",
+        "物理",
+        "化学",
+        "统计",
+        "生物",
+        "食品",
+        "农学",
+        "园艺",
+        "林学",
+        "动物医学",
+        "水产",
+        "地理",
+        "生态"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "信息与计算科学",
+        "农学",
+        "动物医学",
+        "动物科学",
+        "化学",
+        "化学(师范)",
+        "化学类",
+        "医学生物技术",
+        "园林",
+        "园林工程技术",
+        "园林技术",
+        "园艺",
+        "园艺技术",
+        "地理科学",
+        "地理科学(师范)",
+        "地理科学类",
+        "应用化学",
+        "应用物理学",
+        "应用统计学",
+        "数学与应用数学",
+        "数学与应用数学(师范)",
+        "数学类",
+        "林学",
+        "植物保护",
+        "水产养殖学",
+        "物理学",
+        "物理学(师范)",
+        "物理学类",
+        "生态学",
+        "生物技术",
+        "生物科学",
+        "生物科学(师范)",
+        "生物科学类",
+        "畜牧兽医",
+        "经济统计学",
+        "统计学",
+        "药品生物技术",
+        "风景园林",
+        "风景园林设计",
+        "食品科学与工程",
+        "食品科学与工程类",
+        "食品营养与健康",
+        "食品质量与安全"
+      ]
+    },
+    "basic_science_group": {
+      "id": "basic_science_group",
+      "label": "数理化生基础科学类",
+      "parent": "science_agri_all",
+      "level": 1,
+      "include_keywords": [
+        "数学",
+        "物理",
+        "化学",
+        "统计",
+        "生物",
+        "地理",
+        "生态"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "信息与计算科学",
+        "化学",
+        "化学(师范)",
+        "化学类",
+        "医学生物技术",
+        "地理科学",
+        "地理科学(师范)",
+        "地理科学类",
+        "应用化学",
+        "应用物理学",
+        "应用统计学",
+        "数学与应用数学",
+        "数学与应用数学(师范)",
+        "数学类",
+        "物理学",
+        "物理学(师范)",
+        "物理学类",
+        "生态学",
+        "生物技术",
+        "生物科学",
+        "生物科学(师范)",
+        "生物科学类",
+        "经济统计学",
+        "统计学",
+        "药品生物技术"
+      ]
+    },
+    "agri_life_group": {
+      "id": "agri_life_group",
+      "label": "农业食品动物类",
+      "parent": "science_agri_all",
+      "level": 1,
+      "include_keywords": [
+        "食品",
+        "农学",
+        "园艺",
+        "林学",
+        "动物医学",
+        "水产"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "农学",
+        "动物医学",
+        "动物科学",
+        "园林",
+        "园林工程技术",
+        "园林技术",
+        "园艺",
+        "园艺技术",
+        "林学",
+        "植物保护",
+        "水产养殖学",
+        "畜牧兽医",
+        "风景园林",
+        "风景园林设计",
+        "食品科学与工程",
+        "食品科学与工程类",
+        "食品营养与健康",
+        "食品质量与安全"
+      ]
+    },
+    "math_stats": {
+      "id": "math_stats",
+      "label": "数学统计类",
+      "parent": "basic_science_group",
+      "level": 2,
+      "include_keywords": [
+        "数学",
+        "统计学",
+        "信息与计算科学"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "信息与计算科学",
+        "应用统计学",
+        "数学与应用数学",
+        "数学与应用数学(师范)",
+        "数学类",
+        "经济统计学",
+        "统计学"
+      ]
+    },
+    "physics_chemistry": {
+      "id": "physics_chemistry",
+      "label": "物理化学类",
+      "parent": "basic_science_group",
+      "level": 2,
+      "include_keywords": [
+        "物理学",
+        "应用物理",
+        "化学",
+        "应用化学"
+      ],
+      "exclude_keywords": [
+        "化学工程"
+      ],
+      "observed_names": [
+        "化学",
+        "化学(师范)",
+        "化学类",
+        "应用化学",
+        "应用物理学",
+        "物理学",
+        "物理学(师范)",
+        "物理学类"
+      ]
+    },
+    "bio_geo_ecology": {
+      "id": "bio_geo_ecology",
+      "label": "生物地理生态类",
+      "parent": "basic_science_group",
+      "level": 2,
+      "include_keywords": [
+        "生物科学",
+        "生物技术",
+        "地理科学",
+        "生态学"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "医学生物技术",
+        "地理科学",
+        "地理科学(师范)",
+        "地理科学类",
+        "生态学",
+        "生物技术",
+        "生物科学",
+        "生物科学(师范)",
+        "生物科学类",
+        "药品生物技术"
+      ]
+    },
+    "food_science": {
+      "id": "food_science",
+      "label": "食品科学类",
+      "parent": "agri_life_group",
+      "level": 2,
+      "include_keywords": [
+        "食品科学",
+        "食品质量",
+        "食品安全",
+        "食品营养"
+      ],
+      "exclude_keywords": [
+        "食品卫生"
+      ],
+      "observed_names": [
+        "食品科学与工程",
+        "食品科学与工程类",
+        "食品营养与健康",
+        "食品质量与安全"
+      ]
+    },
+    "agriculture_forestry": {
+      "id": "agriculture_forestry",
+      "label": "农林园艺类",
+      "parent": "agri_life_group",
+      "level": 2,
+      "include_keywords": [
+        "农学",
+        "园艺",
+        "植物保护",
+        "林学",
+        "园林"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "农学",
+        "园林",
+        "园林工程技术",
+        "园林技术",
+        "园艺",
+        "园艺技术",
+        "林学",
+        "植物保护",
+        "风景园林",
+        "风景园林设计"
+      ]
+    },
+    "animal_veterinary": {
+      "id": "animal_veterinary",
+      "label": "动物医学水产类",
+      "parent": "agri_life_group",
+      "level": 2,
+      "include_keywords": [
+        "动物医学",
+        "动物科学",
+        "兽医",
+        "水产养殖"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "动物医学",
+        "动物科学",
+        "水产养殖学",
+        "畜牧兽医"
+      ]
+    },
+    "arts_all": {
+      "id": "arts_all",
+      "label": "艺术设计体育大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": [
+        "设计",
+        "美术",
+        "视觉传达",
+        "环境设计",
+        "音乐",
+        "舞蹈",
+        "表演",
+        "动画",
+        "戏剧",
+        "体育",
+        "播音"
+      ],
+      "exclude_keywords": [
+        "工业设计"
+      ],
+      "observed_names": [
+        "产品设计",
+        "动画",
+        "广播电视编导",
+        "影视动画",
+        "戏剧影视文学",
+        "播音与主持艺术",
+        "服装与服饰设计",
+        "环境设计",
+        "美术学",
+        "表演",
+        "视觉传达设计"
+      ]
+    },
+    "visual_design_group": {
+      "id": "visual_design_group",
+      "label": "视觉设计美术类",
+      "parent": "arts_all",
+      "level": 1,
+      "include_keywords": [
+        "设计",
+        "美术",
+        "视觉传达",
+        "环境设计",
+        "产品设计",
+        "服装"
+      ],
+      "exclude_keywords": [
+        "工业设计"
+      ],
+      "observed_names": [
+        "产品设计",
+        "服装与服饰设计",
+        "环境设计",
+        "美术学",
+        "视觉传达设计"
+      ]
+    },
+    "performing_media_group": {
+      "id": "performing_media_group",
+      "label": "表演音乐影视体育类",
+      "parent": "arts_all",
+      "level": 1,
+      "include_keywords": [
+        "音乐",
+        "舞蹈",
+        "表演",
+        "动画",
+        "戏剧",
+        "播音",
+        "体育"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "动画",
+        "广播电视编导",
+        "影视动画",
+        "戏剧影视文学",
+        "播音与主持艺术",
+        "表演"
+      ]
+    },
+    "design_art": {
+      "id": "design_art",
+      "label": "设计美术类",
+      "parent": "visual_design_group",
+      "level": 2,
+      "include_keywords": [
+        "视觉传达",
+        "环境设计",
+        "产品设计",
+        "服装与服饰设计",
+        "美术学"
+      ],
+      "exclude_keywords": [
+        "工业设计"
+      ],
+      "observed_names": [
+        "产品设计",
+        "服装与服饰设计",
+        "环境设计",
+        "美术学",
+        "视觉传达设计"
+      ]
+    },
+    "film_animation_performance": {
+      "id": "film_animation_performance",
+      "label": "影视动画表演类",
+      "parent": "performing_media_group",
+      "level": 2,
+      "include_keywords": [
+        "动画",
+        "戏剧影视",
+        "广播电视编导",
+        "播音",
+        "表演"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "动画",
+        "广播电视编导",
+        "影视动画",
+        "戏剧影视文学",
+        "播音与主持艺术",
+        "表演"
+      ]
+    },
+    "music_dance_sports": {
+      "id": "music_dance_sports",
+      "label": "音乐舞蹈体育类",
+      "parent": "performing_media_group",
+      "level": 2,
+      "include_keywords": [
+        "音乐",
+        "舞蹈",
+        "体育教育",
+        "运动训练"
+      ],
+      "exclude_keywords": [],
+      "observed_names": [
+        "音乐学",
+        "音乐表演",
+        "舞蹈学",
+        "体育教育",
+        "运动训练"
+      ]
+    }
+  },
+  "observed_build": {
+    "source": "admission_scores.major_name_raw",
+    "total_distinct_names": 500,
+    "total_rows": 98344,
+    "assigned_distinct_names": 257,
+    "unassigned_distinct_names": 243,
+    "assigned_row_count": 72090,
+    "unassigned_row_count": 26254,
+    "assignment_counts": {
+      "agriculture_forestry": 1119,
+      "animal_veterinary": 480,
+      "automation_control": 2251,
+      "bio_geo_ecology": 1031,
+      "business_management": 2949,
+      "civil_architecture": 2533,
+      "communication_engineering": 852,
+      "computer_science": 2633,
+      "data_ai": 3828,
+      "design_art": 152,
+      "ecommerce_logistics_tourism": 6045,
+      "economics_trade": 2614,
+      "education_psychology": 2061,
+      "electrical_energy": 2481,
+      "electronic_info": 2375,
+      "environment_safety": 1139,
+      "film_animation_performance": 235,
+      "finance_accounting": 6749,
+      "food_science": 782,
+      "history_philosophy_archives": 338,
+      "journalism_media": 1855,
+      "languages_literature": 5132,
+      "law_politics": 1403,
+      "materials_chemical": 2203,
+      "math_stats": 1553,
+      "mechanical_vehicle": 3163,
+      "medical_clinical": 1462,
+      "medical_nursing": 1856,
+      "medical_pharmacy": 1430,
+      "medical_public_health": 388,
+      "medical_stomatology": 680,
+      "medical_tcm": 920,
+      "medical_technology": 1795,
+      "network_security": 1327,
+      "physics_chemistry": 1318,
+      "public_social_work": 813,
+      "software_engineering": 1677,
+      "transportation_aerospace": 468
+    },
+    "unassigned_top": [
+      {
+        "major_name": "工程造价",
+        "row_count": 1032,
+        "suggestions": [
+          "金融工程",
+          "通信工程",
+          "软件工程",
+          "车辆工程",
+          "网络工程"
+        ]
+      },
+      {
+        "major_name": "机电一体化技术",
+        "row_count": 911,
+        "suggestions": [
+          "数字媒体技术",
+          "电子科学与技术",
+          "计算机科学与技术",
+          "软件技术",
+          "生物技术"
+        ]
+      },
+      {
+        "major_name": "计算机应用技术",
+        "row_count": 837,
+        "suggestions": [
+          "计算机科学与技术",
+          "计算机",
+          "计算机类",
+          "应急技术",
+          "计算机科学"
+        ]
+      },
+      {
+        "major_name": "计算机网络技术",
+        "row_count": 660,
+        "suggestions": [
+          "计算机科学与技术",
+          "计算机",
+          "计算机类",
+          "计算机科学",
+          "网络"
+        ]
+      },
+      {
+        "major_name": "建筑工程技术",
+        "row_count": 629,
+        "suggestions": [
+          "建筑",
+          "建筑学",
+          "金融工程",
+          "通信工程",
+          "软件技术"
+        ]
+      },
+      {
+        "major_name": "工业机器人技术",
+        "row_count": 591,
+        "suggestions": [
+          "机器人工程",
+          "计算机科学与技术",
+          "软件技术",
+          "生物技术",
+          "应急技术"
+        ]
+      },
+      {
+        "major_name": "物联网应用技术",
+        "row_count": 484,
+        "suggestions": [
+          "物联网",
+          "生物技术",
+          "应急技术",
+          "物联网工程",
+          "应急技术与管理"
+        ]
+      },
+      {
+        "major_name": "无人机应用技术",
+        "row_count": 413,
+        "suggestions": [
+          "应急技术",
+          "应急技术与管理",
+          "计算机科学与技术",
+          "软件技术",
+          "生物技术"
+        ]
+      },
+      {
+        "major_name": "空中乘务",
+        "row_count": 388,
+        "suggestions": [
+          "财务",
+          "中药学",
+          "中医学",
+          "财务管理",
+          "航空航天"
+        ]
+      },
+      {
+        "major_name": "城市轨道交通运营管理",
+        "row_count": 376,
+        "suggestions": [
+          "交通运输",
+          "酒店管理",
+          "财务管理",
+          "行政管理",
+          "物流管理"
+        ]
+      },
+      {
+        "major_name": "信息管理与信息系统",
+        "row_count": 360,
+        "suggestions": [
+          "智能装备与系统",
+          "信息与计算科学",
+          "光电信息科学与工程",
+          "酒店管理",
+          "财务管理"
+        ]
+      },
+      {
+        "major_name": "国际商务",
+        "row_count": 360,
+        "suggestions": [
+          "电子商务",
+          "商务英语",
+          "国际经济与贸易",
+          "财务",
+          "财务管理"
+        ]
+      },
+      {
+        "major_name": "婴幼儿托育服务与管理",
+        "row_count": 353,
+        "suggestions": [
+          "财务管理",
+          "应急技术与管理",
+          "酒店管理",
+          "行政管理",
+          "物流管理"
+        ]
+      },
+      {
+        "major_name": "汉语国际教育",
+        "row_count": 352,
+        "suggestions": [
+          "教育",
+          "汉语言",
+          "教育学",
+          "特殊教育",
+          "小学教育"
+        ]
+      },
+      {
+        "major_name": "生物工程",
+        "row_count": 324,
+        "suggestions": [
+          "生物",
+          "物联网工程",
+          "金融工程",
+          "通信工程",
+          "软件工程"
+        ]
+      },
+      {
+        "major_name": "工商企业管理",
+        "row_count": 306,
+        "suggestions": [
+          "工商管理",
+          "工程管理",
+          "创业管理",
+          "公共事业管理",
+          "酒店管理"
+        ]
+      },
+      {
+        "major_name": "网络营销与直播电商",
+        "row_count": 287,
+        "suggestions": [
+          "网络与新媒体",
+          "网络",
+          "网络工程",
+          "电子商务",
+          "广播电视"
+        ]
+      },
+      {
+        "major_name": "建筑室内设计",
+        "row_count": 275,
+        "suggestions": [
+          "设计",
+          "建筑",
+          "建筑学",
+          "环境设计",
+          "工业设计"
+        ]
+      },
+      {
+        "major_name": "智能控制技术",
+        "row_count": 245,
+        "suggestions": [
+          "智能科学与技术",
+          "智能制造",
+          "智能制造工程",
+          "软件技术",
+          "生物技术"
+        ]
+      },
+      {
+        "major_name": "测控技术与仪器",
+        "row_count": 235,
+        "suggestions": [
+          "应急技术与管理",
+          "软件技术",
+          "生物技术",
+          "应急技术",
+          "数字媒体技术"
+        ]
+      },
+      {
+        "major_name": "数控技术",
+        "row_count": 231,
+        "suggestions": [
+          "数字媒体技术",
+          "软件技术",
+          "生物技术",
+          "应急技术",
+          "数据科学与大数据技术"
+        ]
+      },
+      {
+        "major_name": "云计算技术应用",
+        "row_count": 227,
+        "suggestions": [
+          "计算机科学与技术",
+          "计算机",
+          "软件技术",
+          "计算机类",
+          "生物技术"
+        ]
+      },
+      {
+        "major_name": "高速铁路客运服务",
+        "row_count": 220,
+        "suggestions": [
+          "财务",
+          "服装"
+        ]
+      },
+      {
+        "major_name": "动漫制作技术",
+        "row_count": 217,
+        "suggestions": [
+          "软件技术",
+          "生物技术",
+          "应急技术",
+          "数字媒体技术",
+          "康复治疗技术"
+        ]
+      },
+      {
+        "major_name": "思想政治教育",
+        "row_count": 212,
+        "suggestions": [
+          "教育",
+          "教育学",
+          "政治学",
+          "特殊教育",
+          "小学教育"
+        ]
+      },
+      {
+        "major_name": "法语",
+        "row_count": 201,
+        "suggestions": [
+          "英语",
+          "法学",
+          "日语",
+          "汉语言",
+          "外国语言"
+        ]
+      },
+      {
+        "major_name": "建筑环境与能源应用工程",
+        "row_count": 191,
+        "suggestions": [
+          "环境工程",
+          "能源与动力工程",
+          "新能源科学与工程",
+          "智能医学工程",
+          "智能制造工程"
+        ]
+      },
+      {
+        "major_name": "智慧健康养老服务与管理",
+        "row_count": 186,
+        "suggestions": [
+          "财务管理",
+          "应急技术与管理",
+          "酒店管理",
+          "行政管理",
+          "物流管理"
+        ]
+      },
+      {
+        "major_name": "智能建造",
+        "row_count": 183,
+        "suggestions": [
+          "智能制造",
+          "智能制造工程",
+          "智能装备",
+          "智能科学",
+          "智能医学"
+        ]
+      },
+      {
+        "major_name": "汽车检测与维修技术",
+        "row_count": 179,
+        "suggestions": [
+          "医学检验技术",
+          "电子科学与技术",
+          "智能科学与技术",
+          "计算机科学与技术",
+          "数据科学与大数据技术"
+        ]
+      },
+      {
+        "major_name": "建筑装饰工程技术",
+        "row_count": 178,
+        "suggestions": [
+          "建筑",
+          "建筑学",
+          "金融工程",
+          "通信工程",
+          "软件技术"
+        ]
+      },
+      {
+        "major_name": "工科试验班",
+        "row_count": 177,
+        "suggestions": [
+          "化工",
+          "儿科学",
+          "食品科学",
+          "金融工程",
+          "通信工程"
+        ]
+      },
+      {
+        "major_name": "食品检验检测技术",
+        "row_count": 174,
+        "suggestions": [
+          "医学检验技术",
+          "医学实验技术",
+          "食品",
+          "卫生检验与检疫",
+          "食品质量"
+        ]
+      },
+      {
+        "major_name": "虚拟现实技术应用",
+        "row_count": 170,
+        "suggestions": [
+          "医学实验技术",
+          "软件技术",
+          "生物技术",
+          "应用物理",
+          "应用心理"
+        ]
+      },
+      {
+        "major_name": "数字媒体艺术设计",
+        "row_count": 169,
+        "suggestions": [
+          "数字媒体技术",
+          "设计",
+          "环境设计",
+          "数字经济",
+          "工业设计"
+        ]
+      },
+      {
+        "major_name": "地理信息科学",
+        "row_count": 166,
+        "suggestions": [
+          "地理科学",
+          "信息与计算科学",
+          "光电信息科学与工程",
+          "地理",
+          "物理学"
+        ]
+      },
+      {
+        "major_name": "德语",
+        "row_count": 165,
+        "suggestions": [
+          "英语",
+          "日语",
+          "汉语言",
+          "外国语言",
+          "商务英语"
+        ]
+      },
+      {
+        "major_name": "汽车制造与试验技术",
+        "row_count": 165,
+        "suggestions": [
+          "医学检验技术",
+          "医学实验技术",
+          "电子科学与技术",
+          "智能科学与技术",
+          "计算机科学与技术"
+        ]
+      },
+      {
+        "major_name": "应用电子技术",
+        "row_count": 159,
+        "suggestions": [
+          "电子科学与技术",
+          "应急技术",
+          "应急技术与管理",
+          "微电子",
+          "软件技术"
+        ]
+      },
+      {
+        "major_name": "水利水电工程",
+        "row_count": 155,
+        "suggestions": [
+          "电气工程",
+          "电信工程",
+          "电子信息工程",
+          "给排水科学与工程",
+          "微电子科学与工程"
+        ]
+      },
+      {
+        "major_name": "俄语",
+        "row_count": 153,
+        "suggestions": [
+          "英语",
+          "日语",
+          "汉语言",
+          "外国语言",
+          "商务英语"
+        ]
+      },
+      {
+        "major_name": "法律事务",
+        "row_count": 151,
+        "suggestions": [
+          "财务",
+          "法学",
+          "财务管理",
+          "电子商务",
+          "商务英语"
+        ]
+      },
+      {
+        "major_name": "智能网联汽车技术",
+        "row_count": 149,
+        "suggestions": [
+          "智能科学与技术",
+          "软件技术",
+          "生物技术",
+          "智能装备",
+          "智能科学"
+        ]
+      },
+      {
+        "major_name": "工业工程",
+        "row_count": 144,
+        "suggestions": [
+          "金融工程",
+          "通信工程",
+          "软件工程",
+          "车辆工程",
+          "网络工程"
+        ]
+      },
+      {
+        "major_name": "会展策划与管理",
+        "row_count": 143,
+        "suggestions": [
+          "应急技术与管理",
+          "酒店管理",
+          "财务管理",
+          "行政管理",
+          "物流管理"
+        ]
+      },
+      {
+        "major_name": "生物医学工程",
+        "row_count": 140,
+        "suggestions": [
+          "智能医学工程",
+          "生物科学",
+          "化学工程",
+          "动物医学",
+          "物联网工程"
+        ]
+      },
+      {
+        "major_name": "健康服务与管理",
+        "row_count": 136,
+        "suggestions": [
+          "财务管理",
+          "应急技术与管理",
+          "酒店管理",
+          "行政管理",
+          "物流管理"
+        ]
+      },
+      {
+        "major_name": "生物制药",
+        "row_count": 136,
+        "suggestions": [
+          "生物",
+          "药物制剂",
+          "生物科学",
+          "生物技术",
+          "制药工程"
+        ]
+      },
+      {
+        "major_name": "西班牙语",
+        "row_count": 135,
+        "suggestions": [
+          "英语",
+          "日语",
+          "汉语言",
+          "外国语言",
+          "商务英语"
+        ]
+      },
+      {
+        "major_name": "商务数据分析与应用",
+        "row_count": 134,
+        "suggestions": [
+          "数学与应用数学",
+          "大数据与会计",
+          "数据",
+          "大数据",
+          "数据科学与大数据技术"
+        ]
+      },
+      {
+        "major_name": "文化产业管理",
+        "row_count": 132,
+        "suggestions": [
+          "创业管理",
+          "公共事业管理",
+          "酒店管理",
+          "财务管理",
+          "行政管理"
+        ]
+      },
+      {
+        "major_name": "测绘工程",
+        "row_count": 129,
+        "suggestions": [
+          "金融工程",
+          "通信工程",
+          "软件工程",
+          "车辆工程",
+          "网络工程"
+        ]
+      },
+      {
+        "major_name": "朝鲜语",
+        "row_count": 125,
+        "suggestions": [
+          "英语",
+          "日语",
+          "汉语言",
+          "外国语言",
+          "商务英语"
+        ]
+      },
+      {
+        "major_name": "会展经济与管理",
+        "row_count": 124,
+        "suggestions": [
+          "经济",
+          "应急技术与管理",
+          "国际经济与贸易",
+          "经济学",
+          "酒店管理"
+        ]
+      },
+      {
+        "major_name": "现代通信技术",
+        "row_count": 123,
+        "suggestions": [
+          "通信",
+          "通信工程",
+          "软件技术",
+          "生物技术",
+          "应急技术"
+        ]
+      },
+      {
+        "major_name": "建筑消防技术",
+        "row_count": 122,
+        "suggestions": [
+          "建筑",
+          "建筑学",
+          "软件技术",
+          "生物技术",
+          "应急技术"
+        ]
+      },
+      {
+        "major_name": "药品经营与管理",
+        "row_count": 120,
+        "suggestions": [
+          "食品营养与健康",
+          "应急技术与管理",
+          "食品营养",
+          "酒店管理",
+          "财务管理"
+        ]
+      },
+      {
+        "major_name": "思想政治教育(师范)",
+        "row_count": 119,
+        "suggestions": [
+          "教育",
+          "教育学",
+          "政治学",
+          "特殊教育",
+          "小学教育"
+        ]
+      },
+      {
+        "major_name": "投资学",
+        "row_count": 117,
+        "suggestions": [
+          "药学",
+          "法学",
+          "林学",
+          "数学",
+          "哲学"
+        ]
+      },
+      {
+        "major_name": "应用化工技术",
+        "row_count": 116,
+        "suggestions": [
+          "应用化学",
+          "应急技术",
+          "化工",
+          "应急技术与管理",
+          "软件技术"
+        ]
+      },
+      {
+        "major_name": "飞机机电设备维修",
+        "row_count": 116,
+        "suggestions": [
+          "飞行器设计与工程",
+          "集成电路设计与集成系统",
+          "机械设计制造及其自动化",
+          "设计",
+          "电气"
+        ]
+      },
+      {
+        "major_name": "物流工程",
+        "row_count": 115,
+        "suggestions": [
+          "物联网工程",
+          "物流",
+          "金融工程",
+          "通信工程",
+          "软件工程"
+        ]
+      },
+      {
+        "major_name": "城市轨道车辆应用技术",
+        "row_count": 110,
+        "suggestions": [
+          "应急技术",
+          "应急技术与管理",
+          "车辆",
+          "软件技术",
+          "车辆工程"
+        ]
+      },
+      {
+        "major_name": "医学美容技术",
+        "row_count": 109,
+        "suggestions": [
+          "口腔医学技术",
+          "医学检验技术",
+          "医学影像技术",
+          "医学实验技术",
+          "美术"
+        ]
+      },
+      {
+        "major_name": "道路与桥梁工程技术",
+        "row_count": 107,
+        "suggestions": [
+          "食品科学与工程",
+          "能源与动力工程",
+          "电子科学与技术",
+          "材料科学与工程",
+          "智能科学与技术"
+        ]
+      },
+      {
+        "major_name": "公共管理类",
+        "row_count": 106,
+        "suggestions": [
+          "公共事业管理",
+          "酒店管理",
+          "财务管理",
+          "行政管理",
+          "物流管理"
+        ]
+      },
+      {
+        "major_name": "健康管理",
+        "row_count": 103,
+        "suggestions": [
+          "酒店管理",
+          "财务管理",
+          "行政管理",
+          "物流管理",
+          "旅游管理"
+        ]
+      },
+      {
+        "major_name": "城市轨道交通机电技术",
+        "row_count": 103,
+        "suggestions": [
+          "电子科学与技术",
+          "计算机科学与技术",
+          "软件技术",
+          "生物技术",
+          "应急技术"
+        ]
+      },
+      {
+        "major_name": "道路桥梁与渡河工程",
+        "row_count": 103,
+        "suggestions": [
+          "食品科学与工程",
+          "能源与动力工程",
+          "材料科学与工程",
+          "储能科学与工程",
+          "高分子材料与工程"
+        ]
+      },
+      {
+        "major_name": "关务与外贸服务",
+        "row_count": 101,
+        "suggestions": [
+          "国际经济与贸易",
+          "贸易",
+          "财务",
+          "服装"
+        ]
+      },
+      {
+        "major_name": "模具设计与制造",
+        "row_count": 101,
+        "suggestions": [
+          "设计",
+          "机械设计制造及其自动化",
+          "飞行器设计与工程",
+          "环境设计",
+          "智能制造"
+        ]
+      },
+      {
+        "major_name": "工程测量技术",
+        "row_count": 100,
+        "suggestions": [
+          "金融工程",
+          "通信工程",
+          "软件技术",
+          "软件工程",
+          "车辆工程"
+        ]
+      },
+      {
+        "major_name": "市政工程技术",
+        "row_count": 99,
+        "suggestions": [
+          "金融工程",
+          "通信工程",
+          "软件技术",
+          "软件工程",
+          "车辆工程"
+        ]
+      },
+      {
+        "major_name": "纺织工程",
+        "row_count": 98,
+        "suggestions": [
+          "金融工程",
+          "通信工程",
+          "软件工程",
+          "车辆工程",
+          "网络工程"
+        ]
+      },
+      {
+        "major_name": "建筑智能化工程技术",
+        "row_count": 96,
+        "suggestions": [
+          "智能医学工程",
+          "智能制造工程",
+          "智能科学与技术",
+          "化学工程",
+          "能源与动力工程"
+        ]
+      },
+      {
+        "major_name": "过程装备与控制工程",
+        "row_count": 96,
+        "suggestions": [
+          "制药工程",
+          "智能制造工程",
+          "食品科学与工程",
+          "能源与动力工程",
+          "材料科学与工程"
+        ]
+      },
+      {
+        "major_name": "土木类",
+        "row_count": 93,
+        "suggestions": [
+          "土木",
+          "土木工程",
+          "计算机类"
+        ]
+      },
+      {
+        "major_name": "城市轨道交通通信信号技术",
+        "row_count": 93,
+        "suggestions": [
+          "通信",
+          "通信工程",
+          "软件技术",
+          "生物技术",
+          "应急技术"
+        ]
+      },
+      {
+        "major_name": "工程力学",
+        "row_count": 91,
+        "suggestions": [
+          "金融工程",
+          "通信工程",
+          "软件工程",
+          "车辆工程",
+          "网络工程"
+        ]
+      },
+      {
+        "major_name": "民航安全技术管理",
+        "row_count": 91,
+        "suggestions": [
+          "应急技术与管理",
+          "食品安全",
+          "酒店管理",
+          "软件技术",
+          "财务管理"
+        ]
+      },
+      {
+        "major_name": "民航运输服务",
+        "row_count": 89,
+        "suggestions": [
+          "交通运输",
+          "财务",
+          "服装",
+          "运动训练",
+          "财务管理"
+        ]
+      },
+      {
+        "major_name": "室内艺术设计",
+        "row_count": 86,
+        "suggestions": [
+          "设计",
+          "环境设计",
+          "工业设计",
+          "产品设计",
+          "视觉传达设计"
+        ]
+      },
+      {
+        "major_name": "建筑设计",
+        "row_count": 86,
+        "suggestions": [
+          "设计",
+          "建筑",
+          "建筑学",
+          "环境设计",
+          "工业设计"
+        ]
+      },
+      {
+        "major_name": "服装设计与工程",
+        "row_count": 86,
+        "suggestions": [
+          "飞行器设计与工程",
+          "服装与服饰设计",
+          "设计",
+          "服装",
+          "食品科学与工程"
+        ]
+      },
+      {
+        "major_name": "烹饪工艺与营养",
+        "row_count": 86,
+        "suggestions": [
+          "食品卫生与营养学",
+          "食品营养",
+          "食品营养与健康",
+          "化学工程与工艺",
+          "园艺"
+        ]
+      },
+      {
+        "major_name": "电子竞技运动与管理",
+        "row_count": 86,
+        "suggestions": [
+          "应急技术与管理",
+          "电子科学与技术",
+          "微电子科学与工程",
+          "微电子",
+          "酒店管理"
+        ]
+      },
+      {
+        "major_name": "工业互联网应用",
+        "row_count": 84,
+        "suggestions": [
+          "物联网",
+          "应用物理",
+          "应用心理",
+          "应用化学",
+          "工业设计"
+        ]
+      },
+      {
+        "major_name": "环境监测技术",
+        "row_count": 84,
+        "suggestions": [
+          "环境",
+          "软件技术",
+          "生物技术",
+          "环境设计",
+          "环境科学"
+        ]
+      },
+      {
+        "major_name": "药品生产技术",
+        "row_count": 83,
+        "suggestions": [
+          "生物技术",
+          "食品卫生",
+          "软件技术",
+          "应急技术",
+          "数字媒体技术"
+        ]
+      },
+      {
+        "major_name": "保险学",
+        "row_count": 82,
+        "suggestions": [
+          "药学",
+          "法学",
+          "林学",
+          "数学",
+          "哲学"
+        ]
+      },
+      {
+        "major_name": "智能建造技术",
+        "row_count": 82,
+        "suggestions": [
+          "智能科学与技术",
+          "智能制造",
+          "智能制造工程",
+          "软件技术",
+          "生物技术"
+        ]
+      },
+      {
+        "major_name": "现代文秘",
+        "row_count": 82,
+        "suggestions": [
+          "文物",
+          "汉语言文学",
+          "戏剧影视文学"
+        ]
+      },
+      {
+        "major_name": "融媒体技术与运营",
+        "row_count": 82,
+        "suggestions": [
+          "数字媒体技术",
+          "应急技术与管理",
+          "软件技术",
+          "生物技术",
+          "应急技术"
+        ]
+      },
+      {
+        "major_name": "城市地下空间工程",
+        "row_count": 81,
+        "suggestions": [
+          "航空航天工程",
+          "金融工程",
+          "通信工程",
+          "软件工程",
+          "车辆工程"
+        ]
+      },
+      {
+        "major_name": "管理科学与工程类",
+        "row_count": 80,
+        "suggestions": [
+          "食品科学与工程",
+          "材料科学与工程",
+          "储能科学与工程",
+          "给排水科学与工程",
+          "新能源科学与工程"
+        ]
+      },
+      {
+        "major_name": "财富管理",
+        "row_count": 79,
+        "suggestions": [
+          "财务管理",
+          "酒店管理",
+          "行政管理",
+          "物流管理",
+          "旅游管理"
+        ]
+      },
+      {
+        "major_name": "食品智能加工技术",
+        "row_count": 78,
+        "suggestions": [
+          "智能科学与技术",
+          "智能医学工程",
+          "智能制造工程",
+          "食品科学与工程",
+          "食品"
+        ]
+      },
+      {
+        "major_name": "服装设计与工艺",
+        "row_count": 76,
+        "suggestions": [
+          "服装与服饰设计",
+          "飞行器设计与工程",
+          "设计",
+          "服装",
+          "化学工程与工艺"
+        ]
+      },
+      {
+        "major_name": "连锁经营与管理",
+        "row_count": 76,
+        "suggestions": [
+          "应急技术与管理",
+          "酒店管理",
+          "财务管理",
+          "行政管理",
+          "物流管理"
+        ]
+      },
+      {
+        "major_name": "应用韩语",
+        "row_count": 75,
+        "suggestions": [
+          "应用物理",
+          "应用心理",
+          "应用化学",
+          "应用统计学",
+          "应用物理学"
+        ]
+      }
+    ],
+    "base_tree": "D:\\gaokaollm-v2\\gaokaollm_bench\\data_gen\\major_clusters.json"
+  }
+}

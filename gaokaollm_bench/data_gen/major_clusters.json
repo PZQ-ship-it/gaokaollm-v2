@@ -1,0 +1,776 @@
+{
+  "version": 3,
+  "description": "Auditable major cluster forest. The skeleton is human-reviewed; observed_names should be populated by scanning admission_scores.major_name_raw.",
+  "tree_policy": {
+    "stages": [
+      {
+        "stage": 1,
+        "strategy": "same_leaf_variants",
+        "label": "同叶子簇变体",
+        "psychological_distance": "very_near",
+        "description": "Keep the source leaf cluster but allow observed name variants inside that cluster."
+      },
+      {
+        "stage": 2,
+        "strategy": "sibling_leaf_clusters",
+        "label": "同父节点近邻簇",
+        "psychological_distance": "near",
+        "description": "Relax to sibling leaf clusters under the same parent as the source leaf."
+      },
+      {
+        "stage": 3,
+        "strategy": "cousin_leaf_clusters",
+        "label": "上层大类近邻簇",
+        "psychological_distance": "medium",
+        "description": "Relax to other leaf clusters under the grandparent/root category, excluding the source branch."
+      },
+      {
+        "stage": 4,
+        "strategy": "ancestor_category",
+        "label": "大类兜底",
+        "psychological_distance": "far",
+        "description": "Use the broad ancestor/root category as a final fallback."
+      }
+    ]
+  },
+  "nodes": {
+    "medical_all": {
+      "id": "medical_all",
+      "label": "医学大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": ["临床医学", "口腔医学", "中医学", "中西医临床", "针灸推拿", "麻醉学", "儿科学", "精神医学", "医学影像学", "医学检验", "医学影像", "康复治疗", "卫生检验", "医学实验", "眼视光", "智能医学", "护理", "助产", "药学", "中药学", "药物", "预防医学", "公共卫生", "食品卫生"],
+      "exclude_keywords": ["动物医学", "兽医"],
+      "observed_names": []
+    },
+    "medical_doctoring": {
+      "id": "medical_doctoring",
+      "label": "医学执业医师相关类",
+      "parent": "medical_all",
+      "level": 1,
+      "include_keywords": ["临床医学", "口腔医学", "中医学", "中西医临床", "针灸推拿", "麻醉学", "儿科学", "精神医学", "医学影像学"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "medical_support": {
+      "id": "medical_support",
+      "label": "医学支持与健康服务类",
+      "parent": "medical_all",
+      "level": 1,
+      "include_keywords": ["医学检验", "医学影像技术", "康复治疗", "卫生检验", "医学实验", "眼视光", "智能医学", "护理", "助产"],
+      "exclude_keywords": ["临床医学", "口腔医学", "中医学", "中西医临床"],
+      "observed_names": []
+    },
+    "medical_life_science": {
+      "id": "medical_life_science",
+      "label": "药学与公共卫生类",
+      "parent": "medical_all",
+      "level": 1,
+      "include_keywords": ["药学", "中药学", "药物", "预防医学", "公共卫生", "食品卫生"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "medical_clinical": {
+      "id": "medical_clinical",
+      "label": "临床医学类",
+      "parent": "medical_doctoring",
+      "level": 2,
+      "include_keywords": ["临床医学", "麻醉学", "儿科学", "精神医学", "医学影像学"],
+      "exclude_keywords": [],
+      "observed_names": ["临床医学", "临床医学(5+3一体化)", "临床医学(儿科方向)", "麻醉学", "儿科学", "医学影像学", "精神医学"]
+    },
+    "medical_stomatology": {
+      "id": "medical_stomatology",
+      "label": "口腔医学类",
+      "parent": "medical_doctoring",
+      "level": 2,
+      "include_keywords": ["口腔医学"],
+      "exclude_keywords": [],
+      "observed_names": ["口腔医学", "口腔医学技术"]
+    },
+    "medical_tcm": {
+      "id": "medical_tcm",
+      "label": "中医中药临床类",
+      "parent": "medical_doctoring",
+      "level": 2,
+      "include_keywords": ["中医学", "针灸推拿", "中西医临床", "中医康复", "中医养生"],
+      "exclude_keywords": [],
+      "observed_names": ["中医学", "针灸推拿学", "中西医临床医学", "中医康复学", "中医养生学"]
+    },
+    "medical_technology": {
+      "id": "medical_technology",
+      "label": "医学技术类",
+      "parent": "medical_support",
+      "level": 2,
+      "include_keywords": ["医学检验", "医学影像技术", "康复治疗", "卫生检验", "医学实验", "眼视光", "智能医学", "听力与言语康复"],
+      "exclude_keywords": ["临床医学", "口腔医学", "中医学", "中西医临床"],
+      "observed_names": ["医学检验技术", "医学影像技术", "康复治疗学", "康复治疗技术", "卫生检验与检疫", "医学实验技术", "眼视光学", "眼视光医学", "智能医学工程", "听力与言语康复学"]
+    },
+    "medical_nursing": {
+      "id": "medical_nursing",
+      "label": "护理类",
+      "parent": "medical_support",
+      "level": 2,
+      "include_keywords": ["护理", "助产"],
+      "exclude_keywords": [],
+      "observed_names": ["护理", "护理学", "助产", "助产学"]
+    },
+    "medical_pharmacy": {
+      "id": "medical_pharmacy",
+      "label": "药学类",
+      "parent": "medical_life_science",
+      "level": 2,
+      "include_keywords": ["药学", "临床药学", "中药学", "药物", "海洋药学"],
+      "exclude_keywords": [],
+      "observed_names": ["药学", "临床药学", "中药学", "药物制剂", "药物分析", "海洋药学"]
+    },
+    "medical_public_health": {
+      "id": "medical_public_health",
+      "label": "公共卫生与预防医学类",
+      "parent": "medical_life_science",
+      "level": 2,
+      "include_keywords": ["预防医学", "公共卫生", "食品卫生", "卫生检验"],
+      "exclude_keywords": [],
+      "observed_names": ["预防医学", "公共卫生与预防医学", "食品卫生与营养学", "卫生检验与检疫"]
+    },
+    "computer_all": {
+      "id": "computer_all",
+      "label": "计算机与电子信息大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": ["计算机", "软件", "网络", "数据", "人工智能", "信息安全", "物联网", "电子信息", "通信", "自动化", "集成电路"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "computer_core": {
+      "id": "computer_core",
+      "label": "计算机软件与数据类",
+      "parent": "computer_all",
+      "level": 1,
+      "include_keywords": ["计算机", "软件", "网络", "数据", "人工智能", "信息安全", "物联网"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "electronic_information": {
+      "id": "electronic_information",
+      "label": "电子信息与自动化类",
+      "parent": "computer_all",
+      "level": 1,
+      "include_keywords": ["电子信息", "通信", "自动化", "集成电路", "微电子", "光电信息", "电子科学"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "computer_science": {
+      "id": "computer_science",
+      "label": "计算机科学类",
+      "parent": "computer_core",
+      "level": 2,
+      "include_keywords": ["计算机科学", "计算机类", "数字媒体技术"],
+      "exclude_keywords": [],
+      "observed_names": ["计算机科学与技术", "计算机类", "数字媒体技术"]
+    },
+    "software_engineering": {
+      "id": "software_engineering",
+      "label": "软件工程类",
+      "parent": "computer_core",
+      "level": 2,
+      "include_keywords": ["软件工程", "软件技术"],
+      "exclude_keywords": [],
+      "observed_names": ["软件工程", "软件技术"]
+    },
+    "data_ai": {
+      "id": "data_ai",
+      "label": "数据与人工智能类",
+      "parent": "computer_core",
+      "level": 2,
+      "include_keywords": ["数据科学", "大数据", "人工智能", "智能科学"],
+      "exclude_keywords": ["大数据与会计", "商务数据分析"],
+      "observed_names": ["数据科学与大数据技术", "人工智能", "智能科学与技术"]
+    },
+    "network_security": {
+      "id": "network_security",
+      "label": "网络与安全类",
+      "parent": "computer_core",
+      "level": 2,
+      "include_keywords": ["网络工程", "信息安全", "网络空间安全", "物联网工程"],
+      "exclude_keywords": [],
+      "observed_names": ["网络工程", "信息安全", "网络空间安全", "物联网工程"]
+    },
+    "electronic_info": {
+      "id": "electronic_info",
+      "label": "电子信息类",
+      "parent": "electronic_information",
+      "level": 2,
+      "include_keywords": ["电子信息", "电子科学", "微电子", "光电信息", "集成电路"],
+      "exclude_keywords": [],
+      "observed_names": ["电子信息工程", "电子科学与技术", "微电子科学与工程", "光电信息科学与工程", "集成电路设计与集成系统"]
+    },
+    "communication_engineering": {
+      "id": "communication_engineering",
+      "label": "通信工程类",
+      "parent": "electronic_information",
+      "level": 2,
+      "include_keywords": ["通信工程", "信息工程", "电信工程"],
+      "exclude_keywords": [],
+      "observed_names": ["通信工程", "信息工程"]
+    },
+    "automation_control": {
+      "id": "automation_control",
+      "label": "自动化与控制类",
+      "parent": "electronic_information",
+      "level": 2,
+      "include_keywords": ["自动化", "机器人工程", "智能装备"],
+      "exclude_keywords": [],
+      "observed_names": ["自动化", "机器人工程", "智能装备与系统"]
+    },
+    "engineering_all": {
+      "id": "engineering_all",
+      "label": "传统工科大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": ["机械", "车辆", "土木", "建筑", "电气", "能源", "材料", "化工", "环境", "安全工程", "交通运输", "航空航天"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "engineering_manufacturing": {
+      "id": "engineering_manufacturing",
+      "label": "制造能源材料类",
+      "parent": "engineering_all",
+      "level": 1,
+      "include_keywords": ["机械", "车辆", "电气", "能源", "材料", "化工", "航空航天"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "engineering_built_environment": {
+      "id": "engineering_built_environment",
+      "label": "建造交通环境类",
+      "parent": "engineering_all",
+      "level": 1,
+      "include_keywords": ["土木", "建筑", "交通运输", "环境", "安全工程", "给排水"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "mechanical_vehicle": {
+      "id": "mechanical_vehicle",
+      "label": "机械与车辆类",
+      "parent": "engineering_manufacturing",
+      "level": 2,
+      "include_keywords": ["机械", "车辆工程", "智能制造", "工业设计"],
+      "exclude_keywords": [],
+      "observed_names": ["机械设计制造及其自动化", "机械工程", "车辆工程", "智能制造工程", "工业设计"]
+    },
+    "electrical_energy": {
+      "id": "electrical_energy",
+      "label": "电气与能源类",
+      "parent": "engineering_manufacturing",
+      "level": 2,
+      "include_keywords": ["电气工程", "能源与动力", "新能源", "储能"],
+      "exclude_keywords": [],
+      "observed_names": ["电气工程及其自动化", "能源与动力工程", "新能源科学与工程", "储能科学与工程"]
+    },
+    "materials_chemical": {
+      "id": "materials_chemical",
+      "label": "材料与化工类",
+      "parent": "engineering_manufacturing",
+      "level": 2,
+      "include_keywords": ["材料", "化学工程", "制药工程", "高分子"],
+      "exclude_keywords": ["药学"],
+      "observed_names": ["材料科学与工程", "高分子材料与工程", "化学工程与工艺", "制药工程"]
+    },
+    "civil_architecture": {
+      "id": "civil_architecture",
+      "label": "土木建筑类",
+      "parent": "engineering_built_environment",
+      "level": 2,
+      "include_keywords": ["土木工程", "建筑学", "城乡规划", "工程管理", "给排水"],
+      "exclude_keywords": [],
+      "observed_names": ["土木工程", "建筑学", "城乡规划", "工程管理", "给排水科学与工程"]
+    },
+    "transportation_aerospace": {
+      "id": "transportation_aerospace",
+      "label": "交通运输与航空航天类",
+      "parent": "engineering_built_environment",
+      "level": 2,
+      "include_keywords": ["交通运输", "交通工程", "航空航天", "飞行器"],
+      "exclude_keywords": [],
+      "observed_names": ["交通运输", "交通工程", "航空航天工程", "飞行器设计与工程"]
+    },
+    "environment_safety": {
+      "id": "environment_safety",
+      "label": "环境与安全类",
+      "parent": "engineering_built_environment",
+      "level": 2,
+      "include_keywords": ["环境工程", "环境科学", "安全工程", "应急技术"],
+      "exclude_keywords": [],
+      "observed_names": ["环境工程", "环境科学", "安全工程", "应急技术与管理"]
+    },
+    "econ_mgmt_all": {
+      "id": "econ_mgmt_all",
+      "label": "经济管理商科大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": ["经济", "金融", "会计", "财务", "贸易", "工商管理", "市场营销", "电子商务", "物流", "旅游管理", "审计"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "econ_finance_group": {
+      "id": "econ_finance_group",
+      "label": "经济金融会计类",
+      "parent": "econ_mgmt_all",
+      "level": 1,
+      "include_keywords": ["经济", "金融", "会计", "财务", "贸易", "审计", "税收"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "business_group": {
+      "id": "business_group",
+      "label": "工商管理与服务贸易类",
+      "parent": "econ_mgmt_all",
+      "level": 1,
+      "include_keywords": ["工商管理", "市场营销", "电子商务", "物流", "旅游管理", "人力资源"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "economics_trade": {
+      "id": "economics_trade",
+      "label": "经济与贸易类",
+      "parent": "econ_finance_group",
+      "level": 2,
+      "include_keywords": ["经济学", "国际经济与贸易", "贸易经济", "数字经济"],
+      "exclude_keywords": [],
+      "observed_names": ["经济学", "国际经济与贸易", "贸易经济", "数字经济"]
+    },
+    "finance_accounting": {
+      "id": "finance_accounting",
+      "label": "金融会计财务类",
+      "parent": "econ_finance_group",
+      "level": 2,
+      "include_keywords": ["金融", "会计", "财务管理", "审计", "税收"],
+      "exclude_keywords": [],
+      "observed_names": ["金融学", "金融工程", "会计学", "大数据与会计", "财务管理", "审计学", "税收学"]
+    },
+    "business_management": {
+      "id": "business_management",
+      "label": "工商管理营销类",
+      "parent": "business_group",
+      "level": 2,
+      "include_keywords": ["工商管理", "市场营销", "人力资源", "创业管理"],
+      "exclude_keywords": [],
+      "observed_names": ["工商管理", "市场营销", "人力资源管理", "创业管理"]
+    },
+    "ecommerce_logistics_tourism": {
+      "id": "ecommerce_logistics_tourism",
+      "label": "电商物流旅游类",
+      "parent": "business_group",
+      "level": 2,
+      "include_keywords": ["电子商务", "物流管理", "供应链", "旅游管理", "酒店管理"],
+      "exclude_keywords": [],
+      "observed_names": ["电子商务", "物流管理", "供应链管理", "旅游管理", "酒店管理"]
+    },
+    "humanities_all": {
+      "id": "humanities_all",
+      "label": "人文社科教育大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": ["法学", "社会工作", "汉语言", "英语", "日语", "教育", "心理", "新闻", "传播", "历史", "哲学"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "law_public_group": {
+      "id": "law_public_group",
+      "label": "法政公共类",
+      "parent": "humanities_all",
+      "level": 1,
+      "include_keywords": ["法学", "社会工作", "行政管理", "政治学", "公安"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "language_education_group": {
+      "id": "language_education_group",
+      "label": "语言教育心理类",
+      "parent": "humanities_all",
+      "level": 1,
+      "include_keywords": ["汉语言", "英语", "日语", "翻译", "教育", "心理"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "media_history_group": {
+      "id": "media_history_group",
+      "label": "新闻传播历史哲学类",
+      "parent": "humanities_all",
+      "level": 1,
+      "include_keywords": ["新闻", "传播", "广告", "历史", "哲学", "档案"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "law_politics": {
+      "id": "law_politics",
+      "label": "法学政治类",
+      "parent": "law_public_group",
+      "level": 2,
+      "include_keywords": ["法学", "政治学", "知识产权", "公安"],
+      "exclude_keywords": [],
+      "observed_names": ["法学", "知识产权", "政治学与行政学"]
+    },
+    "public_social_work": {
+      "id": "public_social_work",
+      "label": "公共管理社会工作类",
+      "parent": "law_public_group",
+      "level": 2,
+      "include_keywords": ["社会工作", "行政管理", "公共事业管理", "劳动与社会保障"],
+      "exclude_keywords": [],
+      "observed_names": ["社会工作", "行政管理", "公共事业管理", "劳动与社会保障"]
+    },
+    "languages_literature": {
+      "id": "languages_literature",
+      "label": "语言文学类",
+      "parent": "language_education_group",
+      "level": 2,
+      "include_keywords": ["汉语言", "英语", "日语", "翻译", "商务英语", "外国语言"],
+      "exclude_keywords": [],
+      "observed_names": ["汉语言文学", "英语", "商务英语", "日语", "翻译"]
+    },
+    "education_psychology": {
+      "id": "education_psychology",
+      "label": "教育心理类",
+      "parent": "language_education_group",
+      "level": 2,
+      "include_keywords": ["教育学", "学前教育", "小学教育", "特殊教育", "心理学", "应用心理"],
+      "exclude_keywords": [],
+      "observed_names": ["教育学", "学前教育", "小学教育", "特殊教育", "心理学", "应用心理学"]
+    },
+    "journalism_media": {
+      "id": "journalism_media",
+      "label": "新闻传播广告类",
+      "parent": "media_history_group",
+      "level": 2,
+      "include_keywords": ["新闻", "传播", "广告", "网络与新媒体", "广播电视"],
+      "exclude_keywords": [],
+      "observed_names": ["新闻学", "传播学", "广告学", "网络与新媒体", "广播电视学"]
+    },
+    "history_philosophy_archives": {
+      "id": "history_philosophy_archives",
+      "label": "历史哲学档案类",
+      "parent": "media_history_group",
+      "level": 2,
+      "include_keywords": ["历史学", "哲学", "档案学", "文物"],
+      "exclude_keywords": [],
+      "observed_names": ["历史学", "哲学", "档案学", "文物与博物馆学"]
+    },
+    "science_agri_all": {
+      "id": "science_agri_all",
+      "label": "理学农学大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": ["数学", "物理", "化学", "统计", "生物", "食品", "农学", "园艺", "林学", "动物医学", "水产", "地理", "生态"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "basic_science_group": {
+      "id": "basic_science_group",
+      "label": "数理化生基础科学类",
+      "parent": "science_agri_all",
+      "level": 1,
+      "include_keywords": ["数学", "物理", "化学", "统计", "生物", "地理", "生态"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "agri_life_group": {
+      "id": "agri_life_group",
+      "label": "农业食品动物类",
+      "parent": "science_agri_all",
+      "level": 1,
+      "include_keywords": ["食品", "农学", "园艺", "林学", "动物医学", "水产"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "math_stats": {
+      "id": "math_stats",
+      "label": "数学统计类",
+      "parent": "basic_science_group",
+      "level": 2,
+      "include_keywords": ["数学", "统计学", "信息与计算科学"],
+      "exclude_keywords": [],
+      "observed_names": ["数学与应用数学", "信息与计算科学", "统计学", "应用统计学"]
+    },
+    "physics_chemistry": {
+      "id": "physics_chemistry",
+      "label": "物理化学类",
+      "parent": "basic_science_group",
+      "level": 2,
+      "include_keywords": ["物理学", "应用物理", "化学", "应用化学"],
+      "exclude_keywords": ["化学工程"],
+      "observed_names": ["物理学", "应用物理学", "化学", "应用化学"]
+    },
+    "bio_geo_ecology": {
+      "id": "bio_geo_ecology",
+      "label": "生物地理生态类",
+      "parent": "basic_science_group",
+      "level": 2,
+      "include_keywords": ["生物科学", "生物技术", "地理科学", "生态学"],
+      "exclude_keywords": [],
+      "observed_names": ["生物科学", "生物技术", "地理科学", "生态学"]
+    },
+    "food_science": {
+      "id": "food_science",
+      "label": "食品科学类",
+      "parent": "agri_life_group",
+      "level": 2,
+      "include_keywords": ["食品科学", "食品质量", "食品安全", "食品营养"],
+      "exclude_keywords": ["食品卫生"],
+      "observed_names": ["食品科学与工程", "食品质量与安全", "食品营养与健康"]
+    },
+    "agriculture_forestry": {
+      "id": "agriculture_forestry",
+      "label": "农林园艺类",
+      "parent": "agri_life_group",
+      "level": 2,
+      "include_keywords": ["农学", "园艺", "植物保护", "林学", "园林"],
+      "exclude_keywords": [],
+      "observed_names": ["农学", "园艺", "植物保护", "林学", "园林"]
+    },
+    "animal_veterinary": {
+      "id": "animal_veterinary",
+      "label": "动物医学水产类",
+      "parent": "agri_life_group",
+      "level": 2,
+      "include_keywords": ["动物医学", "动物科学", "兽医", "水产养殖"],
+      "exclude_keywords": [],
+      "observed_names": ["动物医学", "动物科学", "水产养殖学"]
+    },
+    "arts_all": {
+      "id": "arts_all",
+      "label": "艺术设计体育大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": ["设计", "美术", "视觉传达", "环境设计", "音乐", "舞蹈", "表演", "动画", "戏剧", "体育", "播音"],
+      "exclude_keywords": ["工业设计"],
+      "observed_names": []
+    },
+    "visual_design_group": {
+      "id": "visual_design_group",
+      "label": "视觉设计美术类",
+      "parent": "arts_all",
+      "level": 1,
+      "include_keywords": ["设计", "美术", "视觉传达", "环境设计", "产品设计", "服装"],
+      "exclude_keywords": ["工业设计"],
+      "observed_names": []
+    },
+    "performing_media_group": {
+      "id": "performing_media_group",
+      "label": "表演音乐影视体育类",
+      "parent": "arts_all",
+      "level": 1,
+      "include_keywords": ["音乐", "舞蹈", "表演", "动画", "戏剧", "播音", "体育"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "design_art": {
+      "id": "design_art",
+      "label": "设计美术类",
+      "parent": "visual_design_group",
+      "level": 2,
+      "include_keywords": ["视觉传达", "环境设计", "产品设计", "服装与服饰设计", "美术学"],
+      "exclude_keywords": ["工业设计"],
+      "observed_names": ["视觉传达设计", "环境设计", "产品设计", "服装与服饰设计", "美术学"]
+    },
+    "film_animation_performance": {
+      "id": "film_animation_performance",
+      "label": "影视动画表演类",
+      "parent": "performing_media_group",
+      "level": 2,
+      "include_keywords": ["动画", "戏剧影视", "广播电视编导", "播音", "表演"],
+      "exclude_keywords": [],
+      "observed_names": ["动画", "戏剧影视文学", "广播电视编导", "播音与主持艺术", "表演"]
+    },
+    "music_dance_sports": {
+      "id": "music_dance_sports",
+      "label": "音乐舞蹈体育类",
+      "parent": "performing_media_group",
+      "level": 2,
+      "include_keywords": ["音乐", "舞蹈", "体育教育", "运动训练"],
+      "exclude_keywords": [],
+      "observed_names": ["音乐学", "音乐表演", "舞蹈学", "体育教育", "运动训练"]
+    },
+    "vocational_all": {
+      "id": "vocational_all",
+      "label": "高职与应用技术大类",
+      "parent": null,
+      "level": 0,
+      "include_keywords": ["应用技术", "工程技术", "设备维修", "运营管理", "服务与管理", "职业技术", "检测技术"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "vocational_it_group": {
+      "id": "vocational_it_group",
+      "label": "高职信息技术类",
+      "parent": "vocational_all",
+      "level": 1,
+      "include_keywords": ["计算机应用技术", "计算机网络技术", "云计算技术", "物联网应用技术", "虚拟现实技术", "动漫制作技术", "数字媒体技术", "智能控制技术"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "vocational_manufacturing_group": {
+      "id": "vocational_manufacturing_group",
+      "label": "高职装备制造与汽车类",
+      "parent": "vocational_all",
+      "level": 1,
+      "include_keywords": ["机电一体化", "数控技术", "工业机器人技术", "汽车检测", "汽车制造", "智能网联汽车", "模具设计", "飞机机电设备维修", "无人机应用"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "vocational_construction_group": {
+      "id": "vocational_construction_group",
+      "label": "高职土建市政类",
+      "parent": "vocational_all",
+      "level": 1,
+      "include_keywords": ["工程造价", "建筑工程技术", "建筑装饰", "建筑室内设计", "建筑消防", "道路与桥梁", "工程测量", "市政工程", "建筑智能化"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "vocational_transport_group": {
+      "id": "vocational_transport_group",
+      "label": "高职交通民航类",
+      "parent": "vocational_all",
+      "level": 1,
+      "include_keywords": ["高速铁路", "城市轨道", "空中乘务", "民航安全", "航空服务", "铁道"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "vocational_health_service_group": {
+      "id": "vocational_health_service_group",
+      "label": "高职医药健康服务类",
+      "parent": "vocational_all",
+      "level": 1,
+      "include_keywords": ["婴幼儿托育", "智慧健康养老", "健康管理", "医学美容技术", "药品经营", "食品检验检测", "护理", "助产"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "vocational_business_service_group": {
+      "id": "vocational_business_service_group",
+      "label": "高职财经商贸服务类",
+      "parent": "vocational_all",
+      "level": 1,
+      "include_keywords": ["工商企业管理", "网络营销", "直播电商", "关务", "外贸服务", "商务数据分析", "会展策划", "现代物流", "国际商务"],
+      "exclude_keywords": [],
+      "observed_names": []
+    },
+    "vocational_computer_network": {
+      "id": "vocational_computer_network",
+      "label": "高职计算机网络应用类",
+      "parent": "vocational_it_group",
+      "level": 2,
+      "include_keywords": ["计算机应用技术", "计算机网络技术", "云计算技术应用", "物联网应用技术", "移动应用开发", "信息安全技术应用"],
+      "exclude_keywords": [],
+      "observed_names": ["计算机应用技术", "计算机网络技术", "云计算技术应用", "物联网应用技术", "信息安全技术应用"]
+    },
+    "vocational_digital_media": {
+      "id": "vocational_digital_media",
+      "label": "高职数字媒体与虚拟现实类",
+      "parent": "vocational_it_group",
+      "level": 2,
+      "include_keywords": ["动漫制作技术", "虚拟现实技术应用", "数字媒体技术", "数字媒体艺术设计", "游戏艺术设计"],
+      "exclude_keywords": [],
+      "observed_names": ["动漫制作技术", "虚拟现实技术应用", "数字媒体艺术设计"]
+    },
+    "vocational_electronic_control": {
+      "id": "vocational_electronic_control",
+      "label": "高职电子通信控制类",
+      "parent": "vocational_it_group",
+      "level": 2,
+      "include_keywords": ["应用电子技术", "现代通信技术", "智能控制技术", "城市轨道交通通信信号技术", "电子产品制造技术"],
+      "exclude_keywords": [],
+      "observed_names": ["应用电子技术", "现代通信技术", "智能控制技术", "城市轨道交通通信信号技术"]
+    },
+    "vocational_mechatronics": {
+      "id": "vocational_mechatronics",
+      "label": "高职机电数控机器人类",
+      "parent": "vocational_manufacturing_group",
+      "level": 2,
+      "include_keywords": ["机电一体化技术", "数控技术", "工业机器人技术", "模具设计与制造", "机械制造及自动化", "电气自动化技术"],
+      "exclude_keywords": [],
+      "observed_names": ["机电一体化技术", "数控技术", "工业机器人技术", "模具设计与制造", "机械制造及自动化", "电气自动化技术"]
+    },
+    "vocational_auto_aircraft": {
+      "id": "vocational_auto_aircraft",
+      "label": "高职汽车航空设备类",
+      "parent": "vocational_manufacturing_group",
+      "level": 2,
+      "include_keywords": ["汽车检测与维修技术", "汽车制造与试验技术", "智能网联汽车技术", "新能源汽车技术", "飞机机电设备维修", "无人机应用技术"],
+      "exclude_keywords": [],
+      "observed_names": ["汽车检测与维修技术", "汽车制造与试验技术", "智能网联汽车技术", "新能源汽车技术", "飞机机电设备维修", "无人机应用技术"]
+    },
+    "vocational_cost_construction": {
+      "id": "vocational_cost_construction",
+      "label": "高职工程造价建筑施工类",
+      "parent": "vocational_construction_group",
+      "level": 2,
+      "include_keywords": ["工程造价", "建筑工程技术", "建设工程管理", "建筑装饰工程技术", "建筑室内设计", "建筑消防技术", "建筑智能化工程技术"],
+      "exclude_keywords": [],
+      "observed_names": ["工程造价", "建筑工程技术", "建设工程管理", "建筑装饰工程技术", "建筑室内设计", "建筑消防技术", "建筑智能化工程技术"]
+    },
+    "vocational_road_survey_municipal": {
+      "id": "vocational_road_survey_municipal",
+      "label": "高职道路测量市政类",
+      "parent": "vocational_construction_group",
+      "level": 2,
+      "include_keywords": ["道路与桥梁工程技术", "道路桥梁工程技术", "工程测量技术", "市政工程技术", "水利水电工程技术"],
+      "exclude_keywords": [],
+      "observed_names": ["道路与桥梁工程技术", "工程测量技术", "市政工程技术"]
+    },
+    "vocational_rail_transit": {
+      "id": "vocational_rail_transit",
+      "label": "高职铁路与城市轨道类",
+      "parent": "vocational_transport_group",
+      "level": 2,
+      "include_keywords": ["高速铁路客运服务", "城市轨道交通运营管理", "城市轨道车辆应用技术", "城市轨道交通机电技术", "铁道交通运营管理"],
+      "exclude_keywords": [],
+      "observed_names": ["高速铁路客运服务", "城市轨道交通运营管理", "城市轨道车辆应用技术", "城市轨道交通机电技术"]
+    },
+    "vocational_air_transport": {
+      "id": "vocational_air_transport",
+      "label": "高职民航空乘类",
+      "parent": "vocational_transport_group",
+      "level": 2,
+      "include_keywords": ["空中乘务", "民航安全技术管理", "民航运输服务", "机场运行服务与管理"],
+      "exclude_keywords": [],
+      "observed_names": ["空中乘务", "民航安全技术管理"]
+    },
+    "vocational_child_elder_health": {
+      "id": "vocational_child_elder_health",
+      "label": "高职托育养老健康管理类",
+      "parent": "vocational_health_service_group",
+      "level": 2,
+      "include_keywords": ["婴幼儿托育服务与管理", "智慧健康养老服务与管理", "健康管理", "健康服务与管理", "老年保健与管理"],
+      "exclude_keywords": [],
+      "observed_names": ["婴幼儿托育服务与管理", "智慧健康养老服务与管理", "健康管理"]
+    },
+    "vocational_medical_beauty_pharma_food": {
+      "id": "vocational_medical_beauty_pharma_food",
+      "label": "高职药品食品医学美容类",
+      "parent": "vocational_health_service_group",
+      "level": 2,
+      "include_keywords": ["医学美容技术", "药品经营与管理", "食品检验检测技术", "食品智能加工技术", "药品生产技术"],
+      "exclude_keywords": [],
+      "observed_names": ["医学美容技术", "药品经营与管理", "食品检验检测技术"]
+    },
+    "vocational_business_trade": {
+      "id": "vocational_business_trade",
+      "label": "高职工商外贸会展类",
+      "parent": "vocational_business_service_group",
+      "level": 2,
+      "include_keywords": ["工商企业管理", "国际商务", "关务与外贸服务", "会展策划与管理", "现代物流管理", "商务管理"],
+      "exclude_keywords": [],
+      "observed_names": ["工商企业管理", "国际商务", "关务与外贸服务", "会展策划与管理"]
+    },
+    "vocational_ecommerce_live": {
+      "id": "vocational_ecommerce_live",
+      "label": "高职电商直播数据类",
+      "parent": "vocational_business_service_group",
+      "level": 2,
+      "include_keywords": ["网络营销与直播电商", "电子商务", "商务数据分析与应用", "跨境电子商务", "移动商务"],
+      "exclude_keywords": [],
+      "observed_names": ["网络营销与直播电商", "商务数据分析与应用", "跨境电子商务"]
+    }
+  }
+}
