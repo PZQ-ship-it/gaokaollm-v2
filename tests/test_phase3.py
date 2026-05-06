@@ -11,7 +11,7 @@ async def test_graph_invocation_negotiates_with_real_probe_data(capsys):
 
     result = await graph.ainvoke(
         {
-            "messages": [HumanMessage(content="600分必须在北京读临床")],
+            "messages": [HumanMessage(content="物化生，600分必须在北京读临床")],
             "constraints": {},
             "baseline_results": [],
             "score_waste": 0,

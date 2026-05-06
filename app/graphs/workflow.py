@@ -30,6 +30,12 @@ def route_after_radar(state: AgentState) -> str:
     return "report"
 
 
+def route_after_gatekeeper(state: AgentState) -> str:
+    if state.get("missing_constraints"):
+        return END
+    return "radar"
+
+
 def build_graph():
     graph = StateGraph(AgentState)
     graph.add_node("gatekeeper", gatekeeper_node)
@@ -38,7 +44,11 @@ def build_graph():
     graph.add_node("report", report_node)
 
     graph.add_edge(START, "gatekeeper")
-    graph.add_edge("gatekeeper", "radar")
+    graph.add_conditional_edges(
+        "gatekeeper",
+        route_after_gatekeeper,
+        {"radar": "radar", END: END},
+    )
     graph.add_conditional_edges(
         "radar",
         route_after_radar,

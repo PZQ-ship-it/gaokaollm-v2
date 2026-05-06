@@ -16,6 +16,7 @@ load_dotenv()
 DEFAULT_DATABASE_URL = "postgresql://postgres@127.0.0.1:55432/gaokao_recommendation"
 
 _pool: AsyncConnectionPool | None = None
+_pool_loop: asyncio.AbstractEventLoop | None = None
 
 
 def get_database_url() -> str:
@@ -23,14 +24,16 @@ def get_database_url() -> str:
 
 
 async def get_pool() -> AsyncConnectionPool:
-    global _pool
-    if _pool is None:
+    global _pool, _pool_loop
+    current_loop = asyncio.get_running_loop()
+    if _pool is None or _pool.closed or _pool_loop is not current_loop:
         _pool = AsyncConnectionPool(
             conninfo=get_database_url(),
             kwargs={"row_factory": dict_row},
             open=False,
         )
         await _pool.open()
+        _pool_loop = current_loop
     return _pool
 
 
@@ -44,7 +47,9 @@ async def fetch_query(query: str, *args: Any) -> list[dict[str, Any]]:
 
 
 async def close_pool() -> None:
-    global _pool
+    global _pool, _pool_loop
     if _pool is not None:
-        await _pool.close()
+        if not _pool.closed:
+            await _pool.close()
         _pool = None
+        _pool_loop = None

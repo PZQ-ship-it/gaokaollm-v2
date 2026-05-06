@@ -135,6 +135,13 @@ def _normalize_subjects(value: Any) -> list[str] | None:
     return subjects[:3] or None
 
 
+def _normalize_major(value: Any) -> str:
+    major = str(value)
+    if major == "临床":
+        return "临床医学"
+    return major
+
+
 def _merge_constraints(current: dict[str, Any], extracted: dict[str, Any]) -> dict[str, Any]:
     merged = {**DEFAULT_CONSTRAINTS, **(current or {})}
     if extracted.get("province_relaxed"):
@@ -143,7 +150,12 @@ def _merge_constraints(current: dict[str, Any], extracted: dict[str, Any]) -> di
     for key in ("score", "province", "major", "budget", "selected_subjects"):
         value = extracted.get(key)
         if value not in (None, ""):
-            merged[key] = _normalize_subjects(value) if key == "selected_subjects" else value
+            if key == "selected_subjects":
+                merged[key] = _normalize_subjects(value)
+            elif key == "major":
+                merged[key] = _normalize_major(value)
+            else:
+                merged[key] = value
     if extracted.get("province"):
         merged.pop("province_relaxed", None)
     return merged
@@ -178,11 +190,18 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
     extracted = await _extract_constraints(text, current)
     constraints = _merge_constraints(current, extracted)
 
-    missing = [key for key in ("score", "major") if not constraints.get(key)]
-    if not constraints.get("province") and not constraints.get("province_relaxed"):
-        missing.append("province")
+    missing = []
+    if not constraints.get("score"):
+        missing.append("score")
+    if not constraints.get("selected_subjects"):
+        missing.append("selected_subjects")
     if missing:
-        message = AIMessage(content=f"我还需要补充这些硬约束：{', '.join(missing)}。")
+        ask_parts = []
+        if "score" in missing:
+            ask_parts.append("高考分数")
+        if "selected_subjects" in missing:
+            ask_parts.append("3门选考科目（政治、历史、地理、物理、化学、生物、技术中任选3门）")
+        message = AIMessage(content=f"我还需要补充：{'；'.join(ask_parts)}。")
         return {
             "messages": [message],
             "constraints": constraints,
