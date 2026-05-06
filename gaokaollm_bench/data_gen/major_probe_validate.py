@@ -87,7 +87,7 @@ def main() -> None:
         logits = model(X)
         preds = torch.argmax(logits, dim=1).cpu().numpy()
 
-    report = classification_report(y, preds, output_dict=True)
+    report = classification_report(y, preds, output_dict=True, zero_division=0)
     metrics = {
         "total": int(len(y)),
         "missing_texts": int(missing),
