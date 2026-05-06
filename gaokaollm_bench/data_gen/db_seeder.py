@@ -552,7 +552,10 @@ async def find_hierarchical_major_relax_gap_sets(
         for stage in relaxation_stages:
             include_patterns = stage.get("include_patterns") or []
             exclude_patterns = stage.get("exclude_patterns") or []
-            if not include_patterns:
+            stage_relaxation_kind = stage.get("relaxation_kind") or (
+                "any_major" if stage.get("strategy") == "any_major" else "clinical_to_medtech"
+            )
+            if not include_patterns and stage_relaxation_kind != "any_major":
                 continue
 
             candidates = await find_major_relax_gap_candidates(
@@ -560,7 +563,7 @@ async def find_hierarchical_major_relax_gap_sets(
                 score,
                 prov,
                 strict_major=strict_major,
-                relaxation_kind="clinical_to_medtech",
+                relaxation_kind=stage_relaxation_kind,
                 target_major_patterns=include_patterns,
                 exclude_major_patterns=exclude_patterns,
                 relax_scope=relax_scope,
@@ -604,6 +607,7 @@ async def find_hierarchical_major_relax_gap_sets(
                     "province": prov,
                     "constraint_relaxed": "major",
                     "relaxation_kind": "hierarchical_major",
+                    "stage_relaxation_kind": stage_relaxation_kind,
                     "relax_scope": relax_scope,
                     "strict_major": strict_major,
                     "source_major_cluster": stage.get("source_cluster"),

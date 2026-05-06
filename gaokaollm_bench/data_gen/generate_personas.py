@@ -26,6 +26,9 @@ from gaokaollm_bench.schemas import IcebergPersona
 
 
 DEFAULT_OUTPUT = "gaokaollm_bench/sample_data/iceberg_personas_real_db.json"
+DEFAULT_MAJOR_TREE = "gaokaollm_bench/outputs/major_tree_final_reviewed.json"
+DEFAULT_NEIGHBOR_PROBE = "gaokaollm_bench/outputs/major_training_probe/best_probe.pt"
+DEFAULT_NEIGHBOR_LABEL_MAP = "gaokaollm_bench/outputs/major_training_probe/label_map.json"
 DEFAULT_EXCLUDE_PATTERNS = [
     "中北学院",
     "泰州学院",
@@ -40,6 +43,29 @@ DEFAULT_EXCLUDE_PATTERNS = [
     "皖江学院",
     "张家界学院",
 ]
+
+
+async def _probe_neighbor_clusters(args: argparse.Namespace) -> list[str]:
+    if args.neighbor_clusters:
+        return args.neighbor_clusters
+    if not args.use_probe_neighbors:
+        return []
+
+    from gaokaollm_bench.data_gen.major_probe_predict import predict_major_labels
+
+    predictions = await predict_major_labels(
+        [args.strict_major],
+        probe_path=args.neighbor_probe,
+        label_map_path=args.neighbor_label_map,
+        major_tree_path=args.major_tree,
+        top_k=max(args.neighbor_count + 30, 40),
+    )
+    neighbor_ids: list[str] = []
+    for prediction in predictions[0]["predictions"]:
+        label = prediction["label"]
+        if label not in neighbor_ids:
+            neighbor_ids.append(label)
+    return neighbor_ids
 
 
 def _school_label(row: dict[str, Any]) -> str:
@@ -281,10 +307,16 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
             )
         elif args.relaxation == "major_hierarchy":
             try:
+                neighbor_clusters = await _probe_neighbor_clusters(args)
                 stages = build_relaxation_stages(
                     args.strict_major,
                     source_node_id=args.source_major_cluster,
                     path=args.major_tree,
+                    neighbor_node_ids=neighbor_clusters,
+                    neighbor_limit=args.neighbor_count,
+                    neighbor_category_level=args.neighbor_category_level,
+                    skip_ancestor_category=True,
+                    include_any_major_stage=True,
                 )
             except UnknownMajorError as exc:
                 raise ValueError(
@@ -410,9 +442,44 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--major-tree",
-        default=None,
-        help="Optional major tree JSON used by --relaxation major_hierarchy.",
+        default=DEFAULT_MAJOR_TREE,
+        help="Major tree JSON used by --relaxation major_hierarchy.",
     )
+    parser.add_argument(
+        "--neighbor-clusters",
+        nargs="+",
+        default=None,
+        help="Optional explicit Stage 4 neighbor cluster IDs; bypasses probe inference.",
+    )
+    parser.add_argument(
+        "--neighbor-count",
+        type=int,
+        default=3,
+        help="Number of probe-neighbor level-1 categories to keep for Stage 4.",
+    )
+    parser.add_argument(
+        "--neighbor-category-level",
+        type=int,
+        default=1,
+        help="Major-tree level used to group probe predictions into Stage 4 neighbor categories.",
+    )
+    parser.add_argument(
+        "--neighbor-probe",
+        default=DEFAULT_NEIGHBOR_PROBE,
+        help="Probe checkpoint used to infer Stage 4 neighbor clusters.",
+    )
+    parser.add_argument(
+        "--neighbor-label-map",
+        default=DEFAULT_NEIGHBOR_LABEL_MAP,
+        help="Probe label map JSON used to infer Stage 4 neighbor clusters.",
+    )
+    parser.add_argument(
+        "--no-probe-neighbors",
+        dest="use_probe_neighbors",
+        action="store_false",
+        help="Disable probe-inferred Stage 4 neighbors for --relaxation major_hierarchy.",
+    )
+    parser.set_defaults(use_probe_neighbors=True)
     parser.add_argument(
         "--major-relax-scope",
         choices=["province", "national"],
@@ -480,6 +547,8 @@ def main(argv: list[str] | None = None) -> int:
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
     args = parse_args(argv or sys.argv[1:])
+    if args.neighbor_count < 1:
+        raise ValueError("--neighbor-count must be at least 1")
     if args.recommendation_threshold is None:
         args.recommendation_threshold = args.min_volunteers_per_case or 1
     personas = asyncio.run(_generate(args))

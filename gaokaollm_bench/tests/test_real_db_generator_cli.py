@@ -271,6 +271,37 @@ def test_build_relaxation_stages_from_major_name():
     assert "medical_clinical" in stages[1]["cluster_ids"]
 
 
+def test_build_relaxation_stages_adds_probe_neighbor_categories_and_any_major():
+    stages = build_relaxation_stages(
+        "口腔医学",
+        neighbor_node_ids=[
+            "medical_stomatology",
+            "medical_clinical",
+            "computer_science",
+            "law_politics",
+            "finance_accounting",
+            "electronic_information",
+        ],
+        neighbor_limit=3,
+        skip_ancestor_category=True,
+        include_any_major_stage=True,
+    )
+
+    assert [stage["stage"] for stage in stages] == [1, 2, 3, 4, 5]
+    assert stages[-2]["strategy"] == "probe_neighbor_categories"
+    assert stages[-2]["category_ids"] == [
+        "computer_core",
+        "law_public_group",
+        "econ_finance_group",
+    ]
+    assert "computer_science" in stages[-2]["cluster_ids"]
+    assert "law_politics" in stages[-2]["cluster_ids"]
+    assert "finance_accounting" in stages[-2]["cluster_ids"]
+    assert stages[-1]["strategy"] == "any_major"
+    assert stages[-1]["relaxation_kind"] == "any_major"
+    assert stages[-1]["include_patterns"] == []
+
+
 @pytest.mark.asyncio
 async def test_collect_major_name_counts_reads_distinct_db_names():
     captured = {}
@@ -598,3 +629,86 @@ async def test_hierarchical_major_relax_uses_recommendation_threshold():
     assert len(gap_sets) == 1
     assert gap_sets[0]["relaxation_stage"] == 2
     assert gap_sets[0]["volunteer_count"] == 3
+
+
+@pytest.mark.asyncio
+async def test_hierarchical_major_relax_can_fall_back_to_any_major():
+    async def mock_db(query, *params):
+        if "a.major_name_raw LIKE" in query and params[-1] == 1:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "浙江医学学院",
+                    "school_province": "浙江",
+                    "school_city": "杭州",
+                    "is_985": False,
+                    "is_211": False,
+                    "is_double_first_class": False,
+                    "education_level": "本科",
+                    "major_id": 10,
+                    "major_name": "临床医学",
+                    "min_score": 600,
+                    "min_rank": 50000,
+                    "tier": 2,
+                }
+            ]
+
+        if "a.major_name_raw NOT LIKE" not in query:
+            return []
+
+        return [
+            {
+                "year": 2025,
+                "school_id": 20 + idx,
+                "school_name": f"无专业限制大学{idx}",
+                "school_province": "江苏",
+                "school_city": "南京",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 30 + idx,
+                "major_name": "计算机科学与技术",
+                "min_score": 590 + idx,
+                "min_rank": 45000 + idx,
+                "tier": 3,
+            }
+            for idx in range(2)
+        ]
+
+    gap_sets = await find_hierarchical_major_relax_gap_sets(
+        mock_db,
+        count=1,
+        prov="浙江",
+        strict_major="临床医学",
+        relaxation_stages=[
+            {
+                "stage": 4,
+                "label": "probe_neighbor_categories",
+                "strategy": "probe_neighbor_categories",
+                "cluster_ids": ["nohit"],
+                "include_patterns": ["%nohit%"],
+                "exclude_patterns": [],
+            },
+            {
+                "stage": 5,
+                "label": "any_major",
+                "strategy": "any_major",
+                "cluster_ids": [],
+                "include_patterns": [],
+                "exclude_patterns": [],
+                "relaxation_kind": "any_major",
+            },
+        ],
+        score_min=600,
+        score_max=600,
+        recommendation_threshold=2,
+        strict_target_quality=False,
+        relax_scope="national",
+    )
+
+    assert len(gap_sets) == 1
+    assert gap_sets[0]["relaxation_stage"] == 5
+    assert gap_sets[0]["stage_relaxation_kind"] == "any_major"
+    assert gap_sets[0]["volunteer_count"] == 2

@@ -159,11 +159,23 @@ def _ancestor_chain(node: MajorNode, nodes: dict[str, MajorNode]) -> list[MajorN
     return chain
 
 
+def _ancestor_at_level(node: MajorNode, nodes: dict[str, MajorNode], level: int) -> MajorNode | None:
+    for ancestor in _ancestor_chain(node, nodes):
+        if ancestor.level == level:
+            return ancestor
+    return None
+
+
 def build_relaxation_stages(
     source_major: str | None = None,
     *,
     source_node_id: str | None = None,
     path: str | Path | None = None,
+    neighbor_node_ids: list[str] | None = None,
+    neighbor_limit: int = 3,
+    neighbor_category_level: int = 1,
+    skip_ancestor_category: bool = False,
+    include_any_major_stage: bool = False,
 ) -> list[dict[str, Any]]:
     """Build generic staged relaxations from any source major or source node."""
 
@@ -200,6 +212,8 @@ def build_relaxation_stages(
 
         if not target_nodes:
             continue
+        if strategy == "ancestor_category" and skip_ancestor_category:
+            continue
 
         cluster_ids = [node.id for node in target_nodes]
         include_patterns, exclude_patterns = get_major_cluster_patterns(cluster_ids, path=path)
@@ -213,6 +227,63 @@ def build_relaxation_stages(
                 "psychological_distance": policy_stage.get("psychological_distance"),
                 "include_patterns": include_patterns,
                 "exclude_patterns": exclude_patterns,
+            }
+        )
+
+    used_cluster_ids = {
+        cluster_id
+        for stage in stages
+        for cluster_id in stage.get("cluster_ids", [])
+    }
+    if neighbor_node_ids:
+        if neighbor_limit < 1:
+            raise ValueError("neighbor_limit must be at least 1")
+        neighbor_category_ids: list[str] = []
+        for node_id in dict.fromkeys(neighbor_node_ids):
+            if node_id not in nodes or node_id == source.id or node_id in used_cluster_ids:
+                continue
+            category = _ancestor_at_level(nodes[node_id], nodes, neighbor_category_level)
+            if not category or category.id in used_cluster_ids or category.id in neighbor_category_ids:
+                continue
+            neighbor_category_ids.append(category.id)
+            if len(neighbor_category_ids) >= neighbor_limit:
+                break
+
+        cluster_ids = [
+            leaf.id
+            for category_id in neighbor_category_ids
+            for leaf in _descendant_leaves(category_id, nodes)
+            if leaf.id != source.id and leaf.id not in used_cluster_ids
+        ]
+        if cluster_ids:
+            include_patterns, exclude_patterns = get_major_cluster_patterns(cluster_ids, path=path)
+            stages.append(
+                {
+                    "stage": 4,
+                    "label": "Probe相邻大类",
+                    "strategy": "probe_neighbor_categories",
+                    "source_cluster": source.id,
+                    "category_ids": neighbor_category_ids,
+                    "cluster_ids": cluster_ids,
+                    "psychological_distance": "probe_near",
+                    "include_patterns": include_patterns,
+                    "exclude_patterns": exclude_patterns,
+                    "relaxation_kind": "clinical_to_medtech",
+                }
+            )
+
+    if include_any_major_stage:
+        stages.append(
+            {
+                "stage": 5,
+                "label": "去除专业限制",
+                "strategy": "any_major",
+                "source_cluster": source.id,
+                "cluster_ids": [],
+                "psychological_distance": "far",
+                "include_patterns": [],
+                "exclude_patterns": [],
+                "relaxation_kind": "any_major",
             }
         )
 
