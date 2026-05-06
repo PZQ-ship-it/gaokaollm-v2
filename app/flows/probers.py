@@ -19,6 +19,9 @@ SELECT
     s.ranking,
     a.major_id,
     a.major_name_raw AS major_name,
+    a.subject_requirement,
+    a.requirement_normalized,
+    COALESCE(sr.requirement_type, 'unknown') AS requirement_type,
     a.min_score,
     a.min_rank,
     plan.min_tuition AS tuition,
@@ -30,6 +33,7 @@ SELECT
     END AS tier
 FROM admission_scores a
 JOIN schools s ON s.id = a.school_id
+LEFT JOIN subject_requirements sr ON sr.raw_requirement = a.subject_requirement
 LEFT JOIN LATERAL (
     SELECT min(p.tuition) AS min_tuition
     FROM admission_plans p
@@ -91,6 +95,26 @@ def _where_common(constraints: dict[str, Any]) -> tuple[list[str], list[Any]]:
     if budget is not None:
         where.append("(plan.min_tuition IS NULL OR plan.min_tuition <= %s)")
         params.append(budget)
+
+    selected_subjects = constraints.get("selected_subjects")
+    if selected_subjects:
+        where.append(
+            """
+            (
+                COALESCE(sr.requirement_type, 'unknown') = 'none'
+                OR COALESCE(cardinality(sr.normalized_subjects), 0) = 0
+                OR (
+                    sr.requirement_type = 'all_required'
+                    AND sr.normalized_subjects <@ %s::text[]
+                )
+                OR (
+                    sr.requirement_type = 'any_required'
+                    AND sr.normalized_subjects && %s::text[]
+                )
+            )
+            """
+        )
+        params.extend([selected_subjects, selected_subjects])
 
     return where, params
 

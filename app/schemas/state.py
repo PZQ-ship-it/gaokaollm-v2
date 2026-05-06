@@ -9,3 +9,4 @@ class AgentState(TypedDict):
     baseline_results: list
     score_waste: int
     pareto_opportunities: dict
+    missing_constraints: list[str]

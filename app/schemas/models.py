@@ -6,6 +6,7 @@ class UserConstraints(BaseModel):
     province: str
     major: str
     budget: int = Field(..., ge=0)
+    selected_subjects: list[str] | None = None
 
 
 class ChatRequest(BaseModel):
