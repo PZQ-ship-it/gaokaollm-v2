@@ -100,6 +100,11 @@ def _parse_args() -> argparse.Namespace:
         default=None,
         help="Optional directory for epoch checkpoints. Defaults to output-dir/checkpoints.",
     )
+    parser.add_argument(
+        "--ablation-config-json",
+        default=None,
+        help="Optional JSON metadata copied into metrics.json for academic ablation summaries.",
+    )
     return parser.parse_args()
 
 
@@ -226,19 +231,23 @@ def _evaluate(
     *,
     num_classes: int,
     loss_fn: nn.Module | None = None,
+    top_k: int = 3,
 ) -> dict[str, float]:
     if X.shape[0] == 0:
-        return {"loss": 0.0, "accuracy": 0.0, "macro_f1": 0.0}
+        return {"loss": 0.0, "accuracy": 0.0, "macro_f1": 0.0, "top_k_accuracy": 0.0}
     loss_fn = loss_fn or nn.CrossEntropyLoss()
     model.eval()
     with torch.no_grad():
         logits = model(torch.from_numpy(X))
         loss = float(loss_fn(logits, torch.from_numpy(y)).item())
         preds = torch.argmax(logits, dim=1).cpu().numpy()
+        top_k = max(1, min(top_k, logits.shape[1]))
+        top_preds = torch.topk(logits, k=top_k, dim=1).indices.cpu().numpy()
     return {
         "loss": loss,
         "accuracy": _accuracy(y, preds),
         "macro_f1": _macro_f1(y, preds, num_classes),
+        "top_k_accuracy": float(np.mean([target in row for target, row in zip(y, top_preds)])),
     }
 
 
@@ -346,6 +355,15 @@ def _class_weights(y_train: np.ndarray, *, num_classes: int, mode: str) -> torch
     return torch.from_numpy(weights)
 
 
+def _parse_ablation_config(raw: str | None) -> dict[str, Any]:
+    if not raw:
+        return {}
+    payload = json.loads(raw)
+    if not isinstance(payload, dict):
+        raise ValueError("--ablation-config-json must decode to an object")
+    return payload
+
+
 def main() -> None:
     args = _parse_args()
     if args.eval_every < 1:
@@ -355,6 +373,7 @@ def main() -> None:
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    ablation_config = _parse_ablation_config(args.ablation_config_json)
 
     train_path = Path(args.input_jsonl)
     rows = _read_jsonl(train_path)
@@ -476,6 +495,7 @@ def main() -> None:
                     "val_loss": val_metrics["loss"],
                     "val_accuracy": val_metrics["accuracy"],
                     "val_macro_f1": val_metrics["macro_f1"],
+                    "val_top3_accuracy": val_metrics["top_k_accuracy"],
                     "val_samples": int(y_val.size),
                     "missing_val_texts": int(missing_val),
                     "unknown_val_labels": int(skipped_val_unknown_label),
@@ -595,6 +615,9 @@ def main() -> None:
         "best_val_loss": (
             best_state.get("epoch_log", {}).get("val_loss") if best_state else None
         ),
+        "best_val_top3_accuracy": (
+            best_state.get("epoch_log", {}).get("val_top3_accuracy") if best_state else None
+        ),
         "model_config": model_config,
         "training_config": {
             "lr": args.lr,
@@ -606,6 +629,7 @@ def main() -> None:
             "selection_metric": args.selection_metric,
             "early_stopping_patience": args.early_stopping_patience,
         },
+        "ablation_config": ablation_config,
         "label_count": len(label_map),
         "input_rows": len(rows),
         "train_samples": int(X_train.shape[0]),

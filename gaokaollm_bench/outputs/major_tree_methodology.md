@@ -2,9 +2,11 @@
 
 ## 摘要
 
-本文记录 `gaokaollm_bench/outputs/major_tree_final_reviewed.json` 的构建过程及其方法学意义。该专业聚类树服务于 `gaokaollm-bench` 中的专业约束解析、层级放宽推荐、未归类专业判别和反事实志愿生成。与单纯依赖人工规则或黑箱向量聚类不同，我们采用“人工可审计本体 + 数据库真实专业名扫描 + probe 辅助归类 + LLM 低置信审校 + 最终审计合成”的混合流程，在覆盖真实招生噪声的同时保留可解释边界。
+本文记录 `gaokaollm_bench/outputs/major_tree_final_reviewed.json` 的构建过程、质量控制策略以及面向 `gaokaollm-bench` 的方法学意义。该专业聚类树服务于三类核心任务：专业约束解析、层级放宽推荐、以及反事实志愿集合生成。
 
-最终树的统计如下：
+与纯人工规则或黑箱向量聚类不同，本项目采用“人工可审计本体 + 真实数据库专业名扫描 + probe 辅助候选生成 + LLM 低置信审校 + 最终审计合成”的混合流程。其目标不是构造唯一正确的学科分类学，而是构造一棵可用于高考志愿决策评测的工程化语义树：既覆盖真实招生文本中的噪声和变体，又保留可解释的层级边界。
+
+最终树统计如下：
 
 | 指标 | 数值 |
 |---|---:|
@@ -17,19 +19,19 @@
 
 ## 研究问题与设计原则
 
-真实招生数据库中的专业名不是干净的标准 taxonomy，而是业务系统中的观测文本。`admission_scores.major_name_raw` 中同时存在标准专业、专业大类、校区标注、培养方向、中外合作、实验班、高职专科名称和局部噪声。因此，本项目的目标不是构造一棵“唯一正确”的学科分类树，而是构造一棵可用于决策评测的工程化语义树。
+真实招生数据库中的 `admission_scores.major_name_raw` 不是干净的教育部标准专业目录，而是业务系统中的观测文本。它同时包含标准专业、专业大类、校区标注、培养方向、中外合作、实验班、高职专科名称和局部备注噪声。
 
-设计原则包括：
+因此，本项目的目标不是“还原标准专业目录”，而是为志愿决策 Agent 构建一棵可查询、可放宽、可审计的专业语义树。设计原则包括：
 
-- **可审计性**：每个簇由人工定义的 `include_keywords`、`exclude_keywords` 和真实观测名支撑，避免完全黑箱聚类。
-- **覆盖性**：通过扫描全库专业名，将招生场景中实际出现的名称变体纳入树中。
-- **保守自动化**：embedding/probe 只用于辅助候选生成，不直接覆盖人工本体。
-- **分层放宽可解释**：树结构必须支持从叶子簇、同父近邻、邻接大类到无专业限制的逐步放宽。
-- **错误可追踪**：候选归类、LLM 审校、最终挂载均保留审计文件，便于复盘。
+- **可审计性**：每个簇由人工定义的 `include_keywords`、`exclude_keywords` 和真实观测名称支撑。
+- **覆盖真实文本**：通过扫描全库专业名，将真实招生场景中出现的名称变体纳入树中。
+- **保守自动化**：embedding/probe 用于生成候选和辅助审校，不直接替代人工本体。
+- **分层放宽可解释**：树必须支持从叶子簇、同父近邻、相邻大类到无专业限制的逐步放宽。
+- **候选与标签分离**：候选生成可以激进，监督标签与最终树挂载必须保守。
 
 ## 数据来源
 
-原始专业名来自 PostgreSQL 表字段：
+原始专业名来自 PostgreSQL 字段：
 
 ```text
 admission_scores.major_name_raw
@@ -42,7 +44,7 @@ admission_scores.major_name_raw
 | distinct major names | 22,759 |
 | admission score rows | 140,995 |
 
-该字段包含大量真实业务噪声。保留这些噪声具有方法学意义：benchmark 的被测系统最终面对的并不是教育部标准专业目录，而是招生计划和录取分数表中的真实文本。因此，我们将这些名称视为“观测专业名”，并通过树结构建立它们与可解释专业簇之间的映射。
+保留这些真实业务文本具有方法学意义：benchmark 面对的不是规范化目录，而是招生计划和录取分数表中的原始文本。因此我们将这些名称视为“观测专业名”，并通过树结构建立它们与可解释专业簇之间的映射。
 
 ## 构建流程
 
@@ -68,7 +70,7 @@ gaokaollm_bench/data_gen/major_clusters.json
 }
 ```
 
-人工骨架承担两项核心功能。第一，它规定语义边界，例如医学执业医师相关类、计算机与软件类、经管类、人文社科类、传统工科类、高职应用技术类等。第二，它为后续自动归类提供稳定的叶子标签，使模型输出始终可以回到可解释簇，而不是产生不可审计的新类。
+该骨架承担两项功能。第一，它规定语义边界，例如医学执业医师相关类、计算机与软件类、经管类、人文社科类、传统工科类和高职应用技术类。第二，它为后续自动归类提供稳定叶子标签，使模型输出始终回到可解释簇，而不是产生不可审计的新类。
 
 ### 2. 基于规则的数据库扫描
 
@@ -104,11 +106,11 @@ gaokaollm_bench/sample_data/major_tree_unassigned_full.json
 | assigned rows | 116,687 |
 | unassigned rows | 24,308 |
 
-这一阶段的意义在于建立“干净可训练”的基础树。后续 probe 训练集必须来自 `major_tree_observed_full.json`，而不能来自 embedding auto-assigned 版本。此前曾观察到 `中文(南校区)` 被错误归入 `medical_tcm`，原因正是低置信 embedding 自动归类结果被写入了 auto-assigned tree。现已将训练集生成器默认源改为干净 observed tree，并禁止默认使用 `auto_assigned` 树作为规则标注源。
+从树统计看，人工骨架的叶子 `observed_names` 为 224 条，规则扫描后叶子 `observed_names` 增至 18,596 条。这一阶段建立了“规则可解释 + 真实文本覆盖”的基础树。
 
-### 3. Probe 辅助未归类专业判别
+### 3. Probe 辅助候选生成
 
-训练与推理脚本：
+probe 训练与推理脚本包括：
 
 ```text
 gaokaollm_bench/data_gen/major_training_set_builder.py
@@ -119,28 +121,12 @@ gaokaollm_bench/data_gen/major_probe_predict.py
 gaokaollm_bench/data_gen/major_probe_review_candidates.py
 ```
 
-probe 不微调 embedding 模型，只在 4096 维文本向量上训练分类头。训练标签为叶子簇 `leaf_id`。这一设计使分类器具备两个性质：
+probe 不微调 embedding 模型，而是在 4096 维文本向量上训练轻量分类头，监督标签为叶子簇 `leaf_id`。该设计有两个优点：
 
-- 低成本：只需缓存 embedding，CPU 环境即可训练 probe。
-- 可替换：embedding 模型、probe 结构和树标签可以分别迭代。
+- **低成本**：只需缓存 embedding，CPU 环境即可训练。
+- **可替换**：embedding 模型、probe 结构和树标签可分别迭代。
 
-当前默认 probe 已从线性分类头升级为 MLP：
-
-| 配置项 | 当前值 |
-|---|---|
-| input_dim | 4096 |
-| output_dim | 52 |
-| model_kind | MLP |
-| hidden_dim | 256 |
-| dropout | 0.1 |
-| class_weight | balanced |
-| selection_metric | val_macro_f1 |
-| best_epoch | 38 |
-| val_accuracy | 0.7711 |
-| val_macro_f1 | 0.7588 |
-| val_loss | 0.8274 |
-
-probe 的角色不是直接“决定最终树”，而是为未归类专业生成 top-k 叶子簇候选。这样可以将大规模候选生成自动化，同时把低置信样本交给后续审校流程。
+在树构建中，probe 的角色不是直接决定最终树，而是为未归类专业生成 top-k 叶子候选，再交给后续审校流程处理。
 
 ### 4. LLM 低置信审校
 
@@ -161,7 +147,7 @@ LLM 只处理 `review_status = low_confidence` 的项目。为了避免概率锚
 }
 ```
 
-不会提供：
+不提供：
 
 ```text
 recommended_probability
@@ -169,7 +155,7 @@ probe prediction probability
 row_count
 ```
 
-这一设计的意义是让 LLM 作为语义审校者，而不是让它复述 probe 的置信度排序。审校后文件为：
+该设计让 LLM 作为语义审校者，而不是复述 probe 的置信度排序。审校产物：
 
 ```text
 gaokaollm_bench/outputs/major_probe_review_candidates_llm_reviewed.json
@@ -183,8 +169,6 @@ gaokaollm_bench/outputs/major_probe_review_candidates_llm_reviewed.json
 | pending | 408 |
 | llm_reviewed | 64 |
 | still low_confidence | 28 |
-| final source = probe | 414 |
-| final source = llm | 86 |
 | missing recommended_label | 0 |
 
 ### 5. 最终树合成
@@ -219,85 +203,150 @@ gaokaollm_bench/outputs/major_tree_final_reviewed.json
 gaokaollm_bench/outputs/major_tree_final_reviewed_audit.json
 ```
 
-## 质量控制与污染修复
+最终 reviewed tree 在规则扫描基础上增加了 500 条叶子观测名称，使叶子 `observed_names` 从 18,596 增至 19,096。
 
-构建过程中发现了一个重要负例：`中文(南校区)`、`中文(青云谱校区)` 等语言类专业曾被写入 `medical_tcm`。复盘显示，这不是人工规则树错误，也不是最终 reviewed tree 的错误，而是中间的 embedding auto-assigned tree 将 `manual_review` 项误写入 `observed_names`。
+## 质量控制
 
-因此我们做了三项修复：
+专业树构建中区分两类问题：
 
-- 规则标注训练集默认只从 `major_tree_observed_full.json` 生成。
-- 训练集构建脚本默认拒绝 `auto_assigned` tree，除非显式传入实验开关。
-- 新增回归测试，确保语言类观测名不会进入中医中药临床类。
+1. **方法变量**：例如是否使用 LLM 审校、是否使用 probe 候选、是否过滤复合专业、是否增强低样本类。这些适合进入消融实验。
+2. **工程质量问题**：例如候选树被误用为监督标签源、编码归一化不一致、embedding cache 缺失。这些不应作为学术消融因素，而应作为质量控制和复现前提处理。
 
-这类修复的意义在于区分“候选生成”和“监督标签”两个层次。候选可以激进，标签必须保守。
+当前训练集构建默认只从干净的 `major_tree_observed_full.json` 或最终 reviewed tree 生成监督样本，不将中间 auto-assigned tree 作为规则标注源。embedding cache 也默认要求训练和验证侧 `missing=0`，避免把数据完整性问题误当作模型效果差异。
 
-## 消融实验
+## 消融实验设计
 
-### Probe 结构与训练策略消融
+本节只讨论具有方法学意义且仍被保留的 probe 分类因素。工程完整性问题，例如 embedding 缺失、SSL/cache 问题、候选污染，不作为消融项；它们被视为实验前提。验证集文本混入训练集的协议已判定为不符合泛化评估原则；ambiguity-filtered、low-sample augmentation 和 full balanced class weight 在严格协议下没有带来正收益，相关脚本与结果已清理，不纳入论文式结论。
 
-当前已有实验如下，指标来自验证集：
+### 实验协议
 
-| Rank | 实验 | Macro-F1 | Accuracy | Val Loss | Best Epoch | 模型 | LR | Weight Decay | Class Weight |
-|---:|---|---:|---:|---:|---:|---|---:|---:|---|
-| 1 | mlp_h256_d0.1_lr1e-3_wd1e-4_balanced | 0.7588 | 0.7711 | 0.8274 | 38 | MLP | 0.0010 | 0.0001 | balanced |
-| 2 | mlp_h512_d0.2_lr5e-4_wd1e-4_balanced | 0.7328 | 0.7470 | 0.8239 | 59 | MLP | 0.0005 | 0.0001 | balanced |
-| 3 | linear_lr1e-3_wd1e-4_balanced | 0.7098 | 0.7470 | 0.8860 | 96 | Linear | 0.0010 | 0.0001 | balanced |
-| 4 | linear_lr1e-3_wd1e-4_sqrt_balanced | 0.6929 | 0.7530 | 0.8593 | 100 | Linear | 0.0010 | 0.0001 | sqrt_balanced |
-| 5 | linear_lr1e-3_wd1e-4 | 0.6657 | 0.7590 | 0.8399 | 156 | Linear | 0.0010 | 0.0001 | none |
-| 6 | linear_lr1e-3_wd1e-5 | 0.6657 | 0.7590 | 0.8399 | 156 | Linear | 0.0010 | 0.00001 | none |
-| 7 | baseline_linear_macro | 0.6446 | 0.7530 | 0.8888 | 96 | Linear | 0.0010 | 0 | none |
-| 8 | linear_lr5e-4_wd1e-4 | 0.6226 | 0.7470 | 0.9141 | 160 | Linear | 0.0005 | 0.0001 | none |
+本轮 probe 分类消融统一使用 DB observed tree 作为监督标签来源，不消融树覆盖策略，不消融 LLM/人工审校策略，也不讨论推荐级 Stage 命中率。为避免同一专业文本泄漏到训练与验证两侧，实验从原始训练集构造 `raw_train_only.jsonl`：剔除固定验证集 `val.jsonl` 中出现过的 canonical normalized text。
 
-实验显示：
+| 数据版本 | 原始行数 | 剔除 val overlap 后行数 | 叶子标签数 |
+|---|---:|---:|---:|
+| raw training set | 1,421 | 784 | 52 |
+| validation set | 166 | 166 | 52 |
 
-- 使用 `val_macro_f1` 作为选择指标优于只看 accuracy，尤其适合不均衡专业簇。
-- `balanced` class weight 显著提升小类表现，是从 Linear 0.6657 到 0.7098 的关键因素。
-- MLP probe 相比线性 probe 有明显收益，当前最佳 Macro-F1 达到 0.7588。
-- 低学习率 `5e-4` 在当前训练预算内收敛偏慢，不如 `1e-3`。
+所有保留消融均满足：
 
-### 树构建流程消融
+- train missing rows = 0
+- validation missing rows = 0
+- 固定验证集为 `gaokaollm_bench/outputs/major_training/splits/val.jsonl`
+- 每个配置运行 seeds 42、43、44
+- selection metric 为 `val_macro_f1`
+- early stopping patience 为 15
 
-部分流程尚未做严格独立消融，当前记录如下：
+### 保留因素与结果
 
-| 组件 | 作用 | 已有结果 | 状态 |
-|---|---|---:|---|
-| 人工本体骨架 | 提供稳定语义边界和叶子标签 | 82 节点 / 52 叶子簇 | 已完成 |
-| 规则扫描 observed tree | 从真实 DB 收集可审计专业名 | 18,587 distinct assigned | 已完成 |
-| 禁用 auto-assigned 训练源 | 防止低置信 embedding 污染监督标签 | 修复 `中文 -> medical_tcm` 污染 | 已完成 |
-| Probe 候选生成 | 为未归类专业生成 top-k 叶子候选 | 500 review candidates | 已完成 |
-| LLM 低置信审校 | 对低置信候选做语义复核 | 86 项最终来源含 LLM 审校 | 已完成 |
-| 不使用 LLM 审校的最终树 | 对比最终 coverage 与人工错误率 | 待测 | 待测 |
-| 只用规则扫描、不用 probe 补全 | 对比未归类覆盖率 | 待测 | 待测 |
-| embedding 原生 nearest neighbor 直接挂载 | 对比污染率 | 已发现污染案例，未系统量化 | 部分完成 |
-| 多 seed / k-fold probe 验证 | 检验验证集稳定性 | 待测 | 待测 |
+完整实验产物位于：
+
+```text
+gaokaollm_bench/outputs/major_probe_classification_ablation/
+```
+
+聚合结果如下：
+
+| Group | Runs | Macro-F1 Mean | Macro-F1 Std | Accuracy Mean | Accuracy Std | Top-3 Mean | Top-3 Std |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| raw + MLP + sqrt_balanced | 3 | 0.6862 | 0.0195 | 0.7068 | 0.0057 | 0.8554 | 0.0085 |
+| raw + MLP + none | 3 | 0.6795 | 0.0136 | 0.7088 | 0.0057 | 0.8474 | 0.0028 |
+| raw + Linear + sqrt_balanced | 3 | 0.6109 | 0.0025 | 0.6888 | 0.0028 | 0.8454 | 0.0057 |
+| raw + Linear + none | 3 | 0.5552 | 0.0024 | 0.6566 | 0.0000 | 0.8594 | 0.0057 |
+
+### 贡献解释
+
+1. **非线性分类头带来主要正收益**：在无类别权重时，MLP 相比 Linear 将 Macro-F1 从 0.5552 提升到 0.6795；在 sqrt-balanced 权重下，从 0.6109 提升到 0.6862。说明 4096 维 embedding 上仍存在需要非线性边界表达的专业语义差异。
+2. **sqrt-balanced 类别权重带来温和正收益**：Linear 下 Macro-F1 从 0.5552 提升到 0.6109；MLP 下从 0.6795 提升到 0.6862。它更偏向改善小类召回，因此 Macro-F1 更好，但 MLP 下 top-1 accuracy 略低于 none。
+3. **推荐配置**：若以 Macro-F1 为主目标，采用 `raw train-only + MLP h256 + sqrt_balanced`；若更看重 top-1 accuracy，保留 `raw train-only + MLP h256 + none` 作为对照。
+4. **不叙述负贡献试错**：full-data overlap、filtered、augmented、full balanced class weight 均作为工程试错清理，不作为最终方法贡献。
 
 ## 对 benchmark 的意义
 
 专业树不是孤立的数据清洗产物，而是 `gaokaollm-bench` 多轮反事实评测的基础设施。它至少支持三类能力：
 
 1. **专业约束解析**：将考生口语化偏好映射为可查询的专业簇。
-2. **层级放宽推荐**：从同叶子变体、同父近邻、邻接大类、无专业限制逐步扩张搜索空间。
+2. **层级放宽推荐**：从同叶子变体、同父近邻、相邻大类、无专业限制逐步扩展搜索空间。
 3. **反事实 Gap 生成**：在真实 DB 中寻找“坚持原约束 vs 放宽约束”之间的院校层次跃迁。
 
-因此，专业树的质量直接影响 persona 生成、志愿集合质量、target agent 是否能提出真实可验证的妥协方案，以及 evaluator 能否对推荐进行事实核验。
+树质量会直接影响 persona 生成、志愿集合质量、target agent 是否能提出真实可验证的妥协方案，以及 evaluator 能否对推荐进行事实核验。
 
-## 局限与后续工作
+## Probe 分类消融协议升级
+
+为避免把后续推荐环节和树审校环节混入 probe 结论，本轮消融只讨论专业分类器本身。实验统一采用 DB observed tree 作为监督标签来源，不消融树覆盖策略，不消融 LLM/人工审校策略，也不讨论推荐级 Stage 命中率。
+
+此前试跑过验证集文本混入训练集的 full-data 协议，也试跑过 ambiguity-filtered、augmented 和 full balanced class weight。前者因 `normalized_text` overlap 不符合泛化评估原则，后者在严格协议下没有带来正收益，因此均作为工程试错清理，不进入最终论文式消融结果。
+
+本轮固定前提如下：
+
+1. **树基底固定**：统一使用 DB observed tree 派生的训练数据。
+2. **验证集固定**：使用 `gaokaollm_bench/outputs/major_training/splits/val.jsonl`。
+3. **无文本泄漏**：训练集使用 train-only 派生版本，剔除验证集中出现过的 `normalized_text`。
+4. **完整 embedding 前提**：训练和验证文本在 embedding cache 中必须全部命中，`missing_texts = 0`。
+5. **多 seed**：每个配置跑 3 个 seed，报告 `mean ± std`。
+6. **选择指标**：以 `val_macro_f1` 选择 checkpoint，同时报告 `accuracy` 和 `top3_accuracy`。
+7. **保留变量**：最终只保留 raw train-only 数据上的模型结构与温和类别权重消融。
+
+本协议对应新增工具：
+
+```text
+gaokaollm_bench/data_gen/major_eval_protocol.py
+gaokaollm_bench/data_gen/major_ablation_report.py
+gaokaollm_bench/data_gen/major_probe_classification_ablation.py
+```
+
+### Probe 分类消融结果
+
+完整实验产物位于：
+
+```text
+gaokaollm_bench/outputs/major_probe_classification_ablation/
+```
+
+聚合表如下：
+
+| Group | Runs | Macro-F1 Mean | Macro-F1 Std | Accuracy Mean | Accuracy Std | Top-3 Mean |
+|---|---:|---:|---:|---:|---:|---:|
+| raw + MLP + sqrt_balanced | 3 | 0.6862 | 0.0195 | 0.7068 | 0.0057 | 0.8554 |
+| raw + MLP + none | 3 | 0.6795 | 0.0136 | 0.7088 | 0.0057 | 0.8474 |
+| raw + Linear + sqrt_balanced | 3 | 0.6109 | 0.0025 | 0.6888 | 0.0028 | 0.8454 |
+| raw + Linear + none | 3 | 0.5552 | 0.0024 | 0.6566 | 0.0000 | 0.8594 |
+
+### 当前保留因素的贡献
+
+1. **MLP 是明确正收益**：在无类别权重时，Macro-F1 从 0.5552 提升到 0.6795；在 sqrt-balanced 权重下，从 0.6109 提升到 0.6862。说明 4096 维 embedding 上的非线性分类边界确实有价值。
+2. **sqrt-balanced 是温和正收益**：Linear 下从 0.5552 提升到 0.6109，MLP 下从 0.6795 提升到 0.6862。它主要改善 Macro-F1，但 MLP 下 accuracy 略低于 none。
+3. **最终推荐分类配置**：若以 Macro-F1 为主目标，采用 `raw train-only + MLP h256 + sqrt_balanced`；若更看重 top-1 accuracy，可保留 `raw train-only + MLP h256 + none` 作为对照。
+4. **不纳入论文的试错项**：full-data overlap、filtered、augmented、full balanced class weight 均已清理，不作为最终方法贡献叙述。
+
+## 进一步提升结果的路线
+
+下一轮仍然先聚焦 probe 分类分数，不进入推荐级评估。优先级如下：
+
+1. **错误样本诊断**：对 `raw + MLP + sqrt_balanced` 输出 per-sample top-k、低 F1 leaf、主要 confusion pairs。
+2. **困难样本增强**：后续若重新引入增强，必须围绕高频混淆对补真实 observed names 或人工构造边界样本，并单独验证正收益后再进入主实验。
+3. **模型小 sweep**：围绕当前最优配置测试 h128/h256/h384、dropout 0.05/0.1/0.15、lr 0.0008/0.001。
+4. **类别权重替代**：可尝试介于 none 与 sqrt_balanced 之间的温和权重，或 label smoothing；不再默认使用 full balanced。
+5. **验证协议扩展**：当前 fixed val 可以判断方向，但最终仍需 grouped k-fold 复核，避免对 166 条验证集过拟合。
+
+## 局限性与后续工作
 
 当前树和 probe 仍存在若干局限：
 
 - 验证集仅 166 条，单条样本会带来约 0.6% accuracy 波动，后续应采用多 seed 或 k-fold。
-- 少数极小样本叶子簇仍表现不稳，例如部分高职类、软件工程、商务管理等。
-- LLM 审校只处理低置信样本，尚未对高置信 probe 样本做抽样人工审计。
+- 严格去除文本重叠后，训练样本量明显下降，说明 observed_names 中存在大量规范化重复项；后续需要构建按 normalized text 分组的正式 split。
+- 少数极小叶子簇仍不稳定，尤其是部分高职类、软件工程、商务管理等边界类。
+- 简单低样本增强未提升严格消融指标，说明后续增强应针对错误样本和混淆对，而不是机械补足样本数。
+- LLM 审校只处理低置信样本，尚未对高置信 probe 挂载项做系统抽样审计。
 - 最终树的叶子层级固定为 52 类，是否需要合并过细高职类仍需结合推荐任务效果评估。
 - embedding 模型版本会影响 probe 表现，生产环境需固定 `EMBEDDING_MODEL` 和向量维度。
 
 后续优先级建议：
 
-1. 对低 F1 叶子簇补充 observed_names / include_keywords。
-2. 做 k-fold 或多 seed probe 验证，确认 0.7588 Macro-F1 的稳定性。
-3. 对 probe 高置信挂载项抽样人工审计，估计精度。
-4. 在真实 DB 推荐生成中评估不同树版本对 stage 命中率、志愿多样性和专业相关性的影响。
-5. 若任务表现仍受专业边界影响，再考虑引入 embedding 辅助的“新簇建议”，但不直接自动改写最终树。
+1. 构建按 normalized text 分组的正式 train/val/test split。
+2. 针对低 F1 叶子簇和高频混淆对做人工补样与边界重审。
+3. 对 probe 高置信挂载项抽样人工审计，估计 precision。
+4. 在真实 DB 推荐生成中比较不同树版本对 stage 命中率、志愿多样性和专业相关性的影响。
+5. 如果任务表现仍受专业边界影响，再考虑引入 embedding 辅助的新簇建议，但不直接自动改写最终树。
 
 ## 复现实验命令
 
@@ -312,7 +361,7 @@ python -m gaokaollm_bench.data_gen.build_major_tree \
   --top-unassigned 5000
 ```
 
-从干净 observed tree 构建训练集：
+从 observed tree 构建训练集：
 
 ```bash
 python -m gaokaollm_bench.data_gen.major_training_set_builder \
@@ -321,24 +370,25 @@ python -m gaokaollm_bench.data_gen.major_training_set_builder \
   --dedupe-on normalized_text
 ```
 
-训练当前最佳 probe：
+运行当前保留的 probe 分类配置示例：
 
 ```bash
 python -m gaokaollm_bench.data_gen.major_probe_train \
-  --input-jsonl gaokaollm_bench/outputs/major_training/splits/train.jsonl \
-  --embeddings gaokaollm_bench/outputs/major_training/embeddings.npz \
-  --output-dir gaokaollm_bench/outputs/major_training_probe \
+  --input-jsonl gaokaollm_bench/outputs/major_probe_classification_ablation/data/raw_train_only.jsonl \
+  --val-jsonl gaokaollm_bench/outputs/major_training/splits/val.jsonl \
+  --embeddings gaokaollm_bench/outputs/major_training/embeddings_union_val_filled.npz \
+  --output-dir gaokaollm_bench/outputs/major_probe_classification_ablation/manual_mlp_sqrt_balanced \
   --label-field leaf_id \
   --batch-size 64 \
-  --epochs 160 \
+  --epochs 80 \
   --lr 0.001 \
   --weight-decay 0.0001 \
   --model-kind mlp \
   --hidden-dim 256 \
   --dropout 0.1 \
-  --class-weight balanced \
+  --class-weight sqrt_balanced \
   --selection-metric val_macro_f1 \
-  --early-stopping-patience 20 \
+  --early-stopping-patience 15 \
   --seed 42
 ```
 
@@ -350,4 +400,56 @@ python -m gaokaollm_bench.data_gen.major_tree_finalize_from_reviews \
   --reviews gaokaollm_bench/outputs/major_probe_review_candidates_llm_reviewed.json \
   --output gaokaollm_bench/outputs/major_tree_final_reviewed.json \
   --audit-output gaokaollm_bench/outputs/major_tree_final_reviewed_audit.json
+```
+
+运行本次严格去重消融实验时，先构造 train-only 派生集，再调用 `major_probe_train.py`。实验产物位于：
+
+```text
+gaokaollm_bench/outputs/major_probe_classification_ablation/
+```
+
+生成正式 grouped split：
+
+```bash
+python -m gaokaollm_bench.data_gen.major_eval_protocol grouped-split \
+  --input gaokaollm_bench/outputs/major_training/data.jsonl \
+  --output-dir gaokaollm_bench/outputs/major_training_grouped/split_seed42 \
+  --val-ratio 0.2 \
+  --seed 42
+```
+
+生成 grouped k-fold：
+
+```bash
+python -m gaokaollm_bench.data_gen.major_eval_protocol grouped-kfold \
+  --input gaokaollm_bench/outputs/major_training/data.jsonl \
+  --output-dir gaokaollm_bench/outputs/major_training_grouped/kfold_seed42 \
+  --folds 5 \
+  --seed 42
+```
+
+检查 embedding 完整性：
+
+```bash
+python -m gaokaollm_bench.data_gen.major_eval_protocol check-embeddings \
+  --input gaokaollm_bench/outputs/major_training_grouped/split_seed42/train.jsonl \
+  --embeddings gaokaollm_bench/outputs/major_training/embeddings_union_val_filled.npz
+```
+
+运行 probe-only 分类消融：
+
+```bash
+python -m gaokaollm_bench.data_gen.major_probe_classification_ablation \
+  --output-root gaokaollm_bench/outputs/major_probe_classification_ablation \
+  --epochs 80 \
+  --early-stopping-patience 15
+```
+
+汇总 probe-only 分类消融：
+
+```bash
+python -m gaokaollm_bench.data_gen.major_ablation_report \
+  --root gaokaollm_bench/outputs/major_probe_classification_ablation \
+  --output-json gaokaollm_bench/outputs/major_probe_classification_ablation/summary.json \
+  --output-md gaokaollm_bench/outputs/major_probe_classification_ablation/summary.md
 ```

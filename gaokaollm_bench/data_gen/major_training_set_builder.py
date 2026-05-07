@@ -27,6 +27,9 @@ class TrainingRow:
     source: str
 
 
+AMBIGUOUS_MARKERS = ("含", "专业", "类", "试验班", "实验班", "方向", "双学位", "复合")
+
+
 def _node_map(tree: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return tree.get("nodes") or tree.get("clusters") or {}
 
@@ -51,6 +54,68 @@ def _parent_info(nodes: dict[str, dict[str, Any]], parent_id: str | None) -> tup
     if not parent:
         return parent_id, None
     return parent_id, str(parent.get("label") or parent_id)
+
+
+def _ancestor_at_or_above_leaf_parent(
+    nodes: dict[str, dict[str, Any]],
+    node_id: str | None,
+) -> str | None:
+    current_id = node_id
+    best_id = node_id
+    while current_id and current_id in nodes:
+        node = nodes[current_id]
+        if int(node.get("level") or 0) <= 1:
+            return str(node.get("id") or current_id)
+        best_id = current_id
+        current_id = node.get("parent")
+    return str(best_id) if best_id else None
+
+
+def _keyword_parent_index(tree: dict[str, Any]) -> dict[str, set[str]]:
+    nodes = _node_map(tree)
+    index: dict[str, set[str]] = defaultdict(set)
+    for node in _leaf_nodes(nodes):
+        leaf_id = str(node.get("id") or "")
+        parent_group = _ancestor_at_or_above_leaf_parent(nodes, leaf_id)
+        if not parent_group:
+            continue
+        for keyword in _include_keywords(node):
+            keyword = str(keyword).strip()
+            if len(keyword) >= 2:
+                index[keyword].add(parent_group)
+    return index
+
+
+def detect_ambiguous_compound_major(
+    text: str,
+    leaf_id: str,
+    tree: dict[str, Any],
+) -> dict[str, Any]:
+    text = str(text or "")
+    if not text:
+        return {"is_ambiguous": False, "reason": "empty_text", "matched_keywords": []}
+    if not any(marker in text for marker in AMBIGUOUS_MARKERS):
+        return {"is_ambiguous": False, "reason": "no_compound_marker", "matched_keywords": []}
+
+    nodes = _node_map(tree)
+    own_parent = _ancestor_at_or_above_leaf_parent(nodes, leaf_id)
+    keyword_index = _keyword_parent_index(tree)
+    matched = []
+    matched_parents: set[str] = set()
+    for keyword, parent_ids in keyword_index.items():
+        if keyword in text:
+            matched.append({"keyword": keyword, "parent_ids": sorted(parent_ids)})
+            matched_parents.update(parent_ids)
+
+    cross_parent_ids = sorted(parent_id for parent_id in matched_parents if parent_id != own_parent)
+    is_ambiguous = bool(cross_parent_ids and len(matched) >= 2)
+    return {
+        "is_ambiguous": is_ambiguous,
+        "reason": "cross_parent_compound" if is_ambiguous else "same_parent_or_weak_signal",
+        "own_parent_id": own_parent,
+        "cross_parent_ids": cross_parent_ids,
+        "matched_keywords": matched,
+    }
 
 
 def _iter_rows(tree: dict[str, Any]) -> Iterable[TrainingRow]:
@@ -102,6 +167,25 @@ def _dedupe(rows: Iterable[TrainingRow], *, dedupe_on: str) -> list[TrainingRow]
     return list(seen.values())
 
 
+def _filter_ambiguous_rows(
+    rows: list[TrainingRow],
+    *,
+    tree: dict[str, Any],
+) -> tuple[list[TrainingRow], list[dict[str, Any]]]:
+    kept = []
+    audit = []
+    for row in rows:
+        if row.source != "observed_names":
+            kept.append(row)
+            continue
+        detection = detect_ambiguous_compound_major(row.text, row.leaf_id, tree)
+        if detection["is_ambiguous"]:
+            audit.append({**row.__dict__, "ambiguity": detection})
+        else:
+            kept.append(row)
+    return kept, audit
+
+
 def _write_jsonl(path: Path, rows: Iterable[TrainingRow]) -> None:
     with path.open("w", encoding="utf-8") as f:
         for row in rows:
@@ -117,6 +201,10 @@ def _write_stats(path: Path, rows: list[TrainingRow]) -> None:
         "by_leaf": dict(sorted(stats.items(), key=lambda item: item[1], reverse=True)),
     }
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _write_audit(path: Path, rows: list[dict[str, Any]]) -> None:
+    path.write_text(json.dumps(rows, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def _parse_args() -> argparse.Namespace:
@@ -143,6 +231,16 @@ def _parse_args() -> argparse.Namespace:
         choices=["text", "normalized_text"],
         default="normalized_text",
     )
+    parser.add_argument(
+        "--exclude-ambiguous-compound-majors",
+        action="store_true",
+        help="Drop observed-name rows that mix keywords from multiple top-level parent groups.",
+    )
+    parser.add_argument(
+        "--ambiguity-audit-output",
+        default=None,
+        help="Optional JSON audit path for rows dropped by --exclude-ambiguous-compound-majors.",
+    )
     return parser.parse_args()
 
 
@@ -158,12 +256,21 @@ def main() -> None:
 
     tree = load_major_tree(tree_path)
     rows = list(_iter_rows(tree))
+    ambiguity_audit: list[dict[str, Any]] = []
+    if args.exclude_ambiguous_compound_majors:
+        rows, ambiguity_audit = _filter_ambiguous_rows(rows, tree=tree)
     rows = _dedupe(rows, dedupe_on=args.dedupe_on)
 
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     _write_jsonl(output_path, rows)
     _write_stats(output_path.with_suffix(".stats.json"), rows)
+    audit_path = Path(args.ambiguity_audit_output) if args.ambiguity_audit_output else output_path.with_suffix(
+        ".ambiguity_audit.json"
+    )
+    if args.exclude_ambiguous_compound_majors:
+        _write_audit(audit_path, ambiguity_audit)
+        print(f"Dropped {len(ambiguity_audit)} ambiguous rows; audit written to {audit_path}")
 
     print(f"Wrote {len(rows)} rows to {output_path}")
 
