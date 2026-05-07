@@ -41,6 +41,26 @@ python -m gaokaollm_bench.data_gen.major_embedding_cache \
 
 ---
 
+## 3) 切分训练/验证集
+
+**脚本**：`gaokaollm_bench/data_gen/major_train_val_split.py`
+
+**默认输出**：
+
+- `gaokaollm_bench/outputs/major_training/splits/train.jsonl`
+- `gaokaollm_bench/outputs/major_training/splits/val.jsonl`
+
+**运行命令**：
+
+```bash
+python -m gaokaollm_bench.data_gen.major_train_val_split \
+  --input gaokaollm_bench/outputs/major_training/data.jsonl \
+  --output-dir gaokaollm_bench/outputs/major_training/splits \
+  --label-field leaf_id \
+  --val-ratio 0.1 \
+  --seed 42
+```
+
 ## 2) 训练线性探针（在有训练资源的机器）
 
 **脚本**：`gaokaollm_bench/data_gen/major_probe_train.py`
@@ -72,25 +92,7 @@ python -m gaokaollm_bench.data_gen.major_probe_train \
 
 ---
 
-## 3) 切分训练/验证集
 
-**脚本**：`gaokaollm_bench/data_gen/major_train_val_split.py`
-
-**默认输出**：
-
-- `gaokaollm_bench/outputs/major_training/splits/train.jsonl`
-- `gaokaollm_bench/outputs/major_training/splits/val.jsonl`
-
-**运行命令**：
-
-```bash
-C:/ProgramData/anaconda3/envs/gaokao_pg/python.exe -m gaokaollm_bench.data_gen.major_train_val_split \
-  --input gaokaollm_bench/outputs/major_training/train.jsonl \
-  --output-dir gaokaollm_bench/outputs/major_training/splits \
-  --label-field leaf_id \
-  --val-ratio 0.1 \
-  --seed 42
-```
 
 ---
 

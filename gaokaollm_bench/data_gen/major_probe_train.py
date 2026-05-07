@@ -51,6 +51,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--epochs", type=int, default=8)
     parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--weight-decay", type=float, default=0.0)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--eval-every",
@@ -66,8 +67,28 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--selection-metric",
         choices=["val_accuracy", "val_macro_f1", "val_loss", "train_accuracy", "train_loss"],
-        default="val_accuracy",
+        default="val_macro_f1",
         help="Metric used to select the final best probe when available.",
+    )
+    parser.add_argument(
+        "--class-weight",
+        choices=["none", "balanced", "sqrt_balanced"],
+        default="none",
+        help="Optional class weighting for CrossEntropyLoss.",
+    )
+    parser.add_argument(
+        "--model-kind",
+        choices=["linear", "mlp"],
+        default="linear",
+        help="Probe architecture.",
+    )
+    parser.add_argument("--hidden-dim", type=int, default=512)
+    parser.add_argument("--dropout", type=float, default=0.1)
+    parser.add_argument(
+        "--early-stopping-patience",
+        type=int,
+        default=None,
+        help="Stop after this many evaluated epochs without best-score improvement.",
     )
     parser.add_argument(
         "--save-epoch-checkpoints",
@@ -204,10 +225,11 @@ def _evaluate(
     y: np.ndarray,
     *,
     num_classes: int,
+    loss_fn: nn.Module | None = None,
 ) -> dict[str, float]:
     if X.shape[0] == 0:
         return {"loss": 0.0, "accuracy": 0.0, "macro_f1": 0.0}
-    loss_fn = nn.CrossEntropyLoss()
+    loss_fn = loss_fn or nn.CrossEntropyLoss()
     model.eval()
     with torch.no_grad():
         logits = model(torch.from_numpy(X))
@@ -225,10 +247,78 @@ def _auto_val_path(train_path: Path) -> Path | None:
     return candidate if candidate.exists() else None
 
 
-def _metric_is_better(metric_name: str, score: float, best_score: float) -> bool:
-    if metric_name in {"val_loss", "train_loss"}:
-        return score <= best_score
-    return score >= best_score
+def _model_config(
+    *,
+    input_dim: int,
+    output_dim: int,
+    model_kind: str,
+    hidden_dim: int,
+    dropout: float,
+) -> dict[str, Any]:
+    return {
+        "input_dim": int(input_dim),
+        "output_dim": int(output_dim),
+        "model_kind": model_kind,
+        "hidden_dim": int(hidden_dim),
+        "dropout": float(dropout),
+    }
+
+
+def build_probe_model(
+    *,
+    input_dim: int,
+    output_dim: int,
+    model_kind: str = "linear",
+    hidden_dim: int = 512,
+    dropout: float = 0.1,
+) -> nn.Module:
+    if model_kind == "linear":
+        return nn.Linear(input_dim, output_dim)
+    if model_kind == "mlp":
+        if hidden_dim < 1:
+            raise ValueError("--hidden-dim must be positive for mlp")
+        if not 0.0 <= dropout < 1.0:
+            raise ValueError("--dropout must be in [0, 1)")
+        return nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, output_dim),
+        )
+    raise ValueError(f"Unsupported model kind: {model_kind}")
+
+
+def _metric_value_for_maximize(epoch_log: dict[str, Any], metric_name: str) -> float:
+    value = float(epoch_log[metric_name])
+    return -value if metric_name in {"val_loss", "train_loss"} else value
+
+
+def _best_key(epoch_log: dict[str, Any], selection_metric: str) -> tuple[float, ...] | None:
+    if selection_metric not in epoch_log:
+        return None
+    key = [_metric_value_for_maximize(epoch_log, selection_metric)]
+    if selection_metric != "val_accuracy" and "val_accuracy" in epoch_log:
+        key.append(float(epoch_log["val_accuracy"]))
+    if selection_metric != "val_macro_f1" and "val_macro_f1" in epoch_log:
+        key.append(float(epoch_log["val_macro_f1"]))
+    if selection_metric != "val_loss" and "val_loss" in epoch_log:
+        key.append(-float(epoch_log["val_loss"]))
+    key.append(-float(epoch_log["epoch"]))
+    return tuple(key)
+
+
+def _metric_is_better(
+    epoch_log: dict[str, Any],
+    *,
+    selection_metric: str,
+    best_key: tuple[float, ...] | None,
+) -> bool:
+    current_key = _best_key(epoch_log, selection_metric)
+    if current_key is None:
+        return False
+    if best_key is None:
+        return True
+    return current_key > best_key
 
 
 def _initial_best_score(metric_name: str) -> float:
@@ -241,10 +331,27 @@ def _copy_state_dict(model: nn.Module) -> dict[str, torch.Tensor]:
     return {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}
 
 
+def _class_weights(y_train: np.ndarray, *, num_classes: int, mode: str) -> torch.Tensor | None:
+    if mode == "none":
+        return None
+    counts = np.bincount(y_train, minlength=num_classes).astype(np.float32)
+    nonzero = counts > 0
+    weights = np.ones(num_classes, dtype=np.float32)
+    if mode == "balanced":
+        weights[nonzero] = float(y_train.shape[0]) / (float(num_classes) * counts[nonzero])
+    elif mode == "sqrt_balanced":
+        weights[nonzero] = np.sqrt(float(y_train.shape[0]) / (float(num_classes) * counts[nonzero]))
+    else:
+        raise ValueError(f"Unsupported class-weight mode: {mode}")
+    return torch.from_numpy(weights)
+
+
 def main() -> None:
     args = _parse_args()
     if args.eval_every < 1:
         raise ValueError("--eval-every must be at least 1")
+    if args.early_stopping_patience is not None and args.early_stopping_patience < 1:
+        raise ValueError("--early-stopping-patience must be positive when provided")
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -304,9 +411,18 @@ def main() -> None:
         batch_size=args.batch_size,
         shuffle=True,
     )
-    model = nn.Linear(X_train.shape[1], len(label_map))
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr)
-    loss_fn = nn.CrossEntropyLoss()
+    model_config = _model_config(
+        input_dim=X_train.shape[1],
+        output_dim=len(label_map),
+        model_kind=args.model_kind,
+        hidden_dim=args.hidden_dim,
+        dropout=args.dropout,
+    )
+    model = build_probe_model(**model_config)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    loss_weight = _class_weights(y_train, num_classes=len(label_map), mode=args.class_weight)
+    loss_fn = nn.CrossEntropyLoss(weight=loss_weight)
+    eval_loss_fn = nn.CrossEntropyLoss()
 
     history_path = Path(args.history_output) if args.history_output else output_dir / "train_history.jsonl"
     history_path.parent.mkdir(parents=True, exist_ok=True)
@@ -320,7 +436,10 @@ def main() -> None:
     best_state = None
     best_score = _initial_best_score(args.selection_metric)
     best_metric_name = args.selection_metric
+    best_key: tuple[float, ...] | None = None
+    last_best_evaluated_epoch = 0
     history: list[dict[str, Any]] = []
+    stopped_early = False
 
     for epoch in range(1, args.epochs + 1):
         model.train()
@@ -351,7 +470,7 @@ def main() -> None:
 
         has_val_metrics = bool(y_val.size and epoch % args.eval_every == 0)
         if has_val_metrics:
-            val_metrics = _evaluate(model, X_val, y_val, num_classes=len(label_map))
+            val_metrics = _evaluate(model, X_val, y_val, num_classes=len(label_map), loss_fn=eval_loss_fn)
             epoch_log.update(
                 {
                     "val_loss": val_metrics["loss"],
@@ -362,13 +481,7 @@ def main() -> None:
                     "unknown_val_labels": int(skipped_val_unknown_label),
                 }
             )
-        if args.selection_metric in epoch_log:
-            metric_name = args.selection_metric
-            score = float(epoch_log[metric_name])
-        elif args.selection_metric.startswith("val_") and has_val_metrics:
-            metric_name = args.selection_metric
-            score = float(epoch_log[metric_name])
-        elif args.selection_metric.startswith("val_") and not y_val.size:
+        if args.selection_metric.startswith("val_") and not y_val.size:
             metric_name = "train_accuracy"
             score = train_acc
         elif args.selection_metric.startswith("val_") and not has_val_metrics:
@@ -376,19 +489,35 @@ def main() -> None:
             score = best_score
         else:
             metric_name = args.selection_metric
-            score = float(epoch_log[metric_name])
+            score = float(epoch_log[metric_name]) if metric_name in epoch_log else best_score
 
         is_evaluated_epoch = metric_name in epoch_log
-        is_best = is_evaluated_epoch and _metric_is_better(metric_name, score, best_score)
+        is_best = is_evaluated_epoch and _metric_is_better(
+            epoch_log,
+            selection_metric=metric_name,
+            best_key=best_key,
+        )
         if is_best:
             best_score = score
             best_metric_name = metric_name
+            best_key = _best_key(epoch_log, metric_name)
+            last_best_evaluated_epoch = epoch
             best_state = {
                 "state_dict": _copy_state_dict(model),
                 "epoch": epoch,
                 "score": score,
                 "selection_metric": metric_name,
                 "epoch_log": copy.deepcopy(epoch_log),
+                "model_config": model_config,
+                "training_config": {
+                    "lr": args.lr,
+                    "weight_decay": args.weight_decay,
+                    "class_weight": args.class_weight,
+                    "batch_size": args.batch_size,
+                    "seed": args.seed,
+                    "eval_every": args.eval_every,
+                    "selection_metric": args.selection_metric,
+                },
             }
 
         epoch_log["selection_metric"] = metric_name
@@ -403,6 +532,7 @@ def main() -> None:
                     "selection_metric": metric_name,
                     "selection_score": None if not is_evaluated_epoch else score,
                     "epoch_log": epoch_log,
+                    "model_config": model_config,
                 },
                 checkpoint_dir / f"checkpoint_epoch_{epoch:04d}.pt",
             )
@@ -428,6 +558,19 @@ def main() -> None:
             parts.append(f"best_{metric_name}={score:.4f}")
         print(" ".join(parts))
 
+        if (
+            args.early_stopping_patience is not None
+            and is_evaluated_epoch
+            and last_best_evaluated_epoch
+            and epoch - last_best_evaluated_epoch >= args.early_stopping_patience
+        ):
+            stopped_early = True
+            print(
+                f"Early stopping at epoch={epoch}; "
+                f"no best {best_metric_name} improvement for {args.early_stopping_patience} evaluated epochs"
+            )
+            break
+
     if best_state:
         torch.save(best_state, output_dir / "probe.pt")
         torch.save(best_state, output_dir / "best_probe.pt")
@@ -437,10 +580,32 @@ def main() -> None:
     )
     metrics = {
         "epochs": args.epochs,
+        "epochs_completed": len(history),
+        "stopped_early": stopped_early,
         "best_epoch": int(best_state["epoch"]) if best_state else None,
         "best_score": float(best_score),
         "selection_metric": best_metric_name,
         "best_epoch_log": best_state.get("epoch_log") if best_state else None,
+        "best_val_macro_f1": (
+            best_state.get("epoch_log", {}).get("val_macro_f1") if best_state else None
+        ),
+        "best_val_accuracy": (
+            best_state.get("epoch_log", {}).get("val_accuracy") if best_state else None
+        ),
+        "best_val_loss": (
+            best_state.get("epoch_log", {}).get("val_loss") if best_state else None
+        ),
+        "model_config": model_config,
+        "training_config": {
+            "lr": args.lr,
+            "weight_decay": args.weight_decay,
+            "class_weight": args.class_weight,
+            "batch_size": args.batch_size,
+            "seed": args.seed,
+            "eval_every": args.eval_every,
+            "selection_metric": args.selection_metric,
+            "early_stopping_patience": args.early_stopping_patience,
+        },
         "label_count": len(label_map),
         "input_rows": len(rows),
         "train_samples": int(X_train.shape[0]),

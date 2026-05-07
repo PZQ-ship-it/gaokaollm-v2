@@ -15,6 +15,7 @@ from gaokaollm_bench.data_gen.major_embedding import (
     OpenAIEmbeddingClient,
     _normalize_text,
 )
+from gaokaollm_bench.data_gen.major_probe_train import build_probe_model
 from gaokaollm_bench.data_gen.major_tree import load_major_tree
 
 
@@ -54,15 +55,19 @@ def _load_probe(
     probe_path: str | Path,
     label_map_path: str | Path,
     major_tree_path: str | Path,
-) -> tuple[torch.nn.Linear, dict[int, str], dict]:
+) -> tuple[torch.nn.Module, dict[int, str], dict]:
     label_map = json.loads(Path(label_map_path).read_text(encoding="utf-8"))
     inv_label_map = {int(v): k for k, v in label_map.items()}
     tree = load_major_tree(major_tree_path)
     nodes = tree.get("nodes") or tree.get("clusters") or {}
 
     state = torch.load(Path(probe_path), map_location="cpu")
-    weight = state["state_dict"]["weight"]
-    model = torch.nn.Linear(weight.shape[1], len(label_map))
+    model_config = state.get("model_config")
+    if model_config:
+        model = build_probe_model(**model_config)
+    else:
+        weight = state["state_dict"]["weight"]
+        model = torch.nn.Linear(weight.shape[1], len(label_map))
     model.load_state_dict(state["state_dict"])
     model.eval()
     return model, inv_label_map, nodes
