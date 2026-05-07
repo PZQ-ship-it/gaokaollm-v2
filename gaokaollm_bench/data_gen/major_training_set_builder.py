@@ -12,6 +12,9 @@ from typing import Any, Iterable
 from gaokaollm_bench.data_gen.major_embedding import _normalize_text
 from gaokaollm_bench.data_gen.major_tree import load_major_tree
 
+DEFAULT_TREE_PATH = Path("gaokaollm_bench/sample_data/major_tree_observed_full.json")
+DEFAULT_OUTPUT_PATH = Path("gaokaollm_bench/outputs/major_training/train.jsonl")
+
 
 @dataclass(frozen=True)
 class TrainingRow:
@@ -120,11 +123,20 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build labeled major training set")
     parser.add_argument(
         "--tree-path",
-        default=str(Path("gaokaollm_bench/sample_data/major_tree_observed_auto_assigned_full.json")),
+        default=str(DEFAULT_TREE_PATH),
+        help=(
+            "Clean observed major tree used as rule-labeled training source. "
+            "Do not use embedding auto-assigned trees unless explicitly allowed."
+        ),
     )
     parser.add_argument(
         "--output",
-        default=str(Path("gaokaollm_bench/outputs/major_training/train.jsonl")),
+        default=str(DEFAULT_OUTPUT_PATH),
+    )
+    parser.add_argument(
+        "--allow-auto-assigned-tree",
+        action="store_true",
+        help="Allow training-set generation from an embedding auto-assigned tree.",
     )
     parser.add_argument(
         "--dedupe-on",
@@ -136,7 +148,15 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
-    tree = load_major_tree(Path(args.tree_path))
+    tree_path = Path(args.tree_path)
+    if "auto_assigned" in tree_path.name and not args.allow_auto_assigned_tree:
+        raise SystemExit(
+            "Refusing to build rule-labeled training data from an auto-assigned tree. "
+            "Use gaokaollm_bench/sample_data/major_tree_observed_full.json or pass "
+            "--allow-auto-assigned-tree if this is an intentional experiment."
+        )
+
+    tree = load_major_tree(tree_path)
     rows = list(_iter_rows(tree))
     rows = _dedupe(rows, dedupe_on=args.dedupe_on)
 

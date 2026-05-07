@@ -109,10 +109,15 @@ python -m gaokaollm_bench.data_gen.build_major_tree \
 
 ```bash
 python -m gaokaollm_bench.data_gen.major_training_set_builder \
-  --tree-path gaokaollm_bench/outputs/major_tree_final_reviewed.json \
+  --tree-path gaokaollm_bench/sample_data/major_tree_observed_full.json \
   --output gaokaollm_bench/outputs/major_training/data.jsonl \
   --dedupe-on normalized_text
 ```
+
+说明：probe 的规则标注训练集应从干净的 `major_tree_observed_full.json` 生成。不要使用
+`major_tree_observed_auto_assigned_full.json` 作为训练源；该文件包含 embedding 自动归类实验结果，
+低置信度的 `manual_review` 项可能污染标签。最终审校树 `major_tree_final_reviewed.json` 用于推荐生成
+和人工审定后的专业树发布，不作为基础规则标注训练源。
 
 ### 3.2 切分训练集和验证集
 

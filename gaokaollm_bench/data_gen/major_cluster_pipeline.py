@@ -209,7 +209,7 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Major clustering pipeline (no training)")
     parser.add_argument(
         "--tree-path",
-        default=str(Path("gaokaollm_bench/sample_data/major_tree_observed_auto_assigned_full.json")),
+        default=str(Path("gaokaollm_bench/sample_data/major_tree_observed_full.json")),
     )
     parser.add_argument(
         "--unassigned-path",
