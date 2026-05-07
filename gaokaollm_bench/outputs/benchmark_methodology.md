@@ -213,6 +213,21 @@ gaokaollm_bench/outputs/major_probe_classification_ablation/
 
 该表说明两点。第一，MLP 相比 Linear 是主要正收益来源，说明 embedding 空间中的专业边界并非完全线性可分。第二，`sqrt_balanced` 对 Macro-F1 有温和收益，尤其改善小类权重，但在 MLP 下会让 top-1 accuracy 略降。因此 benchmark 默认以 `raw train-only + MLP h256 + sqrt_balanced` 作为 Macro-F1 导向配置，同时保留 `MLP + none` 作为 accuracy 导向对照。
 
+### 复杂 Probe 结构试探
+
+为检验“MLP 优于 Linear”是否意味着分类头容量仍然不足，我们进一步试探了 `deep_mlp` 与 `residual_mlp`。实验仍固定 raw train-only、完整 embedding、3 seeds 和双指标覆盖门槛，不修改默认 probe。
+
+| 配置 | Runs | Accuracy Mean | Macro-F1 Mean | Top-3 Mean | 结论 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| baseline MLP h256 | 3 | 0.7068 | 0.6862 | 0.8554 | 当前严格基线 |
+| deep MLP h256 layers=2 | 3 | 0.6908 | 0.6541 | 0.8474 | 未提升 |
+| residual MLP h256 blocks=2 | 3 | 0.6787 | 0.6420 | 0.8133 | 未提升 |
+| deep MLP h384 layers=2 | 3 | 0.6767 | 0.6417 | 0.8474 | 未提升 |
+| residual MLP h384 blocks=2 | 3 | 0.6787 | 0.6386 | 0.8092 | 未提升 |
+| deep MLP h256 layers=3 | 3 | 0.6486 | 0.6018 | 0.8052 | 明显退化 |
+
+没有任何复杂结构通过 `Macro-F1 > 0.6862` 且 `Accuracy >= 0.7088` 的双指标门槛。当前结论是：probe 的主要收益来自“由线性到浅层非线性”的表达能力跃迁，而不是继续堆深度；后续提升应优先考虑错误样本诊断、标签边界重审和更稳健的 grouped k-fold 评估。
+
 ## 用户模拟器
 
 `UserSimulator` 是一个 LLM-backed stubborn user simulator。它输入 `IcebergPersona`，并在每轮收到被测系统回复后输出结构化 JSON：

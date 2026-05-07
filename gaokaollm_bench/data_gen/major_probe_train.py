@@ -78,12 +78,24 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--model-kind",
-        choices=["linear", "mlp"],
+        choices=["linear", "mlp", "deep_mlp", "residual_mlp"],
         default="linear",
         help="Probe architecture.",
     )
     parser.add_argument("--hidden-dim", type=int, default=512)
     parser.add_argument("--dropout", type=float, default=0.1)
+    parser.add_argument(
+        "--num-hidden-layers",
+        type=int,
+        default=1,
+        help="Hidden layer count for deep_mlp, or residual block count for residual_mlp.",
+    )
+    parser.add_argument(
+        "--activation",
+        choices=["relu", "gelu"],
+        default="relu",
+        help="Activation for deep_mlp/residual_mlp. Existing mlp keeps ReLU behavior.",
+    )
     parser.add_argument(
         "--early-stopping-patience",
         type=int,
@@ -263,6 +275,8 @@ def _model_config(
     model_kind: str,
     hidden_dim: int,
     dropout: float,
+    num_hidden_layers: int = 1,
+    activation: str = "relu",
 ) -> dict[str, Any]:
     return {
         "input_dim": int(input_dim),
@@ -270,7 +284,34 @@ def _model_config(
         "model_kind": model_kind,
         "hidden_dim": int(hidden_dim),
         "dropout": float(dropout),
+        "num_hidden_layers": int(num_hidden_layers),
+        "activation": activation,
     }
+
+
+def _activation_module(name: str) -> nn.Module:
+    if name == "relu":
+        return nn.ReLU()
+    if name == "gelu":
+        return nn.GELU()
+    raise ValueError(f"Unsupported activation: {name}")
+
+
+class _ResidualProbeBlock(nn.Module):
+    def __init__(self, hidden_dim: int, *, dropout: float, activation: str) -> None:
+        super().__init__()
+        ffn_dim = hidden_dim * 2
+        self.norm = nn.LayerNorm(hidden_dim)
+        self.ffn = nn.Sequential(
+            nn.Linear(hidden_dim, ffn_dim),
+            _activation_module(activation),
+            nn.Dropout(dropout),
+            nn.Linear(ffn_dim, hidden_dim),
+            nn.Dropout(dropout),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return x + self.ffn(self.norm(x))
 
 
 def build_probe_model(
@@ -280,20 +321,53 @@ def build_probe_model(
     model_kind: str = "linear",
     hidden_dim: int = 512,
     dropout: float = 0.1,
+    num_hidden_layers: int = 1,
+    activation: str = "relu",
 ) -> nn.Module:
     if model_kind == "linear":
         return nn.Linear(input_dim, output_dim)
-    if model_kind == "mlp":
+    if model_kind in {"mlp", "deep_mlp", "residual_mlp"}:
         if hidden_dim < 1:
-            raise ValueError("--hidden-dim must be positive for mlp")
+            raise ValueError("--hidden-dim must be positive for mlp architectures")
         if not 0.0 <= dropout < 1.0:
             raise ValueError("--dropout must be in [0, 1)")
+        if num_hidden_layers < 1:
+            raise ValueError("--num-hidden-layers must be positive")
+        _activation_module(activation)
+
+    if model_kind == "mlp":
         return nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
             nn.ReLU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, output_dim),
         )
+    if model_kind == "deep_mlp":
+        layers: list[nn.Module] = []
+        current_dim = input_dim
+        for _ in range(num_hidden_layers):
+            layers.extend(
+                [
+                    nn.Linear(current_dim, hidden_dim),
+                    _activation_module(activation),
+                    nn.Dropout(dropout),
+                ]
+            )
+            current_dim = hidden_dim
+        layers.append(nn.Linear(current_dim, output_dim))
+        return nn.Sequential(*layers)
+    if model_kind == "residual_mlp":
+        layers = [
+            nn.Linear(input_dim, hidden_dim),
+            _activation_module(activation),
+            nn.Dropout(dropout),
+        ]
+        layers.extend(
+            _ResidualProbeBlock(hidden_dim, dropout=dropout, activation=activation)
+            for _ in range(num_hidden_layers)
+        )
+        layers.extend([nn.LayerNorm(hidden_dim), nn.Linear(hidden_dim, output_dim)])
+        return nn.Sequential(*layers)
     raise ValueError(f"Unsupported model kind: {model_kind}")
 
 
@@ -436,6 +510,8 @@ def main() -> None:
         model_kind=args.model_kind,
         hidden_dim=args.hidden_dim,
         dropout=args.dropout,
+        num_hidden_layers=args.num_hidden_layers,
+        activation=args.activation,
     )
     model = build_probe_model(**model_config)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
@@ -537,6 +613,8 @@ def main() -> None:
                     "seed": args.seed,
                     "eval_every": args.eval_every,
                     "selection_metric": args.selection_metric,
+                    "num_hidden_layers": args.num_hidden_layers,
+                    "activation": args.activation,
                 },
             }
 
@@ -628,6 +706,8 @@ def main() -> None:
             "eval_every": args.eval_every,
             "selection_metric": args.selection_metric,
             "early_stopping_patience": args.early_stopping_patience,
+            "num_hidden_layers": args.num_hidden_layers,
+            "activation": args.activation,
         },
         "ablation_config": ablation_config,
         "label_count": len(label_map),

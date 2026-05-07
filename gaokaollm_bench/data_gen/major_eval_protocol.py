@@ -305,6 +305,9 @@ def summarize_experiment_metrics(metric_paths: list[Path], *, group_by: str = "e
                 "best_epoch": metrics.get("best_epoch"),
                 "model_kind": model_config.get("model_kind"),
                 "hidden_dim": model_config.get("hidden_dim"),
+                "num_hidden_layers": model_config.get("num_hidden_layers"),
+                "activation": model_config.get("activation"),
+                "dropout": model_config.get("dropout"),
                 "class_weight": training_config.get("class_weight"),
                 "seed": training_config.get("seed"),
             }

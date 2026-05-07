@@ -318,13 +318,36 @@ gaokaollm_bench/outputs/major_probe_classification_ablation/
 3. **最终推荐分类配置**：若以 Macro-F1 为主目标，采用 `raw train-only + MLP h256 + sqrt_balanced`；若更看重 top-1 accuracy，可保留 `raw train-only + MLP h256 + none` 作为对照。
 4. **不纳入论文的试错项**：full-data overlap、filtered、augmented、full balanced class weight 均已清理，不作为最终方法贡献叙述。
 
+### 复杂 Probe 结构试探
+
+在确认 MLP 明显优于 Linear 后，我们进一步测试了更复杂的 probe 分类头，以判断瓶颈是否来自模型容量不足。实验仍然使用 raw train-only、固定验证集、完整 embedding 和 3 seeds，不覆盖默认 probe。
+
+产物位于：
+
+```text
+gaokaollm_bench/outputs/major_probe_architecture_trials/
+```
+
+双指标覆盖门槛为 `Macro-F1 > 0.6862` 且 `Accuracy >= 0.7088`。结果如下：
+
+| Architecture | Runs | Macro-F1 Mean | Macro-F1 Std | Accuracy Mean | Top-3 Mean | Promotion Candidate |
+|---|---:|---:|---:|---:|---:|---|
+| baseline_mlp_h256_l1_do0p1_sqrt | 3 | 0.6862 | 0.0239 | 0.7068 | 0.8554 | no |
+| deep_mlp_h256_l2_do0p1_sqrt | 3 | 0.6541 | 0.0023 | 0.6908 | 0.8474 | no |
+| residual_mlp_h256_b2_do0p1_sqrt | 3 | 0.6420 | 0.0149 | 0.6787 | 0.8133 | no |
+| deep_mlp_h384_l2_do0p15_sqrt | 3 | 0.6417 | 0.0091 | 0.6767 | 0.8474 | no |
+| residual_mlp_h384_b2_do0p15_sqrt | 3 | 0.6386 | 0.0181 | 0.6787 | 0.8092 | no |
+| deep_mlp_h256_l3_do0p15_sqrt | 3 | 0.6018 | 0.0254 | 0.6486 | 0.8052 | no |
+
+结论：在当前样本规模与严格去重协议下，进一步增加 probe 深度或加入残差块没有带来正收益，反而更容易过早拟合训练集并降低验证表现。因此当前瓶颈主要不是分类头容量不足；后续优化应优先转向错误样本诊断、标签边界重审、验证协议扩展和更精确的困难样本修复，而不是继续盲目加深 probe。
+
 ## 进一步提升结果的路线
 
 下一轮仍然先聚焦 probe 分类分数，不进入推荐级评估。优先级如下：
 
 1. **错误样本诊断**：对 `raw + MLP + sqrt_balanced` 输出 per-sample top-k、低 F1 leaf、主要 confusion pairs。
 2. **困难样本增强**：后续若重新引入增强，必须围绕高频混淆对补真实 observed names 或人工构造边界样本，并单独验证正收益后再进入主实验。
-3. **模型小 sweep**：围绕当前最优配置测试 h128/h256/h384、dropout 0.05/0.1/0.15、lr 0.0008/0.001。
+3. **模型小 sweep**：复杂结构试探未显示正收益后，模型侧仅保留围绕单隐层 MLP 的 h128/h256/h384、dropout 0.05/0.1/0.15、lr 0.0008/0.001 等轻量调参。
 4. **类别权重替代**：可尝试介于 none 与 sqrt_balanced 之间的温和权重，或 label smoothing；不再默认使用 full balanced。
 5. **验证协议扩展**：当前 fixed val 可以判断方向，但最终仍需 grouped k-fold 复核，避免对 166 条验证集过拟合。
 
@@ -452,4 +475,16 @@ python -m gaokaollm_bench.data_gen.major_ablation_report \
   --root gaokaollm_bench/outputs/major_probe_classification_ablation \
   --output-json gaokaollm_bench/outputs/major_probe_classification_ablation/summary.json \
   --output-md gaokaollm_bench/outputs/major_probe_classification_ablation/summary.md
+```
+
+运行复杂 probe 结构试探：
+
+```bash
+python -m gaokaollm_bench.data_gen.major_probe_architecture_trials --skip-existing
+```
+
+仅重新汇总复杂结构结果：
+
+```bash
+python -m gaokaollm_bench.data_gen.major_probe_architecture_trials --summarize-only
 ```
