@@ -1,0 +1,202 @@
+{
+  "created_at": "2026-05-10T00:06:01",
+  "experiment_dir": "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1",
+  "overall_passed": true,
+  "checks": [
+    {
+      "name": "required_artifacts_exist",
+      "passed": true,
+      "detail": "all required README, report, summary, and thesis docs exist"
+    },
+    {
+      "name": "app_pareto_metrics_match_summary_claim",
+      "passed": true,
+      "detail": "metrics match expected thesis claim"
+    },
+    {
+      "name": "hard_constraint_metrics_match_summary_claim",
+      "passed": true,
+      "detail": "metrics match expected thesis claim"
+    },
+    {
+      "name": "case_coverage_and_outcomes",
+      "passed": true,
+      "detail": "app rows=10, app success=9, app failure=1, baseline success=0, same case ids=True"
+    },
+    {
+      "name": "transcripts_exist",
+      "passed": true,
+      "detail": "all report transcript paths resolve"
+    },
+    {
+      "name": "successful_app_cases_have_evidence",
+      "passed": true,
+      "detail": "all successful app_pareto cases expose major_geo_relax or recommended_schools"
+    },
+    {
+      "name": "baseline_has_no_major_geo_relax",
+      "passed": true,
+      "detail": "hard_constraint transcripts do not expose major_geo_relax"
+    },
+    {
+      "name": "hidden_persona_leakage_boundary_documented",
+      "passed": true,
+      "detail": "docs state Agent does not read hidden persona fields"
+    },
+    {
+      "name": "known_failure_case_documented",
+      "passed": true,
+      "detail": "real-db-set-浙江-569-009 is explicitly documented as the non-success case"
+    },
+    {
+      "name": "recorded_pytest_result_present",
+      "passed": true,
+      "detail": "thesis contribution doc records: 79 passed, 9 skipped, 1 warning"
+    }
+  ],
+  "summary_metrics": {
+    "app_pareto": {
+      "cases": 10,
+      "completed_cases": 10,
+      "failed_cases": 0,
+      "elicitation_success_rate": 0.9,
+      "success_count": 9,
+      "mean_pareto_gain": 0.9,
+      "mean_hallucination_rate": 0.0,
+      "avg_turns": 5.2
+    },
+    "hard_constraint": {
+      "cases": 10,
+      "completed_cases": 10,
+      "failed_cases": 0,
+      "elicitation_success_rate": 0.0,
+      "success_count": 0,
+      "mean_pareto_gain": 0.0,
+      "mean_hallucination_rate": 0.0,
+      "avg_turns": 7.0
+    }
+  },
+  "case_rows": [
+    {
+      "case_id": "real-db-set-浙江-542-001",
+      "app_success": true,
+      "app_turns": 5,
+      "app_pareto_gain": 1,
+      "app_hallucination_rate": 0.0,
+      "baseline_success": false,
+      "baseline_turns": 7
+    },
+    {
+      "case_id": "real-db-set-浙江-544-002",
+      "app_success": true,
+      "app_turns": 5,
+      "app_pareto_gain": 1,
+      "app_hallucination_rate": 0.0,
+      "baseline_success": false,
+      "baseline_turns": 7
+    },
+    {
+      "case_id": "real-db-set-浙江-546-003",
+      "app_success": true,
+      "app_turns": 5,
+      "app_pareto_gain": 1,
+      "app_hallucination_rate": 0.0,
+      "baseline_success": false,
+      "baseline_turns": 7
+    },
+    {
+      "case_id": "real-db-set-浙江-547-004",
+      "app_success": true,
+      "app_turns": 5,
+      "app_pareto_gain": 1,
+      "app_hallucination_rate": 0.0,
+      "baseline_success": false,
+      "baseline_turns": 7
+    },
+    {
+      "case_id": "real-db-set-浙江-549-005",
+      "app_success": true,
+      "app_turns": 5,
+      "app_pareto_gain": 1,
+      "app_hallucination_rate": 0.0,
+      "baseline_success": false,
+      "baseline_turns": 7
+    },
+    {
+      "case_id": "real-db-set-浙江-550-006",
+      "app_success": true,
+      "app_turns": 5,
+      "app_pareto_gain": 1,
+      "app_hallucination_rate": 0.0,
+      "baseline_success": false,
+      "baseline_turns": 7
+    },
+    {
+      "case_id": "real-db-set-浙江-557-007",
+      "app_success": true,
+      "app_turns": 5,
+      "app_pareto_gain": 1,
+      "app_hallucination_rate": 0.0,
+      "baseline_success": false,
+      "baseline_turns": 7
+    },
+    {
+      "case_id": "real-db-set-浙江-568-008",
+      "app_success": true,
+      "app_turns": 5,
+      "app_pareto_gain": 1,
+      "app_hallucination_rate": 0.0,
+      "baseline_success": false,
+      "baseline_turns": 7
+    },
+    {
+      "case_id": "real-db-set-浙江-569-009",
+      "app_success": false,
+      "app_turns": 7,
+      "app_pareto_gain": 0,
+      "app_hallucination_rate": 0.0,
+      "baseline_success": false,
+      "baseline_turns": 7
+    },
+    {
+      "case_id": "real-db-set-浙江-575-010",
+      "app_success": true,
+      "app_turns": 5,
+      "app_pareto_gain": 1,
+      "app_hallucination_rate": 0.0,
+      "baseline_success": false,
+      "baseline_turns": 7
+    }
+  ],
+  "file_hashes_sha256": {
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\reports\\app_pareto.jsonl": "7f4a92f93c27646933381ab70210f4094ed4b7a51f8d8b99cbde821733e06210",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\reports\\hard_constraint.jsonl": "7f483f56ddb4dcf5a914378fe067d5044afebe4740e7626ecc36e5854c3a1598",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\summary.json": "4da3a647b2e5ac2ccd314c44feaa540d2a2739320452d1cf00133886ff432240",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\app_pareto\\transcript_real-db-set-浙江-542-001.json": "47f6b983014ea814d371f715d4783b1f70323e2dc58c1b137039666dbdc935a6",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\app_pareto\\transcript_real-db-set-浙江-544-002.json": "5bf18d155fcea3d3b2588a9f7695e939f2d092b5306955b1752fe30eb127fe6d",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\app_pareto\\transcript_real-db-set-浙江-546-003.json": "6985fd8aafb8017d97b41a3c5f650c9d7ce7165771849876793ddbf7f3572de3",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\app_pareto\\transcript_real-db-set-浙江-547-004.json": "0925441e995d9e3040e3ad125cd1c185af3e9c210e2a2f3b1cadf417bfe5e455",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\app_pareto\\transcript_real-db-set-浙江-549-005.json": "00257c8d33ca4770d1749bfcc33c6c6914187a0ed2911d211382bdc124a358b6",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\app_pareto\\transcript_real-db-set-浙江-550-006.json": "14ddfffc2610b978f87fcc54788cf52e860791d0847f25ec2a7f7bede7010208",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\app_pareto\\transcript_real-db-set-浙江-557-007.json": "ae999957e691fe4ea46712ad910401020b3f093c6206a5a0c90cccd7978129ad",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\app_pareto\\transcript_real-db-set-浙江-568-008.json": "3b08d82c644263709eb76ab2b858f7ec6fe5bfc4cd6689d4564e6bce76615d54",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\app_pareto\\transcript_real-db-set-浙江-569-009.json": "c0c21917314e3b9603df5161ac3e5b58fa5841c3b033123308650bd8740d85df",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\app_pareto\\transcript_real-db-set-浙江-575-010.json": "c2cda29316e0f2d56411cc731bbc9bec9ea46175d39fa954d7b3b1c9b9d7c6c7",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-542-001.json": "f4c4497d27402695e131d7a902d5cc755cd4cffdf8c7e208cb2fa39a048d97c7",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-544-002.json": "be89905bca1a66f2d52bb449befd6b5426f6910c3086c707ebb920498d29561b",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-546-003.json": "e6c419dea177d4cb8d0095c7d2a0a55c42746dd00efa73ed8b4ae2799569010d",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-547-004.json": "1485d838deec0262a3fb69c34d81dd3a3c5d076ee11c4d477b9cbed16a749ac4",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-549-005.json": "8460ddcdaf6ac9dabf2c3f47544ccddbc2653828d86a27157ef105d1804d7933",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-550-006.json": "a3eda3d31a90c420490a2b6bbaa7df5b2e68af68c876ce881e19766ee0a5c38c",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-557-007.json": "0d53fec61c00d3817626875504e4a62b8ef9ba4970155d17baeb9bd7b8a8428f",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-568-008.json": "1e43d488e31a17752efdacfe1ee973485e4504bd0c0fc58a9c9dac4fbb57d90e",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-569-009.json": "807679cee5177accd2539e90db2147cbdfab7bb32998a6507024ae64cc70c796",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-575-010.json": "02c447989804025d2d74fd1e886eadbc3cda7d5990fe92883effbb7106f71381",
+    "gaokaollm_bench\\outputs\\agent_benchmark_major_geo_v1_evidence.md": "49eed89cc4c5ec5f1368c3e1f27acaa849cbd7e3e7224ce7371481e428631a60",
+    "gaokaollm_bench\\outputs\\thesis_agent_benchmark_contribution.md": "0d77a7cee64dfd7fd3e5cc000a1a589a4bc9a3441a20d067441d73e700a67610"
+  },
+  "outputs": {
+    "json": "gaokaollm_bench\\outputs\\thesis_artifact_audit.json",
+    "markdown": "gaokaollm_bench\\outputs\\thesis_artifact_audit.md"
+  }
+}
