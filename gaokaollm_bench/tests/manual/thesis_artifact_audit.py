@@ -16,6 +16,7 @@ TARGET_BASELINE = "hard_constraint"
 
 DEFAULT_THESIS_DOCS = [
     Path("gaokaollm_bench/outputs/thesis_intro_related_work_chapters.md"),
+    Path("gaokaollm_bench/outputs/thesis_v1_prototype_chapter.md"),
     Path("gaokaollm_bench/outputs/thesis_agent_benchmark_contribution.md"),
     Path("gaokaollm_bench/outputs/thesis_method_experiment_chapters.md"),
     Path("gaokaollm_bench/outputs/thesis_v1_v2_integration_plan.md"),
@@ -65,6 +66,26 @@ INTRO_RELATED_REQUIRED_TERMS = (
     "Agent 不读取",
     "implicit_flexibilities",
     "volunteer_set",
+    "real-db-set-浙江-569-009",
+    "100% 成功",
+)
+
+V1_PROTOTYPE_REQUIRED_TERMS = (
+    "第 3 章",
+    "gaokaollmmodel",
+    "Agentic RAG",
+    "LangGraph",
+    "Redis",
+    "BGE-M3",
+    "BCEmbedding",
+    "1:3:9",
+    "神经-符号一致性校验",
+    "问题诊断",
+    "v1 是工程原型与问题发现",
+    "v2 是最终主贡献",
+    "app_pareto 0.900",
+    "app_pareto 1.000",
+    "不混入 v1 成果",
     "real-db-set-浙江-569-009",
     "100% 成功",
 )
@@ -406,6 +427,30 @@ def audit_narrative_docs(thesis_docs: list[Path]) -> list[Check]:
         else (
             f"{intro_doc} missing terms: "
             + ", ".join(missing_intro_terms or ["file missing"])
+        ),
+    )
+
+    v1_prototype_doc = Path("gaokaollm_bench/outputs/thesis_v1_prototype_chapter.md")
+    v1_prototype_text = (
+        v1_prototype_doc.read_text(encoding="utf-8")
+        if v1_prototype_doc.exists()
+        else ""
+    )
+    missing_v1_prototype_terms = [
+        term for term in V1_PROTOTYPE_REQUIRED_TERMS if term not in v1_prototype_text
+    ]
+    add_check(
+        checks,
+        "v1_prototype_chapter_bridges_to_v2",
+        v1_prototype_doc.exists() and not missing_v1_prototype_terms,
+        (
+            "chapter 3 frames gaokaollmmodel as the v1 prototype, "
+            "keeps v2 experiment ownership clear, and records the known failure"
+        )
+        if v1_prototype_doc.exists() and not missing_v1_prototype_terms
+        else (
+            f"{v1_prototype_doc} missing terms: "
+            + ", ".join(missing_v1_prototype_terms or ["file missing"])
         ),
     )
 
