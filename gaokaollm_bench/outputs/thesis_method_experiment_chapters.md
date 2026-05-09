@@ -6,6 +6,7 @@
 - `gaokaollm_bench/outputs/agent_benchmark_major_geo_v1_summary.md`
 - `gaokaollm_bench/outputs/agent_benchmark_major_geo_v1_evidence.md`
 - `gaokaollm_bench/outputs/agent_benchmark_risk_band_v1_summary.md`
+- `gaokaollm_bench/outputs/agent_benchmark_risk_band_v1_evidence.md`
 - `gaokaollm_bench/outputs/agent_benchmark_risk_band_v1/summary.json`
 - `gaokaollm_bench/outputs/thesis_artifact_audit.md`
 - `gaokaollm_bench/outputs/benchmark_methodology.md`
@@ -90,9 +91,9 @@ v1 `gaokaollmmodel` 中已经实现过工程化的 `1:3:9` 冲稳保推荐，这
 | 评测模式 | Offline deterministic | Offline deterministic |
 | 默认省份 | 浙江 | 浙江 |
 | 数据库 | 本地 PostgreSQL 快照 | 本地 PostgreSQL 快照 |
-| 结果产物 | `agent_benchmark_major_geo_v1_summary.md`、逐例 evidence | `agent_benchmark_risk_band_v1_summary.md`、`summary.json` |
+| 结果产物 | `agent_benchmark_major_geo_v1_summary.md`、逐例 evidence | `agent_benchmark_risk_band_v1_summary.md`、逐例 evidence、`summary.json` |
 
-实验产物保留 transcripts、reports、summary 和论文摘要文档。`major_geo_v1` 已通过 `thesis_artifact_audit.md` 审计，审计结果为 `Overall: PASS`；`risk_band_v1` 的聚合指标来自 `agent_benchmark_risk_band_v1_summary.md` 与 `agent_benchmark_risk_band_v1/summary.json`。
+实验产物保留 transcripts、reports、summary、逐例 evidence 和论文摘要文档。`major_geo_v1` 与 `risk_band_v1` 均已纳入 `thesis_artifact_audit.md` 双实验审计，审计结果为 `Overall: PASS`。
 
 ## 5. 实验结果与分析
 
@@ -136,7 +137,7 @@ v1 `gaokaollmmodel` 中已经实现过工程化的 `1:3:9` 冲稳保推荐，这
 
 这个失败样本具有论文价值：它表明当前系统已经形成可复现闭环，但并非 100% 成功。后续优化方向不是简单扩大宣传口径，而是改进放宽阶段选择策略，让 Agent 在较近专业大类候选无法命中隐藏妥协时，继续退到更远的 `any_major` 证据集合。
 
-`risk_band_v1` 当前已有 summary 与逐例 report，聚合上 10 个 case 全部成功。论文正文可先引用聚合结果，若后续答辩或论文评阅需要更细证据，可按 `major_geo_v1_evidence.md` 的结构补充一份 risk-band 逐例证据附录。
+`risk_band_v1` 的逐例证据见 `agent_benchmark_risk_band_v1_evidence.md`。该附录列出了 10 个风险偏好 case 的成功状态、轮次、幻觉率和 `risk_band_relax` 候选。每个成功 case 至少包含 3 个真实候选，并保留学校、城市、专业、最低分、最低位次、`score_margin`、`rank_gap` 和 `chong/wen/bao` 风险层级证据。
 
 ## 7. 局限性与后续工作
 
@@ -159,4 +160,4 @@ v1 `gaokaollmmodel` 中已经实现过工程化的 `1:3:9` 冲稳保推荐，这
 | 第五章 | 实验设计与结果分析 | 第 4、5、6 节 |
 | 第六章 | 总结与展望 | 第 7 节 |
 
-正文写作时，建议将 `benchmark_methodology.md` 作为第三章细节来源，将 `thesis_agent_benchmark_contribution.md` 作为贡献概括来源，将 `agent_benchmark_major_geo_v1_evidence.md`、`agent_benchmark_risk_band_v1_summary.md` 和 `thesis_artifact_audit.md` 作为第五章实验可信度支撑。
+正文写作时，建议将 `benchmark_methodology.md` 作为第三章细节来源，将 `thesis_agent_benchmark_contribution.md` 作为贡献概括来源，将 `agent_benchmark_major_geo_v1_evidence.md`、`agent_benchmark_risk_band_v1_evidence.md` 和 `thesis_artifact_audit.md` 作为第五章实验可信度支撑。
