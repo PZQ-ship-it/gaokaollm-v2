@@ -1,0 +1,48 @@
+{
+  "model": "Qwen/Qwen3.5-9B",
+  "major_name": "云计算技术应用",
+  "request_timeout": 30.0,
+  "include_full_labels": true,
+  "continue_after_basic_failure": false,
+  "results": [
+    {
+      "name": "plain_text",
+      "status": "error",
+      "duration_sec": 31.898,
+      "error_type": "APITimeoutError",
+      "error": "Request timed out."
+    },
+    {
+      "name": "json_object_minimal",
+      "status": "skipped_due_to_basic_failure"
+    },
+    {
+      "name": "json_schema_minimal",
+      "status": "skipped_due_to_basic_failure"
+    },
+    {
+      "name": "tiny_label_raw_json_schema",
+      "status": "skipped_due_to_basic_failure"
+    },
+    {
+      "name": "tiny_label_lcel_chain",
+      "status": "skipped_due_to_basic_failure"
+    },
+    {
+      "name": "full_label_lcel_chain",
+      "status": "skipped_due_to_basic_failure"
+    }
+  ],
+  "summary": {
+    "failure_layer": "api_or_model_availability",
+    "conclusion": "Plain text call failed or returned invalid content; the first failure layer is API/model availability, gateway behavior, or SDK response handling.",
+    "observations": {
+      "plain_text": "error",
+      "json_object_minimal": "skipped_due_to_basic_failure",
+      "json_schema_minimal": "skipped_due_to_basic_failure",
+      "tiny_label_raw_json_schema": "skipped_due_to_basic_failure",
+      "tiny_label_lcel_chain_label_valid": false,
+      "full_label_lcel_chain_label_valid": false
+    }
+  }
+}

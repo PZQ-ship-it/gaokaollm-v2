@@ -1,0 +1,44 @@
+{
+  "model": "Qwen/Qwen3.5-9B",
+  "major_name": "云计算技术应用",
+  "request_timeout": 45.0,
+  "include_full_labels": false,
+  "continue_after_basic_failure": false,
+  "results": [
+    {
+      "name": "plain_text",
+      "status": "error",
+      "duration_sec": 47.67,
+      "error_type": "APITimeoutError",
+      "error": "Request timed out."
+    },
+    {
+      "name": "json_object_minimal",
+      "status": "skipped_due_to_basic_failure"
+    },
+    {
+      "name": "json_schema_minimal",
+      "status": "skipped_due_to_basic_failure"
+    },
+    {
+      "name": "tiny_label_raw_json_schema",
+      "status": "skipped_due_to_basic_failure"
+    },
+    {
+      "name": "tiny_label_lcel_chain",
+      "status": "skipped_due_to_basic_failure"
+    }
+  ],
+  "summary": {
+    "failure_layer": "api_or_model_availability",
+    "conclusion": "基础文本请求失败，问题首先发生在 API 连通性、模型可用性或网关超时层。",
+    "observations": {
+      "plain_text": "error",
+      "json_object_minimal": "skipped_due_to_basic_failure",
+      "json_schema_minimal": "skipped_due_to_basic_failure",
+      "tiny_label_raw_json_schema": "skipped_due_to_basic_failure",
+      "tiny_label_lcel_chain_label_valid": false,
+      "full_label_lcel_chain_label_valid": false
+    }
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "model": "Pro/moonshotai/Kimi-K2.6",
+  "major_name": "云计算技术应用",
+  "request_timeout": 120.0,
+  "include_full_labels": true,
+  "continue_after_basic_failure": false,
+  "results": [
+    {
+      "name": "plain_text",
+      "status": "ok",
+      "duration_sec": 2.849,
+      "raw_content": "OK",
+      "parsed_json": null,
+      "semantic_valid": true,
+      "validation_note": "expected literal OK, got 'OK'"
+    },
+    {
+      "name": "json_object_minimal",
+      "status": "ok",
+      "duration_sec": 1.409,
+      "raw_content": "{\"ok\":true,\"label\":\"yes\"}",
+      "parsed_json": {
+        "ok": true,
+        "label": "yes"
+      },
+      "semantic_valid": true,
+      "validation_note": "expected ok=true,label=yes, got {'ok': True, 'label': 'yes'}"
+    },
+    {
+      "name": "json_schema_minimal",
+      "status": "ok",
+      "duration_sec": 1.358,
+      "raw_content": "{\"label\":\"yes\",\"ok\":true}",
+      "parsed_json": {
+        "label": "yes",
+        "ok": true
+      },
+      "semantic_valid": true,
+      "validation_note": "expected ok=true,label=yes, got {'label': 'yes', 'ok': True}"
+    },
+    {
+      "name": "tiny_label_raw_json_schema",
+      "status": "ok",
+      "duration_sec": 8.102,
+      "raw_content": "{\"major_name\":\"云计算技术应用\",\"selected_label\":\"vocational_computer_network\"}",
+      "parsed_json": {
+        "major_name": "云计算技术应用",
+        "selected_label": "vocational_computer_network"
+      },
+      "semantic_valid": true,
+      "validation_note": "expected selected_label in candidates, got 'vocational_computer_network'"
+    },
+    {
+      "name": "tiny_label_lcel_chain",
+      "status": "ok",
+      "duration_sec": 14.774,
+      "result": {
+        "major_name": ".cloud_computing_technology_application",
+        "selected_label": "vocational_computer_network",
+        "raw_content": "{\"major_name\":\".cloud_computing_technology_application\",\"selected_label\":\"vocational_computer_network\"}",
+        "parsed_json": {
+          "major_name": ".cloud_computing_technology_application",
+          "selected_label": "vocational_computer_network"
+        },
+        "repaired_json": {
+          "major_name": ".cloud_computing_technology_application",
+          "selected_label": "vocational_computer_network",
+          "schema_valid": true,
+          "label_valid": true,
+          "raw_output": {
+            "major_name": ".cloud_computing_technology_application",
+            "selected_label": "vocational_computer_network"
+          }
+        },
+        "validated_output": {
+          "major_name": ".cloud_computing_technology_application",
+          "selected_label": "vocational_computer_network"
+        },
+        "schema_valid": true,
+        "label_valid": true,
+        "repair_notes": [],
+        "response_mode": "lcel_json_schema",
+        "error": null
+      },
+      "semantic_valid": true,
+      "validation_note": "expected label_valid=true, got error=None"
+    },
+    {
+      "name": "full_label_lcel_chain",
+      "status": "ok",
+      "duration_sec": 16.961,
+      "result": {
+        "major_name": "云计算技术应用",
+        "selected_label": "vocational_computer_network",
+        "raw_content": "{\"major_name\":\": \",\"selected_label\":\"vocational_computer_network\"}",
+        "parsed_json": {
+          "major_name": ": ",
+          "selected_label": "vocational_computer_network"
+        },
+        "repaired_json": {
+          "major_name": "云计算技术应用",
+          "selected_label": "vocational_computer_network",
+          "schema_valid": true,
+          "label_valid": true,
+          "raw_output": {
+            "major_name": ": ",
+            "selected_label": "vocational_computer_network"
+          },
+          "repair_notes": [
+            "replaced_invalid_major_name"
+          ]
+        },
+        "validated_output": {
+          "major_name": "云计算技术应用",
+          "selected_label": "vocational_computer_network"
+        },
+        "schema_valid": true,
+        "label_valid": true,
+        "repair_notes": [
+          "replaced_invalid_major_name"
+        ],
+        "response_mode": "lcel_json_schema",
+        "error": null
+      },
+      "semantic_valid": true,
+      "validation_note": "expected label_valid=true, got error=None"
+    }
+  ],
+  "summary": {
+    "failure_layer": "not_reproduced",
+    "conclusion": "Direct classification failure was not reproduced in the LCEL chain; historical failures are likely concurrency, timeout, or service fluctuation.",
+    "observations": {
+      "plain_text": "ok",
+      "json_object_minimal": "ok",
+      "json_schema_minimal": "ok",
+      "tiny_label_raw_json_schema": "ok",
+      "tiny_label_lcel_chain_label_valid": true,
+      "full_label_lcel_chain_label_valid": true
+    }
+  }
+}

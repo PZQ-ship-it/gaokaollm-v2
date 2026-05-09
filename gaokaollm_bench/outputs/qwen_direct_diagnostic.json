@@ -1,0 +1,96 @@
+{
+  "model": "Qwen/Qwen3.5-4B",
+  "major_name": "云计算技术应用",
+  "request_timeout": 60.0,
+  "include_full_labels": true,
+  "results": [
+    {
+      "name": "plain_text",
+      "status": "error",
+      "duration_sec": 63.078,
+      "error_type": "APITimeoutError",
+      "error": "Request timed out."
+    },
+    {
+      "name": "json_object_minimal",
+      "status": "error",
+      "duration_sec": 60.32,
+      "error_type": "APITimeoutError",
+      "error": "Request timed out."
+    },
+    {
+      "name": "json_schema_minimal",
+      "status": "error",
+      "duration_sec": 60.311,
+      "error_type": "APITimeoutError",
+      "error": "Request timed out."
+    },
+    {
+      "name": "tiny_label_raw_json_schema",
+      "status": "error",
+      "duration_sec": 60.406,
+      "error_type": "APITimeoutError",
+      "error": "Request timed out."
+    },
+    {
+      "name": "tiny_label_lcel_chain",
+      "status": "ok",
+      "duration_sec": 121.342,
+      "result": {
+        "major_name": "云计算技术应用",
+        "selected_label": null,
+        "raw_content": "{}",
+        "parsed_json": {},
+        "repaired_json": {
+          "major_name": "云计算技术应用",
+          "selected_label": null,
+          "schema_valid": false,
+          "label_valid": false,
+          "raw_output": {}
+        },
+        "validated_output": null,
+        "schema_valid": false,
+        "label_valid": false,
+        "repair_notes": [],
+        "response_mode": "lcel_error",
+        "error": "APITimeoutError: Request timed out."
+      }
+    },
+    {
+      "name": "full_label_lcel_chain",
+      "status": "ok",
+      "duration_sec": 120.536,
+      "result": {
+        "major_name": "云计算技术应用",
+        "selected_label": null,
+        "raw_content": "{}",
+        "parsed_json": {},
+        "repaired_json": {
+          "major_name": "云计算技术应用",
+          "selected_label": null,
+          "schema_valid": false,
+          "label_valid": false,
+          "raw_output": {}
+        },
+        "validated_output": null,
+        "schema_valid": false,
+        "label_valid": false,
+        "repair_notes": [],
+        "response_mode": "lcel_error",
+        "error": "APITimeoutError: Request timed out."
+      }
+    }
+  ],
+  "summary": {
+    "failure_layer": "api_or_model_availability",
+    "conclusion": "基础文本请求失败，问题首先发生在 API 连通性、模型可用性或网关超时层。",
+    "observations": {
+      "plain_text": "error",
+      "json_object_minimal": "error",
+      "json_schema_minimal": "error",
+      "tiny_label_raw_json_schema": "error",
+      "tiny_label_lcel_chain_label_valid": false,
+      "full_label_lcel_chain_label_valid": false
+    }
+  }
+}

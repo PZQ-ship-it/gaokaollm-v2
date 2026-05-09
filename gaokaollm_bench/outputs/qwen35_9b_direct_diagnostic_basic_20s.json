@@ -1,0 +1,82 @@
+{
+  "model": "Qwen/Qwen3.5-9B",
+  "major_name": "云计算技术应用",
+  "request_timeout": 20.0,
+  "include_full_labels": false,
+  "continue_after_basic_failure": false,
+  "results": [
+    {
+      "name": "plain_text",
+      "status": "ok",
+      "duration_sec": 20.252,
+      "raw_content": "{}",
+      "parsed_json": {}
+    },
+    {
+      "name": "json_object_minimal",
+      "status": "ok",
+      "duration_sec": 1.208,
+      "raw_content": "{}",
+      "parsed_json": {}
+    },
+    {
+      "name": "json_schema_minimal",
+      "status": "ok",
+      "duration_sec": 1.331,
+      "raw_content": "{}",
+      "parsed_json": {}
+    },
+    {
+      "name": "tiny_label_raw_json_schema",
+      "status": "ok",
+      "duration_sec": 2.049,
+      "raw_content": "{}",
+      "parsed_json": {}
+    },
+    {
+      "name": "tiny_label_lcel_chain",
+      "status": "ok",
+      "duration_sec": 10.061,
+      "result": {
+        "major_name": "云计算技术应用",
+        "selected_label": "vocational_computer_network",
+        "raw_content": "{\"major_name\": \"云计算技术应用\", \"selected_label\": \"vocational_computer_network\"}",
+        "parsed_json": {
+          "major_name": "云计算技术应用",
+          "selected_label": "vocational_computer_network"
+        },
+        "repaired_json": {
+          "major_name": "云计算技术应用",
+          "selected_label": "vocational_computer_network",
+          "schema_valid": true,
+          "label_valid": true,
+          "raw_output": {
+            "major_name": "云计算技术应用",
+            "selected_label": "vocational_computer_network"
+          }
+        },
+        "validated_output": {
+          "major_name": "云计算技术应用",
+          "selected_label": "vocational_computer_network"
+        },
+        "schema_valid": true,
+        "label_valid": true,
+        "repair_notes": [],
+        "response_mode": "lcel_json_schema",
+        "error": null
+      }
+    }
+  ],
+  "summary": {
+    "failure_layer": "full_label_enum_or_prompt_scale",
+    "conclusion": "少量标签分类可用，全量标签分类失败，问题主要来自全量标签枚举/上下文规模/响应延迟。",
+    "observations": {
+      "plain_text": "ok",
+      "json_object_minimal": "ok",
+      "json_schema_minimal": "ok",
+      "tiny_label_raw_json_schema": "ok",
+      "tiny_label_lcel_chain_label_valid": true,
+      "full_label_lcel_chain_label_valid": false
+    }
+  }
+}

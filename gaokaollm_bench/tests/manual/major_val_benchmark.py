@@ -65,8 +65,15 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--llm-model", default=DEFAULT_OPENAI_MODEL)
     parser.add_argument("--direct-batch-size", type=int, default=1)
     parser.add_argument("--direct-concurrency", type=int, default=20)
+    parser.add_argument("--direct-limit", type=int, default=None)
+    parser.add_argument(
+        "--run-direct-small",
+        action="store_true",
+        help="Run SMALL_MODEL as a full-leaf direct classifier. Disabled by default.",
+    )
     parser.add_argument("--review-batch-size", type=int, default=4)
     parser.add_argument("--review-concurrency", type=int, default=20)
+    parser.add_argument("--skip-threshold-sweep", action="store_true")
     parser.add_argument("--request-timeout", type=float, default=90.0)
     parser.add_argument("--allow-null-direct", action="store_true")
     parser.add_argument("--probe-one-major", default=None)
@@ -365,22 +372,33 @@ async def main_async(args: argparse.Namespace) -> dict[str, Any]:
         }
         for row in val_matched
     ]
+    direct_rows = val_matched
+    if args.direct_limit is not None:
+        if args.direct_limit < 1:
+            raise ValueError("--direct-limit must be at least 1")
+        direct_samples = direct_samples[: args.direct_limit]
+        direct_rows = direct_rows[: args.direct_limit]
     suffix = "allow_null" if args.allow_null_direct else "enum"
+    if args.direct_limit is not None:
+        suffix = f"{suffix}_limit{args.direct_limit}"
     small_path = output_dir / f"direct_small_outputs_{suffix}.json"
     kimi_path = output_dir / f"direct_kimi_outputs_{suffix}.json"
     if args.reuse_direct_outputs:
         fallback_small = output_dir / "direct_small_outputs.json"
         fallback_kimi = output_dir / "direct_kimi_outputs.json"
-        direct_small = revalidate_outputs(
-            json.loads(
-                (small_path if small_path.exists() else fallback_small).read_text(
-                    encoding="utf-8"
-                )
-            ),
-            direct_samples,
-            label_options,
-            allow_null=args.allow_null_direct,
-        )
+        if args.run_direct_small:
+            direct_small = revalidate_outputs(
+                json.loads(
+                    (small_path if small_path.exists() else fallback_small).read_text(
+                        encoding="utf-8"
+                    )
+                ),
+                direct_samples,
+                label_options,
+                allow_null=args.allow_null_direct,
+            )
+        else:
+            direct_small = []
         direct_kimi = revalidate_outputs(
             json.loads(
                 (kimi_path if kimi_path.exists() else fallback_kimi).read_text(
@@ -392,14 +410,21 @@ async def main_async(args: argparse.Namespace) -> dict[str, Any]:
             allow_null=args.allow_null_direct,
         )
     else:
-        direct_small = await classify_many(
-            direct_samples,
-            llm_client=llm_client,
-            model=args.small_model,
-            label_options=label_options,
-            concurrency=args.direct_concurrency,
-            allow_null=args.allow_null_direct,
-        )
+        if args.run_direct_small:
+            direct_small = await classify_many(
+                direct_samples,
+                llm_client=llm_client,
+                model=args.small_model,
+                label_options=label_options,
+                concurrency=args.direct_concurrency,
+                allow_null=args.allow_null_direct,
+            )
+            small_path.write_text(
+                json.dumps(direct_small, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        else:
+            direct_small = []
         direct_kimi = await classify_many(
             direct_samples,
             llm_client=llm_client,
@@ -408,22 +433,29 @@ async def main_async(args: argparse.Namespace) -> dict[str, Any]:
             concurrency=args.direct_concurrency,
             allow_null=args.allow_null_direct,
         )
-        small_path.write_text(
-            json.dumps(direct_small, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
         kimi_path.write_text(
             json.dumps(direct_kimi, ensure_ascii=False, indent=2), encoding="utf-8"
         )
 
-    direct_small_metrics = _direct_metrics(
-        val_matched, direct_small, label_map=label_map, inv_label_map=inv_label_map
+    direct_small_metrics = (
+        _direct_metrics(
+            direct_rows, direct_small, label_map=label_map, inv_label_map=inv_label_map
+        )
+        if args.run_direct_small
+        else {
+            "status": "skipped",
+            "reason": "SMALL_MODEL full-leaf direct classification is disabled by default after diagnostics showed unstable API/full-label behavior.",
+        }
     )
     direct_kimi_metrics = _direct_metrics(
-        val_matched, direct_kimi, label_map=label_map, inv_label_map=inv_label_map
+        direct_rows, direct_kimi, label_map=label_map, inv_label_map=inv_label_map
     )
 
     threshold_sweep = []
-    for threshold in VAL_BENCHMARK_THRESHOLD_SWEEP:
+    threshold_values = (
+        [] if args.skip_threshold_sweep else VAL_BENCHMARK_THRESHOLD_SWEEP
+    )
+    for threshold in threshold_values:
         reviewed_rows = await review_probe_rows(
             probe["per_sample"],
             threshold=threshold,

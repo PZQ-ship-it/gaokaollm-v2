@@ -359,6 +359,27 @@ gaokaollm_bench/tests/test_major_probe_tools.py
 python -m pytest gaokaollm_bench/tests -q
 ```
 
+## 三阶段专业分类闭环的诊断结论
+
+在 direct LLM 分类实验中，我们额外加入了分层诊断脚本：
+
+```bash
+python -m gaokaollm_bench.tests.manual.qwen_direct_diagnostic \
+  --model Qwen/Qwen3.5-9B \
+  --request-timeout 30 \
+  --include-full-labels
+```
+
+诊断把失败来源拆为基础 API 调用、`json_object`、`json_schema`、少量候选标签分类和全量 leaf 标签分类。结果显示，Qwen/Qwen3.5-9B 在少量候选标签下可以完成分类，但在全量 leaf direct classifier 场景中会出现超时、连接错误或 `label_valid=false`。因此，小模型不再作为全量 leaf direct classifier 的默认对照；后续只保留其在 probe top-k 或少量候选集合中的复核价值。
+
+Kimi-K2.6 的 direct classifier 曾出现 `major_name=":"` 或空字符串等占位输出。当前 LCEL 管道在 `JsonOutputParser(Pydantic)` 前加入了 JSON repair 层：若 `major_name` 为空、冒号或纯标点，会替换为输入专业名，并记录 `repair_notes=["replaced_invalid_major_name"]`。因此，该问题不再污染评分字段；原始输出仍保存在 `raw_content` 和 `parsed_json` 中，用于审计模型行为。
+
+由此，专业分类阶段采用三阶段闭环，而不是全量 direct LLM：
+
+1. embedding/probe 负责稳定、低成本的全量 leaf 初判。
+2. 低置信度样本进入 LLM 复核，但只暴露 top-k 候选，降低上下文规模和输出空间。
+3. 所有 LLM 输出都经过 JSON repair 与 Pydantic 校验，非法输出不计入有效分类。
+
 结果为 47 passed。
 
 ## 可复现实验产物
