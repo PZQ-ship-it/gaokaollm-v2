@@ -8,13 +8,18 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, Iterable
 
+from gaokaollm_bench.constrains.paths import (
+    MAJOR_FINAL_TREE,
+    MAJOR_FINAL_TREE_AUDIT,
+    MAJOR_OBSERVED_TREE,
+    MAJOR_REVIEW_CANDIDATES_REVIEWED,
+)
 from gaokaollm_bench.data_gen.major_tree import load_major_tree
 
-
-DEFAULT_BASE_TREE = Path("gaokaollm_bench/sample_data/major_tree_observed_full.json")
-DEFAULT_REVIEWS = Path("gaokaollm_bench/outputs/major_probe_review_candidates_llm_reviewed.json")
-DEFAULT_OUTPUT = Path("gaokaollm_bench/outputs/major_tree_final_reviewed.json")
-DEFAULT_AUDIT = Path("gaokaollm_bench/outputs/major_tree_final_reviewed_audit.json")
+DEFAULT_BASE_TREE = MAJOR_OBSERVED_TREE
+DEFAULT_REVIEWS = MAJOR_REVIEW_CANDIDATES_REVIEWED
+DEFAULT_OUTPUT = MAJOR_FINAL_TREE
+DEFAULT_AUDIT = MAJOR_FINAL_TREE_AUDIT
 
 
 def _parse_args() -> argparse.Namespace:
@@ -95,7 +100,9 @@ def finalize_tree(
         major_name = str(row.get("major_name") or "").strip()
         target_label = row.get("recommended_label")
         if not major_name or not target_label:
-            skipped_rows.append({"major_name": major_name, "reason": "missing recommended_label"})
+            skipped_rows.append(
+                {"major_name": major_name, "reason": "missing recommended_label"}
+            )
             continue
 
         target_label = str(target_label)
@@ -112,7 +119,9 @@ def finalize_tree(
 
         row_count = int(row.get("row_count") or 0)
         node = nodes[target_label]
-        node["observed_names"] = _dedupe_sorted([*node.get("observed_names", []), major_name])
+        node["observed_names"] = _dedupe_sorted(
+            [*node.get("observed_names", []), major_name]
+        )
         node.setdefault("probe_review_assigned", [])
         node["probe_review_assigned"].append(
             {
@@ -132,7 +141,9 @@ def finalize_tree(
                 [*ancestor.get("observed_names", []), major_name]
             )
 
-        assignment_counts[target_label] = assignment_counts.get(target_label, 0) + row_count
+        assignment_counts[target_label] = (
+            assignment_counts.get(target_label, 0) + row_count
+        )
         audit_rows.append(
             {
                 "major_name": major_name,
@@ -158,12 +169,16 @@ def finalize_tree(
         "skipped_count": len(skipped_rows),
         "skipped_rows": skipped_rows[:200],
     }
-    build["assigned_distinct_names"] = int(build.get("assigned_distinct_names") or 0) + assigned_distinct
+    build["assigned_distinct_names"] = (
+        int(build.get("assigned_distinct_names") or 0) + assigned_distinct
+    )
     build["unassigned_distinct_names"] = max(
         0,
         int(build.get("unassigned_distinct_names") or 0) - assigned_distinct,
     )
-    build["assigned_row_count"] = int(build.get("assigned_row_count") or 0) + assigned_rows
+    build["assigned_row_count"] = (
+        int(build.get("assigned_row_count") or 0) + assigned_rows
+    )
     build["unassigned_row_count"] = max(
         0,
         int(build.get("unassigned_row_count") or 0) - assigned_rows,
@@ -196,11 +211,15 @@ def main() -> None:
 
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(final_tree, ensure_ascii=False, indent=2), encoding="utf-8")
+    output_path.write_text(
+        json.dumps(final_tree, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     audit_path = Path(args.audit_output)
     audit_path.parent.mkdir(parents=True, exist_ok=True)
-    audit_path.write_text(json.dumps(audit_rows, ensure_ascii=False, indent=2), encoding="utf-8")
+    audit_path.write_text(
+        json.dumps(audit_rows, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     print(f"Wrote final tree to {output_path}")

@@ -10,6 +10,20 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from gaokaollm_bench.constrains.enums import (
+    DedupKeyMode,
+    MajorRelaxScope,
+    PersonaRelaxation,
+    PersonaShape,
+    PersonaSynthesisMode,
+    values,
+)
+from gaokaollm_bench.constrains.paths import (
+    DEFAULT_PERSONA_OUTPUT,
+    MAJOR_DEFAULT_LABEL_MAP,
+    MAJOR_DEFAULT_PROBE,
+    MAJOR_FINAL_TREE,
+)
 from gaokaollm_bench.data_gen.db_seeder import (
     find_hierarchical_major_relax_gap_sets,
     find_major_relax_gap_sets,
@@ -25,10 +39,10 @@ from gaokaollm_bench.data_gen.persona_builder import synthesize_persona
 from gaokaollm_bench.schemas import IcebergPersona
 
 
-DEFAULT_OUTPUT = "gaokaollm_bench/sample_data/iceberg_personas_real_db.json"
-DEFAULT_MAJOR_TREE = "gaokaollm_bench/outputs/major_tree_final_reviewed.json"
-DEFAULT_NEIGHBOR_PROBE = "gaokaollm_bench/outputs/major_training_probe/best_probe.pt"
-DEFAULT_NEIGHBOR_LABEL_MAP = "gaokaollm_bench/outputs/major_training_probe/label_map.json"
+DEFAULT_OUTPUT = str(DEFAULT_PERSONA_OUTPUT)
+DEFAULT_MAJOR_TREE = str(MAJOR_FINAL_TREE)
+DEFAULT_NEIGHBOR_PROBE = str(MAJOR_DEFAULT_PROBE)
+DEFAULT_NEIGHBOR_LABEL_MAP = str(MAJOR_DEFAULT_LABEL_MAP)
 DEFAULT_EXCLUDE_PATTERNS = [
     "中北学院",
     "泰州学院",
@@ -174,14 +188,14 @@ def build_deterministic_persona_from_gap_set(
     target_major_clusters = gap_set.get("target_major_clusters")
     accepted_major_examples = list(
         dict.fromkeys(
-            item["major_name"]
-            for item in volunteers
-            if item.get("major_name")
+            item["major_name"] for item in volunteers if item.get("major_name")
         )
     )[:8]
 
     if relaxed_constraint == "major":
-        strict_major = str(gap_set.get("strict_major") or tier_a.get("major_name") or "原专业")
+        strict_major = str(
+            gap_set.get("strict_major") or tier_a.get("major_name") or "原专业"
+        )
         if (
             relaxation_kind in {"clinical_to_medtech", "hierarchical_major"}
             and stage_relaxation_kind != "any_major"
@@ -192,7 +206,9 @@ def build_deterministic_persona_from_gap_set(
                 "current_anchor_school": tier_a_name,
                 "current_anchor_major": tier_a.get("major_name"),
             }
-            scope_text = f"仍留在{province}" if relax_scope == "province" else "可包含外省"
+            scope_text = (
+                f"仍留在{province}" if relax_scope == "province" else "可包含外省"
+            )
             stage_text = (
                 f"第{relaxation_stage}阶段{gap_set.get('relaxation_stage_label')}"
                 if relaxation_stage
@@ -203,7 +219,9 @@ def build_deterministic_persona_from_gap_set(
                 f"且每个志愿都有学校名、专业名、最低分不高于{score}分的证据，才会动摇"
             )
             compromise = f"可以从{strict_major}按专业簇层级逐步妥协到{stage_text}"
-            initial_utterance = f"我{score}分，只想读{strict_major}，其他医学相关专业先别推荐。"
+            initial_utterance = (
+                f"我{score}分，只想读{strict_major}，其他医学相关专业先别推荐。"
+            )
             milestones = {
                 "reject_single_school_bait": True,
                 "reject_generic_major_switch": True,
@@ -215,17 +233,21 @@ def build_deterministic_persona_from_gap_set(
         else:
             explicit_red_lines = {
                 "major": f"坚决只读{strict_major}",
-                "reason": f"担心换专业会影响职业路径，暂时不接受任何专业放宽",
+                "reason": "担心换专业会影响职业路径，暂时不接受任何专业放宽",
                 "current_anchor_school": tier_a_name,
                 "current_anchor_major": tier_a.get("major_name"),
             }
-            scope_text = f"仍留在{province}" if relax_scope == "province" else "可包含外省"
+            scope_text = (
+                f"仍留在{province}" if relax_scope == "province" else "可包含外省"
+            )
             trigger_condition = (
                 f"只有看到一个{scope_text}、专业不限后真实可达的更高层次志愿集合，"
                 f"且每个志愿都有学校名、专业名、最低分不高于{score}分的证据，才会动摇"
             )
             compromise = f"可以为了学校层次跃迁而暂时放宽{strict_major}专业执念"
-            initial_utterance = f"我{score}分，只想读{strict_major}，专业不对的学校再好也不考虑。"
+            initial_utterance = (
+                f"我{score}分，只想读{strict_major}，专业不对的学校再好也不考虑。"
+            )
             milestones = {
                 "reject_single_school_bait": True,
                 "reject_generic_major_switch": True,
@@ -234,7 +256,9 @@ def build_deterministic_persona_from_gap_set(
                 "accept_after_verified_any_major_set": best_names,
             }
     else:
-        major_name = volunteers[0].get("major_name") or tier_a.get("major_name") or "目标专业"
+        major_name = (
+            volunteers[0].get("major_name") or tier_a.get("major_name") or "目标专业"
+        )
         explicit_red_lines = {
             "geo": f"坚决不出{province}",
             "reason": f"认为留在{province}更安全，只愿意先看本省的{tier_a_label}选择",
@@ -260,7 +284,9 @@ def build_deterministic_persona_from_gap_set(
             "score": score,
             "province": province,
             "subjects": ["物理", "化学", "生物"],
-            "preferred_major": strict_major if relaxed_constraint == "major" else major_name,
+            "preferred_major": strict_major
+            if relaxed_constraint == "major"
+            else major_name,
             "baseline_school": tier_a_name,
             "baseline_major": tier_a.get("major_name"),
             "baseline_tier": tier_a.get("tier"),
@@ -322,7 +348,9 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                 score_step=args.score_step,
                 candidates_per_score=args.candidates_per_score,
                 max_volunteers_per_case=args.max_volunteers_per_case,
-                exclude_name_patterns=[] if args.include_suspect_schools else DEFAULT_EXCLUDE_PATTERNS,
+                exclude_name_patterns=[]
+                if args.include_suspect_schools
+                else DEFAULT_EXCLUDE_PATTERNS,
                 strict_target_quality=not args.no_strict_target_quality,
             )
         elif args.relaxation == "major_hierarchy":
@@ -362,7 +390,9 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                 include_special_majors=args.include_special_majors,
                 max_major_name_length=args.max_major_name_length,
                 relax_scope=args.major_relax_scope,
-                exclude_name_patterns=[] if args.include_suspect_schools else DEFAULT_EXCLUDE_PATTERNS,
+                exclude_name_patterns=[]
+                if args.include_suspect_schools
+                else DEFAULT_EXCLUDE_PATTERNS,
                 strict_target_quality=not args.no_strict_target_quality,
             )
         else:
@@ -374,8 +404,8 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
             target_major_patterns = None
             exclude_major_patterns = None
             if relaxation_kind == "clinical_to_medtech":
-                target_major_patterns, exclude_major_patterns = get_major_cluster_patterns(
-                    args.target_major_clusters
+                target_major_patterns, exclude_major_patterns = (
+                    get_major_cluster_patterns(args.target_major_clusters)
                 )
             gap_sets = await find_major_relax_gap_sets(
                 fetch_query,
@@ -394,7 +424,9 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                 max_volunteers_per_school=args.max_volunteers_per_school,
                 include_special_majors=args.include_special_majors,
                 max_major_name_length=args.max_major_name_length,
-                exclude_name_patterns=[] if args.include_suspect_schools else DEFAULT_EXCLUDE_PATTERNS,
+                exclude_name_patterns=[]
+                if args.include_suspect_schools
+                else DEFAULT_EXCLUDE_PATTERNS,
                 strict_target_quality=not args.no_strict_target_quality,
             )
         personas = [
@@ -411,10 +443,14 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
             score_step=args.score_step,
             candidates_per_score=args.candidates_per_score,
             unique_by=args.unique_by,
-            exclude_name_patterns=[] if args.include_suspect_schools else DEFAULT_EXCLUDE_PATTERNS,
+            exclude_name_patterns=[]
+            if args.include_suspect_schools
+            else DEFAULT_EXCLUDE_PATTERNS,
             strict_target_quality=not args.no_strict_target_quality,
         )
-        personas = [build_deterministic_persona(gap, i + 1) for i, gap in enumerate(gaps)]
+        personas = [
+            build_deterministic_persona(gap, i + 1) for i, gap in enumerate(gaps)
+        ]
     else:
         from app.core.llm_client import get_chat_model
 
@@ -427,7 +463,9 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
             score_step=args.score_step,
             candidates_per_score=args.candidates_per_score,
             unique_by=args.unique_by,
-            exclude_name_patterns=[] if args.include_suspect_schools else DEFAULT_EXCLUDE_PATTERNS,
+            exclude_name_patterns=[]
+            if args.include_suspect_schools
+            else DEFAULT_EXCLUDE_PATTERNS,
             strict_target_quality=not args.no_strict_target_quality,
         )
         llm_client = get_chat_model()
@@ -442,14 +480,22 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate IcebergPersona JSON from real PostgreSQL Pareto gaps."
     )
-    parser.add_argument("--count", type=int, default=10, help="Number of personas to generate.")
+    parser.add_argument(
+        "--count", type=int, default=10, help="Number of personas to generate."
+    )
     parser.add_argument("--province", default="浙江", help="Strict province red-line.")
-    parser.add_argument("--score-min", type=int, default=520, help="Minimum score to scan.")
-    parser.add_argument("--score-max", type=int, default=700, help="Maximum score to scan.")
-    parser.add_argument("--score-step", type=int, default=1, help="Score scan interval.")
+    parser.add_argument(
+        "--score-min", type=int, default=520, help="Minimum score to scan."
+    )
+    parser.add_argument(
+        "--score-max", type=int, default=700, help="Maximum score to scan."
+    )
+    parser.add_argument(
+        "--score-step", type=int, default=1, help="Score scan interval."
+    )
     parser.add_argument(
         "--relaxation",
-        choices=["province", "major_clinical_to_medtech", "major_any", "major_hierarchy"],
+        choices=values(PersonaRelaxation),
         default="province",
         help="Constraint relaxation axis used to build volunteer-set personas.",
     )
@@ -511,7 +557,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.set_defaults(use_probe_neighbors=True)
     parser.add_argument(
         "--major-relax-scope",
-        choices=["province", "national"],
+        choices=values(MajorRelaxScope),
         default="province",
         help="Whether major relaxation keeps the original province or searches nationally.",
     )
@@ -523,13 +569,13 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument(
         "--unique-by",
-        choices=["school_pair", "school_major", "score"],
+        choices=values(DedupKeyMode),
         default="school_pair",
         help="Deduplicate generated gaps by school pair, school+major pair, or score slice.",
     )
     parser.add_argument(
         "--persona-shape",
-        choices=["volunteer_set", "single_gap"],
+        choices=values(PersonaShape),
         default="volunteer_set",
         help="Generate personas with a volunteer set or the legacy single-school gap shape.",
     )
@@ -581,7 +627,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--output", default=DEFAULT_OUTPUT, help="Output JSON path.")
     parser.add_argument(
         "--mode",
-        choices=["template", "llm"],
+        choices=values(PersonaSynthesisMode),
         default="template",
         help="template uses deterministic persona text; llm calls the configured LLM.",
     )
@@ -595,7 +641,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv or sys.argv[1:])
     if args.neighbor_count < 1:
         raise ValueError("--neighbor-count must be at least 1")
-    if args.max_volunteers_per_school is not None and args.max_volunteers_per_school < 1:
+    if (
+        args.max_volunteers_per_school is not None
+        and args.max_volunteers_per_school < 1
+    ):
         raise ValueError("--max-volunteers-per-school must be at least 1")
     if args.max_major_name_length is not None and args.max_major_name_length < 1:
         raise ValueError("--max-major-name-length must be at least 1")
@@ -611,7 +660,9 @@ def main(argv: list[str] | None = None) -> int:
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
-        json.dumps([persona.model_dump() for persona in personas], ensure_ascii=False, indent=2),
+        json.dumps(
+            [persona.model_dump() for persona in personas], ensure_ascii=False, indent=2
+        ),
         encoding="utf-8",
     )
 

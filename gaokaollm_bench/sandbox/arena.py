@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from gaokaollm_bench.constrains.enums import ConversationRole
 from gaokaollm_bench.sandbox.base_target import BaseTargetAgent
 from gaokaollm_bench.schemas import ConversationTurn, IcebergPersona, Transcript
 from gaokaollm_bench.simulator.user_agent import UserSimulator
@@ -29,7 +30,7 @@ async def run_episode(
     turns: list[ConversationTurn] = [
         ConversationTurn(
             turn_id=1,
-            role="user",
+            role=ConversationRole.USER,
             content=persona.initial_utterance,
             internal_state={"is_persuaded": False, "source": "initial_utterance"},
         )
@@ -43,7 +44,7 @@ async def run_episode(
         turns.append(
             ConversationTurn(
                 turn_id=next_turn_id,
-                role="target_agent",
+                role=ConversationRole.TARGET_AGENT,
                 content=agent_reply,
                 internal_state=target_state,
             )
@@ -54,7 +55,7 @@ async def run_episode(
         turns.append(
             ConversationTurn(
                 turn_id=next_turn_id,
-                role="user",
+                role=ConversationRole.USER,
                 content=user_reply,
                 internal_state=dict(simulator.internal_state),
             )
@@ -72,4 +73,3 @@ async def run_episode(
     output_path.write_text(transcript.model_dump_json(indent=2), encoding="utf-8")
 
     return transcript
-

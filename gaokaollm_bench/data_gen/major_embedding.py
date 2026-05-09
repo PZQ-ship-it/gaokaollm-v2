@@ -10,6 +10,7 @@ from typing import Any, Protocol
 
 from dotenv import load_dotenv
 
+from gaokaollm_bench.constrains.llm import ENV_OPENAI_API_KEY, ENV_OPENAI_BASE_URL
 from gaokaollm_bench.data_gen.major_tree import load_major_tree
 
 
@@ -119,12 +120,16 @@ class OpenAIEmbeddingClient:
         base_url: str | None = None,
     ) -> None:
         self.model = model or os.getenv("EMBEDDING_MODEL")
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.base_url = base_url or os.getenv("OPENAI_BASE_URL") or None
+        self.api_key = api_key or os.getenv(ENV_OPENAI_API_KEY)
+        self.base_url = base_url or os.getenv(ENV_OPENAI_BASE_URL) or None
         if not self.model:
-            raise RuntimeError("EMBEDDING_MODEL is required in .env for embedding suggestions.")
+            raise RuntimeError(
+                "EMBEDDING_MODEL is required in .env for embedding suggestions."
+            )
         if not self.api_key:
-            raise RuntimeError("OPENAI_API_KEY is required in .env for embedding suggestions.")
+            raise RuntimeError(
+                f"{ENV_OPENAI_API_KEY} is required in .env for embedding suggestions."
+            )
 
     async def embed(self, texts: list[str]) -> list[list[float]]:
         from openai import AsyncOpenAI
@@ -154,18 +159,16 @@ def _node_profile(node: dict[str, Any], *, nodes: dict[str, Any]) -> str:
     node_id = str(node.get("id") or "")
     label = _normalize_text(str(node.get("label") or node.get("id") or ""))
     include_terms = [
-        _normalize_text(str(term))
-        for term in node.get("include_keywords", [])
-        if term
+        _normalize_text(str(term)) for term in node.get("include_keywords", []) if term
     ]
     observed_terms = [
-        _normalize_text(str(term))
-        for term in node.get("observed_names", [])
-        if term
+        _normalize_text(str(term)) for term in node.get("observed_names", []) if term
     ]
 
     if node_id == "education_psychology":
-        observed_terms = [term for term in observed_terms if term and not _is_language_like(term)]
+        observed_terms = [
+            term for term in observed_terms if term and not _is_language_like(term)
+        ]
 
     if node_id == "languages_literature":
         source = nodes.get("education_psychology") or {}
@@ -174,7 +177,9 @@ def _node_profile(node: dict[str, Any], *, nodes: dict[str, Any]) -> str:
             for term in source.get("observed_names", [])
             if term
         ]
-        observed_terms.extend(term for term in source_terms if term and _is_language_like(term))
+        observed_terms.extend(
+            term for term in source_terms if term and _is_language_like(term)
+        )
 
     weighted_terms = [
         label,
@@ -198,7 +203,9 @@ def _classify_suggestion(
     parent_id = node.get("parent")
     if similarity >= attach_threshold:
         action = "attach_to_leaf"
-        reasoning = "semantic similarity is high enough to add the observed name to this leaf"
+        reasoning = (
+            "semantic similarity is high enough to add the observed name to this leaf"
+        )
     elif similarity >= new_sibling_threshold:
         action = "suggest_new_sibling_leaf"
         reasoning = "semantic similarity points to this neighborhood, but a new sibling leaf is safer"

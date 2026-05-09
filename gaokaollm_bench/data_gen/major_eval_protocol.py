@@ -49,7 +49,9 @@ def write_jsonl(path: Path, rows: list[dict[str, Any]]) -> None:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def canonical_group_key(row: dict[str, Any], *, group_field: str = "normalized_text") -> str:
+def canonical_group_key(
+    row: dict[str, Any], *, group_field: str = "normalized_text"
+) -> str:
     raw = row.get(group_field) or row.get("normalized_text") or row.get("text") or ""
     return _normalize_text(str(raw))
 
@@ -80,7 +82,15 @@ def _grouped_rows(
         label, count = labels.most_common(1)[0]
         if len(labels) > 1:
             raise ValueError(f"Group {key!r} has conflicting labels: {dict(labels)}")
-        result.append({"key": key, "label": label, "rows": items, "size": len(items), "label_count": count})
+        result.append(
+            {
+                "key": key,
+                "label": label,
+                "rows": items,
+                "size": len(items),
+                "label_count": count,
+            }
+        )
     return result
 
 
@@ -117,7 +127,9 @@ def grouped_train_val_split(
     rng.shuffle(val_groups)
     train_rows = [row for group in train_groups for row in group["rows"]]
     val_rows = [row for group in val_groups for row in group["rows"]]
-    stats = split_stats(train_rows, val_rows, label_field=label_field, group_field=group_field)
+    stats = split_stats(
+        train_rows, val_rows, label_field=label_field, group_field=group_field
+    )
     stats.update(
         {
             "split_kind": "grouped_train_val",
@@ -160,9 +172,25 @@ def grouped_kfold_splits(
         train_groups = [groups[idx] for idx in sorted(all_group_ids - val_ids)]
         train_rows = [row for group in train_groups for row in group["rows"]]
         val_rows = [row for group in val_groups for row in group["rows"]]
-        stats = split_stats(train_rows, val_rows, label_field=label_field, group_field=group_field)
-        stats.update({"split_kind": "grouped_kfold", "fold": fold_idx, "n_folds": n_folds, "seed": seed})
-        result.append({"fold": fold_idx, "train_rows": train_rows, "val_rows": val_rows, "stats": stats})
+        stats = split_stats(
+            train_rows, val_rows, label_field=label_field, group_field=group_field
+        )
+        stats.update(
+            {
+                "split_kind": "grouped_kfold",
+                "fold": fold_idx,
+                "n_folds": n_folds,
+                "seed": seed,
+            }
+        )
+        result.append(
+            {
+                "fold": fold_idx,
+                "train_rows": train_rows,
+                "val_rows": val_rows,
+                "stats": stats,
+            }
+        )
     return result
 
 
@@ -173,7 +201,9 @@ def split_stats(
     label_field: str = "leaf_id",
     group_field: str = "normalized_text",
 ) -> dict[str, Any]:
-    train_keys = {canonical_group_key(row, group_field=group_field) for row in train_rows}
+    train_keys = {
+        canonical_group_key(row, group_field=group_field) for row in train_rows
+    }
     val_keys = {canonical_group_key(row, group_field=group_field) for row in val_rows}
     overlap = sorted(key for key in train_keys & val_keys if key)
     return {
@@ -185,7 +215,9 @@ def split_stats(
         "overlap_examples": overlap[:20],
         "train_label_count": len({row.get(label_field) for row in train_rows}),
         "val_label_count": len({row.get(label_field) for row in val_rows}),
-        "train_by_label": dict(Counter(str(row.get(label_field)) for row in train_rows)),
+        "train_by_label": dict(
+            Counter(str(row.get(label_field)) for row in train_rows)
+        ),
         "val_by_label": dict(Counter(str(row.get(label_field)) for row in val_rows)),
     }
 
@@ -199,7 +231,9 @@ def assert_no_group_overlap(
     stats = split_stats(train_rows, val_rows, group_field=group_field)
     if stats["overlap_count"]:
         examples = ", ".join(stats["overlap_examples"][:5])
-        raise ValueError(f"Grouped split leakage detected: {stats['overlap_count']} overlapping keys ({examples})")
+        raise ValueError(
+            f"Grouped split leakage detected: {stats['overlap_count']} overlapping keys ({examples})"
+        )
 
 
 def embedding_coverage(
@@ -210,7 +244,9 @@ def embedding_coverage(
 ) -> dict[str, Any]:
     data = np.load(embeddings_path, allow_pickle=True)
     if "texts" not in data:
-        raise ValueError("Embedding cache must contain a texts array for academic ablation")
+        raise ValueError(
+            "Embedding cache must contain a texts array for academic ablation"
+        )
     cached = {_normalize_text(str(text)) for text in data["texts"].astype(object)}
     row_keys = [canonical_group_key(row, group_field=text_field) for row in rows]
     missing = sorted({key for key in row_keys if key and key not in cached})
@@ -232,7 +268,9 @@ def assert_complete_embedding_coverage(
     coverage = embedding_coverage(rows, embeddings_path, text_field=text_field)
     if coverage["missing_count"]:
         examples = ", ".join(coverage["missing_examples"][:5])
-        raise ValueError(f"Embedding cache is incomplete: {coverage['missing_count']} missing texts ({examples})")
+        raise ValueError(
+            f"Embedding cache is incomplete: {coverage['missing_count']} missing texts ({examples})"
+        )
 
 
 def parent_metrics(
@@ -271,7 +309,9 @@ def parent_metrics(
     }
 
 
-def low_sample_macro_f1(classification_report: dict[str, Any], *, max_support: int = 5) -> dict[str, Any]:
+def low_sample_macro_f1(
+    classification_report: dict[str, Any], *, max_support: int = 5
+) -> dict[str, Any]:
     items = [
         metrics
         for label, metrics in classification_report.items()
@@ -282,11 +322,15 @@ def low_sample_macro_f1(classification_report: dict[str, Any], *, max_support: i
     return {
         "max_support": max_support,
         "label_count": len(items),
-        "macro_f1": mean([float(item.get("f1-score") or 0.0) for item in items]) if items else 0.0,
+        "macro_f1": mean([float(item.get("f1-score") or 0.0) for item in items])
+        if items
+        else 0.0,
     }
 
 
-def summarize_experiment_metrics(metric_paths: list[Path], *, group_by: str = "experiment_family") -> dict[str, Any]:
+def summarize_experiment_metrics(
+    metric_paths: list[Path], *, group_by: str = "experiment_family"
+) -> dict[str, Any]:
     rows = []
     for path in metric_paths:
         metrics = json.loads(path.read_text(encoding="utf-8"))
@@ -308,6 +352,7 @@ def summarize_experiment_metrics(metric_paths: list[Path], *, group_by: str = "e
                 "num_hidden_layers": model_config.get("num_hidden_layers"),
                 "activation": model_config.get("activation"),
                 "dropout": model_config.get("dropout"),
+                "fourier_grid_size": model_config.get("fourier_grid_size"),
                 "class_weight": training_config.get("class_weight"),
                 "seed": training_config.get("seed"),
             }
@@ -321,7 +366,11 @@ def summarize_experiment_metrics(metric_paths: list[Path], *, group_by: str = "e
     for group, group_rows in grouped.items():
         values = {
             key: [float(row[key]) for row in group_rows if row.get(key) is not None]
-            for key in ["best_val_macro_f1", "best_val_accuracy", "best_val_top3_accuracy"]
+            for key in [
+                "best_val_macro_f1",
+                "best_val_accuracy",
+                "best_val_top3_accuracy",
+            ]
         }
         aggregates.append(
             {
@@ -337,7 +386,9 @@ def summarize_experiment_metrics(metric_paths: list[Path], *, group_by: str = "e
                 },
             }
         )
-    aggregates.sort(key=lambda item: item.get("best_val_macro_f1_mean") or -math.inf, reverse=True)
+    aggregates.sort(
+        key=lambda item: item.get("best_val_macro_f1_mean") or -math.inf, reverse=True
+    )
     return {"runs": rows, "aggregates": aggregates}
 
 
@@ -354,9 +405,19 @@ def summarize_persona_recommendations(personas: list[dict[str, Any]]) -> dict[st
             stage_counter[str(stage)] += 1
             if int(stage) == 5:
                 stage5_count += 1
-        volunteer_set = (persona.get("implicit_flexibilities") or {}).get("volunteer_set") or []
+        volunteer_set = (persona.get("implicit_flexibilities") or {}).get(
+            "volunteer_set"
+        ) or []
         volunteer_counts.append(len(volunteer_set))
-        unique_school_counts.append(len({item.get("school_name") for item in volunteer_set if item.get("school_name")}))
+        unique_school_counts.append(
+            len(
+                {
+                    item.get("school_name")
+                    for item in volunteer_set
+                    if item.get("school_name")
+                }
+            )
+        )
         for attempt in background.get("stage_attempts") or []:
             key = f"stage_{attempt.get('stage')}_{attempt.get('failure_reason') or 'accepted'}"
             attempts[key] += 1
@@ -366,13 +427,17 @@ def summarize_persona_recommendations(personas: list[dict[str, Any]]) -> dict[st
         "stage_distribution": dict(stage_counter),
         "stage5_rate": stage5_count / total if total else 0.0,
         "avg_volunteer_count": mean(volunteer_counts) if volunteer_counts else 0.0,
-        "avg_unique_school_count": mean(unique_school_counts) if unique_school_counts else 0.0,
+        "avg_unique_school_count": mean(unique_school_counts)
+        if unique_school_counts
+        else 0.0,
         "stage_attempt_outcomes": dict(attempts),
     }
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Major probe/tree evaluation protocol utilities")
+    parser = argparse.ArgumentParser(
+        description="Major probe/tree evaluation protocol utilities"
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     split = subparsers.add_parser("grouped-split")
@@ -417,7 +482,9 @@ def main() -> None:
         output_dir = Path(args.output_dir)
         write_jsonl(output_dir / "train.jsonl", train_rows)
         write_jsonl(output_dir / "val.jsonl", val_rows)
-        (output_dir / "split.stats.json").write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")
+        (output_dir / "split.stats.json").write_text(
+            json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
         print(json.dumps(stats, ensure_ascii=False, indent=2))
     elif args.command == "grouped-kfold":
         rows = read_jsonl(Path(args.input))
@@ -438,11 +505,15 @@ def main() -> None:
                 encoding="utf-8",
             )
             stats.append(fold["stats"])
-        (output_dir / "kfold.stats.json").write_text(json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8")
+        (output_dir / "kfold.stats.json").write_text(
+            json.dumps(stats, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
         print(json.dumps(stats, ensure_ascii=False, indent=2))
     elif args.command == "check-embeddings":
         rows = read_jsonl(Path(args.input))
-        coverage = embedding_coverage(rows, Path(args.embeddings), text_field=args.text_field)
+        coverage = embedding_coverage(
+            rows, Path(args.embeddings), text_field=args.text_field
+        )
         print(json.dumps(coverage, ensure_ascii=False, indent=2))
         if coverage["missing_count"]:
             raise SystemExit(1)
@@ -451,7 +522,9 @@ def main() -> None:
         summary = summarize_persona_recommendations(personas)
         output = Path(args.output)
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+        output.write_text(
+            json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
         print(json.dumps(summary, ensure_ascii=False, indent=2))
 
 

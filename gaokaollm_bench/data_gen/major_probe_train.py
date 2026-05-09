@@ -13,6 +13,18 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 
+from gaokaollm_bench.constrains.enums import (
+    ProbeActivation,
+    ProbeClassWeight,
+    ProbeModelKind,
+    ProbeSelectionMetric,
+)
+from gaokaollm_bench.constrains.metrics import DEFAULT_SELECTION_METRIC
+from gaokaollm_bench.constrains.paths import (
+    MAJOR_EMBEDDINGS,
+    MAJOR_TRAIN_JSONL,
+    MAJOR_TRAINING_PROBE_DIR,
+)
 from gaokaollm_bench.data_gen.major_embedding import _normalize_text
 
 
@@ -31,7 +43,7 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Linear probe training")
     parser.add_argument(
         "--input-jsonl",
-        default=str(Path("gaokaollm_bench/outputs/major_training/train.jsonl")),
+        default=str(MAJOR_TRAIN_JSONL),
     )
     parser.add_argument(
         "--val-jsonl",
@@ -40,11 +52,11 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--embeddings",
-        default=str(Path("gaokaollm_bench/outputs/major_training/embeddings.npz")),
+        default=str(MAJOR_EMBEDDINGS),
     )
     parser.add_argument(
         "--output-dir",
-        default=str(Path("gaokaollm_bench/outputs/major_training_probe")),
+        default=str(MAJOR_TRAINING_PROBE_DIR),
     )
     parser.add_argument("--label-field", default="leaf_id")
     parser.add_argument("--text-field", default="normalized_text")
@@ -66,20 +78,20 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--selection-metric",
-        choices=["val_accuracy", "val_macro_f1", "val_loss", "train_accuracy", "train_loss"],
-        default="val_macro_f1",
+        choices=[item.value for item in ProbeSelectionMetric],
+        default=DEFAULT_SELECTION_METRIC,
         help="Metric used to select the final best probe when available.",
     )
     parser.add_argument(
         "--class-weight",
-        choices=["none", "balanced", "sqrt_balanced"],
-        default="none",
+        choices=[item.value for item in ProbeClassWeight],
+        default=ProbeClassWeight.NONE.value,
         help="Optional class weighting for CrossEntropyLoss.",
     )
     parser.add_argument(
         "--model-kind",
-        choices=["linear", "mlp", "deep_mlp", "residual_mlp"],
-        default="linear",
+        choices=[item.value for item in ProbeModelKind],
+        default=ProbeModelKind.LINEAR.value,
         help="Probe architecture.",
     )
     parser.add_argument("--hidden-dim", type=int, default=512)
@@ -92,9 +104,15 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--activation",
-        choices=["relu", "gelu"],
-        default="relu",
+        choices=[item.value for item in ProbeActivation],
+        default=ProbeActivation.RELU.value,
         help="Activation for deep_mlp/residual_mlp. Existing mlp keeps ReLU behavior.",
+    )
+    parser.add_argument(
+        "--fourier-grid-size",
+        type=int,
+        default=5,
+        help="Fourier grid size G for fr_kan.",
     )
     parser.add_argument(
         "--early-stopping-patience",
@@ -136,12 +154,18 @@ def _filter_train_rows(
     for label in labels:
         label_counts[label] = label_counts.get(label, 0) + 1
 
-    keep_labels = {label for label, count in label_counts.items() if label is not None and count >= 2}
+    keep_labels = {
+        label
+        for label, count in label_counts.items()
+        if label is not None and count >= 2
+    }
     if len(keep_labels) < len(label_counts):
         dropped = len(label_counts) - len(keep_labels)
         print(f"Dropping {dropped} labels with <2 samples")
 
-    filtered_indices = [idx for idx, row in enumerate(rows) if row.get(label_field) in keep_labels]
+    filtered_indices = [
+        idx for idx, row in enumerate(rows) if row.get(label_field) in keep_labels
+    ]
     filtered_rows = [rows[idx] for idx in filtered_indices]
     filtered_labels = [row.get(label_field) for row in filtered_rows]
     return filtered_rows, filtered_labels, filtered_indices, label_counts
@@ -179,7 +203,9 @@ def _build_train_dataset(
         y = np.asarray([label_map[label] for label in labels], dtype=np.int64)
         return X, y, 0
 
-    raise ValueError("Embeddings count does not match rows and no texts index is present")
+    raise ValueError(
+        "Embeddings count does not match rows and no texts index is present"
+    )
 
 
 def _build_eval_dataset(
@@ -208,7 +234,12 @@ def _build_eval_dataset(
         X.append(embeddings[idx])
         y.append(label_map[label])
     if not X:
-        return np.empty((0, embeddings.shape[1]), dtype=np.float32), np.empty((0,), dtype=np.int64), missing, skipped_unknown_label
+        return (
+            np.empty((0, embeddings.shape[1]), dtype=np.float32),
+            np.empty((0,), dtype=np.int64),
+            missing,
+            skipped_unknown_label,
+        )
     return (
         np.asarray(X, dtype=np.float32),
         np.asarray(y, dtype=np.int64),
@@ -259,7 +290,9 @@ def _evaluate(
         "loss": loss,
         "accuracy": _accuracy(y, preds),
         "macro_f1": _macro_f1(y, preds, num_classes),
-        "top_k_accuracy": float(np.mean([target in row for target, row in zip(y, top_preds)])),
+        "top_k_accuracy": float(
+            np.mean([target in row for target, row in zip(y, top_preds)])
+        ),
     }
 
 
@@ -277,6 +310,7 @@ def _model_config(
     dropout: float,
     num_hidden_layers: int = 1,
     activation: str = "relu",
+    fourier_grid_size: int = 5,
 ) -> dict[str, Any]:
     return {
         "input_dim": int(input_dim),
@@ -286,6 +320,7 @@ def _model_config(
         "dropout": float(dropout),
         "num_hidden_layers": int(num_hidden_layers),
         "activation": activation,
+        "fourier_grid_size": int(fourier_grid_size),
     }
 
 
@@ -314,6 +349,43 @@ class _ResidualProbeBlock(nn.Module):
         return x + self.ffn(self.norm(x))
 
 
+class FourierKANLayer(nn.Module):
+    """Single-layer Fourier KAN head over frozen dense embeddings."""
+
+    def __init__(self, input_dim: int, output_dim: int, *, grid_size: int = 5) -> None:
+        super().__init__()
+        if grid_size < 1:
+            raise ValueError("--fourier-grid-size must be positive")
+        self.input_dim = int(input_dim)
+        self.output_dim = int(output_dim)
+        self.grid_size = int(grid_size)
+        self.input_norm = nn.LayerNorm(input_dim)
+        scale = 1.0 / np.sqrt(float(input_dim * ((2 * grid_size) + 1)))
+        self.cos_coeff = nn.Parameter(
+            torch.randn(output_dim, input_dim, grid_size + 1) * scale
+        )
+        self.sin_coeff = nn.Parameter(
+            torch.randn(output_dim, input_dim, grid_size) * scale
+        )
+        self.bias = nn.Parameter(torch.zeros(output_dim))
+        self.register_buffer(
+            "cos_frequencies", torch.arange(0, grid_size + 1, dtype=torch.float32)
+        )
+        self.register_buffer(
+            "sin_frequencies", torch.arange(1, grid_size + 1, dtype=torch.float32)
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.input_norm(x)
+        cos_values = torch.cos(x.unsqueeze(-1) * self.cos_frequencies)
+        sin_values = torch.sin(x.unsqueeze(-1) * self.sin_frequencies)
+        return (
+            torch.einsum("big,oig->bo", cos_values, self.cos_coeff)
+            + torch.einsum("big,oig->bo", sin_values, self.sin_coeff)
+            + self.bias
+        )
+
+
 def build_probe_model(
     *,
     input_dim: int,
@@ -323,9 +395,12 @@ def build_probe_model(
     dropout: float = 0.1,
     num_hidden_layers: int = 1,
     activation: str = "relu",
+    fourier_grid_size: int = 5,
 ) -> nn.Module:
     if model_kind == "linear":
         return nn.Linear(input_dim, output_dim)
+    if model_kind == "fr_kan":
+        return FourierKANLayer(input_dim, output_dim, grid_size=fourier_grid_size)
     if model_kind in {"mlp", "deep_mlp", "residual_mlp"}:
         if hidden_dim < 1:
             raise ValueError("--hidden-dim must be positive for mlp architectures")
@@ -376,7 +451,9 @@ def _metric_value_for_maximize(epoch_log: dict[str, Any], metric_name: str) -> f
     return -value if metric_name in {"val_loss", "train_loss"} else value
 
 
-def _best_key(epoch_log: dict[str, Any], selection_metric: str) -> tuple[float, ...] | None:
+def _best_key(
+    epoch_log: dict[str, Any], selection_metric: str
+) -> tuple[float, ...] | None:
     if selection_metric not in epoch_log:
         return None
     key = [_metric_value_for_maximize(epoch_log, selection_metric)]
@@ -411,19 +488,27 @@ def _initial_best_score(metric_name: str) -> float:
 
 
 def _copy_state_dict(model: nn.Module) -> dict[str, torch.Tensor]:
-    return {key: value.detach().cpu().clone() for key, value in model.state_dict().items()}
+    return {
+        key: value.detach().cpu().clone() for key, value in model.state_dict().items()
+    }
 
 
-def _class_weights(y_train: np.ndarray, *, num_classes: int, mode: str) -> torch.Tensor | None:
+def _class_weights(
+    y_train: np.ndarray, *, num_classes: int, mode: str
+) -> torch.Tensor | None:
     if mode == "none":
         return None
     counts = np.bincount(y_train, minlength=num_classes).astype(np.float32)
     nonzero = counts > 0
     weights = np.ones(num_classes, dtype=np.float32)
     if mode == "balanced":
-        weights[nonzero] = float(y_train.shape[0]) / (float(num_classes) * counts[nonzero])
+        weights[nonzero] = float(y_train.shape[0]) / (
+            float(num_classes) * counts[nonzero]
+        )
     elif mode == "sqrt_balanced":
-        weights[nonzero] = np.sqrt(float(y_train.shape[0]) / (float(num_classes) * counts[nonzero]))
+        weights[nonzero] = np.sqrt(
+            float(y_train.shape[0]) / (float(num_classes) * counts[nonzero])
+        )
     else:
         raise ValueError(f"Unsupported class-weight mode: {mode}")
     return torch.from_numpy(weights)
@@ -461,7 +546,9 @@ def main() -> None:
     text_index = _embedding_index(data)
 
     if embeddings.shape[0] != len(rows) and not text_index:
-        raise ValueError("Embeddings count does not match rows and no texts index is present")
+        raise ValueError(
+            "Embeddings count does not match rows and no texts index is present"
+        )
 
     X_train, y_train, missing_train = _build_train_dataset(
         filtered_rows,
@@ -512,19 +599,30 @@ def main() -> None:
         dropout=args.dropout,
         num_hidden_layers=args.num_hidden_layers,
         activation=args.activation,
+        fourier_grid_size=args.fourier_grid_size,
     )
     model = build_probe_model(**model_config)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    loss_weight = _class_weights(y_train, num_classes=len(label_map), mode=args.class_weight)
+    optimizer = torch.optim.AdamW(
+        model.parameters(), lr=args.lr, weight_decay=args.weight_decay
+    )
+    loss_weight = _class_weights(
+        y_train, num_classes=len(label_map), mode=args.class_weight
+    )
     loss_fn = nn.CrossEntropyLoss(weight=loss_weight)
     eval_loss_fn = nn.CrossEntropyLoss()
 
-    history_path = Path(args.history_output) if args.history_output else output_dir / "train_history.jsonl"
+    history_path = (
+        Path(args.history_output)
+        if args.history_output
+        else output_dir / "train_history.jsonl"
+    )
     history_path.parent.mkdir(parents=True, exist_ok=True)
     if history_path.exists():
         history_path.unlink()
 
-    checkpoint_dir = Path(args.checkpoint_dir) if args.checkpoint_dir else output_dir / "checkpoints"
+    checkpoint_dir = (
+        Path(args.checkpoint_dir) if args.checkpoint_dir else output_dir / "checkpoints"
+    )
     if args.save_epoch_checkpoints:
         checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
@@ -551,7 +649,9 @@ def main() -> None:
             batch_size = int(yb.shape[0])
             total_loss += float(loss.item()) * batch_size
             total_seen += batch_size
-            train_correct += int((torch.argmax(logits.detach(), dim=1) == yb).sum().item())
+            train_correct += int(
+                (torch.argmax(logits.detach(), dim=1) == yb).sum().item()
+            )
 
         train_loss = total_loss / total_seen if total_seen else 0.0
         train_acc = train_correct / total_seen if total_seen else 0.0
@@ -565,7 +665,9 @@ def main() -> None:
 
         has_val_metrics = bool(y_val.size and epoch % args.eval_every == 0)
         if has_val_metrics:
-            val_metrics = _evaluate(model, X_val, y_val, num_classes=len(label_map), loss_fn=eval_loss_fn)
+            val_metrics = _evaluate(
+                model, X_val, y_val, num_classes=len(label_map), loss_fn=eval_loss_fn
+            )
             epoch_log.update(
                 {
                     "val_loss": val_metrics["loss"],
@@ -585,7 +687,11 @@ def main() -> None:
             score = best_score
         else:
             metric_name = args.selection_metric
-            score = float(epoch_log[metric_name]) if metric_name in epoch_log else best_score
+            score = (
+                float(epoch_log[metric_name])
+                if metric_name in epoch_log
+                else best_score
+            )
 
         is_evaluated_epoch = metric_name in epoch_log
         is_best = is_evaluated_epoch and _metric_is_better(
@@ -615,6 +721,7 @@ def main() -> None:
                     "selection_metric": args.selection_metric,
                     "num_hidden_layers": args.num_hidden_layers,
                     "activation": args.activation,
+                    "fourier_grid_size": args.fourier_grid_size,
                 },
             }
 
@@ -694,7 +801,9 @@ def main() -> None:
             best_state.get("epoch_log", {}).get("val_loss") if best_state else None
         ),
         "best_val_top3_accuracy": (
-            best_state.get("epoch_log", {}).get("val_top3_accuracy") if best_state else None
+            best_state.get("epoch_log", {}).get("val_top3_accuracy")
+            if best_state
+            else None
         ),
         "model_config": model_config,
         "training_config": {
@@ -708,6 +817,7 @@ def main() -> None:
             "early_stopping_patience": args.early_stopping_patience,
             "num_hidden_layers": args.num_hidden_layers,
             "activation": args.activation,
+            "fourier_grid_size": args.fourier_grid_size,
         },
         "ablation_config": ablation_config,
         "label_count": len(label_map),
@@ -718,7 +828,9 @@ def main() -> None:
         "val_samples": int(y_val.size),
         "missing_val_texts": int(missing_val),
         "unknown_val_labels": int(skipped_val_unknown_label),
-        "label_counts": dict(sorted(label_counts.items(), key=lambda item: str(item[0]))),
+        "label_counts": dict(
+            sorted(label_counts.items(), key=lambda item: str(item[0]))
+        ),
         "history": history,
     }
     (output_dir / "metrics.json").write_text(

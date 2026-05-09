@@ -4,12 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-try:
-    from typing import Literal
-except ImportError:  # pragma: no cover - Python < 3.8 compatibility
-    from typing_extensions import Literal
-
 from pydantic import BaseModel, ConfigDict
+
+from gaokaollm_bench.constrains.enums import ConversationRole
 
 
 class IcebergPersona(BaseModel):
@@ -31,7 +28,7 @@ class ConversationTurn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     turn_id: int
-    role: Literal["user", "target_agent"]
+    role: ConversationRole
     content: str
     internal_state: dict[str, Any]
 

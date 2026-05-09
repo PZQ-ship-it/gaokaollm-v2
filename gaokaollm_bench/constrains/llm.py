@@ -1,0 +1,14 @@
+"""Shared LLM model and environment variable names."""
+
+from __future__ import annotations
+
+
+ENV_OPENAI_MODEL = "OPENAI_MODEL"
+ENV_SMALL_MODEL = "SMALL_MODEL"
+ENV_LLM_REVIEW_MODEL = "LLM_REVIEW_MODEL"
+ENV_OPENAI_API_KEY = "OPENAI_API_KEY"
+ENV_OPENAI_BASE_URL = "OPENAI_BASE_URL"
+
+DEFAULT_SMALL_MODEL = "Qwen/Qwen3.5-9B"
+DEFAULT_OPENAI_MODEL = "Pro/moonshotai/Kimi-K2.6"
+DEFAULT_REVIEW_MODEL = "gpt-5.2"

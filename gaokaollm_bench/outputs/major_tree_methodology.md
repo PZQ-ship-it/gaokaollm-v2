@@ -290,8 +290,8 @@ gaokaollm_bench/outputs/major_probe_classification_ablation/
 
 ```text
 gaokaollm_bench/data_gen/major_eval_protocol.py
-gaokaollm_bench/data_gen/major_ablation_report.py
-gaokaollm_bench/data_gen/major_probe_classification_ablation.py
+gaokaollm_bench/tests/manual/major_ablation_report.py
+gaokaollm_bench/tests/manual/major_probe_classification_ablation.py
 ```
 
 ### Probe 分类消融结果
@@ -341,6 +341,33 @@ gaokaollm_bench/outputs/major_probe_architecture_trials/
 
 结论：在当前样本规模与严格去重协议下，进一步增加 probe 深度或加入残差块没有带来正收益，反而更容易过早拟合训练集并降低验证表现。因此当前瓶颈主要不是分类头容量不足；后续优化应优先转向错误样本诊断、标签边界重审、验证协议扩展和更精确的困难样本修复，而不是继续盲目加深 probe。
 
+### FR-KAN 分类头试探
+
+进一步地，我们测试了 Fourier Kolmogorov-Arnold Network 形式的分类头。该实验将 Transformer 冻结骨干等价为当前已缓存的 4096 维 embedding，仅替换 probe 分类头，不改树、不改训练集、不覆盖默认模型。FR-KAN 使用 Fourier 单变量函数基，网格大小 `G` 记录为 `fourier_grid_size`。
+
+产物位于：
+
+```text
+gaokaollm_bench/outputs/major_probe_frkan_trials/
+```
+
+实验同时比较两类协议：
+
+1. **fair probe protocol**：沿用当前 probe 训练协议，`lr=0.001`、最多 100 epochs、patience 20，便于与 MLP 公平比较。
+2. **paper-suggested protocol**：采用 FR-KAN 建议的 `G=5`、`lr=2e-5`、5 epochs，用于检验该建议在 cached embedding probe 场景下是否可迁移。
+
+结果如下：
+
+| Trial | Protocol | Runs | Grid | LR | Epochs | Macro-F1 Mean | Accuracy Mean | Top-3 Mean | Promotion Candidate |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| baseline_mlp_h256_sqrt_fair | fair_probe | 3 | 5 | 0.0010 | 100 | 0.6862 | 0.7068 | 0.8554 | no |
+| frkan_g3_fair | fair_probe | 3 | 3 | 0.0010 | 100 | 0.5113 | 0.6024 | 0.7490 | no |
+| frkan_g5_fair | fair_probe | 3 | 5 | 0.0010 | 100 | 0.4814 | 0.5723 | 0.7289 | no |
+| frkan_g7_fair | fair_probe | 3 | 7 | 0.0010 | 100 | 0.4653 | 0.5462 | 0.7209 | no |
+| frkan_g5_paper_lr2e5_e5 | paper_suggested | 3 | 5 | 0.00002 | 5 | 0.4156 | 0.5000 | 0.7048 | no |
+
+结论：在当前 cached embedding + 小样本 leaf 分类协议下，FR-KAN 未优于浅层 MLP，且随着 `G` 从 3 增至 7，验证指标呈下降趋势。论文建议的 `lr=2e-5, epochs=5` 在本场景中明显欠训练。该结果说明 Fourier 单变量函数基并不能直接替代当前浅层 MLP；若未来继续探索 KAN 类结构，应优先考虑输入尺度、频率归一化、低秩参数化或更强正则，而不是直接增大 Fourier grid。
+
 ## 进一步提升结果的路线
 
 下一轮仍然先聚焦 probe 分类分数，不进入推荐级评估。优先级如下：
@@ -348,8 +375,9 @@ gaokaollm_bench/outputs/major_probe_architecture_trials/
 1. **错误样本诊断**：对 `raw + MLP + sqrt_balanced` 输出 per-sample top-k、低 F1 leaf、主要 confusion pairs。
 2. **困难样本增强**：后续若重新引入增强，必须围绕高频混淆对补真实 observed names 或人工构造边界样本，并单独验证正收益后再进入主实验。
 3. **模型小 sweep**：复杂结构试探未显示正收益后，模型侧仅保留围绕单隐层 MLP 的 h128/h256/h384、dropout 0.05/0.1/0.15、lr 0.0008/0.001 等轻量调参。
-4. **类别权重替代**：可尝试介于 none 与 sqrt_balanced 之间的温和权重，或 label smoothing；不再默认使用 full balanced。
-5. **验证协议扩展**：当前 fixed val 可以判断方向，但最终仍需 grouped k-fold 复核，避免对 166 条验证集过拟合。
+4. **KAN 类后续方向**：直接 FR-KAN 不优于 MLP，后续只有在引入输入尺度控制、频率正则或低秩 Fourier 参数化时才值得重开。
+5. **类别权重替代**：可尝试介于 none 与 sqrt_balanced 之间的温和权重，或 label smoothing；不再默认使用 full balanced。
+6. **验证协议扩展**：当前 fixed val 可以判断方向，但最终仍需 grouped k-fold 复核，避免对 166 条验证集过拟合。
 
 ## 局限性与后续工作
 
@@ -462,7 +490,7 @@ python -m gaokaollm_bench.data_gen.major_eval_protocol check-embeddings \
 运行 probe-only 分类消融：
 
 ```bash
-python -m gaokaollm_bench.data_gen.major_probe_classification_ablation \
+python -m gaokaollm_bench.tests.manual.major_probe_classification_ablation \
   --output-root gaokaollm_bench/outputs/major_probe_classification_ablation \
   --epochs 80 \
   --early-stopping-patience 15
@@ -471,7 +499,7 @@ python -m gaokaollm_bench.data_gen.major_probe_classification_ablation \
 汇总 probe-only 分类消融：
 
 ```bash
-python -m gaokaollm_bench.data_gen.major_ablation_report \
+python -m gaokaollm_bench.tests.manual.major_ablation_report \
   --root gaokaollm_bench/outputs/major_probe_classification_ablation \
   --output-json gaokaollm_bench/outputs/major_probe_classification_ablation/summary.json \
   --output-md gaokaollm_bench/outputs/major_probe_classification_ablation/summary.md
@@ -480,11 +508,23 @@ python -m gaokaollm_bench.data_gen.major_ablation_report \
 运行复杂 probe 结构试探：
 
 ```bash
-python -m gaokaollm_bench.data_gen.major_probe_architecture_trials --skip-existing
+python -m gaokaollm_bench.tests.manual.major_probe_architecture_trials --skip-existing
 ```
 
 仅重新汇总复杂结构结果：
 
 ```bash
-python -m gaokaollm_bench.data_gen.major_probe_architecture_trials --summarize-only
+python -m gaokaollm_bench.tests.manual.major_probe_architecture_trials --summarize-only
+```
+
+运行 FR-KAN 分类头试探：
+
+```bash
+python -m gaokaollm_bench.tests.manual.major_probe_frkan_trials --skip-existing
+```
+
+仅重新汇总 FR-KAN 结果：
+
+```bash
+python -m gaokaollm_bench.tests.manual.major_probe_frkan_trials --summarize-only
 ```

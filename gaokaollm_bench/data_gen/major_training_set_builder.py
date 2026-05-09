@@ -9,11 +9,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
+from gaokaollm_bench.constrains.paths import MAJOR_OBSERVED_TREE, MAJOR_TRAIN_JSONL
 from gaokaollm_bench.data_gen.major_embedding import _normalize_text
 from gaokaollm_bench.data_gen.major_tree import load_major_tree
 
-DEFAULT_TREE_PATH = Path("gaokaollm_bench/sample_data/major_tree_observed_full.json")
-DEFAULT_OUTPUT_PATH = Path("gaokaollm_bench/outputs/major_training/train.jsonl")
+DEFAULT_TREE_PATH = MAJOR_OBSERVED_TREE
+DEFAULT_OUTPUT_PATH = MAJOR_TRAIN_JSONL
 
 
 @dataclass(frozen=True)
@@ -47,7 +48,9 @@ def _include_keywords(node: dict[str, Any]) -> list[str]:
     return list(node.get("include_keywords") or [])
 
 
-def _parent_info(nodes: dict[str, dict[str, Any]], parent_id: str | None) -> tuple[str | None, str | None]:
+def _parent_info(
+    nodes: dict[str, dict[str, Any]], parent_id: str | None
+) -> tuple[str | None, str | None]:
     if not parent_id:
         return None, None
     parent = nodes.get(parent_id)
@@ -95,7 +98,11 @@ def detect_ambiguous_compound_major(
     if not text:
         return {"is_ambiguous": False, "reason": "empty_text", "matched_keywords": []}
     if not any(marker in text for marker in AMBIGUOUS_MARKERS):
-        return {"is_ambiguous": False, "reason": "no_compound_marker", "matched_keywords": []}
+        return {
+            "is_ambiguous": False,
+            "reason": "no_compound_marker",
+            "matched_keywords": [],
+        }
 
     nodes = _node_map(tree)
     own_parent = _ancestor_at_or_above_leaf_parent(nodes, leaf_id)
@@ -107,11 +114,15 @@ def detect_ambiguous_compound_major(
             matched.append({"keyword": keyword, "parent_ids": sorted(parent_ids)})
             matched_parents.update(parent_ids)
 
-    cross_parent_ids = sorted(parent_id for parent_id in matched_parents if parent_id != own_parent)
+    cross_parent_ids = sorted(
+        parent_id for parent_id in matched_parents if parent_id != own_parent
+    )
     is_ambiguous = bool(cross_parent_ids and len(matched) >= 2)
     return {
         "is_ambiguous": is_ambiguous,
-        "reason": "cross_parent_compound" if is_ambiguous else "same_parent_or_weak_signal",
+        "reason": "cross_parent_compound"
+        if is_ambiguous
+        else "same_parent_or_weak_signal",
         "own_parent_id": own_parent,
         "cross_parent_ids": cross_parent_ids,
         "matched_keywords": matched,
@@ -265,12 +276,16 @@ def main() -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     _write_jsonl(output_path, rows)
     _write_stats(output_path.with_suffix(".stats.json"), rows)
-    audit_path = Path(args.ambiguity_audit_output) if args.ambiguity_audit_output else output_path.with_suffix(
-        ".ambiguity_audit.json"
+    audit_path = (
+        Path(args.ambiguity_audit_output)
+        if args.ambiguity_audit_output
+        else output_path.with_suffix(".ambiguity_audit.json")
     )
     if args.exclude_ambiguous_compound_majors:
         _write_audit(audit_path, ambiguity_audit)
-        print(f"Dropped {len(ambiguity_audit)} ambiguous rows; audit written to {audit_path}")
+        print(
+            f"Dropped {len(ambiguity_audit)} ambiguous rows; audit written to {audit_path}"
+        )
 
     print(f"Wrote {len(rows)} rows to {output_path}")
 

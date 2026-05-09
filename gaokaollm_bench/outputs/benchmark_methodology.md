@@ -228,6 +228,20 @@ gaokaollm_bench/outputs/major_probe_classification_ablation/
 
 没有任何复杂结构通过 `Macro-F1 > 0.6862` 且 `Accuracy >= 0.7088` 的双指标门槛。当前结论是：probe 的主要收益来自“由线性到浅层非线性”的表达能力跃迁，而不是继续堆深度；后续提升应优先考虑错误样本诊断、标签边界重审和更稳健的 grouped k-fold 评估。
 
+### FR-KAN 试探
+
+随后我们测试了 Fourier KAN 分类头，试图用可学习 Fourier 单变量函数替代浅层 MLP。当前 benchmark 已经使用冻结 embedding cache，因此该实验等价于“冻结 Transformer 骨干，只替换分类头”。实验同时运行公平 probe 协议和 FR-KAN 建议的 `G=5, lr=2e-5, epochs=5` 协议。
+
+| 配置 | 协议 | Runs | Accuracy Mean | Macro-F1 Mean | Top-3 Mean | 结论 |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| MLP h256 baseline | fair | 3 | 0.7068 | 0.6862 | 0.8554 | 当前基线 |
+| FR-KAN G=3 | fair | 3 | 0.6024 | 0.5113 | 0.7490 | 未提升 |
+| FR-KAN G=5 | fair | 3 | 0.5723 | 0.4814 | 0.7289 | 未提升 |
+| FR-KAN G=7 | fair | 3 | 0.5462 | 0.4653 | 0.7209 | 网格增大后退化 |
+| FR-KAN G=5 | paper suggested | 3 | 0.5000 | 0.4156 | 0.7048 | 欠训练 |
+
+FR-KAN 没有通过双指标门槛，而且随着 Fourier grid 增大，指标下降。该结果表明，在当前 4096 维 cached embedding 与 784 条 train-only 样本的设置中，FR-KAN 的高频 Fourier 基更容易产生不稳定拟合，不能直接替代浅层 MLP。
+
 ## 用户模拟器
 
 `UserSimulator` 是一个 LLM-backed stubborn user simulator。它输入 `IcebergPersona`，并在每轮收到被测系统回复后输出结构化 JSON：
