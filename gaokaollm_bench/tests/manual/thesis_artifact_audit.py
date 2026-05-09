@@ -17,9 +17,36 @@ TARGET_BASELINE = "hard_constraint"
 DEFAULT_THESIS_DOCS = [
     Path("gaokaollm_bench/outputs/thesis_agent_benchmark_contribution.md"),
     Path("gaokaollm_bench/outputs/thesis_method_experiment_chapters.md"),
+    Path("gaokaollm_bench/outputs/thesis_v1_v2_integration_plan.md"),
+    Path("gaokaollm_bench/放宽与跃迁.md"),
 ]
 DEFAULT_OUTPUT_JSON = Path("gaokaollm_bench/outputs/thesis_artifact_audit.json")
 DEFAULT_OUTPUT_MD = Path("gaokaollm_bench/outputs/thesis_artifact_audit.md")
+
+CORE_NARRATIVE_TERMS = (
+    "major_geo_relax",
+    "risk_band_relax",
+    "major_geo_v1",
+    "risk_band_v1",
+)
+
+V1_V2_REQUIRED_TERMS = (
+    "gaokaollmmodel",
+    "Agentic RAG",
+    "1:3:9",
+    "工程原型与问题发现",
+    "最终主贡献",
+)
+
+DYNAMIC_RELAXATION_REQUIRED_TERMS = (
+    "risk_band_relax",
+    "已实现",
+    "城市放宽",
+    "学费放宽",
+    "就业导向",
+    "学科实力",
+    "后续工作",
+)
 
 
 @dataclass(frozen=True)
@@ -316,6 +343,87 @@ def required_readmes() -> list[Path]:
     ]
 
 
+def audit_narrative_docs(thesis_docs: list[Path]) -> list[Check]:
+    checks: list[Check] = []
+    doc_texts = {
+        path: path.read_text(encoding="utf-8") if path.exists() else ""
+        for path in thesis_docs
+    }
+
+    missing_core_terms = [
+        f"{path}:{term}"
+        for path, text in doc_texts.items()
+        for term in CORE_NARRATIVE_TERMS
+        if term not in text
+    ]
+    add_check(
+        checks,
+        "core_docs_cover_dual_experiment_terms",
+        not missing_core_terms,
+        (
+            "all thesis narrative docs mention major_geo/risk_band experiments "
+            "and relaxation capabilities"
+        )
+        if not missing_core_terms
+        else "missing terms: " + ", ".join(missing_core_terms),
+    )
+
+    v1_v2_doc = Path("gaokaollm_bench/outputs/thesis_v1_v2_integration_plan.md")
+    v1_v2_text = v1_v2_doc.read_text(encoding="utf-8") if v1_v2_doc.exists() else ""
+    missing_v1_v2_terms = [
+        term for term in V1_V2_REQUIRED_TERMS if term not in v1_v2_text
+    ]
+    add_check(
+        checks,
+        "v1_v2_plan_positions_versions_correctly",
+        v1_v2_doc.exists() and not missing_v1_v2_terms,
+        "v1/v2 plan frames v1 as prototype and v2 as final contribution"
+        if v1_v2_doc.exists() and not missing_v1_v2_terms
+        else (
+            f"{v1_v2_doc} missing terms: "
+            + ", ".join(missing_v1_v2_terms or ["file missing"])
+        ),
+    )
+
+    dynamic_doc = Path("gaokaollm_bench/放宽与跃迁.md")
+    dynamic_text = (
+        dynamic_doc.read_text(encoding="utf-8") if dynamic_doc.exists() else ""
+    )
+    missing_dynamic_terms = [
+        term for term in DYNAMIC_RELAXATION_REQUIRED_TERMS if term not in dynamic_text
+    ]
+    add_check(
+        checks,
+        "dynamic_relaxation_overview_matches_current_scope",
+        dynamic_doc.exists() and not missing_dynamic_terms,
+        (
+            "dynamic overview marks risk_band_relax implemented and "
+            "keeps city/tuition/employment/strength as future work"
+        )
+        if dynamic_doc.exists() and not missing_dynamic_terms
+        else (
+            f"{dynamic_doc} missing terms: "
+            + ", ".join(missing_dynamic_terms or ["file missing"])
+        ),
+    )
+
+    combined_text = "\n".join(doc_texts.values())
+    leakage_boundary_terms_present = all(
+        term in combined_text
+        for term in ["不读取", "implicit_flexibilities", "volunteer_set"]
+    )
+    add_check(
+        checks,
+        "narrative_docs_keep_hidden_persona_boundary",
+        leakage_boundary_terms_present,
+        "narrative docs state Agent does not read hidden persona fields"
+        if leakage_boundary_terms_present
+        else "narrative docs must mention 不读取, implicit_flexibilities, and volunteer_set",
+    )
+
+    return checks
+
+
 def audit_experiment(config: ExperimentConfig) -> dict[str, Any]:
     experiment_dir = config.experiment_dir
     summary_path = experiment_dir / "summary.json"
@@ -584,6 +692,7 @@ def audit(args: argparse.Namespace) -> dict[str, Any]:
         else "thesis docs do not record the expected pytest result",
     )
 
+    narrative_checks = audit_narrative_docs(thesis_docs)
     experiment_reports = [audit_experiment(experiment) for experiment in experiments]
     global_hash_paths = thesis_docs
     global_file_hashes = {
@@ -596,8 +705,10 @@ def audit(args: argparse.Namespace) -> dict[str, Any]:
         "created_at": datetime.now().isoformat(timespec="seconds"),
         "experiments": experiment_reports,
         "overall_passed": all(check.passed for check in checks)
+        and all(check.passed for check in narrative_checks)
         and all(experiment["overall_passed"] for experiment in experiment_reports),
         "checks": [check.to_dict() for check in checks],
+        "narrative_checks": [check.to_dict() for check in narrative_checks],
         "file_hashes_sha256": global_file_hashes,
         "outputs": {
             "json": str(output_json),
@@ -681,6 +792,8 @@ def write_markdown(path: Path, report: dict[str, Any]) -> None:
         "## Global Checks",
     ]
     append_checks(lines, report["checks"])
+    lines.extend(["", "## 论文叙事文档审计"])
+    append_checks(lines, report["narrative_checks"])
 
     for experiment in report["experiments"]:
         lines.extend(
@@ -729,6 +842,11 @@ def main() -> None:
     print(f"Wrote {output_md}")
     if not report["overall_passed"]:
         failed = [check["name"] for check in report["checks"] if not check["passed"]]
+        failed.extend(
+            f"narrative:{check['name']}"
+            for check in report["narrative_checks"]
+            if not check["passed"]
+        )
         for experiment in report["experiments"]:
             failed.extend(
                 f"{experiment['name']}:{check['name']}"
