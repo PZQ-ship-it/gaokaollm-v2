@@ -1,7 +1,23 @@
 import asyncio
+from pathlib import Path
 from typing import Any
 
 from app.core import db_pg
+from gaokaollm_bench.data_gen.major_tree import build_relaxation_stages
+
+
+DEFAULT_MAJOR_TREE_PATH = Path("gaokaollm_bench/outputs/major_tree_final_reviewed.json")
+SPECIAL_MAJOR_TERMS = (
+    "中外合作",
+    "合作办学",
+    "学分互认",
+    "国际班",
+    "国际贸易班",
+    "外语成绩",
+    "不低于",
+    "留学",
+    "双文凭",
+)
 
 
 BASE_SELECT = """
@@ -58,6 +74,17 @@ ORDER BY
 LIMIT %s
 """
 
+MAJOR_GEO_ORDER = """
+ORDER BY
+    a.year DESC,
+    tier DESC,
+    s.ranking ASC NULLS LAST,
+    a.min_score DESC NULLS LAST,
+    s.name ASC,
+    a.major_name_raw ASC
+LIMIT %s
+"""
+
 
 async def _fetch(db: Any, query: str, params: list[Any]) -> list[dict[str, Any]]:
     if db is None:
@@ -85,6 +112,17 @@ def _max_tier(rows: list[dict[str, Any]]) -> int:
     if not rows:
         return 0
     return max(int(row.get("tier") or 0) for row in rows)
+
+
+def _tier_sql() -> str:
+    return """
+    CASE
+        WHEN s.is_985 THEN 4
+        WHEN s.is_211 OR s.is_double_first_class THEN 3
+        WHEN s.education_level = '本科' THEN 2
+        ELSE 1
+    END
+    """
 
 
 def _where_common(constraints: dict[str, Any]) -> tuple[list[str], list[Any]]:
@@ -141,6 +179,149 @@ def _add_major_filter(
         params.append(f"%{major}%")
 
 
+def _add_higher_tier_filter(
+    where: list[str],
+    params: list[Any],
+    baseline: list[dict[str, Any]],
+) -> None:
+    where.append(f"{_tier_sql()} > %s")
+    params.append(_max_tier(baseline))
+
+
+def _add_undergraduate_quality_filters(
+    where: list[str],
+    params: list[Any],
+) -> None:
+    where.extend(
+        [
+            "s.education_level = '本科'",
+            "(s.name LIKE %s OR s.name LIKE %s)",
+            "NOT (s.name LIKE %s AND s.name NOT LIKE %s)",
+        ]
+    )
+    params.extend(["%大学%", "%医学院%", "%大学%学院%", "%医学院%"])
+
+
+def _add_major_quality_filters(
+    where: list[str],
+    params: list[Any],
+    *,
+    max_major_name_length: int | None,
+) -> None:
+    if max_major_name_length is not None:
+        where.append("char_length(a.major_name_raw) <= %s")
+        params.append(max_major_name_length)
+    for term in SPECIAL_MAJOR_TERMS:
+        where.append("a.major_name_raw NOT LIKE %s")
+        params.append(f"%{term}%")
+
+
+def _stage_major_patterns(
+    stage: dict[str, Any],
+    strict_major: str | None,
+) -> tuple[list[str], list[str]]:
+    strategy = stage.get("strategy")
+    include_patterns = list(stage.get("include_patterns") or [])
+    exclude_patterns = list(stage.get("exclude_patterns") or [])
+    if strategy == "any_major" or not include_patterns:
+        if strict_major:
+            exclude_patterns.append(f"%{strict_major}%")
+        return [], list(dict.fromkeys(exclude_patterns))
+    return list(dict.fromkeys(include_patterns)), list(dict.fromkeys(exclude_patterns))
+
+
+def _add_stage_major_filters(
+    where: list[str],
+    params: list[Any],
+    *,
+    stage: dict[str, Any],
+    strict_major: str | None,
+) -> None:
+    include_patterns, exclude_patterns = _stage_major_patterns(stage, strict_major)
+    if include_patterns:
+        where.append(
+            "("
+            + " OR ".join(["a.major_name_raw LIKE %s"] * len(include_patterns))
+            + ")"
+        )
+        params.extend(include_patterns)
+    for pattern in exclude_patterns:
+        where.append("a.major_name_raw NOT LIKE %s")
+        params.append(pattern)
+
+
+def _fallback_any_major_stage() -> dict[str, Any]:
+    return {
+        "stage": 5,
+        "label": "去除专业限制",
+        "strategy": "any_major",
+        "include_patterns": [],
+        "exclude_patterns": [],
+    }
+
+
+def _major_relaxation_stages(
+    constraints: dict[str, Any],
+    *,
+    major_tree_path: str | Path | None,
+) -> list[dict[str, Any]]:
+    major = constraints.get("major")
+    if not major:
+        return [_fallback_any_major_stage()]
+    tree_path = Path(major_tree_path or DEFAULT_MAJOR_TREE_PATH)
+    if not tree_path.exists():
+        return [_fallback_any_major_stage()]
+    try:
+        stages = build_relaxation_stages(
+            str(major),
+            path=tree_path,
+            include_any_major_stage=True,
+        )
+    except Exception:
+        return [_fallback_any_major_stage()]
+    return stages or [_fallback_any_major_stage()]
+
+
+def _selection_key(row: dict[str, Any]) -> tuple[Any, ...]:
+    ranking = row.get("ranking")
+    min_score = row.get("min_score")
+    return (
+        -int(row.get("year") or 0),
+        -int(row.get("tier") or 0),
+        int(ranking) if ranking is not None else 999999,
+        -float(min_score) if min_score is not None else 0.0,
+        str(row.get("school_name") or ""),
+        str(row.get("major_name") or ""),
+    )
+
+
+def _select_relaxation_rows(
+    rows: list[dict[str, Any]],
+    *,
+    limit: int,
+    max_per_school: int,
+) -> list[dict[str, Any]]:
+    selected: list[dict[str, Any]] = []
+    seen_options: set[tuple[Any, Any]] = set()
+    school_counts: dict[Any, int] = {}
+    for row in sorted(rows, key=_selection_key):
+        option_key = (
+            row.get("school_id"),
+            row.get("major_id") or row.get("major_name"),
+        )
+        if option_key in seen_options:
+            continue
+        school_key = row.get("school_id") or row.get("school_name")
+        if school_counts.get(school_key, 0) >= max_per_school:
+            continue
+        seen_options.add(option_key)
+        school_counts[school_key] = school_counts.get(school_key, 0) + 1
+        selected.append(row)
+        if len(selected) >= limit:
+            break
+    return selected
+
+
 async def run_baseline(
     constraints: dict[str, Any],
     db: Any = None,
@@ -173,15 +354,7 @@ async def probe_geo_relax(
         where.append("s.province <> %s")
         params.append(province)
 
-    where.append("""
-    CASE
-        WHEN s.is_985 THEN 4
-        WHEN s.is_211 OR s.is_double_first_class THEN 3
-        WHEN s.education_level = '本科' THEN 2
-        ELSE 1
-    END > %s
-    """)
-    params.append(_max_tier(baseline))
+    _add_higher_tier_filter(where, params, baseline)
     params.append(limit)
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
@@ -206,19 +379,69 @@ async def probe_major_relax(
         where.append("a.major_name_raw NOT LIKE %s")
         params.append(f"%{major}%")
 
-    where.append("""
-    CASE
-        WHEN s.is_985 THEN 4
-        WHEN s.is_211 OR s.is_double_first_class THEN 3
-        WHEN s.education_level = '本科' THEN 2
-        ELSE 1
-    END > %s
-    """)
-    params.append(_max_tier(baseline))
+    _add_higher_tier_filter(where, params, baseline)
     params.append(limit)
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
     return await _fetch(db, query, params)
+
+
+async def probe_major_geo_relax(
+    constraints: dict[str, Any],
+    db: Any = None,
+    baseline_results: list[dict[str, Any]] | None = None,
+    limit: int = 5,
+    recommendation_threshold: int = 10,
+    max_per_school: int = 2,
+    major_tree_path: str | Path | None = DEFAULT_MAJOR_TREE_PATH,
+    max_major_name_length: int | None = 60,
+) -> list[dict[str, Any]]:
+    """Find tier gains unlocked by relaxing both province and major constraints."""
+
+    baseline = baseline_results
+    if baseline is None:
+        baseline = await run_baseline(constraints, db=db)
+
+    selection_limit = max(limit, recommendation_threshold)
+    selected: list[dict[str, Any]] = []
+    for stage in _major_relaxation_stages(
+        constraints,
+        major_tree_path=major_tree_path,
+    ):
+        where, params = _where_common(constraints)
+        _add_undergraduate_quality_filters(where, params)
+        _add_major_quality_filters(
+            where,
+            params,
+            max_major_name_length=max_major_name_length,
+        )
+        _add_stage_major_filters(
+            where,
+            params,
+            stage=stage,
+            strict_major=constraints.get("major"),
+        )
+        _add_higher_tier_filter(where, params, baseline)
+        params.append(max(selection_limit * 4, 40))
+
+        query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{MAJOR_GEO_ORDER}"
+        rows = await _fetch(db, query, params)
+        selected = _select_relaxation_rows(
+            rows,
+            limit=selection_limit,
+            max_per_school=max_per_school,
+        )
+        if len(selected) < recommendation_threshold:
+            selected = []
+            continue
+        if selected:
+            for row in selected:
+                row["relaxation_stage"] = stage.get("stage")
+                row["relaxation_stage_label"] = stage.get("label")
+                row["relaxation_strategy"] = stage.get("strategy")
+            break
+
+    return selected[:limit]
 
 
 async def run_all_probes(
@@ -226,11 +449,13 @@ async def run_all_probes(
     db: Any = None,
 ) -> dict[str, list[dict[str, Any]]]:
     baseline = await run_baseline(constraints, db=db)
-    geo_relax, major_relax = await asyncio.gather(
+    geo_relax, major_relax, major_geo_relax = await asyncio.gather(
         probe_geo_relax(constraints, db=db, baseline_results=baseline),
         probe_major_relax(constraints, db=db, baseline_results=baseline),
+        probe_major_geo_relax(constraints, db=db, baseline_results=baseline),
     )
     return {
         "geo_relax": geo_relax,
         "major_relax": major_relax,
+        "major_geo_relax": major_geo_relax,
     }

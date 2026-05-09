@@ -31,6 +31,7 @@ async def test_graph_invocation_negotiates_with_real_probe_data(capsys):
     assert result["baseline_results"] == []
     assert result["pareto_opportunities"]["geo_relax"]
     assert result["pareto_opportunities"]["major_relax"]
+    assert result["pareto_opportunities"]["major_geo_relax"]
 
     final_message = result["messages"][-1].content
     assert "选项A" in final_message

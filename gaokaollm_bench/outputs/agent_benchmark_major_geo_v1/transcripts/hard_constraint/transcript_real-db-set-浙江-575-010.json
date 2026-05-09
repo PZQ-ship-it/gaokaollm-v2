@@ -1,0 +1,724 @@
+{
+  "persona": {
+    "case_id": "real-db-set-浙江-575-010",
+    "background": {
+      "score": 575,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "湖州师范学院",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "volunteer_count": 10,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "clinical_to_medtech",
+      "relax_scope": "national",
+      "relaxation_stage": 3,
+      "relaxation_stage_label": "上层大类近邻簇",
+      "target_major_clusters": [
+        "medical_technology",
+        "medical_nursing",
+        "medical_pharmacy",
+        "medical_public_health"
+      ],
+      "target_major_categories": null,
+      "psychological_distance": "medium",
+      "years_used": [
+        2025,
+        2024,
+        2021
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 4,
+          "filtered_volunteer_count": 2,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2023
+          ],
+          "skipped": {
+            "duplicate_option": 2,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2023,
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 16,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024,
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 5,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2022,
+            2021
+          ]
+        }
+      ]
+    },
+    "explicit_red_lines": {
+      "major": "坚决只读临床医学",
+      "reason": "认为只有临床医学才算真正的医学路线，不接受未经证明的专业替代",
+      "current_anchor_school": "湖州师范学院",
+      "current_anchor_major": "临床医学"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "major",
+      "relaxation_kind": "hierarchical_major",
+      "stage_relaxation_kind": "clinical_to_medtech",
+      "relax_scope": "national",
+      "relaxation_stage": 3,
+      "relaxation_stage_label": "上层大类近邻簇",
+      "target_major_clusters": [
+        "medical_technology",
+        "medical_nursing",
+        "medical_pharmacy",
+        "medical_public_health"
+      ],
+      "target_major_categories": null,
+      "psychological_distance": "medium",
+      "trigger_condition": "只有看到一个可包含外省、按专业簇层级放宽到第3阶段上层大类近邻簇后形成的真实可达志愿集合，且每个志愿都有学校名、专业名、最低分不高于575分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 405,
+          "major_name": "药学",
+          "year": 2025,
+          "min_score": 571,
+          "score_margin": 4,
+          "min_rank": 85963,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 412,
+          "major_name": "中药学",
+          "year": 2025,
+          "min_score": 570,
+          "score_margin": 5,
+          "min_rank": 87686,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 277,
+          "school_name": "南京中医药大学",
+          "school_province": "江苏",
+          "school_city": "南京",
+          "major_id": 427,
+          "major_name": "护理学",
+          "year": 2025,
+          "min_score": 565,
+          "score_margin": 10,
+          "min_rank": 93150,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 423,
+          "major_name": "康复治疗学",
+          "year": 2025,
+          "min_score": 553,
+          "score_margin": 22,
+          "min_rank": 108281,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 412,
+          "school_name": "青海大学",
+          "school_province": "青海",
+          "school_city": "西宁市",
+          "major_id": 423,
+          "major_name": "康复治疗学",
+          "year": 2025,
+          "min_score": 570,
+          "score_margin": 5,
+          "min_rank": 87382,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 412,
+          "school_name": "青海大学",
+          "school_province": "青海",
+          "school_city": "西宁市",
+          "major_id": 405,
+          "major_name": "药学",
+          "year": 2025,
+          "min_score": 569,
+          "score_margin": 6,
+          "min_rank": 88716,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 99,
+          "school_name": "湖南师范大学",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": null,
+          "major_name": "预防医学(咸嘉湖校区)",
+          "year": 2024,
+          "min_score": 562,
+          "score_margin": 13,
+          "min_rank": 96230,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 276,
+          "school_name": "广州中医药大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 423,
+          "major_name": "康复治疗学",
+          "year": 2024,
+          "min_score": 575,
+          "score_margin": 0,
+          "min_rank": 80972,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 282,
+          "school_name": "天津中医药大学",
+          "school_province": "天津",
+          "school_city": "静海区",
+          "major_id": null,
+          "major_name": "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+          "year": 2024,
+          "min_score": 492,
+          "score_margin": 83,
+          "min_rank": 178059,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        },
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 393,
+          "major_name": "食品卫生与营养学",
+          "year": 2021,
+          "min_score": 565,
+          "score_margin": 10,
+          "min_rank": 207,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "石河子大学",
+        "石河子大学",
+        "南京中医药大学",
+        "成都中医药大学",
+        "青海大学"
+      ],
+      "accepted_major_examples": [
+        "药学",
+        "中药学",
+        "护理学",
+        "康复治疗学",
+        "预防医学(咸嘉湖校区)",
+        "医学技术类(含医学检验技术,医学实验技术,医学影像技术专业)",
+        "食品卫生与营养学"
+      ],
+      "years_used": [
+        2025,
+        2024,
+        2021
+      ],
+      "stage_attempts": [
+        {
+          "stage": 1,
+          "label": "同叶子簇变体",
+          "strategy": "same_leaf_variants",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 4,
+          "filtered_volunteer_count": 2,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2025,
+            2023
+          ],
+          "skipped": {
+            "duplicate_option": 2,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2025,
+            2023,
+            2021
+          ]
+        },
+        {
+          "stage": 2,
+          "label": "同父节点近邻簇",
+          "strategy": "sibling_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 1,
+          "filtered_volunteer_count": 1,
+          "recommendation_threshold": 10,
+          "accepted": false,
+          "failure_reason": "below_threshold",
+          "years_used": [
+            2024
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 0,
+            "special_major": 0
+          },
+          "years_considered": [
+            2024
+          ]
+        },
+        {
+          "stage": 3,
+          "label": "上层大类近邻簇",
+          "strategy": "cousin_leaf_clusters",
+          "stage_relaxation_kind": "clinical_to_medtech",
+          "raw_candidate_count": 16,
+          "filtered_volunteer_count": 10,
+          "recommendation_threshold": 10,
+          "accepted": true,
+          "failure_reason": null,
+          "years_used": [
+            2025,
+            2024,
+            2021
+          ],
+          "skipped": {
+            "duplicate_option": 0,
+            "school_cap": 5,
+            "special_major": 1
+          },
+          "years_considered": [
+            2025,
+            2024,
+            2022,
+            2021
+          ]
+        }
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "可以从临床医学按专业簇层级逐步妥协到第3阶段上层大类近邻簇"
+    },
+    "initial_utterance": "我575分，只想读临床医学，其他医学相关专业先别推荐。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_major_switch": true,
+      "require_cluster_level_relaxation": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_medtech_set": [
+        "石河子大学",
+        "石河子大学",
+        "南京中医药大学",
+        "成都中医药大学",
+        "青海大学"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我575分，只想读临床医学，其他医学相关专业先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我还需要补充：3门选考科目。",
+      "internal_state": {
+        "target": "hard_constraint",
+        "constraints": {
+          "score": 575,
+          "province": "浙江",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": null
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "major_relax": [],
+          "major_geo_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [
+          "selected_subjects"
+        ],
+        "recommended_schools": []
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "我的选考是物理、化学、生物。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "系统在补齐必要约束，继续提供选科。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "按你当前坚持的硬约束，可直接考虑：\n- 湖州师范学院｜浙江｜临床医学｜最低分 575\n- 湖州师范学院｜浙江｜临床医学｜最低分 575\n- 湖州师范学院｜浙江｜临床医学｜最低分 574",
+      "internal_state": {
+        "target": "hard_constraint",
+        "constraints": {
+          "score": 575,
+          "province": "浙江",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ]
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 61568,
+            "year": 2023,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化+生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "575",
+            "min_rank": 78869,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 87084,
+            "year": 2023,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "575",
+            "min_rank": 78869,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 128674,
+            "year": 2021,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化,生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "574",
+            "min_rank": 71079,
+            "tuition": "6300",
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "major_relax": [],
+          "major_geo_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "湖州师范学院",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "575",
+            "tier": 2
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "还是不太能接受，除非你给出更具体的学校和分数对比。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "还没有看到足够具体且命中隐藏妥协条件的证据。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "按你当前坚持的硬约束，可直接考虑：\n- 湖州师范学院｜浙江｜临床医学｜最低分 575\n- 湖州师范学院｜浙江｜临床医学｜最低分 575\n- 湖州师范学院｜浙江｜临床医学｜最低分 574",
+      "internal_state": {
+        "target": "hard_constraint",
+        "constraints": {
+          "score": 575,
+          "province": "浙江",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ]
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 61568,
+            "year": 2023,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化+生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "575",
+            "min_rank": 78869,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 87084,
+            "year": 2023,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "575",
+            "min_rank": 78869,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 128674,
+            "year": 2021,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化,生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "574",
+            "min_rank": 71079,
+            "tuition": "6300",
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "major_relax": [],
+          "major_geo_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "湖州师范学院",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "575",
+            "tier": 2
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "还是不太能接受，除非你给出更具体的学校和分数对比。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "还没有看到足够具体且命中隐藏妥协条件的证据。"
+      }
+    }
+  ]
+}

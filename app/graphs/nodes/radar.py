@@ -21,6 +21,7 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
     print(
         "[radar] opportunities="
         f"geo:{len(opportunities.get('geo_relax', []))} "
-        f"major:{len(opportunities.get('major_relax', []))}"
+        f"major:{len(opportunities.get('major_relax', []))} "
+        f"major_geo:{len(opportunities.get('major_geo_relax', []))}"
     )
     return {"pareto_opportunities": opportunities}

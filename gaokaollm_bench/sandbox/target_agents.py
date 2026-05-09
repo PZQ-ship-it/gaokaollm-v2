@@ -55,7 +55,11 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                 "target": "hard_constraint",
                 "constraints": dict(self.constraints),
                 "baseline_results": [],
-                "pareto_opportunities": {"geo_relax": [], "major_relax": []},
+                "pareto_opportunities": {
+                    "geo_relax": [],
+                    "major_relax": [],
+                    "major_geo_relax": [],
+                },
                 "score_waste": 0,
                 "missing_constraints": missing,
                 "recommended_schools": [],
@@ -67,7 +71,11 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
             "target": "hard_constraint",
             "constraints": dict(self.constraints),
             "baseline_results": baseline,
-            "pareto_opportunities": {"geo_relax": [], "major_relax": []},
+            "pareto_opportunities": {
+                "geo_relax": [],
+                "major_relax": [],
+                "major_geo_relax": [],
+            },
             "score_waste": _score_waste(self.constraints, baseline),
             "missing_constraints": [],
             "recommended_schools": _recommended_schools(baseline),
@@ -90,6 +98,7 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
         "pareto_opportunities": {
             "geo_relax": list(opportunities.get("geo_relax") or []),
             "major_relax": list(opportunities.get("major_relax") or []),
+            "major_geo_relax": list(opportunities.get("major_geo_relax") or []),
         },
         "score_waste": int(result.get("score_waste") or 0),
         "missing_constraints": list(result.get("missing_constraints") or []),
@@ -97,6 +106,7 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             baseline,
             opportunities.get("geo_relax") or [],
             opportunities.get("major_relax") or [],
+            opportunities.get("major_geo_relax") or [],
         ),
     }
 
@@ -161,7 +171,18 @@ def _fallback_extract_constraints(text: str) -> dict[str, Any]:
             extracted["province"] = province
             break
 
-    if any(token in text for token in ("外省", "全国", "地域不限", "地区不限")):
+    if any(
+        token in text
+        for token in (
+            "全国",
+            "地域不限",
+            "地区不限",
+            "外省也可以",
+            "外省也可考虑",
+            "可以出省",
+            "接受外省",
+        )
+    ):
         extracted["province"] = None
 
     if "临床" in text:
@@ -210,7 +231,7 @@ def _merge_constraints(
 ) -> dict[str, Any]:
     merged = {
         "score": None,
-        "province": None,
+        "province": "浙江",
         "major": None,
         "budget": 100000,
         "selected_subjects": None,

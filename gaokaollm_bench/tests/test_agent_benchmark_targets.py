@@ -30,7 +30,10 @@ class FakeGraph:
         return {
             "messages": [
                 SimpleNamespace(
-                    content="选项A：可以看山东大学。选项B：可以看医学技术。"
+                    content=(
+                        "选项A：可以看山东大学。选项B：可以看医学技术。"
+                        "联合方案：可以看西南交通大学生物医学工程，最低分597。"
+                    )
                 )
             ],
             "constraints": {
@@ -59,6 +62,15 @@ class FakeGraph:
                     }
                 ],
                 "major_relax": [],
+                "major_geo_relax": [
+                    {
+                        "school_name": "西南交通大学",
+                        "school_province": "四川",
+                        "major_name": "生物医学工程",
+                        "min_score": 597,
+                        "tier": 3,
+                    }
+                ],
             },
             "score_waste": 10,
             "missing_constraints": [],
@@ -126,6 +138,31 @@ def build_persona():
     )
 
 
+async def evaluate_by_joint_school(transcript, *, judge_llm):
+    combined = "\n".join(turn.content for turn in transcript.turns)
+    success = "西南交通大学" in combined and "最低分" in combined
+    return SimpleNamespace(
+        hallucination_rate=0.0,
+        elicitation_success=success,
+        pareto_gain=1 if success else 0,
+        judge_reasoning=(
+            "命中联合放宽学校和分数证据。"
+            if success
+            else "未命中联合放宽学校和分数证据。"
+        ),
+        model_copy=lambda update: SimpleNamespace(
+            hallucination_rate=update.get("hallucination_rate", 0.0),
+            elicitation_success=success,
+            pareto_gain=1 if success else 0,
+            judge_reasoning=(
+                "命中联合放宽学校和分数证据。"
+                if success
+                else "未命中联合放宽学校和分数证据。"
+            ),
+        ),
+    )
+
+
 @pytest.mark.asyncio
 async def test_app_graph_target_agent_preserves_auditable_state():
     target = AppGraphTargetAgent(thread_id="case-thread", graph=FakeGraph())
@@ -137,8 +174,10 @@ async def test_app_graph_target_agent_preserves_auditable_state():
     assert state["constraints"]["score"] == 600
     assert state["baseline_results"]
     assert state["pareto_opportunities"]["geo_relax"]
+    assert state["pareto_opportunities"]["major_geo_relax"]
     assert state["recommended_schools"][0]["school"] == "北京学院"
     assert state["recommended_schools"][1]["school"] == "山东大学"
+    assert state["recommended_schools"][2]["school"] == "西南交通大学"
 
 
 @pytest.mark.asyncio
@@ -150,7 +189,11 @@ async def test_hard_constraint_baseline_only_reports_baseline():
     assert "按你当前坚持的硬约束" in reply
     assert state["target"] == "hard_constraint"
     assert state["baseline_results"]
-    assert state["pareto_opportunities"] == {"geo_relax": [], "major_relax": []}
+    assert state["pareto_opportunities"] == {
+        "geo_relax": [],
+        "major_relax": [],
+        "major_geo_relax": [],
+    }
     assert state["recommended_schools"] == [
         {
             "school": "北京学院",
@@ -236,5 +279,88 @@ async def test_agent_benchmark_cli_smoke_writes_outputs(monkeypatch):
     assert metrics["mean_pareto_gain"] == 2.0
     assert metrics["mean_hallucination_rate"] == 0.0
     assert metrics["avg_turns"] == 3.0
+
+    shutil.rmtree(work_dir)
+
+
+@pytest.mark.asyncio
+async def test_agent_benchmark_smoke_app_beats_hard_constraint(monkeypatch):
+    work_dir = Path("gaokaollm_bench/tests/_agent_benchmark_joint_output")
+    if work_dir.exists():
+        shutil.rmtree(work_dir)
+    work_dir.mkdir(parents=True)
+
+    persona_path = work_dir / "personas.json"
+    persona = build_persona().model_copy(
+        update={
+            "implicit_flexibilities": {
+                "trigger_school": "西南交通大学",
+                "volunteer_set": [
+                    {
+                        "school_name": "西南交通大学",
+                        "major_name": "生物医学工程",
+                        "min_score": 597,
+                        "tier": 3,
+                    }
+                ],
+            }
+        }
+    )
+    persona_path.write_text(
+        json.dumps([persona.model_dump()], ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    def fake_build_target(name, case_id):
+        if name == "app_pareto":
+            return AppGraphTargetAgent(
+                thread_id=f"bench-{case_id}",
+                graph=FakeGraph(expected_thread_id=f"bench-{case_id}"),
+            )
+        return HardConstraintBaselineAgent(db=FakeDb())
+
+    monkeypatch.setattr(
+        "gaokaollm_bench.tests.manual.agent_benchmark_run.build_target",
+        fake_build_target,
+    )
+    monkeypatch.setattr(
+        "gaokaollm_bench.tests.manual.agent_benchmark_run.evaluate_transcript",
+        evaluate_by_joint_school,
+    )
+
+    config = RunConfig(
+        personas_path=persona_path,
+        targets=["app_pareto", "hard_constraint"],
+        max_turns=1,
+        limit=None,
+        output_dir=work_dir / "agent_benchmark",
+        judge_model="mock-judge",
+        simulator_model="mock-simulator",
+        paper_summary_path=None,
+    )
+    personas = load_personas(persona_path)
+    rows = []
+    for target_name in config.targets:
+        rows.extend(
+            await run_target_cases(
+                target_name=target_name,
+                personas=personas,
+                config=config,
+                simulator_llm=FakeSimulatorLlm(),
+                judge_llm=FakeJudgeLlm(),
+            )
+        )
+    summary = write_summary_files(config=config, personas=personas, rows=rows)
+
+    assert (
+        summary["targets"]["app_pareto"]["elicitation_success_rate"]
+        > summary["targets"]["hard_constraint"]["elicitation_success_rate"]
+    )
+    assert (
+        summary["targets"]["app_pareto"]["mean_pareto_gain"]
+        > summary["targets"]["hard_constraint"]["mean_pareto_gain"]
+    )
+    assert (config.output_dir / "summary.json").exists()
+    assert (config.output_dir / "summary.md").exists()
 
     shutil.rmtree(work_dir)

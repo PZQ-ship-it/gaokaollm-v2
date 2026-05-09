@@ -11,7 +11,7 @@ from app.schemas.state import AgentState
 
 DEFAULT_CONSTRAINTS = {
     "score": None,
-    "province": None,
+    "province": "浙江",
     "major": None,
     "budget": 100000,
     "selected_subjects": None,
@@ -89,7 +89,16 @@ def _fallback_extract(text: str) -> dict[str, Any]:
 
     if any(
         token in text
-        for token in ("外省", "全国", "地域不限", "地区不限", "哪里都可以")
+        for token in (
+            "全国",
+            "地域不限",
+            "地区不限",
+            "哪里都可以",
+            "外省也可以",
+            "外省也可考虑",
+            "可以出省",
+            "接受外省",
+        )
     ):
         extracted["province"] = None
         extracted["province_relaxed"] = True

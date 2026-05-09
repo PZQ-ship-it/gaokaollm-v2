@@ -26,6 +26,7 @@ def _compact(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def _fallback_reply(evidence: dict[str, Any]) -> str:
     geo = evidence.get("geo_relax") or []
     major = evidence.get("major_relax") or []
+    joint = evidence.get("major_geo_relax") or []
 
     def _line(row: dict[str, Any]) -> str:
         return (
@@ -42,10 +43,15 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
     if major:
         major_text = "；".join(_line(row) for row in major[:3])
 
+    joint_text = "暂时没有发现同时放宽地域和专业后的更高层次机会。"
+    if joint:
+        joint_text = "；".join(_line(row) for row in joint[:5])
+
     return (
         "我先不替你做决定，只把可核验的数据摆出来。\n"
         f"选项A：如果只放松地域，可以比较：{geo_text}\n"
         f"选项B：如果只放松专业，可以比较：{major_text}\n"
+        f"联合方案：如果同时放宽地域和专业，可以重点比较：{joint_text}\n"
         "你可以先挑一个最不排斥的方向，我再继续收窄。"
     )
 
@@ -58,6 +64,7 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         "baseline_results": _compact(state.get("baseline_results", [])),
         "geo_relax": _compact(opportunities.get("geo_relax", [])),
         "major_relax": _compact(opportunities.get("major_relax", [])),
+        "major_geo_relax": _compact(opportunities.get("major_geo_relax", [])),
     }
 
     llm = get_chat_model()
@@ -67,6 +74,8 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
                 "你是高考志愿谈判官。只能基于给定真实数据说话。"
                 "输出一个简洁中文回复，必须包含“选项A”和“选项B”。"
                 "选项A对应放松地域，选项B对应放松专业；不要替用户做最终决定。"
+                "如果 evidence 中存在 major_geo_relax，要把它作为联合放宽方案重点说明，"
+                "并给出具体学校、专业和最低分。"
             )
         ),
         SystemMessage(content=json.dumps(evidence, ensure_ascii=False, default=str)),

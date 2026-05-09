@@ -299,6 +299,7 @@ def render_summary_md(summary: dict[str, Any]) -> str:
         f"- Simulator model: {run.get('simulator_model') or 'not recorded'}",
         f"- Judge model: {run.get('judge_model') or 'not recorded'}",
         f"- Offline deterministic: {run.get('offline_deterministic', False)}",
+        "- Default province when omitted by the user: `浙江`",
         "",
         "## Aggregate Results",
         "",
@@ -323,8 +324,11 @@ def render_summary_md(summary: dict[str, Any]) -> str:
             "",
             "The agent contribution is evaluated as evidence-driven Pareto negotiation: "
             "the target should expose verifiable counterfactual options rather than only "
-            "echoing hard constraints. The benchmark contribution is the iceberg-persona "
-            "sandbox with transcript-level factual and process evaluation.",
+            "echoing hard constraints. In this run, `app_pareto` is expected to use "
+            "`major_geo_relax`, a joint major-and-region relaxation path aligned with "
+            "the `major_hierarchy` persona construction. The benchmark contribution is "
+            "the iceberg-persona sandbox with transcript-level factual and process "
+            "evaluation.",
             "",
             "## Case Notes",
             "",
