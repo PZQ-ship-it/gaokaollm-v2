@@ -26,6 +26,15 @@ def parse_llm_json(content: str) -> Any:
     return json.loads(text or "{}")
 
 
+def _looks_like_invalid_major_name(value: Any) -> bool:
+    text = str(value or "").strip()
+    if not text:
+        return True
+    if text in {":", "：", "-", "null", "None"}:
+        return True
+    return all(ch in ":：-_/\\|,.，。;； " for ch in text)
+
+
 def repair_json_text(content: Any) -> str:
     """Return parseable JSON text for LangChain JsonOutputParser.
 
@@ -188,6 +197,9 @@ def repair_major_payload(
         notes.append("empty_label_to_null")
 
     repaired_major = payload.get("major_name") or payload.get("text") or major_name
+    if _looks_like_invalid_major_name(repaired_major):
+        repaired_major = major_name
+        notes.append("replaced_invalid_major_name")
     label_valid = selected in valid_labels
     schema_valid = isinstance(repaired_major, str) and (
         label_valid or (allow_null and selected is None)

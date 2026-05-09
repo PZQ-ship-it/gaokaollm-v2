@@ -116,21 +116,55 @@ async def _classify_with_lcel(
         "labels_only": chain_input.labels_only,
     }
     messages = direct_prompt(chain_input)
-    raw_chain = (
-        ChatPromptTemplate.from_messages(
-            [("system", "{system_prompt}"), ("user", "{payload}")]
-        )
-        | _bind_response_format(
-            chat_model,
-            direct_response_format(
-                chain_input.labels, allow_null=chain_input.allow_null
-            ),
-        )
-        | StrOutputParser()
+    prompt = ChatPromptTemplate.from_messages(
+        [("system", "{system_prompt}"), ("user", "{payload}")]
     )
-    raw_content = await raw_chain.ainvoke(
-        {"system_prompt": messages[0]["content"], "payload": messages[1]["content"]}
-    )
+    prompt_payload = {
+        "system_prompt": messages[0]["content"],
+        "payload": messages[1]["content"],
+    }
+    response_mode = "lcel_json_schema"
+    try:
+        raw_chain = (
+            prompt
+            | _bind_response_format(
+                chat_model,
+                direct_response_format(
+                    chain_input.labels, allow_null=chain_input.allow_null
+                ),
+            )
+            | StrOutputParser()
+        )
+        raw_content = await raw_chain.ainvoke(prompt_payload)
+    except Exception as schema_exc:
+        response_mode = "lcel_json_object_fallback"
+        try:
+            raw_chain = (
+                prompt
+                | _bind_response_format(chat_model, {"type": "json_object"})
+                | StrOutputParser()
+            )
+            raw_content = await raw_chain.ainvoke(prompt_payload)
+        except Exception:
+            return ChainResult(
+                major_name=chain_input.major_name,
+                selected_label=None,
+                raw_content="{}",
+                parsed_json={},
+                repaired_json={
+                    "major_name": chain_input.major_name,
+                    "selected_label": None,
+                    "schema_valid": False,
+                    "label_valid": False,
+                    "raw_output": {},
+                },
+                validated_output=None,
+                schema_valid=False,
+                label_valid=False,
+                repair_notes=[],
+                response_mode="lcel_error",
+                error=f"{type(schema_exc).__name__}: {schema_exc}",
+            )
     parser_chain = RunnableLambda(
         lambda parser_state: repair_major_classification_json_text(
             parser_state,
@@ -165,7 +199,7 @@ async def _classify_with_lcel(
         schema_valid=bool(repaired.get("schema_valid")),
         label_valid=bool(repaired.get("label_valid")),
         repair_notes=list(repaired.get("repair_notes") or []),
-        response_mode="lcel_json_parser",
+        response_mode=response_mode,
         error=error,
     )
 
