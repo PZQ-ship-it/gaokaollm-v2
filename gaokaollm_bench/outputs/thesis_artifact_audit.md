@@ -1,6 +1,6 @@
 # Thesis Artifact Audit
 
-- Created at: `2026-05-10T02:15:33`
+- Created at: `2026-05-10T02:26:47`
 - Experiments: `major_geo_v1, risk_band_v1`
 - Overall: `PASS`
 
@@ -17,6 +17,7 @@
 | Check | Status | Detail |
 |---|---|---|
 | `core_docs_cover_dual_experiment_terms` | PASS | all thesis narrative docs mention major_geo/risk_band experiments and relaxation capabilities |
+| `intro_related_work_chapters_match_thesis_claims` | PASS | intro/related-work draft covers contribution framing, dual metrics, hidden-field boundary, and the known major_geo failure |
 | `v1_v2_plan_positions_versions_correctly` | PASS | v1/v2 plan frames v1 as prototype and v2 as final contribution |
 | `dynamic_relaxation_overview_matches_current_scope` | PASS | dynamic overview marks risk_band_relax implemented and keeps city/tuition/employment/strength as future work |
 | `narrative_docs_keep_hidden_persona_boundary` | PASS | narrative docs state Agent does not read hidden persona fields |
@@ -156,6 +157,7 @@
 | `gaokaollm_bench\outputs\agent_benchmark_risk_band_v1\transcripts\hard_constraint\transcript_real-db-set-浙江-606-010.json` | `444af5c120e1ed6961e620fe8add0a8d699ff23a1c9605ca1df2a17ed7b4d4ed` |
 | `gaokaollm_bench\outputs\agent_benchmark_risk_band_v1_evidence.md` | `7346693bf69c052cb5ce8b33c26f92d37d8537262159420407f0d8445c812342` |
 | `gaokaollm_bench\outputs\thesis_agent_benchmark_contribution.md` | `924a469da5a00ba21072ae563ed48a970549f96906449b9ba9a1ab3cd0682ab5` |
+| `gaokaollm_bench\outputs\thesis_intro_related_work_chapters.md` | `72505dee3b9bf6d135ca5103fec3a4009b843ba2f1dc35f438fbbc95c43954b6` |
 | `gaokaollm_bench\outputs\thesis_method_experiment_chapters.md` | `02449b18c5e86b71755dd4e73ff6a8a9ac03572139544dfba58e33c31a4b2254` |
 | `gaokaollm_bench\outputs\thesis_v1_v2_integration_plan.md` | `d2a3a8812a7ca0f872ae9db404983a3f57e3aef63dbf19371cd481ac281e0b03` |
 | `gaokaollm_bench\放宽与跃迁.md` | `c5c4ff65bfa9276ff3ad3f9e9bd47f0415e020cb2f6861fa13093b9030ad4a04` |

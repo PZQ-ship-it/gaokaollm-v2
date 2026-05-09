@@ -15,6 +15,7 @@ TARGET_APP = "app_pareto"
 TARGET_BASELINE = "hard_constraint"
 
 DEFAULT_THESIS_DOCS = [
+    Path("gaokaollm_bench/outputs/thesis_intro_related_work_chapters.md"),
     Path("gaokaollm_bench/outputs/thesis_agent_benchmark_contribution.md"),
     Path("gaokaollm_bench/outputs/thesis_method_experiment_chapters.md"),
     Path("gaokaollm_bench/outputs/thesis_v1_v2_integration_plan.md"),
@@ -46,6 +47,26 @@ DYNAMIC_RELAXATION_REQUIRED_TERMS = (
     "就业导向",
     "学科实力",
     "后续工作",
+)
+
+INTRO_RELATED_REQUIRED_TERMS = (
+    "绪论",
+    "相关技术",
+    "Agent 贡献",
+    "Benchmark 贡献",
+    "major_geo_relax",
+    "risk_band_relax",
+    "app_pareto",
+    "hard_constraint",
+    "0.900 / 0.900 / 0.000 / 5.20",
+    "1.000 / 3.000 / 0.000 / 5.00",
+    "工程原型与问题来源",
+    "v2 是最终主贡献",
+    "Agent 不读取",
+    "implicit_flexibilities",
+    "volunteer_set",
+    "real-db-set-浙江-569-009",
+    "100% 成功",
 )
 
 
@@ -366,6 +387,26 @@ def audit_narrative_docs(thesis_docs: list[Path]) -> list[Check]:
         )
         if not missing_core_terms
         else "missing terms: " + ", ".join(missing_core_terms),
+    )
+
+    intro_doc = Path("gaokaollm_bench/outputs/thesis_intro_related_work_chapters.md")
+    intro_text = intro_doc.read_text(encoding="utf-8") if intro_doc.exists() else ""
+    missing_intro_terms = [
+        term for term in INTRO_RELATED_REQUIRED_TERMS if term not in intro_text
+    ]
+    add_check(
+        checks,
+        "intro_related_work_chapters_match_thesis_claims",
+        intro_doc.exists() and not missing_intro_terms,
+        (
+            "intro/related-work draft covers contribution framing, dual metrics, "
+            "hidden-field boundary, and the known major_geo failure"
+        )
+        if intro_doc.exists() and not missing_intro_terms
+        else (
+            f"{intro_doc} missing terms: "
+            + ", ".join(missing_intro_terms or ["file missing"])
+        ),
     )
 
     v1_v2_doc = Path("gaokaollm_bench/outputs/thesis_v1_v2_integration_plan.md")
