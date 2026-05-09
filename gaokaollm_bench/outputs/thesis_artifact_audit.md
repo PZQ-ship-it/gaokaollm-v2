@@ -1,6 +1,6 @@
 # Thesis Artifact Audit
 
-- Created at: `2026-05-10T01:47:11`
+- Created at: `2026-05-10T01:56:19`
 - Experiments: `major_geo_v1, risk_band_v1`
 - Overall: `PASS`
 
@@ -146,5 +146,5 @@
 | `gaokaollm_bench\outputs\agent_benchmark_risk_band_v1\transcripts\hard_constraint\transcript_real-db-set-浙江-605-009.json` | `5869ac2064cea7dab95a6e83d46e0ae18a52897fe0cf7dcedc3630ea78842de6` |
 | `gaokaollm_bench\outputs\agent_benchmark_risk_band_v1\transcripts\hard_constraint\transcript_real-db-set-浙江-606-010.json` | `444af5c120e1ed6961e620fe8add0a8d699ff23a1c9605ca1df2a17ed7b4d4ed` |
 | `gaokaollm_bench\outputs\agent_benchmark_risk_band_v1_evidence.md` | `7346693bf69c052cb5ce8b33c26f92d37d8537262159420407f0d8445c812342` |
-| `gaokaollm_bench\outputs\thesis_agent_benchmark_contribution.md` | `0d77a7cee64dfd7fd3e5cc000a1a589a4bc9a3441a20d067441d73e700a67610` |
+| `gaokaollm_bench\outputs\thesis_agent_benchmark_contribution.md` | `924a469da5a00ba21072ae563ed48a970549f96906449b9ba9a1ab3cd0682ab5` |
 | `gaokaollm_bench\outputs\thesis_method_experiment_chapters.md` | `02449b18c5e86b71755dd4e73ff6a8a9ac03572139544dfba58e33c31a4b2254` |
