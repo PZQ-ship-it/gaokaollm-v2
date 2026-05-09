@@ -52,3 +52,17 @@ class MajorReviewInput(BaseModel):
 
     major_name: str
     candidates: list[MajorLabelOption]
+
+
+class MajorReviewOutputItem(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    major_name: str
+    selected_label: str | None = None
+    reason: str = ""
+
+
+class MajorReviewOutput(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    items: list[MajorReviewOutputItem]

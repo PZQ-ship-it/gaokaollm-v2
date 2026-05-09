@@ -5,8 +5,13 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableLambda
 from pydantic import BaseModel, ConfigDict
 
+from gaokaollm_bench.chains.json_repair import repair_json_text
+from gaokaollm_bench.llm.runnable import as_lcel_chat_model
 from gaokaollm_bench.schemas import IcebergPersona
 
 
@@ -53,38 +58,22 @@ class UserSimulator:
             "请输出本轮 JSON。"
         )
 
-    async def _invoke_llm(self, prompt: str) -> Any:
-        if hasattr(self.llm_client, "ainvoke"):
-            return await self.llm_client.ainvoke(prompt)
-        if hasattr(self.llm_client, "acomplete"):
-            return await self.llm_client.acomplete(prompt)
-        if callable(self.llm_client):
-            return await self.llm_client(prompt)
-        raise TypeError("llm_client must provide ainvoke, acomplete, or be async callable")
-
-    @staticmethod
-    def _response_text(response: Any) -> str:
-        if isinstance(response, str):
-            return response
-        if isinstance(response, dict):
-            return json.dumps(response, ensure_ascii=False)
-
-        content = getattr(response, "content", response)
-        if isinstance(content, str):
-            return content
-        if isinstance(content, list):
-            for item in content:
-                if isinstance(item, dict) and item.get("type") in {"text", "output_text"}:
-                    return str(item.get("text") or "")
-
-        raise TypeError("LLM response must be JSON text, a dict, or a message with content")
+    def _chain(self):
+        chat_model = as_lcel_chat_model(self.llm_client, temperature=0)
+        return (
+            ChatPromptTemplate.from_messages([("user", "{prompt}")])
+            | chat_model
+            | StrOutputParser()
+            | RunnableLambda(repair_json_text)
+            | JsonOutputParser(pydantic_object=SimulatorStep)
+        )
 
     async def chat(self, agent_reply: str) -> str:
         """Return the simulated user's public utterance and update internal state."""
 
         prompt = self._build_prompt(agent_reply)
-        response = await self._invoke_llm(prompt)
-        step = SimulatorStep.model_validate_json(self._response_text(response))
+        parsed = await self._chain().ainvoke({"prompt": prompt})
+        step = SimulatorStep.model_validate(parsed)
 
         self.internal_state.update(
             {
@@ -94,4 +83,3 @@ class UserSimulator:
             }
         )
         return step.utterance
-

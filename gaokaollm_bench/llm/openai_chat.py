@@ -39,6 +39,29 @@ class OpenAIChatClient:
         if not self.api_key:
             raise RuntimeError(f"{ENV_OPENAI_API_KEY} is required")
 
+    def as_chat_model(
+        self,
+        *,
+        model: str | None,
+        temperature: float = 0,
+        max_tokens: int | None = None,
+    ) -> Any:
+        """Build a LangChain ChatOpenAI runnable using this client's settings."""
+
+        from langchain_openai import ChatOpenAI
+
+        kwargs: dict[str, Any] = {
+            "model": model,
+            "api_key": self.api_key,
+            "base_url": self.base_url,
+            "temperature": temperature,
+            "timeout": self.timeout,
+            "max_retries": self.max_retries,
+        }
+        if max_tokens is not None:
+            kwargs["max_tokens"] = max_tokens
+        return ChatOpenAI(**kwargs)
+
     async def complete_json(
         self,
         *,

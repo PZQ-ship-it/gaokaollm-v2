@@ -4,8 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from gaokaollm_bench.llm.response_utils import invoke_text_llm, json_text_from_response
-from gaokaollm_bench.prompts.persona_prompts import build_persona_synthesis_prompt
+from gaokaollm_bench.chains.persona_synthesis import synthesize_persona_with_chain
 from gaokaollm_bench.schemas import IcebergPersona
 
 
@@ -14,11 +13,7 @@ async def synthesize_persona(
 ) -> IcebergPersona:
     """Synthesize and validate a stubborn persona from verified gap data."""
 
-    if not gap_data:
-        raise ValueError("gap_data is required to synthesize an IcebergPersona")
-
-    prompt = build_persona_synthesis_prompt(gap_data)
-    response = await invoke_text_llm(llm_client, prompt)
-    payload = json_text_from_response(response)
-
-    return IcebergPersona.model_validate_json(payload)
+    return await synthesize_persona_with_chain(
+        gap_data=gap_data,
+        llm_client=llm_client,
+    )

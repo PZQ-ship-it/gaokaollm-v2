@@ -26,6 +26,82 @@ def parse_llm_json(content: str) -> Any:
     return json.loads(text or "{}")
 
 
+def repair_json_text(content: Any) -> str:
+    """Return parseable JSON text for LangChain JsonOutputParser.
+
+    This intentionally stays dependency-light: it handles fenced JSON and common
+    extra prose by extracting the outermost object/list before falling back to
+    the original text, letting JsonOutputParser raise a clear validation error.
+    """
+
+    if isinstance(content, (dict, list)):
+        return json.dumps(content, ensure_ascii=False)
+    text = str(content or "").strip()
+    try:
+        return json.dumps(parse_llm_json(text), ensure_ascii=False)
+    except Exception:
+        pass
+
+    starts = [idx for idx in (text.find("{"), text.find("[")) if idx >= 0]
+    if not starts:
+        return text
+    start = min(starts)
+    end = max(text.rfind("}"), text.rfind("]"))
+    if end > start:
+        candidate = text[start : end + 1]
+        try:
+            return json.dumps(parse_llm_json(candidate), ensure_ascii=False)
+        except Exception:
+            return candidate
+    return text
+
+
+def repair_major_classification_json_text(
+    state: dict[str, Any],
+    *,
+    label_options: Sequence[MajorLabelOption | dict[str, Any]],
+    allow_null: bool = False,
+) -> str:
+    """Repair direct-classification output into the Pydantic parser shape."""
+
+    raw_content = state.get("raw_content", "")
+    try:
+        parsed = parse_llm_json(raw_content)
+    except Exception:
+        parsed = {}
+    repaired = repair_major_payload(
+        parsed,
+        major_name=str(state.get("major_name") or ""),
+        label_options=label_options,
+        allow_null=allow_null,
+    )
+    selected_label = (
+        repaired.get("selected_label") if repaired.get("label_valid") else None
+    )
+    return json.dumps(
+        {
+            "major_name": repaired.get("major_name"),
+            "selected_label": selected_label,
+        },
+        ensure_ascii=False,
+    )
+
+
+def repair_major_review_json_text(state: dict[str, Any]) -> str:
+    """Repair review output into {"items": [...]} for Pydantic parsing."""
+
+    raw_content = state.get("raw_content", "")
+    try:
+        parsed = parse_llm_json(raw_content)
+    except Exception:
+        parsed = {}
+    repaired = repair_review_payload(
+        parsed,
+        expected_items=list(state.get("items") or []),
+    )
+    return json.dumps({"items": list(repaired.values())}, ensure_ascii=False)
+
+
 def label_schema(
     label_options: Sequence[MajorLabelOption | dict[str, Any]],
     *,
