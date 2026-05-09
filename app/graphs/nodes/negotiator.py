@@ -23,6 +23,33 @@ def _compact(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return compacted
 
 
+def _fallback_reply(evidence: dict[str, Any]) -> str:
+    geo = evidence.get("geo_relax") or []
+    major = evidence.get("major_relax") or []
+
+    def _line(row: dict[str, Any]) -> str:
+        return (
+            f"{row.get('school')}（{row.get('province')}）"
+            f"{row.get('major')}，最低分 {row.get('min_score')}，"
+            f"层次 {row.get('tier')}"
+        )
+
+    geo_text = "暂时没有发现比当前硬约束更高层次的地域放宽机会。"
+    if geo:
+        geo_text = "；".join(_line(row) for row in geo[:3])
+
+    major_text = "暂时没有发现比当前硬约束更高层次的专业放宽机会。"
+    if major:
+        major_text = "；".join(_line(row) for row in major[:3])
+
+    return (
+        "我先不替你做决定，只把可核验的数据摆出来。\n"
+        f"选项A：如果只放松地域，可以比较：{geo_text}\n"
+        f"选项B：如果只放松专业，可以比较：{major_text}\n"
+        "你可以先挑一个最不排斥的方向，我再继续收窄。"
+    )
+
+
 async def negotiator_node(state: AgentState) -> dict[str, Any]:
     print("[negotiator] generating options")
     opportunities = state.get("pareto_opportunities", {})
@@ -44,5 +71,13 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         ),
         SystemMessage(content=json.dumps(evidence, ensure_ascii=False, default=str)),
     ]
-    response = await llm.ainvoke(prompt)
-    return {"messages": [AIMessage(content=str(response.content))]}
+    try:
+        response = await llm.ainvoke(prompt)
+        content = str(response.content)
+    except Exception as exc:
+        print(
+            "[negotiator] llm_generation_failed="
+            f"{type(exc).__name__}; using fallback reply"
+        )
+        content = _fallback_reply(evidence)
+    return {"messages": [AIMessage(content=content)]}

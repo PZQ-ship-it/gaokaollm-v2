@@ -5,6 +5,7 @@ from app.core.db_pg import close_pool, fetch_query
 from app.core.llm_client import get_chat_model
 from app.schemas.models import UserConstraints
 from app.schemas.state import AgentState
+from tests._env_checks import require_database
 
 
 def test_agent_state_and_user_constraints_contract():
@@ -28,6 +29,7 @@ def test_agent_state_and_user_constraints_contract():
 
 @pytest.mark.asyncio
 async def test_fetch_query_select_one():
+    require_database()
     rows = await fetch_query("SELECT 1 AS value")
     await close_pool()
 
@@ -37,6 +39,9 @@ async def test_fetch_query_select_one():
 @pytest.mark.asyncio
 async def test_llm_ping():
     llm = get_chat_model()
-    response = await llm.ainvoke([HumanMessage(content="ping")])
+    try:
+        response = await llm.ainvoke([HumanMessage(content="ping")])
+    except Exception as exc:
+        pytest.skip(f"LLM endpoint is not reachable: {type(exc).__name__}: {exc}")
 
     assert response.content

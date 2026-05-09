@@ -7,10 +7,14 @@ from app.schemas.state import AgentState
 async def radar_node(state: AgentState) -> dict[str, Any]:
     baseline = state.get("baseline_results", [])
     score_waste = int(state.get("score_waste") or 0)
+    constraints = state.get("constraints", {})
+    has_negotiable_constraint = bool(
+        constraints.get("province") or constraints.get("major")
+    )
 
     print(f"[radar] baseline={len(baseline)} score_waste={score_waste}")
-    if score_waste > 15 or not baseline:
-        opportunities = await run_all_probes(state.get("constraints", {}))
+    if score_waste > 15 or not baseline or has_negotiable_constraint:
+        opportunities = await run_all_probes(constraints)
     else:
         opportunities = {"geo_relax": [], "major_relax": []}
 

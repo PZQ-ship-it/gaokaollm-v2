@@ -3,6 +3,7 @@ import pytest
 from app.core.db_pg import close_pool
 from app.flows.probers import run_baseline
 from app.schemas.models import UserConstraints
+from tests._env_checks import require_database
 
 
 SCIENCE_CONSTRAINTS = {
@@ -46,20 +47,32 @@ def test_user_constraints_accept_selected_subjects():
 
 @pytest.mark.asyncio
 async def test_baseline_filters_by_satisfied_subject_requirements():
+    require_database()
     baseline = await run_baseline(SCIENCE_CONSTRAINTS)
     await close_pool()
 
     selected_subjects = set(SCIENCE_CONSTRAINTS["selected_subjects"])
     assert baseline
-    assert all(_subject_requirement_is_satisfied(row, selected_subjects) for row in baseline)
+    assert all(
+        _subject_requirement_is_satisfied(row, selected_subjects) for row in baseline
+    )
 
 
 @pytest.mark.asyncio
 async def test_baseline_filters_out_unsatisfied_medical_requirements():
-    unfiltered = await run_baseline({key: value for key, value in SCIENCE_CONSTRAINTS.items() if key != "selected_subjects"})
+    require_database()
+    unfiltered = await run_baseline(
+        {
+            key: value
+            for key, value in SCIENCE_CONSTRAINTS.items()
+            if key != "selected_subjects"
+        }
+    )
     baseline = await run_baseline(LIBERAL_CONSTRAINTS)
     await close_pool()
 
     forbidden = {"物理", "化学", "生物"}
     assert unfiltered
-    assert all(not (set(row["requirement_normalized"] or []) & forbidden) for row in baseline)
+    assert all(
+        not (set(row["requirement_normalized"] or []) & forbidden) for row in baseline
+    )

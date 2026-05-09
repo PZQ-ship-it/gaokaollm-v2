@@ -3,10 +3,12 @@ from langchain_core.messages import HumanMessage
 
 from app.core.db_pg import close_pool
 from app.graphs.workflow import build_graph
+from tests._env_checks import require_database
 
 
 @pytest.mark.asyncio
 async def test_graph_invocation_negotiates_with_real_probe_data(capsys):
+    require_database()
     graph = build_graph()
 
     result = await graph.ainvoke(

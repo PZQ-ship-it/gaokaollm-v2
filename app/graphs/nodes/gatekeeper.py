@@ -87,7 +87,10 @@ def _fallback_extract(text: str) -> dict[str, Any]:
             extracted["province"] = province
             break
 
-    if any(token in text for token in ("外省", "全国", "地域不限", "地区不限", "哪里都可以")):
+    if any(
+        token in text
+        for token in ("外省", "全国", "地域不限", "地区不限", "哪里都可以")
+    ):
         extracted["province"] = None
         extracted["province_relaxed"] = True
 
@@ -142,7 +145,9 @@ def _normalize_major(value: Any) -> str:
     return major
 
 
-def _merge_constraints(current: dict[str, Any], extracted: dict[str, Any]) -> dict[str, Any]:
+def _merge_constraints(
+    current: dict[str, Any], extracted: dict[str, Any]
+) -> dict[str, Any]:
     merged = {**DEFAULT_CONSTRAINTS, **(current or {})}
     if extracted.get("province_relaxed"):
         merged["province"] = None
@@ -162,6 +167,7 @@ def _merge_constraints(current: dict[str, Any], extracted: dict[str, Any]) -> di
 
 
 async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, Any]:
+    fallback = _fallback_extract(text)
     llm = get_chat_model()
     prompt = [
         SystemMessage(
@@ -174,12 +180,20 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
                 "selected_subjects 只能从政治、历史、地理、物理、化学、生物、技术中抽取。"
             )
         ),
-        SystemMessage(content=f"当前已知约束: {json.dumps(current or {}, ensure_ascii=False)}"),
+        SystemMessage(
+            content=f"当前已知约束: {json.dumps(current or {}, ensure_ascii=False)}"
+        ),
         SystemMessage(content=f"用户最新消息: {text}"),
     ]
-    response = await llm.ainvoke(prompt)
-    parsed = _json_from_text(str(response.content))
-    fallback = _fallback_extract(text)
+    try:
+        response = await llm.ainvoke(prompt)
+        parsed = _json_from_text(str(response.content))
+    except Exception as exc:
+        print(
+            "[gatekeeper] llm_extract_failed="
+            f"{type(exc).__name__}; using fallback extractor"
+        )
+        parsed = {}
     return {**fallback, **{k: v for k, v in parsed.items() if v not in (None, "")}}
 
 
@@ -200,7 +214,9 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
         if "score" in missing:
             ask_parts.append("高考分数")
         if "selected_subjects" in missing:
-            ask_parts.append("3门选考科目（政治、历史、地理、物理、化学、生物、技术中任选3门）")
+            ask_parts.append(
+                "3门选考科目（政治、历史、地理、物理、化学、生物、技术中任选3门）"
+            )
         message = AIMessage(content=f"我还需要补充：{'；'.join(ask_parts)}。")
         return {
             "messages": [message],

@@ -5,6 +5,7 @@ from langchain_core.messages import HumanMessage
 from app.core.db_pg import close_pool
 from app.graphs.workflow import build_graph
 from main import app
+from tests._env_checks import require_database
 
 
 @pytest.mark.asyncio
@@ -62,6 +63,7 @@ async def test_graph_asks_only_for_subjects_when_score_exists(capsys):
 
 @pytest.mark.asyncio
 async def test_graph_continues_when_score_and_subjects_exist(capsys):
+    require_database()
     graph = build_graph()
 
     result = await graph.ainvoke(
@@ -85,6 +87,7 @@ async def test_graph_continues_when_score_and_subjects_exist(capsys):
 
 
 def test_api_memory_asks_then_uses_later_subjects():
+    require_database()
     client = TestClient(app)
     thread_id = "api-missing-subjects-thread"
 

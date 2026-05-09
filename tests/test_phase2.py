@@ -4,6 +4,7 @@ import pytest
 
 from app.core.db_pg import close_pool
 from app.flows.probers import run_all_probes, run_baseline
+from tests._env_checks import require_database
 
 
 STRICT_CONSTRAINTS = {
@@ -24,6 +25,7 @@ def test_probers_flow_has_no_llm_dependency():
 
 @pytest.mark.asyncio
 async def test_baseline_returns_only_local_ordinary_clinical_schools():
+    require_database()
     baseline = await run_baseline(STRICT_CONSTRAINTS)
     await close_pool()
 
@@ -37,6 +39,7 @@ async def test_baseline_returns_only_local_ordinary_clinical_schools():
 
 @pytest.mark.asyncio
 async def test_all_probes_find_real_higher_tier_opportunities():
+    require_database()
     baseline = await run_baseline(STRICT_CONSTRAINTS)
     opportunities = await run_all_probes(STRICT_CONSTRAINTS)
     await close_pool()
@@ -47,10 +50,14 @@ async def test_all_probes_find_real_higher_tier_opportunities():
 
     assert geo_relax
     assert all(row["tier"] > baseline_tier for row in geo_relax)
-    assert all(row["school_province"] != STRICT_CONSTRAINTS["province"] for row in geo_relax)
+    assert all(
+        row["school_province"] != STRICT_CONSTRAINTS["province"] for row in geo_relax
+    )
     assert any(row["school_name"] == "石河子大学" for row in geo_relax)
 
     assert major_relax
     assert all(row["tier"] > baseline_tier for row in major_relax)
-    assert all(row["school_province"] == STRICT_CONSTRAINTS["province"] for row in major_relax)
+    assert all(
+        row["school_province"] == STRICT_CONSTRAINTS["province"] for row in major_relax
+    )
     assert any(row["school_name"] == "宁波大学" for row in major_relax)
