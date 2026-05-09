@@ -2,7 +2,10 @@ import json
 
 import pytest
 
-from gaokaollm_bench.data_gen.db_seeder import find_hierarchical_major_relax_gap_sets
+from gaokaollm_bench.data_gen.db_seeder import (
+    find_hierarchical_major_relax_gap_sets,
+    find_risk_band_gap_sets,
+)
 from gaokaollm_bench.data_gen.generate_personas import (
     build_deterministic_persona,
     build_deterministic_persona_from_gap_set,
@@ -209,13 +212,206 @@ def test_build_deterministic_persona_from_major_relax_gap_set():
     assert restored.implicit_flexibilities["relax_scope"] == "national"
     assert restored.explicit_red_lines["major"] == "坚决只读临床医学"
     assert len(volunteer_set) == 2
-    assert {item["major_name"] for item in volunteer_set} == {"医学检验技术", "医学影像技术"}
+    assert {item["major_name"] for item in volunteer_set} == {
+        "医学检验技术",
+        "医学影像技术",
+    }
     assert restored.process_milestones["reject_generic_major_switch"] is True
+
+
+def test_build_deterministic_persona_from_risk_band_gap_set():
+    gap_set = {
+        "score": 600,
+        "province": "娴欐睙",
+        "constraint_relaxed": "risk_band",
+        "relaxation_kind": "risk_band_portfolio",
+        "strict_major": "涓村簥鍖诲",
+        "baseline_risk_preference": "conservative",
+        "student_rank": 50000,
+        "volunteer_count": 3,
+        "risk_levels": ["chong", "wen", "bao"],
+        "portfolio_gain": 3,
+        "max_tier_delta": 0,
+        "tier_a": {
+            "school_id": 1,
+            "school_name": "保守锚点大学",
+            "school_province": "娴欐睙",
+            "school_city": "杭州",
+            "is_985": False,
+            "is_211": False,
+            "is_double_first_class": False,
+            "education_level": "鏈",
+            "major_name": "涓村簥鍖诲",
+            "min_score": 570,
+            "min_rank": 75000,
+            "tier": 2,
+            "risk_level": "bao",
+        },
+        "volunteer_set": [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "风险组合大学",
+                "school_province": "娴欐睙",
+                "school_city": "杭州",
+                "is_985": False,
+                "is_211": False,
+                "is_double_first_class": False,
+                "education_level": "鏈",
+                "major_id": 20,
+                "major_name": "涓村簥鍖诲",
+                "min_score": 596,
+                "min_rank": 52000,
+                "tier": 2,
+                "risk_level": "chong",
+                "score_margin": 4,
+                "rank_gap": 2000,
+                "student_rank": 50000,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "稳妥大学",
+                "school_province": "娴欐睙",
+                "school_city": "宁波",
+                "is_985": False,
+                "is_211": False,
+                "is_double_first_class": False,
+                "education_level": "鏈",
+                "major_id": 30,
+                "major_name": "涓村簥鍖诲",
+                "min_score": 588,
+                "min_rank": 60000,
+                "tier": 2,
+                "risk_level": "wen",
+                "score_margin": 12,
+                "rank_gap": 10000,
+                "student_rank": 50000,
+            },
+            {
+                "year": 2025,
+                "school_id": 4,
+                "school_name": "保底大学",
+                "school_province": "娴欐睙",
+                "school_city": "温州",
+                "is_985": False,
+                "is_211": False,
+                "is_double_first_class": False,
+                "education_level": "鏈",
+                "major_id": 40,
+                "major_name": "涓村簥鍖诲",
+                "min_score": 570,
+                "min_rank": 75000,
+                "tier": 2,
+                "risk_level": "bao",
+                "score_margin": 30,
+                "rank_gap": 25000,
+                "student_rank": 50000,
+            },
+        ],
+    }
+
+    persona = build_deterministic_persona_from_gap_set(gap_set, 3)
+    restored = IcebergPersona.model_validate_json(persona.model_dump_json())
+    volunteer_set = restored.implicit_flexibilities["volunteer_set"]
+
+    assert restored.background["constraint_relaxed"] == "risk_band"
+    assert restored.background["portfolio_gain"] == 3
+    assert restored.implicit_flexibilities["constraint_relaxed"] == "risk_band"
+    assert restored.implicit_flexibilities["risk_levels"] == ["chong", "wen", "bao"]
+    assert {item["risk_level"] for item in volunteer_set} == {"chong", "wen", "bao"}
+    assert restored.process_milestones["require_risk_band_evidence"] is True
+
+
+@pytest.mark.asyncio
+async def test_find_risk_band_gap_sets_builds_chong_wen_bao_portfolio():
+    calls = []
+
+    async def mock_db(query, *params):
+        calls.append((query, params))
+        if "score_rank_segments" in query:
+            return [{"rank_min": 50000, "rank_max": 50100}]
+        return [
+            {
+                "year": 2025,
+                "school_id": 1,
+                "school_name": "风险组合大学",
+                "school_province": "娴欐睙",
+                "school_city": "杭州",
+                "is_985": False,
+                "is_211": False,
+                "is_double_first_class": False,
+                "education_level": "鏈",
+                "ranking": 50,
+                "major_id": 10,
+                "major_name": "涓村簥鍖诲",
+                "min_score": 598,
+                "min_rank": 52000,
+                "tier": 2,
+            },
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "稳妥大学",
+                "school_province": "娴欐睙",
+                "school_city": "宁波",
+                "is_985": False,
+                "is_211": False,
+                "is_double_first_class": False,
+                "education_level": "鏈",
+                "ranking": 90,
+                "major_id": 20,
+                "major_name": "涓村簥鍖诲",
+                "min_score": 588,
+                "min_rank": 60000,
+                "tier": 2,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "保底大学",
+                "school_province": "娴欐睙",
+                "school_city": "温州",
+                "is_985": False,
+                "is_211": False,
+                "is_double_first_class": False,
+                "education_level": "鏈",
+                "ranking": 140,
+                "major_id": 30,
+                "major_name": "涓村簥鍖诲",
+                "min_score": 570,
+                "min_rank": 75000,
+                "tier": 2,
+            },
+        ]
+
+    gap_sets = await find_risk_band_gap_sets(
+        mock_db,
+        count=1,
+        prov="娴欐睙",
+        strict_major="涓村簥鍖诲",
+        score_min=600,
+        score_max=600,
+        strict_target_quality=False,
+    )
+
+    assert len(gap_sets) == 1
+    assert gap_sets[0]["constraint_relaxed"] == "risk_band"
+    assert gap_sets[0]["portfolio_gain"] == 3
+    assert [row["risk_level"] for row in gap_sets[0]["volunteer_set"]] == [
+        "chong",
+        "wen",
+        "bao",
+    ]
+    assert "s.province = %s" in calls[-1][0]
+    assert "a.major_name_raw LIKE %s" in calls[-1][0]
 
 
 def test_medical_major_cluster_patterns_are_auditable():
     clusters = load_major_clusters()
-    include_patterns, exclude_patterns = get_major_cluster_patterns(["medical_technology"])
+    include_patterns, exclude_patterns = get_major_cluster_patterns(
+        ["medical_technology"]
+    )
 
     assert "medical_technology" in clusters["nodes"]
     assert "%医学检验技术%" in include_patterns
@@ -438,7 +634,9 @@ async def test_unassigned_report_can_include_embedding_suggestions():
 
     assert suggested[0]["major_name"] == "生物工程"
     assert suggested[0]["embedding_suggestion"]["action"] == "suggest_new_sibling_leaf"
-    assert suggested[0]["embedding_suggestion"]["parent_node_id"] == "basic_science_group"
+    assert (
+        suggested[0]["embedding_suggestion"]["parent_node_id"] == "basic_science_group"
+    )
 
 
 @pytest.mark.asyncio
@@ -506,7 +704,10 @@ async def test_auto_assign_unassigned_major_clusters_updates_tree_and_audit():
     assert "生物工程" in observed_tree["nodes"]["bio_geo_ecology"]["observed_names"]
     assert "生物工程" in observed_tree["nodes"]["science_agri_all"]["observed_names"]
     assert observed_tree["observed_build"]["unassigned_distinct_names"] == 0
-    assert observed_tree["observed_build"]["embedding_auto_assign"]["assigned_row_count"] == 324
+    assert (
+        observed_tree["observed_build"]["embedding_auto_assign"]["assigned_row_count"]
+        == 324
+    )
 
 
 def test_build_deterministic_persona_from_hierarchical_major_relax_gap_set():

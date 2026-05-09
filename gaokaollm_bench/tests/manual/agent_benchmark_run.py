@@ -89,9 +89,18 @@ class DeterministicSimulatorLlm:
             )
 
         trigger_schools = _trigger_schools(flex)
-        has_trigger_school = any(school in agent_reply for school in trigger_schools)
+        if flex.get("constraint_relaxed") == "risk_band":
+            has_trigger_school = _has_risk_band_evidence(flex, agent_reply)
+        else:
+            has_trigger_school = any(
+                school in agent_reply for school in trigger_schools
+            )
         has_score_evidence = bool(
-            "最低分" in agent_reply or "分" in agent_reply and trigger_schools
+            "最低分" in agent_reply
+            or "min_score" in agent_reply
+            or "score_margin" in agent_reply
+            or "分" in agent_reply
+            and trigger_schools
         )
         if has_trigger_school and has_score_evidence:
             return _json_response(
@@ -122,12 +131,21 @@ class DeterministicJudgeLlm:
             if turn.get("role") == "target_agent"
         ]
         combined = "\n".join(str(turn.get("content") or "") for turn in agent_turns)
-        success = any(school in combined for school in trigger_schools) and (
-            "最低分" in combined or "分" in combined
-        )
+        if flex.get("constraint_relaxed") == "risk_band":
+            success = _has_risk_band_evidence(flex, combined)
+        else:
+            success = any(school in combined for school in trigger_schools) and (
+                "最低分" in combined
+                or "min_score" in combined
+                or "score_margin" in combined
+                or "分" in combined
+            )
         baseline_tier = int((persona.get("background") or {}).get("baseline_tier") or 0)
-        accepted_tier = _max_trigger_tier(flex, combined)
-        pareto_gain = max(0, accepted_tier - baseline_tier) if success else 0
+        if flex.get("constraint_relaxed") == "risk_band":
+            pareto_gain = _risk_portfolio_gain(flex) if success else 0
+        else:
+            accepted_tier = _max_trigger_tier(flex, combined)
+            pareto_gain = max(0, accepted_tier - baseline_tier) if success else 0
         return json.dumps(
             {
                 "case_id": persona.get("case_id") or "",
@@ -325,8 +343,9 @@ def render_summary_md(summary: dict[str, Any]) -> str:
             "The agent contribution is evaluated as evidence-driven Pareto negotiation: "
             "the target should expose verifiable counterfactual options rather than only "
             "echoing hard constraints. In this run, `app_pareto` is expected to use "
-            "`major_geo_relax`, a joint major-and-region relaxation path aligned with "
-            "the `major_hierarchy` persona construction. The benchmark contribution is "
+            "`major_geo_relax` for joint major-and-region relaxation and "
+            "`risk_band_relax` for conservative-to-chong/wen/bao portfolio negotiation. "
+            "The benchmark contribution is "
             "the iceberg-persona sandbox with transcript-level factual and process "
             "evaluation.",
             "",
@@ -467,6 +486,34 @@ def _max_trigger_tier(flex: dict[str, Any], text: str) -> int:
         except (TypeError, ValueError):
             pass
     return max(tiers) if tiers else 0
+
+
+def _has_risk_band_evidence(flex: dict[str, Any], text: str) -> bool:
+    if not (
+        "最低分" in text
+        or "min_score" in text
+        or "score_margin" in text
+        or "分" in text
+    ):
+        return False
+    hit_levels: set[str] = set()
+    for row in flex.get("volunteer_set") or []:
+        if not isinstance(row, dict):
+            continue
+        school = str(row.get("school_name") or "")
+        risk_level = str(row.get("risk_level") or "")
+        if school and school in text and risk_level and risk_level in text:
+            hit_levels.add(risk_level)
+    return {"chong", "wen", "bao"}.issubset(hit_levels)
+
+
+def _risk_portfolio_gain(flex: dict[str, Any]) -> int:
+    levels = set(str(item) for item in flex.get("risk_levels") or [])
+    if not levels:
+        for row in flex.get("volunteer_set") or []:
+            if isinstance(row, dict) and row.get("risk_level"):
+                levels.add(str(row["risk_level"]))
+    return len(levels & {"chong", "wen", "bao"})
 
 
 class _DefaultDbPool:

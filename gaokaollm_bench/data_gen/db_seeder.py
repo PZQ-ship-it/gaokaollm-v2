@@ -70,7 +70,9 @@ async def _fetch(db_pool: Any, query: str, params: list[Any]) -> list[dict[str, 
                 await cur.execute(query, params)
                 rows = await cur.fetchall()
     else:
-        raise TypeError("db_pool must provide fetch_query, fetch, connection, or be callable")
+        raise TypeError(
+            "db_pool must provide fetch_query, fetch, connection, or be callable"
+        )
 
     return [dict(row) for row in rows]
 
@@ -118,7 +120,9 @@ def _select_volunteers_from_candidates(
         "special_major": 0,
     }
 
-    years = sorted({_candidate_year(candidate) for candidate in candidates}, reverse=True)
+    years = sorted(
+        {_candidate_year(candidate) for candidate in candidates}, reverse=True
+    )
     for year in years:
         for candidate in candidates:
             if _candidate_year(candidate) != year:
@@ -160,12 +164,17 @@ def _select_volunteers_from_candidates(
 
     return volunteers, {
         "years_considered": [year for year in years if year],
-        "years_used": sorted({int(row.get("year") or 0) for row in volunteers if row.get("year")}, reverse=True),
+        "years_used": sorted(
+            {int(row.get("year") or 0) for row in volunteers if row.get("year")},
+            reverse=True,
+        ),
         "skipped": skipped,
     }
 
 
-def _first_unique_school_ids(volunteers: list[dict[str, Any]], limit: int = 4) -> tuple[Any, ...]:
+def _first_unique_school_ids(
+    volunteers: list[dict[str, Any]], limit: int = 4
+) -> tuple[Any, ...]:
     school_ids: list[Any] = []
     for row in volunteers:
         school_id = row.get("school_id") or row.get("school_name")
@@ -452,7 +461,9 @@ async def find_major_relax_gap_candidates(
         "  AND a.major_name_raw LIKE %s\n"
         f"{BASE_ORDER}"
     )
-    baseline_rows = await _fetch(db_pool, baseline_query, [score, prov, strict_major_pattern, 1])
+    baseline_rows = await _fetch(
+        db_pool, baseline_query, [score, prov, strict_major_pattern, 1]
+    )
     tier_a = baseline_rows[0] if baseline_rows else None
     if not tier_a:
         return []
@@ -478,7 +489,11 @@ async def find_major_relax_gap_candidates(
     exclude_major_patterns = exclude_major_patterns or []
     if relaxation_kind == "clinical_to_medtech":
         patterns = target_major_patterns or DEFAULT_MEDTECH_PATTERNS
-        major_clause = "  AND (" + " OR ".join(["a.major_name_raw LIKE %s"] * len(patterns)) + ")\n"
+        major_clause = (
+            "  AND ("
+            + " OR ".join(["a.major_name_raw LIKE %s"] * len(patterns))
+            + ")\n"
+        )
         major_params.extend(patterns)
         for pattern in exclude_major_patterns:
             major_clause += "  AND a.major_name_raw NOT LIKE %s\n"
@@ -675,7 +690,9 @@ async def find_hierarchical_major_relax_gap_sets(
             include_patterns = stage.get("include_patterns") or []
             exclude_patterns = stage.get("exclude_patterns") or []
             stage_relaxation_kind = stage.get("relaxation_kind") or (
-                "any_major" if stage.get("strategy") == "any_major" else "clinical_to_medtech"
+                "any_major"
+                if stage.get("strategy") == "any_major"
+                else "clinical_to_medtech"
             )
             if not include_patterns and stage_relaxation_kind != "any_major":
                 continue
@@ -736,7 +753,11 @@ async def find_hierarchical_major_relax_gap_sets(
                 stage_attempts.append(attempt)
                 continue
 
-            case_key = (tier_a.get("school_id"), stage_id, _first_unique_school_ids(volunteers))
+            case_key = (
+                tier_a.get("school_id"),
+                stage_id,
+                _first_unique_school_ids(volunteers),
+            )
             if case_key in seen_cases:
                 attempt["failure_reason"] = "duplicate_case"
                 stage_attempts.append(attempt)
@@ -765,11 +786,254 @@ async def find_hierarchical_major_relax_gap_sets(
                     "tier_a": tier_a,
                     "volunteer_set": volunteers,
                     "volunteer_count": len(volunteers),
-                    "max_tier_delta": max(_tier(row) - _tier(tier_a) for row in volunteers),
+                    "max_tier_delta": max(
+                        _tier(row) - _tier(tier_a) for row in volunteers
+                    ),
                 }
             )
             break
 
+        if len(gap_sets) >= count:
+            break
+
+    return gap_sets
+
+
+def _risk_level_from_margins(
+    *,
+    score_margin: int | float | None,
+    rank_gap: int | float | None,
+) -> str:
+    if rank_gap is not None:
+        gap = float(rank_gap)
+        if gap <= 3000:
+            return "chong"
+        if gap <= 12000:
+            return "wen"
+        if gap <= 30000:
+            return "bao"
+        return "dian"
+
+    if score_margin is None:
+        return "unknown"
+    margin = float(score_margin)
+    if margin <= 5:
+        return "chong"
+    if margin <= 20:
+        return "wen"
+    if margin <= 45:
+        return "bao"
+    return "dian"
+
+
+async def _student_rank_for_score(
+    db_pool: Any,
+    *,
+    score: int,
+    prov: str,
+) -> int | None:
+    query = """
+    SELECT rank_min, rank_max
+    FROM score_rank_segments
+    WHERE province = %s
+      AND score_min <= %s
+      AND score_max >= %s
+    ORDER BY year DESC
+    LIMIT 1
+    """
+    rows = await _fetch(db_pool, query, [prov, score, score])
+    if not rows:
+        return None
+    rank_value = rows[0].get("rank_min") or rows[0].get("rank_max")
+    if rank_value is None:
+        return None
+    return int(float(rank_value))
+
+
+def _annotate_risk_candidate(
+    row: dict[str, Any],
+    *,
+    score: int,
+    student_rank: int | None,
+) -> dict[str, Any]:
+    annotated = dict(row)
+    min_score = row.get("min_score")
+    min_rank = row.get("min_rank")
+    score_margin = None
+    rank_gap = None
+    if min_score is not None:
+        score_margin = score - int(float(min_score))
+    if student_rank is not None and min_rank is not None:
+        rank_gap = int(float(min_rank)) - student_rank
+    annotated["score_margin"] = score_margin
+    annotated["student_rank"] = student_rank
+    annotated["rank_gap"] = rank_gap
+    annotated["risk_level"] = _risk_level_from_margins(
+        score_margin=score_margin,
+        rank_gap=rank_gap,
+    )
+    return annotated
+
+
+def _risk_sort_key(row: dict[str, Any]) -> tuple[Any, ...]:
+    order = {"chong": 0, "wen": 1, "bao": 2, "dian": 3, "unknown": 4}
+    ranking = row.get("ranking")
+    margin = row.get("score_margin")
+    return (
+        order.get(str(row.get("risk_level") or "unknown"), 4),
+        int(ranking) if ranking is not None else 999999,
+        abs(float(margin)) if margin is not None else 9999.0,
+        -int(row.get("tier") or 0),
+        -int(row.get("year") or 0),
+        str(row.get("school_name") or ""),
+    )
+
+
+def _select_risk_band_volunteers(
+    rows: list[dict[str, Any]],
+    *,
+    max_volunteers_per_case: int | None,
+    max_volunteers_per_school: int | None,
+) -> list[dict[str, Any]]:
+    limit = max_volunteers_per_case or 6
+    volunteers: list[dict[str, Any]] = []
+    seen_options: set[tuple[Any, Any]] = set()
+    school_counts: dict[Any, int] = {}
+
+    def append(row: dict[str, Any]) -> bool:
+        option_key = (
+            row.get("school_id"),
+            row.get("major_id") or row.get("major_name"),
+        )
+        if option_key in seen_options:
+            return False
+        school_key = row.get("school_id") or row.get("school_name")
+        if (
+            max_volunteers_per_school is not None
+            and school_counts.get(school_key, 0) >= max_volunteers_per_school
+        ):
+            return False
+        seen_options.add(option_key)
+        school_counts[school_key] = school_counts.get(school_key, 0) + 1
+        volunteers.append(row)
+        return True
+
+    sorted_rows = sorted(rows, key=_risk_sort_key)
+    for required_band in ("chong", "wen", "bao"):
+        for row in sorted_rows:
+            if row.get("risk_level") == required_band and append(row):
+                break
+
+    if not {"chong", "wen", "bao"}.issubset(
+        {str(row.get("risk_level")) for row in volunteers}
+    ):
+        return []
+
+    for row in sorted_rows:
+        if len(volunteers) >= limit:
+            break
+        append(row)
+    return volunteers[:limit]
+
+
+async def find_risk_band_gap_sets(
+    db_pool: Any,
+    *,
+    count: int,
+    prov: str = "浙江",
+    strict_major: str = "临床医学",
+    score_min: int = 520,
+    score_max: int = 700,
+    score_step: int = 10,
+    candidates_per_score: int = 120,
+    max_volunteers_per_case: int | None = None,
+    max_volunteers_per_school: int | None = 2,
+    strict_target_quality: bool = True,
+) -> list[dict[str, Any]]:
+    """Return persona seeds for relaxing conservative risk preference."""
+
+    if count < 1:
+        raise ValueError("count must be at least 1")
+    if max_volunteers_per_case is not None and max_volunteers_per_case < 3:
+        raise ValueError("max_volunteers_per_case must be at least 3 when provided")
+
+    quality_clause = ""
+    quality_params: list[Any] = []
+    if strict_target_quality:
+        quality_clause = (
+            "  AND s.education_level = '本科'\n"
+            "  AND (s.name LIKE %s OR s.name LIKE %s)\n"
+            "  AND NOT (s.name LIKE %s AND s.name NOT LIKE %s)\n"
+        )
+        quality_params = ["%大学%", "%医学院%", "%大学%学院%", "%医学院%"]
+
+    query = (
+        f"{BASE_SELECT}"
+        "  AND s.province = %s\n"
+        "  AND a.major_name_raw LIKE %s\n"
+        f"{quality_clause}"
+        f"{BASE_ORDER}"
+    )
+
+    gap_sets: list[dict[str, Any]] = []
+    seen_cases: set[tuple[Any, ...]] = set()
+    major_pattern = f"%{strict_major}%"
+    for score in range(score_min, score_max + 1, score_step):
+        student_rank = await _student_rank_for_score(db_pool, score=score, prov=prov)
+        rows = await _fetch(
+            db_pool,
+            query,
+            [
+                score,
+                prov,
+                major_pattern,
+                *quality_params,
+                candidates_per_score,
+            ],
+        )
+        annotated = [
+            _annotate_risk_candidate(row, score=score, student_rank=student_rank)
+            for row in rows
+        ]
+        conservative = [
+            row for row in annotated if row.get("risk_level") in {"bao", "dian"}
+        ]
+        volunteers = _select_risk_band_volunteers(
+            annotated,
+            max_volunteers_per_case=max_volunteers_per_case,
+            max_volunteers_per_school=max_volunteers_per_school,
+        )
+        if not conservative or not volunteers:
+            continue
+
+        tier_a = conservative[0]
+        case_key = (
+            int(score),
+            tier_a.get("school_id"),
+            tuple(row.get("school_id") for row in volunteers[:3]),
+        )
+        if case_key in seen_cases:
+            continue
+
+        seen_cases.add(case_key)
+        risk_levels = [str(row.get("risk_level")) for row in volunteers]
+        gap_sets.append(
+            {
+                "score": score,
+                "province": prov,
+                "constraint_relaxed": "risk_band",
+                "relaxation_kind": "risk_band_portfolio",
+                "strict_major": strict_major,
+                "baseline_risk_preference": "conservative",
+                "student_rank": student_rank,
+                "tier_a": tier_a,
+                "volunteer_set": volunteers,
+                "volunteer_count": len(volunteers),
+                "risk_levels": risk_levels,
+                "portfolio_gain": len(set(risk_levels) & {"chong", "wen", "bao"}),
+                "max_tier_delta": max(_tier(row) - _tier(tier_a) for row in volunteers),
+            }
+        )
         if len(gap_sets) >= count:
             break
 

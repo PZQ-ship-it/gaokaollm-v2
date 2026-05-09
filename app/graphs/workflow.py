@@ -29,6 +29,7 @@ def route_after_radar(state: AgentState) -> str:
         opportunities.get("geo_relax")
         or opportunities.get("major_relax")
         or opportunities.get("major_geo_relax")
+        or opportunities.get("risk_band_relax")
     ):
         return "negotiator"
     return "report"

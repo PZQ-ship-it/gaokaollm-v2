@@ -15,6 +15,7 @@ DEFAULT_CONSTRAINTS = {
     "major": None,
     "budget": 100000,
     "selected_subjects": None,
+    "risk_preference": None,
 }
 
 VALID_SUBJECTS = ["政治", "历史", "地理", "物理", "化学", "生物", "技术"]
@@ -58,7 +59,7 @@ def _json_from_text(text: str) -> dict[str, Any]:
 def _fallback_extract(text: str) -> dict[str, Any]:
     extracted: dict[str, Any] = {}
 
-    score_match = re.search(r"(\d{3})\s*分", text)
+    score_match = re.search(r"(\d{3})", text)
     if score_match:
         extracted["score"] = int(score_match.group(1))
 
@@ -114,6 +115,19 @@ def _fallback_extract(text: str) -> dict[str, Any]:
     if subjects:
         extracted["selected_subjects"] = subjects
 
+    compact = re.sub(r"\s+", "", text).lower()
+    conservative_tokens = (
+        "conservative",
+        "lowrisk",
+        "稳妥",
+        "保守",
+        "只求稳",
+        "不要冲",
+        "不接受冲",
+    )
+    if any(token in compact for token in conservative_tokens):
+        extracted["risk_preference"] = "conservative"
+
     return extracted
 
 
@@ -161,7 +175,14 @@ def _merge_constraints(
     if extracted.get("province_relaxed"):
         merged["province"] = None
         merged["province_relaxed"] = True
-    for key in ("score", "province", "major", "budget", "selected_subjects"):
+    for key in (
+        "score",
+        "province",
+        "major",
+        "budget",
+        "selected_subjects",
+        "risk_preference",
+    ):
         value = extracted.get(key)
         if value not in (None, ""):
             if key == "selected_subjects":
@@ -183,9 +204,10 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
             content=(
                 "你是高考志愿约束抽取器。只输出 JSON，不要解释。"
                 "字段固定为 score(int|null), province(str|null), major(str|null), "
-                "budget(int|null), selected_subjects(list[str]|null)。"
+                "budget(int|null), selected_subjects(list[str]|null), risk_preference(str|null)。"
                 "province 表示目标院校所在地。major 使用用户提到的专业关键词。"
                 "如果用户明确表示外省、全国或地域不限，province 输出 null。"
+                "如果用户明确表示只求稳、保守、不要冲，risk_preference 输出 conservative。"
                 "selected_subjects 只能从政治、历史、地理、物理、化学、生物、技术中抽取。"
             )
         ),

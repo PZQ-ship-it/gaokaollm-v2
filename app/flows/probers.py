@@ -114,6 +114,148 @@ def _max_tier(rows: list[dict[str, Any]]) -> int:
     return max(int(row.get("tier") or 0) for row in rows)
 
 
+def classify_risk_band(
+    *,
+    score_margin: int | float | None,
+    rank_gap: int | float | None = None,
+) -> str:
+    """Classify admission risk using deterministic score/rank margins."""
+
+    if rank_gap is not None:
+        gap = float(rank_gap)
+        if gap <= 3000:
+            return "chong"
+        if gap <= 12000:
+            return "wen"
+        if gap <= 30000:
+            return "bao"
+        return "dian"
+
+    if score_margin is None:
+        return "unknown"
+    margin = float(score_margin)
+    if margin <= 5:
+        return "chong"
+    if margin <= 20:
+        return "wen"
+    if margin <= 45:
+        return "bao"
+    return "dian"
+
+
+def _risk_band_order(risk_level: str | None) -> int:
+    order = {
+        "chong": 0,
+        "wen": 1,
+        "bao": 2,
+        "dian": 3,
+        "unknown": 4,
+    }
+    return order.get(str(risk_level or "unknown"), 4)
+
+
+def _annotate_risk_row(
+    row: dict[str, Any],
+    *,
+    score: int,
+    student_rank: int | None,
+) -> dict[str, Any]:
+    annotated = dict(row)
+    min_score = row.get("min_score")
+    min_rank = row.get("min_rank")
+    score_margin = None
+    rank_gap = None
+    if min_score is not None:
+        score_margin = score - int(float(min_score))
+    if student_rank is not None and min_rank is not None:
+        rank_gap = int(float(min_rank)) - student_rank
+    annotated["score_margin"] = score_margin
+    annotated["student_rank"] = student_rank
+    annotated["rank_gap"] = rank_gap
+    annotated["risk_level"] = classify_risk_band(
+        score_margin=score_margin,
+        rank_gap=rank_gap,
+    )
+    return annotated
+
+
+def _risk_selection_key(row: dict[str, Any]) -> tuple[Any, ...]:
+    ranking = row.get("ranking")
+    score_margin = row.get("score_margin")
+    return (
+        _risk_band_order(row.get("risk_level")),
+        int(ranking) if ranking is not None else 999999,
+        abs(float(score_margin)) if score_margin is not None else 9999.0,
+        -int(row.get("tier") or 0),
+        -int(row.get("year") or 0),
+        str(row.get("school_name") or ""),
+        str(row.get("major_name") or ""),
+    )
+
+
+def _select_risk_portfolio(
+    rows: list[dict[str, Any]],
+    *,
+    limit: int,
+    max_per_school: int,
+) -> list[dict[str, Any]]:
+    selected: list[dict[str, Any]] = []
+    school_counts: dict[Any, int] = {}
+    seen_options: set[tuple[Any, Any]] = set()
+
+    for required_band in ("chong", "wen", "bao"):
+        for row in sorted(rows, key=_risk_selection_key):
+            if row.get("risk_level") != required_band:
+                continue
+            if _append_unique_option(
+                selected,
+                row,
+                seen_options=seen_options,
+                school_counts=school_counts,
+                max_per_school=max_per_school,
+            ):
+                break
+
+    for row in sorted(rows, key=_risk_selection_key):
+        if len(selected) >= limit:
+            break
+        _append_unique_option(
+            selected,
+            row,
+            seen_options=seen_options,
+            school_counts=school_counts,
+            max_per_school=max_per_school,
+        )
+
+    required = {"chong", "wen", "bao"}
+    if not required.issubset({str(row.get("risk_level")) for row in selected}):
+        return []
+    return selected[:limit]
+
+
+def _append_unique_option(
+    selected: list[dict[str, Any]],
+    row: dict[str, Any],
+    *,
+    seen_options: set[tuple[Any, Any]],
+    school_counts: dict[Any, int],
+    max_per_school: int,
+) -> bool:
+    option_key = (
+        row.get("school_id"),
+        row.get("major_id") or row.get("major_name"),
+    )
+    if option_key in seen_options:
+        return False
+    school_key = row.get("school_id") or row.get("school_name")
+    if school_counts.get(school_key, 0) >= max_per_school:
+        return False
+    seen_options.add(option_key)
+    school_counts[school_key] = school_counts.get(school_key, 0) + 1
+    selected.append(row)
+    return True
+
+
 def _tier_sql() -> str:
     return """
     CASE
@@ -336,6 +478,33 @@ async def run_baseline(
     return await _fetch(db, query, params)
 
 
+async def _student_rank_for_score(
+    constraints: dict[str, Any],
+    *,
+    db: Any = None,
+) -> int | None:
+    province = constraints.get("province")
+    score = constraints.get("score")
+    if not province or score is None:
+        return None
+    query = """
+    SELECT rank_min, rank_max
+    FROM score_rank_segments
+    WHERE province = %s
+      AND score_min <= %s
+      AND score_max >= %s
+    ORDER BY year DESC
+    LIMIT 1
+    """
+    rows = await _fetch(db, query, [province, int(score), int(score)])
+    if not rows:
+        return None
+    rank_value = rows[0].get("rank_min") or rows[0].get("rank_max")
+    if rank_value is None:
+        return None
+    return int(float(rank_value))
+
+
 async def probe_geo_relax(
     constraints: dict[str, Any],
     db: Any = None,
@@ -444,18 +613,53 @@ async def probe_major_geo_relax(
     return selected[:limit]
 
 
+async def probe_risk_band_relax(
+    constraints: dict[str, Any],
+    db: Any = None,
+    limit: int = 6,
+    max_per_school: int = 2,
+) -> list[dict[str, Any]]:
+    """Find a chong/wen/bao portfolio under existing hard constraints."""
+
+    risk_preference = str(constraints.get("risk_preference") or "").lower()
+    if risk_preference not in {"conservative", "low", "stable"}:
+        return []
+
+    score = _score(constraints)
+    student_rank = await _student_rank_for_score(constraints, db=db)
+    where, params = _where_common(constraints)
+    _add_province_filter(where, params, constraints)
+    _add_major_filter(where, params, constraints)
+    _add_undergraduate_quality_filters(where, params)
+    _add_major_quality_filters(where, params, max_major_name_length=60)
+    params.append(max(limit * 8, 60))
+
+    query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{MAJOR_GEO_ORDER}"
+    rows = await _fetch(db, query, params)
+    annotated = [
+        _annotate_risk_row(row, score=score, student_rank=student_rank) for row in rows
+    ]
+    return _select_risk_portfolio(
+        annotated,
+        limit=limit,
+        max_per_school=max_per_school,
+    )
+
+
 async def run_all_probes(
     constraints: dict[str, Any],
     db: Any = None,
 ) -> dict[str, list[dict[str, Any]]]:
     baseline = await run_baseline(constraints, db=db)
-    geo_relax, major_relax, major_geo_relax = await asyncio.gather(
+    geo_relax, major_relax, major_geo_relax, risk_band_relax = await asyncio.gather(
         probe_geo_relax(constraints, db=db, baseline_results=baseline),
         probe_major_relax(constraints, db=db, baseline_results=baseline),
         probe_major_geo_relax(constraints, db=db, baseline_results=baseline),
+        probe_risk_band_relax(constraints, db=db),
     )
     return {
         "geo_relax": geo_relax,
         "major_relax": major_relax,
         "major_geo_relax": major_geo_relax,
+        "risk_band_relax": risk_band_relax,
     }

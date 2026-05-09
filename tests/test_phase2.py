@@ -3,7 +3,13 @@ from pathlib import Path
 import pytest
 
 from app.core.db_pg import close_pool
-from app.flows.probers import probe_major_geo_relax, run_all_probes, run_baseline
+from app.flows.probers import (
+    classify_risk_band,
+    probe_major_geo_relax,
+    probe_risk_band_relax,
+    run_all_probes,
+    run_baseline,
+)
 from tests._env_checks import require_database
 
 
@@ -75,12 +81,101 @@ class EmptyDb:
         return []
 
 
+class RiskDb:
+    def __init__(self):
+        self.calls = []
+
+    async def __call__(self, query, *params):
+        self.calls.append((query, params))
+        if "score_rank_segments" in query:
+            return [{"rank_min": 50000, "rank_max": 50100}]
+        return [
+            {
+                "year": 2025,
+                "school_id": 1,
+                "school_name": "冲刺大学",
+                "school_province": "娴欐睙",
+                "school_city": "杭州",
+                "major_id": 10,
+                "major_name": "涓村簥鍖诲",
+                "min_score": 598,
+                "min_rank": 52000,
+                "ranking": 80,
+                "tier": 3,
+            },
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "稳妥大学",
+                "school_province": "娴欐睙",
+                "school_city": "宁波",
+                "major_id": 20,
+                "major_name": "涓村簥鍖诲",
+                "min_score": 588,
+                "min_rank": 60000,
+                "ranking": 120,
+                "tier": 2,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "保底大学",
+                "school_province": "娴欐睙",
+                "school_city": "温州",
+                "major_id": 30,
+                "major_name": "涓村簥鍖诲",
+                "min_score": 570,
+                "min_rank": 75000,
+                "ranking": 180,
+                "tier": 2,
+            },
+        ]
+
+
 def test_probers_flow_has_no_llm_dependency():
     source = Path("app/flows/probers.py").read_text(encoding="utf-8")
 
     assert "langchain" not in source.lower()
     assert "openai" not in source.lower()
     assert "get_chat_model" not in source
+
+
+def test_risk_band_classifier_uses_rank_then_score_margin():
+    assert classify_risk_band(score_margin=30, rank_gap=2500) == "chong"
+    assert classify_risk_band(score_margin=3, rank_gap=10000) == "wen"
+    assert classify_risk_band(score_margin=3, rank_gap=25000) == "bao"
+    assert classify_risk_band(score_margin=3, rank_gap=45000) == "dian"
+    assert classify_risk_band(score_margin=4) == "chong"
+    assert classify_risk_band(score_margin=18) == "wen"
+    assert classify_risk_band(score_margin=35) == "bao"
+
+
+@pytest.mark.asyncio
+async def test_risk_band_relax_keeps_hard_filters_and_returns_portfolio():
+    db = RiskDb()
+    constraints = {
+        **STRICT_CONSTRAINTS,
+        "risk_preference": "conservative",
+    }
+
+    rows = await probe_risk_band_relax(constraints, db=db, limit=3)
+
+    probe_query, probe_params = db.calls[-1]
+    assert "s.province = %s" in probe_query
+    assert "a.major_name_raw LIKE %s" in probe_query
+    assert "s.province <> %s" not in probe_query
+    assert constraints["province"] in probe_params
+    assert f"%{constraints['major']}%" in probe_params
+    assert [row["risk_level"] for row in rows] == ["chong", "wen", "bao"]
+    assert rows[0]["score_margin"] == 2
+    assert rows[0]["rank_gap"] == 2000
+
+
+@pytest.mark.asyncio
+async def test_risk_band_relax_requires_conservative_signal():
+    rows = await probe_risk_band_relax(STRICT_CONSTRAINTS, db=RiskDb(), limit=3)
+
+    assert rows == []
 
 
 @pytest.mark.asyncio

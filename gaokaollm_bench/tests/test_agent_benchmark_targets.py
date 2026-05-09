@@ -71,8 +71,86 @@ class FakeGraph:
                         "tier": 3,
                     }
                 ],
+                "risk_band_relax": [
+                    {
+                        "school_name": "风险组合大学",
+                        "school_province": "鍖椾含",
+                        "major_name": "涓村簥鍖诲",
+                        "min_score": 596,
+                        "min_rank": 52000,
+                        "tier": 2,
+                        "risk_level": "chong",
+                        "score_margin": 4,
+                        "rank_gap": 2000,
+                    }
+                ],
             },
             "score_waste": 10,
+            "missing_constraints": [],
+        }
+
+
+class FakeRiskGraph:
+    async def ainvoke(self, payload, config):
+        return {
+            "messages": [
+                SimpleNamespace(
+                    content=(
+                        "风险方案：风险组合大学 min_score=596 risk=chong；"
+                        "稳妥大学 min_score=588 risk=wen；"
+                        "保底大学 min_score=570 risk=bao。"
+                    )
+                )
+            ],
+            "constraints": {
+                "score": 600,
+                "province": "鍖椾含",
+                "major": "涓村簥鍖诲",
+                "selected_subjects": ["鐗╃悊", "鍖栧", "鐢熺墿"],
+                "risk_preference": "conservative",
+            },
+            "baseline_results": [],
+            "pareto_opportunities": {
+                "geo_relax": [],
+                "major_relax": [],
+                "major_geo_relax": [],
+                "risk_band_relax": [
+                    {
+                        "school_name": "风险组合大学",
+                        "school_province": "鍖椾含",
+                        "major_name": "涓村簥鍖诲",
+                        "min_score": 596,
+                        "min_rank": 52000,
+                        "tier": 2,
+                        "risk_level": "chong",
+                        "score_margin": 4,
+                        "rank_gap": 2000,
+                    },
+                    {
+                        "school_name": "稳妥大学",
+                        "school_province": "鍖椾含",
+                        "major_name": "涓村簥鍖诲",
+                        "min_score": 588,
+                        "min_rank": 60000,
+                        "tier": 2,
+                        "risk_level": "wen",
+                        "score_margin": 12,
+                        "rank_gap": 10000,
+                    },
+                    {
+                        "school_name": "保底大学",
+                        "school_province": "鍖椾含",
+                        "major_name": "涓村簥鍖诲",
+                        "min_score": 570,
+                        "min_rank": 75000,
+                        "tier": 2,
+                        "risk_level": "bao",
+                        "score_margin": 30,
+                        "rank_gap": 25000,
+                    },
+                ],
+            },
+            "score_waste": 0,
             "missing_constraints": [],
         }
 
@@ -138,6 +216,50 @@ def build_persona():
     )
 
 
+def build_risk_persona():
+    return IcebergPersona(
+        case_id="risk-case-001",
+        background={
+            "score": 600,
+            "province": "鍖椾含",
+            "baseline_tier": 2,
+            "constraint_relaxed": "risk_band",
+        },
+        explicit_red_lines={"risk": "只求稳妥，不接受冲刺风险"},
+        implicit_flexibilities={
+            "trigger_type": "volunteer_set",
+            "constraint_relaxed": "risk_band",
+            "risk_levels": ["chong", "wen", "bao"],
+            "portfolio_gain": 3,
+            "volunteer_set": [
+                {
+                    "school_name": "风险组合大学",
+                    "major_name": "涓村簥鍖诲",
+                    "min_score": 596,
+                    "risk_level": "chong",
+                    "tier": 2,
+                },
+                {
+                    "school_name": "稳妥大学",
+                    "major_name": "涓村簥鍖诲",
+                    "min_score": 588,
+                    "risk_level": "wen",
+                    "tier": 2,
+                },
+                {
+                    "school_name": "保底大学",
+                    "major_name": "涓村簥鍖诲",
+                    "min_score": 570,
+                    "risk_level": "bao",
+                    "tier": 2,
+                },
+            ],
+        },
+        initial_utterance="鐗╁寲鐢燂紝600鍒嗭紝只想稳妥，不接受冲刺风险。",
+        process_milestones={"accept_after_verified_risk_portfolio": True},
+    )
+
+
 async def evaluate_by_joint_school(transcript, *, judge_llm):
     combined = "\n".join(turn.content for turn in transcript.turns)
     success = "西南交通大学" in combined and "最低分" in combined
@@ -163,6 +285,24 @@ async def evaluate_by_joint_school(transcript, *, judge_llm):
     )
 
 
+async def evaluate_by_risk_portfolio(transcript, *, judge_llm):
+    combined = "\n".join(turn.content for turn in transcript.turns)
+    success = (
+        "风险组合大学" in combined
+        and "稳妥大学" in combined
+        and "保底大学" in combined
+        and "min_score" in combined
+    )
+    return SimpleNamespace(
+        hallucination_rate=0.0,
+        elicitation_success=success,
+        pareto_gain=3 if success else 0,
+        judge_reasoning=(
+            "命中风险偏好放宽的冲稳保组合。" if success else "未命中风险偏好放宽组合。"
+        ),
+    )
+
+
 @pytest.mark.asyncio
 async def test_app_graph_target_agent_preserves_auditable_state():
     target = AppGraphTargetAgent(thread_id="case-thread", graph=FakeGraph())
@@ -175,6 +315,10 @@ async def test_app_graph_target_agent_preserves_auditable_state():
     assert state["baseline_results"]
     assert state["pareto_opportunities"]["geo_relax"]
     assert state["pareto_opportunities"]["major_geo_relax"]
+    assert state["pareto_opportunities"]["risk_band_relax"]
+    assert any(
+        item.get("risk_level") == "chong" for item in state["recommended_schools"]
+    )
     assert state["recommended_schools"][0]["school"] == "北京学院"
     assert state["recommended_schools"][1]["school"] == "山东大学"
     assert state["recommended_schools"][2]["school"] == "西南交通大学"
@@ -193,6 +337,7 @@ async def test_hard_constraint_baseline_only_reports_baseline():
         "geo_relax": [],
         "major_relax": [],
         "major_geo_relax": [],
+        "risk_band_relax": [],
     }
     assert state["recommended_schools"] == [
         {
@@ -360,6 +505,78 @@ async def test_agent_benchmark_smoke_app_beats_hard_constraint(monkeypatch):
         summary["targets"]["app_pareto"]["mean_pareto_gain"]
         > summary["targets"]["hard_constraint"]["mean_pareto_gain"]
     )
+    assert (config.output_dir / "summary.json").exists()
+    assert (config.output_dir / "summary.md").exists()
+
+    shutil.rmtree(work_dir)
+
+
+@pytest.mark.asyncio
+async def test_agent_benchmark_smoke_risk_band_app_beats_hard_constraint(monkeypatch):
+    work_dir = Path("gaokaollm_bench/tests/_agent_benchmark_risk_output")
+    if work_dir.exists():
+        shutil.rmtree(work_dir)
+    work_dir.mkdir(parents=True)
+
+    persona_path = work_dir / "personas.json"
+    persona_path.write_text(
+        json.dumps([build_risk_persona().model_dump()], ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    def fake_build_target(name, case_id):
+        if name == "app_pareto":
+            return AppGraphTargetAgent(
+                thread_id=f"bench-{case_id}",
+                graph=FakeRiskGraph(),
+            )
+        return HardConstraintBaselineAgent(db=FakeDb())
+
+    monkeypatch.setattr(
+        "gaokaollm_bench.tests.manual.agent_benchmark_run.build_target",
+        fake_build_target,
+    )
+    monkeypatch.setattr(
+        "gaokaollm_bench.tests.manual.agent_benchmark_run.evaluate_transcript",
+        evaluate_by_risk_portfolio,
+    )
+
+    config = RunConfig(
+        personas_path=persona_path,
+        targets=["app_pareto", "hard_constraint"],
+        max_turns=1,
+        limit=None,
+        output_dir=work_dir / "agent_benchmark",
+        judge_model="mock-judge",
+        simulator_model="mock-simulator",
+        paper_summary_path=None,
+    )
+    personas = load_personas(persona_path)
+    rows = []
+    for target_name in config.targets:
+        rows.extend(
+            await run_target_cases(
+                target_name=target_name,
+                personas=personas,
+                config=config,
+                simulator_llm=FakeSimulatorLlm(),
+                judge_llm=FakeJudgeLlm(),
+            )
+        )
+    summary = write_summary_files(config=config, personas=personas, rows=rows)
+
+    assert (
+        summary["targets"]["app_pareto"]["elicitation_success_rate"]
+        > summary["targets"]["hard_constraint"]["elicitation_success_rate"]
+    )
+    assert (
+        summary["targets"]["app_pareto"]["mean_pareto_gain"]
+        > summary["targets"]["hard_constraint"]["mean_pareto_gain"]
+    )
+    assert (
+        config.output_dir / "transcripts/app_pareto/transcript_risk-case-001.json"
+    ).exists()
+    assert (config.output_dir / "reports/app_pareto.jsonl").exists()
     assert (config.output_dir / "summary.json").exists()
     assert (config.output_dir / "summary.md").exists()
 

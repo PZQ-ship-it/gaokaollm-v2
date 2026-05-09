@@ -59,6 +59,7 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                     "geo_relax": [],
                     "major_relax": [],
                     "major_geo_relax": [],
+                    "risk_band_relax": [],
                 },
                 "score_waste": 0,
                 "missing_constraints": missing,
@@ -75,6 +76,7 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                 "geo_relax": [],
                 "major_relax": [],
                 "major_geo_relax": [],
+                "risk_band_relax": [],
             },
             "score_waste": _score_waste(self.constraints, baseline),
             "missing_constraints": [],
@@ -99,6 +101,7 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             "geo_relax": list(opportunities.get("geo_relax") or []),
             "major_relax": list(opportunities.get("major_relax") or []),
             "major_geo_relax": list(opportunities.get("major_geo_relax") or []),
+            "risk_band_relax": list(opportunities.get("risk_band_relax") or []),
         },
         "score_waste": int(result.get("score_waste") or 0),
         "missing_constraints": list(result.get("missing_constraints") or []),
@@ -107,6 +110,7 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             opportunities.get("geo_relax") or [],
             opportunities.get("major_relax") or [],
             opportunities.get("major_geo_relax") or [],
+            opportunities.get("risk_band_relax") or [],
         ),
     }
 
@@ -120,15 +124,17 @@ def _recommended_schools(*groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
             if not name or name in seen:
                 continue
             seen.add(name)
-            schools.append(
-                {
-                    "school": name,
-                    "province": row.get("school_province") or row.get("province"),
-                    "major": row.get("major_name") or row.get("major"),
-                    "min_score": row.get("min_score"),
-                    "tier": row.get("tier"),
-                }
-            )
+            item = {
+                "school": name,
+                "province": row.get("school_province") or row.get("province"),
+                "major": row.get("major_name") or row.get("major"),
+                "min_score": row.get("min_score"),
+                "tier": row.get("tier"),
+            }
+            for key in ("risk_level", "score_margin", "rank_gap", "min_rank"):
+                if row.get(key) is not None:
+                    item[key] = row.get(key)
+            schools.append(item)
     return schools
 
 
@@ -146,7 +152,7 @@ def _score_waste(
 
 def _fallback_extract_constraints(text: str) -> dict[str, Any]:
     extracted: dict[str, Any] = {}
-    score_match = re.search(r"(\d{3})\s*分", text)
+    score_match = re.search(r"(\d{3})", text)
     if score_match:
         extracted["score"] = int(score_match.group(1))
 
@@ -196,6 +202,19 @@ def _fallback_extract_constraints(text: str) -> dict[str, Any]:
     if subjects:
         extracted["selected_subjects"] = subjects
 
+    compact = re.sub(r"\s+", "", text).lower()
+    conservative_tokens = (
+        "conservative",
+        "lowrisk",
+        "稳妥",
+        "保守",
+        "只求稳",
+        "不要冲",
+        "不接受冲",
+    )
+    if any(token in compact for token in conservative_tokens):
+        extracted["risk_preference"] = "conservative"
+
     return extracted
 
 
@@ -235,9 +254,17 @@ def _merge_constraints(
         "major": None,
         "budget": 100000,
         "selected_subjects": None,
+        "risk_preference": None,
         **(current or {}),
     }
-    for key in ("score", "province", "major", "budget", "selected_subjects"):
+    for key in (
+        "score",
+        "province",
+        "major",
+        "budget",
+        "selected_subjects",
+        "risk_preference",
+    ):
         if key in extracted and extracted[key] not in ("", []):
             merged[key] = extracted[key]
     return merged

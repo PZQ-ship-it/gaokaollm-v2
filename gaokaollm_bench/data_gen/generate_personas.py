@@ -29,6 +29,7 @@ from gaokaollm_bench.data_gen.db_seeder import (
     find_major_relax_gap_sets,
     find_many_pareto_gaps,
     find_pareto_gap_sets,
+    find_risk_band_gap_sets,
 )
 from gaokaollm_bench.data_gen.major_tree import (
     UnknownMajorError,
@@ -147,7 +148,7 @@ def build_deterministic_persona(gap: dict[str, Any], index: int) -> IcebergPerso
 
 
 def _volunteer_entry(row: dict[str, Any], score: int) -> dict[str, Any]:
-    return {
+    entry = {
         "school_id": row.get("school_id"),
         "school_name": row.get("school_name"),
         "school_province": row.get("school_province"),
@@ -164,6 +165,10 @@ def _volunteer_entry(row: dict[str, Any], score: int) -> dict[str, Any]:
         "is_211": bool(row.get("is_211")),
         "is_double_first_class": bool(row.get("is_double_first_class")),
     }
+    for key in ("student_rank", "rank_gap", "risk_level"):
+        if row.get(key) is not None:
+            entry[key] = row.get(key)
+    return entry
 
 
 def build_deterministic_persona_from_gap_set(
@@ -192,7 +197,38 @@ def build_deterministic_persona_from_gap_set(
         )
     )[:8]
 
-    if relaxed_constraint == "major":
+    if relaxed_constraint == "risk_band":
+        strict_major = str(
+            gap_set.get("strict_major") or tier_a.get("major_name") or "目标专业"
+        )
+        major_name = strict_major
+        risk_levels = list(dict.fromkeys(item.get("risk_level") for item in volunteers))
+        explicit_red_lines = {
+            "risk": "只求稳妥，不接受冲刺风险",
+            "major": f"优先保持{strict_major}",
+            "reason": "担心冲刺志愿浪费名额，希望先看保守方案",
+            "current_anchor_school": tier_a_name,
+            "current_anchor_major": tier_a.get("major_name"),
+            "current_anchor_risk_level": tier_a.get("risk_level"),
+        }
+        trigger_condition = (
+            "只有看到同省、同专业、选科与分数均可核验的冲稳保组合，"
+            "且每个志愿都有学校、专业、最低分、最低位次和风险层级证据，才会接受适度冲刺。"
+        )
+        compromise = "可以把单一保守方案放宽为包含 chong/wen/bao 的冲稳保组合"
+        initial_utterance = (
+            f"鐗╁寲鐢燂紝{score}鍒嗭紝只想稳妥一点，"
+            f"{strict_major}不要冲刺太危险的学校。"
+        )
+        milestones = {
+            "reject_generic_risk_advice": True,
+            "require_risk_band_evidence": True,
+            "require_complete_volunteer_set": True,
+            "require_each_option_score_and_rank_evidence": True,
+            "accept_after_verified_risk_portfolio": best_names,
+            "required_risk_levels": risk_levels,
+        }
+    elif relaxed_constraint == "major":
         strict_major = str(
             gap_set.get("strict_major") or tier_a.get("major_name") or "原专业"
         )
@@ -298,6 +334,7 @@ def build_deterministic_persona_from_gap_set(
             "relaxation_kind": relaxation_kind,
             "stage_relaxation_kind": stage_relaxation_kind,
             "relax_scope": relax_scope,
+            "baseline_risk_preference": gap_set.get("baseline_risk_preference"),
             "relaxation_stage": relaxation_stage,
             "relaxation_stage_label": gap_set.get("relaxation_stage_label"),
             "target_major_clusters": target_major_clusters,
@@ -305,6 +342,9 @@ def build_deterministic_persona_from_gap_set(
             "psychological_distance": gap_set.get("psychological_distance"),
             "years_used": gap_set.get("years_used"),
             "stage_attempts": gap_set.get("stage_attempts"),
+            "student_rank": gap_set.get("student_rank"),
+            "risk_levels": gap_set.get("risk_levels"),
+            "portfolio_gain": gap_set.get("portfolio_gain"),
         },
         explicit_red_lines=explicit_red_lines,
         implicit_flexibilities={
@@ -313,6 +353,7 @@ def build_deterministic_persona_from_gap_set(
             "relaxation_kind": relaxation_kind,
             "stage_relaxation_kind": stage_relaxation_kind,
             "relax_scope": relax_scope,
+            "baseline_risk_preference": gap_set.get("baseline_risk_preference"),
             "relaxation_stage": relaxation_stage,
             "relaxation_stage_label": gap_set.get("relaxation_stage_label"),
             "target_major_clusters": target_major_clusters,
@@ -325,6 +366,9 @@ def build_deterministic_persona_from_gap_set(
             "accepted_major_examples": accepted_major_examples,
             "years_used": gap_set.get("years_used"),
             "stage_attempts": gap_set.get("stage_attempts"),
+            "student_rank": gap_set.get("student_rank"),
+            "risk_levels": gap_set.get("risk_levels"),
+            "portfolio_gain": gap_set.get("portfolio_gain"),
             "tier_labels": best_labels,
             "compromise": compromise,
         },
@@ -393,6 +437,20 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                 exclude_name_patterns=[]
                 if args.include_suspect_schools
                 else DEFAULT_EXCLUDE_PATTERNS,
+                strict_target_quality=not args.no_strict_target_quality,
+            )
+        elif args.relaxation == "risk_band":
+            gap_sets = await find_risk_band_gap_sets(
+                fetch_query,
+                count=args.count,
+                prov=args.province,
+                strict_major=args.strict_major,
+                score_min=args.score_min,
+                score_max=args.score_max,
+                score_step=args.score_step,
+                candidates_per_score=args.candidates_per_score,
+                max_volunteers_per_case=args.max_volunteers_per_case,
+                max_volunteers_per_school=args.max_volunteers_per_school,
                 strict_target_quality=not args.no_strict_target_quality,
             )
         else:

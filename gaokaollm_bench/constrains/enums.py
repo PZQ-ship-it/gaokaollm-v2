@@ -55,6 +55,7 @@ class PersonaRelaxation(StrEnum):
     MAJOR_CLINICAL_TO_MEDTECH = "major_clinical_to_medtech"
     MAJOR_ANY = "major_any"
     MAJOR_HIERARCHY = "major_hierarchy"
+    RISK_BAND = "risk_band"
 
 
 class MajorRelaxScope(StrEnum):
