@@ -60,6 +60,7 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                     "city_relax": [],
                     "major_relax": [],
                     "strength_relax": [],
+                    "major_quality_relax": [],
                     "tuition_value_relax": [],
                     "major_geo_relax": [],
                     "risk_band_relax": [],
@@ -80,6 +81,7 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                 "city_relax": [],
                 "major_relax": [],
                 "strength_relax": [],
+                "major_quality_relax": [],
                 "tuition_value_relax": [],
                 "major_geo_relax": [],
                 "risk_band_relax": [],
@@ -108,6 +110,7 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             "city_relax": list(opportunities.get("city_relax") or []),
             "major_relax": list(opportunities.get("major_relax") or []),
             "strength_relax": list(opportunities.get("strength_relax") or []),
+            "major_quality_relax": list(opportunities.get("major_quality_relax") or []),
             "tuition_value_relax": list(opportunities.get("tuition_value_relax") or []),
             "major_geo_relax": list(opportunities.get("major_geo_relax") or []),
             "risk_band_relax": list(opportunities.get("risk_band_relax") or []),
@@ -120,6 +123,7 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             opportunities.get("city_relax") or [],
             opportunities.get("major_relax") or [],
             opportunities.get("strength_relax") or [],
+            opportunities.get("major_quality_relax") or [],
             opportunities.get("tuition_value_relax") or [],
             opportunities.get("major_geo_relax") or [],
             opportunities.get("risk_band_relax") or [],
@@ -156,6 +160,18 @@ def _recommended_schools(*groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "major_strength_rank",
                 "major_strength_rating",
                 "major_strength_level",
+            ):
+                if row.get(key) is not None:
+                    item[key] = row.get(key)
+            for key in (
+                "quality_score",
+                "quality_gain",
+                "quality_tier",
+                "best_major_rank",
+                "best_rating",
+                "has_key_major",
+                "has_featured_major",
+                "quality_evidence_sources",
             ):
                 if row.get(key) is not None:
                     item[key] = row.get(key)

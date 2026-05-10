@@ -149,6 +149,77 @@ LEFT JOIN (
 ) sms ON sms.school_id = a.school_id
 """
 
+MAJOR_QUALITY_SELECT = """
+SELECT
+    a.id AS admission_score_id,
+    a.year,
+    a.school_id,
+    s.name AS school_name,
+    s.province AS school_province,
+    s.city AS school_city,
+    s.is_985,
+    s.is_211,
+    s.is_double_first_class,
+    s.education_level,
+    s.ranking,
+    a.major_id,
+    a.major_name_raw AS major_name,
+    a.subject_requirement,
+    a.requirement_normalized,
+    COALESCE(sr.requirement_type, 'unknown') AS requirement_type,
+    a.min_score,
+    a.min_rank,
+    plan.min_tuition AS tuition,
+    mq.quality_score,
+    mq.quality_tier,
+    mq.best_major_rank,
+    mq.best_rating,
+    mq.has_key_major,
+    mq.has_featured_major,
+    mq.satisfaction_score,
+    mq.vote_count AS satisfaction_vote_count,
+    mq.evidence_sources AS quality_evidence_sources,
+    CASE
+        WHEN s.is_985 THEN 4
+        WHEN s.is_211 OR s.is_double_first_class THEN 3
+        WHEN s.education_level = '本科' THEN 2
+        ELSE 1
+    END AS tier
+FROM admission_scores a
+JOIN schools s ON s.id = a.school_id
+LEFT JOIN subject_requirements sr ON sr.raw_requirement = a.subject_requirement
+LEFT JOIN LATERAL (
+    SELECT min(p.tuition) AS min_tuition
+    FROM admission_plans p
+    WHERE p.school_id = a.school_id
+      AND p.year = a.year
+      AND (
+          p.major_id = a.major_id
+          OR p.major_code = a.major_code
+          OR p.major_name_raw = a.major_name_raw
+      )
+) plan ON true
+LEFT JOIN LATERAL (
+    SELECT
+        profile.quality_score,
+        profile.quality_tier,
+        profile.best_major_rank,
+        profile.best_rating,
+        profile.has_key_major,
+        profile.has_featured_major,
+        profile.satisfaction_score,
+        profile.vote_count,
+        profile.evidence_sources
+    FROM school_major_quality_profiles profile
+    WHERE profile.school_id = a.school_id
+      AND profile.major_id = a.major_id
+    ORDER BY
+        profile.quality_score DESC,
+        profile.best_major_rank ASC NULLS LAST
+    LIMIT 1
+) mq ON true
+"""
+
 
 async def _fetch(db: Any, query: str, params: list[Any]) -> list[dict[str, Any]]:
     if db is None:
@@ -752,6 +823,97 @@ async def probe_strength_relax(
     return selected
 
 
+async def probe_major_quality_relax(
+    constraints: dict[str, Any],
+    db: Any = None,
+    baseline_results: list[dict[str, Any]] | None = None,
+    limit: int = 5,
+    min_quality_gain: int = 10,
+) -> list[dict[str, Any]]:
+    """Find same-major options with stronger school-major quality evidence."""
+
+    strength = constraints.get("strength")
+    if not strength:
+        return []
+
+    anchor_where, anchor_params = _where_common(constraints)
+    _add_province_filter(anchor_where, anchor_params, constraints)
+    _add_major_filter(anchor_where, anchor_params, constraints)
+    anchor_query = (
+        f"{MAJOR_QUALITY_SELECT}\n"
+        f"WHERE {' AND '.join(anchor_where)}\n"
+        "  AND mq.quality_score IS NOT NULL\n"
+        "ORDER BY\n"
+        "    mq.quality_score DESC NULLS LAST,\n"
+        "    mq.best_major_rank ASC NULLS LAST,\n"
+        "    tier DESC,\n"
+        "    s.ranking ASC NULLS LAST,\n"
+        "    a.min_score DESC NULLS LAST,\n"
+        "    a.year DESC,\n"
+        "    s.name ASC,\n"
+        "    a.major_name_raw ASC\n"
+        "LIMIT %s"
+    )
+    anchor_rows = await _fetch(db, anchor_query, [*anchor_params, 1])
+    anchor = anchor_rows[0] if anchor_rows else None
+    anchor_score = float(anchor.get("quality_score") or 0) if anchor else 0.0
+
+    relaxed_where, relaxed_params = _where_common(constraints)
+    _add_major_filter(relaxed_where, relaxed_params, constraints)
+    _add_undergraduate_quality_filters(relaxed_where, relaxed_params)
+    _add_major_quality_filters(relaxed_where, relaxed_params, max_major_name_length=60)
+    province = constraints.get("province")
+    if province:
+        relaxed_where.append("s.province <> %s")
+        relaxed_params.append(province)
+    relaxed_where.extend(
+        [
+            "mq.quality_score IS NOT NULL",
+            "mq.quality_score >= %s",
+        ]
+    )
+    relaxed_params.extend([anchor_score + min_quality_gain, max(limit * 4, 20)])
+    relaxed_query = (
+        f"{MAJOR_QUALITY_SELECT}\n"
+        f"WHERE {' AND '.join(relaxed_where)}\n"
+        "ORDER BY\n"
+        "    mq.quality_score DESC NULLS LAST,\n"
+        "    mq.best_major_rank ASC NULLS LAST,\n"
+        "    tier DESC,\n"
+        "    s.ranking ASC NULLS LAST,\n"
+        "    a.min_score DESC NULLS LAST,\n"
+        "    a.year DESC,\n"
+        "    s.name ASC,\n"
+        "    a.major_name_raw ASC\n"
+        "LIMIT %s"
+    )
+    rows = await _fetch(db, relaxed_query, relaxed_params)
+    selected: list[dict[str, Any]] = []
+    seen_options: set[tuple[Any, Any]] = set()
+    for row in rows:
+        quality_score = row.get("quality_score")
+        if quality_score is None:
+            continue
+        candidate = dict(row)
+        candidate["quality_score"] = float(quality_score)
+        candidate["quality_gain"] = round(candidate["quality_score"] - anchor_score, 3)
+        candidate["quality_anchor_score"] = round(anchor_score, 3)
+        if anchor:
+            candidate["quality_anchor_school"] = anchor.get("school_name")
+            candidate["quality_anchor_major"] = anchor.get("major_name")
+        option_key = (
+            candidate.get("school_id"),
+            candidate.get("major_id") or candidate.get("major_name"),
+        )
+        if option_key in seen_options:
+            continue
+        seen_options.add(option_key)
+        selected.append(candidate)
+        if len(selected) >= limit:
+            break
+    return selected
+
+
 async def probe_tuition_value_relax(
     constraints: dict[str, Any],
     db: Any = None,
@@ -977,6 +1139,7 @@ async def run_all_probes(
         city_relax,
         major_relax,
         strength_relax,
+        major_quality_relax,
         tuition_value_relax,
         major_geo_relax,
         risk_band_relax,
@@ -985,6 +1148,7 @@ async def run_all_probes(
         probe_city_relax(constraints, db=db, baseline_results=baseline),
         probe_major_relax(constraints, db=db, baseline_results=baseline),
         probe_strength_relax(constraints, db=db, baseline_results=baseline),
+        probe_major_quality_relax(constraints, db=db, baseline_results=baseline),
         probe_tuition_value_relax(constraints, db=db, baseline_results=baseline),
         probe_major_geo_relax(constraints, db=db, baseline_results=baseline),
         probe_risk_band_relax(constraints, db=db),
@@ -994,6 +1158,7 @@ async def run_all_probes(
         "city_relax": city_relax,
         "major_relax": major_relax,
         "strength_relax": strength_relax,
+        "major_quality_relax": major_quality_relax,
         "tuition_value_relax": tuition_value_relax,
         "major_geo_relax": major_geo_relax,
         "risk_band_relax": risk_band_relax,

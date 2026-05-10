@@ -28,6 +28,14 @@ def _compact(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "major_strength_rank": row.get("major_strength_rank"),
                 "major_strength_rating": row.get("major_strength_rating"),
                 "major_strength_level": row.get("major_strength_level"),
+                "quality_score": row.get("quality_score"),
+                "quality_gain": row.get("quality_gain"),
+                "quality_tier": row.get("quality_tier"),
+                "best_major_rank": row.get("best_major_rank"),
+                "best_rating": row.get("best_rating"),
+                "has_key_major": row.get("has_key_major"),
+                "has_featured_major": row.get("has_featured_major"),
+                "quality_evidence_sources": row.get("quality_evidence_sources"),
             }
         )
     return compacted
@@ -38,6 +46,7 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
     city = evidence.get("city_relax") or []
     major = evidence.get("major_relax") or []
     strength = evidence.get("strength_relax") or []
+    major_quality = evidence.get("major_quality_relax") or []
     tuition = evidence.get("tuition_value_relax") or []
     joint = evidence.get("major_geo_relax") or []
     risk = evidence.get("risk_band_relax") or []
@@ -68,6 +77,23 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
             f"{row.get('major')} strength_rank={row.get('major_strength_rank')} "
             f"rating={row.get('major_strength_rating')} min_score={row.get('min_score')}"
             for row in strength[:3]
+        )
+
+    major_quality_text = "暂时没有发现专业质量证据更强的可达方案。"
+    if major_quality:
+        major_quality_text = "；".join(
+            f"{row.get('school')}({row.get('province')}) "
+            f"{row.get('major')} quality={row.get('quality_score')} "
+            f"gain={row.get('quality_gain')} rank={row.get('best_major_rank')} "
+            f"rating={row.get('best_rating')} min_score={row.get('min_score')}"
+            for row in major_quality[:3]
+        )
+        return (
+            "我先不替你做决定，只把可核验的数据摆出来。\n"
+            "专业质量方案：如果你愿意比较省外同专业或近似同专业，可以重点看："
+            f"{major_quality_text}\n"
+            "这些候选仍需满足你的分数、专业、选科和预算约束，区别在于专业排名、学科评估、"
+            "特色/重点专业或满意度证据更强。"
         )
 
     tuition_text = "暂时没有发现小幅增加学费后的明显性价比跃迁。"
@@ -111,6 +137,7 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
         f"选项A：如果只放松地域，可以比较：{geo_text}\n"
         f"选项B：如果只放松专业，可以比较：{major_text}\n"
         f"学科实力方案：如果更看重专业排名或重点学科，可以比较：{strength_text}\n"
+        f"专业质量方案：如果更看重该专业本身的排名、评估或特色重点证据，可以比较：{major_quality_text}\n"
         f"学费方案：如果每年小幅增加预算，可以比较：{tuition_text}\n"
         f"联合方案：如果同时放宽地域和专业，可以重点比较：{joint_text}\n"
         f"风险方案：如果保留地域、专业、选科和预算，只把“只求稳”放宽为冲稳保组合，可以比较：{risk_text}\n"
@@ -128,6 +155,7 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         "city_relax": _compact(opportunities.get("city_relax", [])),
         "major_relax": _compact(opportunities.get("major_relax", [])),
         "strength_relax": _compact(opportunities.get("strength_relax", [])),
+        "major_quality_relax": _compact(opportunities.get("major_quality_relax", [])),
         "tuition_value_relax": _compact(opportunities.get("tuition_value_relax", [])),
         "major_geo_relax": _compact(opportunities.get("major_geo_relax", [])),
         "risk_band_relax": _compact(opportunities.get("risk_band_relax", [])),
@@ -143,9 +171,10 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
                 "如果 evidence 中存在 city_relax，要说明这是只放宽精确城市限制后的方案，"
                 "如果 evidence 中存在 major_geo_relax，要把它作为联合放宽方案重点说明，"
                 "如果 evidence 中存在 strength_relax，要说明这是在保持省份和专业前提下的学科实力跃迁方案，"
+                "如果 evidence 中存在 major_quality_relax，要说明这是同专业或近似同专业下的专业质量跃迁方案，"
                 "如果 evidence 中存在 tuition_value_relax，要说明这是只小幅放宽每年学费预算后的性价比方案，"
                 "如果 evidence 中存在 risk_band_relax，要说明这是在不改变地域、专业、选科和预算时的冲稳保组合，"
-                "并给出具体学校、专业、最低分、学费或风险证据。"
+                "并给出具体学校、专业、最低分、专业排名/学科评估/特色重点或满意度证据。"
             )
         ),
         SystemMessage(content=json.dumps(evidence, ensure_ascii=False, default=str)),

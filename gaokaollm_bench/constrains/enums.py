@@ -57,6 +57,7 @@ class PersonaRelaxation(StrEnum):
     MAJOR_ANY = "major_any"
     MAJOR_HIERARCHY = "major_hierarchy"
     SCHOOL_STRENGTH = "school_strength"
+    MAJOR_QUALITY = "major_quality"
     TUITION_VALUE = "tuition_value"
     RISK_BAND = "risk_band"
 

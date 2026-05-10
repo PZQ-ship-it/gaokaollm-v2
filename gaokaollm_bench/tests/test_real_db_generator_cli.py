@@ -5,6 +5,7 @@ import pytest
 from gaokaollm_bench.data_gen.db_seeder import (
     find_city_relax_gap_sets,
     find_hierarchical_major_relax_gap_sets,
+    find_major_quality_gap_sets,
     find_strength_relax_gap_sets,
     find_risk_band_gap_sets,
     find_tuition_value_gap_sets,
@@ -1569,6 +1570,71 @@ async def test_build_deterministic_persona_from_strength_relax_gap_set():
 
 
 @pytest.mark.asyncio
+async def test_build_deterministic_persona_from_major_quality_gap_set():
+    gap_set = {
+        "score": 600,
+        "province": "Zhejiang",
+        "constraint_relaxed": "major_quality",
+        "relaxation_kind": "major_quality",
+        "strict_major": "Software Engineering",
+        "quality_anchor_score": 72,
+        "max_quality_gain": 23,
+        "volunteer_count": 1,
+        "max_tier_delta": 1,
+        "tier_a": {
+            "school_id": 1,
+            "school_name": "Zhejiang Anchor University",
+            "school_province": "Zhejiang",
+            "school_city": "Hangzhou",
+            "is_985": False,
+            "is_211": False,
+            "is_double_first_class": False,
+            "education_level": "本科",
+            "major_name": "Software Engineering",
+            "min_score": 580,
+            "quality_score": 72,
+            "quality_tier": "C",
+            "tier": 2,
+        },
+        "volunteer_set": [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "Major Quality University",
+                "school_province": "Jiangsu",
+                "school_city": "Nanjing",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 20,
+                "major_name": "Software Engineering",
+                "min_score": 598,
+                "min_rank": 41000,
+                "quality_score": 95,
+                "quality_gain": 23,
+                "quality_tier": "A",
+                "best_major_rank": 8,
+                "best_rating": "A",
+                "quality_evidence_sources": [
+                    {"source_type": "major_ranking", "evidence_label": "rank 8"}
+                ],
+                "tier": 3,
+            }
+        ],
+    }
+
+    persona = build_deterministic_persona_from_gap_set(gap_set, 1)
+    restored = IcebergPersona.model_validate_json(persona.model_dump_json())
+
+    assert restored.background["constraint_relaxed"] == "major_quality"
+    assert restored.background["quality_anchor_score"] == 72
+    assert restored.implicit_flexibilities["max_quality_gain"] == 23
+    assert restored.implicit_flexibilities["volunteer_set"][0]["quality_gain"] == 23
+    assert restored.process_milestones["require_major_quality_evidence"] is True
+
+
+@pytest.mark.asyncio
 async def test_find_strength_relax_gap_sets_builds_rank_improvement_cases():
     calls = []
 
@@ -1654,6 +1720,95 @@ async def test_find_strength_relax_gap_sets_builds_rank_improvement_cases():
         120,
     ]
     assert "sms.major_strength_rank < %s" in calls[-1][0]
+
+
+@pytest.mark.asyncio
+async def test_find_major_quality_gap_sets_builds_quality_improvement_cases():
+    calls = []
+
+    async def mock_db(query, *params):
+        calls.append((query, params))
+        if "mq.quality_score >= %s" not in query:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "Zhejiang Anchor University",
+                    "school_province": "Zhejiang",
+                    "school_city": "Hangzhou",
+                    "is_985": False,
+                    "is_211": False,
+                    "is_double_first_class": False,
+                    "education_level": "本科",
+                    "major_id": 10,
+                    "major_name": "Software Engineering",
+                    "min_score": 580,
+                    "quality_score": 72,
+                    "quality_tier": "C",
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "Major Quality University",
+                "school_province": "Jiangsu",
+                "school_city": "Nanjing",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 20,
+                "major_name": "Software Engineering",
+                "min_score": 598,
+                "quality_score": 95,
+                "quality_tier": "A",
+                "best_major_rank": 8,
+                "best_rating": "A",
+                "tier": 3,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "Featured Major University",
+                "school_province": "Anhui",
+                "school_city": "Hefei",
+                "is_985": False,
+                "is_211": False,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 30,
+                "major_name": "Software Engineering",
+                "min_score": 596,
+                "quality_score": 86,
+                "quality_tier": "B",
+                "best_rating": "B+",
+                "tier": 3,
+            },
+        ]
+
+    gap_sets = await find_major_quality_gap_sets(
+        mock_db,
+        count=1,
+        prov="Zhejiang",
+        strict_major="Software Engineering",
+        score_min=600,
+        score_max=600,
+        candidates_per_score=3,
+        max_volunteers_per_case=2,
+        strict_target_quality=False,
+        min_quality_gain=10,
+    )
+
+    assert len(gap_sets) == 1
+    assert gap_sets[0]["constraint_relaxed"] == "major_quality"
+    assert gap_sets[0]["quality_anchor_score"] == 72
+    assert [row["quality_gain"] for row in gap_sets[0]["volunteer_set"]] == [
+        23,
+        14,
+    ]
+    assert "mq.quality_score >= %s" in calls[-1][0]
 
 
 @pytest.mark.asyncio

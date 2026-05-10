@@ -673,6 +673,62 @@ WHERE a.min_score IS NOT NULL
   AND a.min_score <= %s
 """
 
+MAJOR_QUALITY_SELECT = """
+SELECT
+    a.year,
+    a.school_id,
+    s.name AS school_name,
+    s.province AS school_province,
+    s.city AS school_city,
+    s.is_985,
+    s.is_211,
+    s.is_double_first_class,
+    s.education_level,
+    s.ranking,
+    a.major_id,
+    a.major_name_raw AS major_name,
+    a.min_score,
+    a.min_rank,
+    mq.quality_score,
+    mq.quality_tier,
+    mq.best_major_rank,
+    mq.best_rating,
+    mq.has_key_major,
+    mq.has_featured_major,
+    mq.satisfaction_score,
+    mq.vote_count AS satisfaction_vote_count,
+    mq.evidence_sources AS quality_evidence_sources,
+    CASE
+        WHEN s.is_985 THEN 4
+        WHEN s.is_211 OR s.is_double_first_class THEN 3
+        WHEN s.education_level = '本科' THEN 2
+        ELSE 1
+    END AS tier
+FROM admission_scores a
+JOIN schools s ON s.id = a.school_id
+LEFT JOIN LATERAL (
+    SELECT
+        profile.quality_score,
+        profile.quality_tier,
+        profile.best_major_rank,
+        profile.best_rating,
+        profile.has_key_major,
+        profile.has_featured_major,
+        profile.satisfaction_score,
+        profile.vote_count,
+        profile.evidence_sources
+    FROM school_major_quality_profiles profile
+    WHERE profile.school_id = a.school_id
+      AND profile.major_id = a.major_id
+    ORDER BY
+        profile.quality_score DESC,
+        profile.best_major_rank ASC NULLS LAST
+    LIMIT 1
+) mq ON true
+WHERE a.min_score IS NOT NULL
+  AND a.min_score <= %s
+"""
+
 STRENGTH_ORDER = """
 ORDER BY
     major_strength_rank ASC NULLS LAST,
@@ -737,6 +793,132 @@ ORDER BY
     a.major_name_raw ASC
 LIMIT %s
 """
+
+
+async def find_major_quality_gap_candidates(
+    db_pool: Any,
+    score: int,
+    prov: str,
+    *,
+    strict_major: str | None = None,
+    limit: int = 20,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+    min_quality_gain: int = 10,
+) -> list[dict[str, Any]]:
+    """Return same-major quality jumps unlocked by considering national options."""
+
+    if limit < 1:
+        raise ValueError("limit must be at least 1")
+
+    major_clause = "  AND a.major_name_raw LIKE %s\n" if strict_major else ""
+    major_params = [f"%{strict_major}%"] if strict_major else []
+
+    baseline_query = (
+        f"{MAJOR_QUALITY_SELECT}"
+        "  AND s.province = %s\n"
+        f"{major_clause}"
+        "  AND mq.quality_score IS NOT NULL\n"
+        "ORDER BY\n"
+        "    mq.quality_score DESC NULLS LAST,\n"
+        "    mq.best_major_rank ASC NULLS LAST,\n"
+        "    tier DESC,\n"
+        "    s.ranking ASC NULLS LAST,\n"
+        "    a.min_score DESC NULLS LAST,\n"
+        "    a.year DESC,\n"
+        "    s.name ASC,\n"
+        "    a.major_name_raw ASC\n"
+        "LIMIT %s"
+    )
+    baseline_rows = await _fetch(
+        db_pool,
+        baseline_query,
+        [score, prov, *major_params, 1],
+    )
+    tier_a = baseline_rows[0] if baseline_rows else None
+    if not tier_a or tier_a.get("quality_score") is None:
+        return []
+
+    anchor_score = float(tier_a["quality_score"])
+    exclude_name_patterns = exclude_name_patterns or []
+    exclude_clauses = []
+    exclude_params: list[Any] = []
+    for pattern in exclude_name_patterns:
+        exclude_clauses.append("s.name NOT LIKE %s")
+        exclude_params.append(f"%{pattern}%")
+
+    quality_clause = ""
+    quality_params: list[Any] = []
+    if strict_target_quality:
+        quality_clause = (
+            "  AND (s.name LIKE %s OR s.name LIKE %s)\n"
+            "  AND NOT (s.name LIKE %s AND s.name NOT LIKE %s)\n"
+        )
+        quality_params = ["%澶у%", "%鍖诲闄?", "%澶у%瀛﹂櫌%", "%鍖诲闄?"]
+
+    relaxed_query = (
+        f"{MAJOR_QUALITY_SELECT}"
+        f"{major_clause}"
+        "  AND s.province <> %s\n"
+        "  AND mq.quality_score IS NOT NULL\n"
+        "  AND mq.quality_score >= %s\n"
+        f"{quality_clause}"
+        f"{'  AND ' + ' AND '.join(exclude_clauses) if exclude_clauses else ''}\n"
+        "ORDER BY\n"
+        "    mq.quality_score DESC NULLS LAST,\n"
+        "    mq.best_major_rank ASC NULLS LAST,\n"
+        "    tier DESC,\n"
+        "    s.ranking ASC NULLS LAST,\n"
+        "    a.min_score DESC NULLS LAST,\n"
+        "    a.year DESC,\n"
+        "    s.name ASC,\n"
+        "    a.major_name_raw ASC\n"
+        "LIMIT %s"
+    )
+    relaxed_rows = await _fetch(
+        db_pool,
+        relaxed_query,
+        [
+            score,
+            *major_params,
+            prov,
+            anchor_score + min_quality_gain,
+            *quality_params,
+            *exclude_params,
+            limit,
+        ],
+    )
+
+    candidates: list[dict[str, Any]] = []
+    for tier_b in relaxed_rows:
+        candidate_score = tier_b.get("quality_score")
+        if candidate_score is None:
+            continue
+        quality_gain = float(candidate_score) - anchor_score
+        if quality_gain < min_quality_gain:
+            continue
+        tier_b = dict(tier_b)
+        tier_b["quality_score"] = round(float(candidate_score), 3)
+        tier_b["quality_anchor_score"] = round(anchor_score, 3)
+        tier_b["quality_gain"] = round(quality_gain, 3)
+        tier_b["quality_anchor_school"] = tier_a.get("school_name")
+        tier_b["quality_anchor_major"] = tier_a.get("major_name")
+        candidates.append(
+            {
+                "score": score,
+                "province": prov,
+                "constraint_relaxed": "major_quality",
+                "relaxation_kind": "major_quality",
+                "relax_scope": "national",
+                "strict_major": strict_major,
+                "quality_anchor_score": round(anchor_score, 3),
+                "tier_a": tier_a,
+                "tier_b": tier_b,
+                "tier_delta": _tier(tier_b) - _tier(tier_a),
+                "quality_gain": round(quality_gain, 3),
+            }
+        )
+    return candidates
 
 
 async def find_strength_relax_gap_candidates(
@@ -1101,6 +1283,104 @@ async def find_tuition_value_gap_sets(
                 ),
                 "max_tuition_delta": max(
                     int(float(row.get("tuition_delta") or 0)) for row in volunteers
+                ),
+            }
+        )
+        if len(gap_sets) >= count:
+            break
+
+    return gap_sets
+
+
+async def find_major_quality_gap_sets(
+    db_pool: Any,
+    *,
+    count: int,
+    prov: str = "娴欐睙",
+    strict_major: str | None = None,
+    score_min: int = 520,
+    score_max: int = 700,
+    score_step: int = 10,
+    candidates_per_score: int = 120,
+    max_volunteers_per_case: int | None = None,
+    max_volunteers_per_school: int | None = None,
+    include_special_majors: bool = True,
+    max_major_name_length: int | None = None,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+    min_quality_gain: int = 10,
+) -> list[dict[str, Any]]:
+    """Scan scores and return major-quality persona seeds."""
+
+    if count < 1:
+        raise ValueError("count must be at least 1")
+    if score_step < 1:
+        raise ValueError("score_step must be at least 1")
+    if score_min > score_max:
+        raise ValueError("score_min must be less than or equal to score_max")
+    if max_volunteers_per_case is not None and max_volunteers_per_case < 1:
+        raise ValueError("max_volunteers_per_case must be at least 1 when provided")
+    if max_volunteers_per_school is not None and max_volunteers_per_school < 1:
+        raise ValueError("max_volunteers_per_school must be at least 1 when provided")
+    if max_major_name_length is not None and max_major_name_length < 1:
+        raise ValueError("max_major_name_length must be at least 1 when provided")
+
+    gap_sets: list[dict[str, Any]] = []
+    seen_cases: set[tuple[Any, ...]] = set()
+
+    for score in range(score_min, score_max + 1, score_step):
+        candidates = await find_major_quality_gap_candidates(
+            db_pool,
+            score,
+            prov,
+            strict_major=strict_major,
+            limit=candidates_per_score,
+            exclude_name_patterns=exclude_name_patterns,
+            strict_target_quality=strict_target_quality,
+            min_quality_gain=min_quality_gain,
+        )
+        if not candidates:
+            continue
+
+        tier_a = candidates[0]["tier_a"]
+        case_key = (
+            tier_a.get("school_id"),
+            int(score),
+            prov,
+            strict_major,
+        )
+        if case_key in seen_cases:
+            continue
+
+        volunteers, selection_audit = _select_volunteers_from_candidates(
+            candidates,
+            max_volunteers_per_case=max_volunteers_per_case,
+            max_volunteers_per_school=max_volunteers_per_school,
+            include_special_majors=include_special_majors,
+            max_major_name_length=max_major_name_length,
+            minimum_volunteers=1,
+        )
+        if not volunteers:
+            continue
+
+        seen_cases.add(case_key)
+        gap_sets.append(
+            {
+                "score": score,
+                "province": prov,
+                "constraint_relaxed": "major_quality",
+                "relaxation_kind": "major_quality",
+                "relax_scope": "national",
+                "strict_major": strict_major,
+                "tier_a": tier_a,
+                "volunteer_set": volunteers,
+                "volunteer_count": len(volunteers),
+                "years_used": selection_audit["years_used"],
+                "selection_audit": selection_audit,
+                "max_tier_delta": max(_tier(row) - _tier(tier_a) for row in volunteers),
+                "quality_anchor_score": round(float(tier_a["quality_score"]), 3),
+                "max_quality_gain": max(
+                    float(row.get("quality_gain") or 0) for row in volunteers
                 ),
             }
         )

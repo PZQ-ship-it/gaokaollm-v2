@@ -93,6 +93,8 @@ class DeterministicSimulatorLlm:
             has_trigger_school = _has_risk_band_evidence(flex, agent_reply)
         elif flex.get("constraint_relaxed") == "strength":
             has_trigger_school = _has_strength_evidence(flex, agent_reply)
+        elif flex.get("constraint_relaxed") == "major_quality":
+            has_trigger_school = _has_major_quality_evidence(flex, agent_reply)
         elif flex.get("constraint_relaxed") == "tuition_value":
             has_trigger_school = _has_tuition_value_evidence(flex, agent_reply)
         else:
@@ -139,6 +141,8 @@ class DeterministicJudgeLlm:
             success = _has_risk_band_evidence(flex, combined)
         elif flex.get("constraint_relaxed") == "strength":
             success = _has_strength_evidence(flex, combined)
+        elif flex.get("constraint_relaxed") == "major_quality":
+            success = _has_major_quality_evidence(flex, combined)
         elif flex.get("constraint_relaxed") == "tuition_value":
             success = _has_tuition_value_evidence(flex, combined)
         else:
@@ -153,6 +157,8 @@ class DeterministicJudgeLlm:
             pareto_gain = _risk_portfolio_gain(flex) if success else 0
         elif flex.get("constraint_relaxed") == "strength":
             pareto_gain = _strength_rank_gain(flex, combined) if success else 0
+        elif flex.get("constraint_relaxed") == "major_quality":
+            pareto_gain = _major_quality_gain(flex, combined) if success else 0
         elif flex.get("constraint_relaxed") == "tuition_value":
             pareto_gain = _tuition_value_gain(flex, combined) if success else 0
         else:
@@ -358,6 +364,7 @@ def render_summary_md(summary: dict[str, Any]) -> str:
             "`major_geo_relax` for joint major-and-region relaxation and "
             "`risk_band_relax` for conservative-to-chong/wen/bao portfolio negotiation; "
             "`strength_relax` is used when the persona targets school-strength evidence; "
+            "`major_quality_relax` is used when the persona targets school-major quality evidence; "
             "`tuition_value_relax` is used when the persona targets small tuition-budget "
             "relaxation with value evidence. "
             "The benchmark contribution is "
@@ -544,6 +551,33 @@ def _has_strength_evidence(flex: dict[str, Any], text: str) -> bool:
     return False
 
 
+def _has_major_quality_evidence(flex: dict[str, Any], text: str) -> bool:
+    if not ("最低分" in text or "min_score" in text or "分" in text):
+        return False
+    quality_tokens = (
+        "专业质量",
+        "专业排名",
+        "学科评估",
+        "特色",
+        "重点",
+        "满意度",
+        "quality",
+        "quality_score",
+        "quality_gain",
+        "best_major_rank",
+        "best_rating",
+    )
+    if not any(token in text for token in quality_tokens):
+        return False
+    for row in flex.get("volunteer_set") or []:
+        if not isinstance(row, dict):
+            continue
+        school = str(row.get("school_name") or "")
+        if school and school in text:
+            return True
+    return False
+
+
 def _has_tuition_value_evidence(flex: dict[str, Any], text: str) -> bool:
     if not (
         "最低分" in text
@@ -615,6 +649,21 @@ def _tuition_value_gain(flex: dict[str, Any], text: str) -> int:
         except (TypeError, ValueError):
             ranking_gain = 0
         gains.append(1 if ranking_gain >= 50 else 0)
+    return max(gains) if gains else 0
+
+
+def _major_quality_gain(flex: dict[str, Any], text: str) -> int:
+    gains: list[int] = []
+    for row in flex.get("volunteer_set") or []:
+        if not isinstance(row, dict):
+            continue
+        school = str(row.get("school_name") or "")
+        if not school or school not in text:
+            continue
+        try:
+            gains.append(int(float(row.get("quality_gain"))))
+        except (TypeError, ValueError):
+            gains.append(1)
     return max(gains) if gains else 0
 
 

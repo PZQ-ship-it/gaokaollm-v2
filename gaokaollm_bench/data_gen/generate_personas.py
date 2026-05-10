@@ -28,6 +28,7 @@ from gaokaollm_bench.data_gen.db_seeder import (
     find_city_relax_gap_sets,
     find_hierarchical_major_relax_gap_sets,
     find_major_relax_gap_sets,
+    find_major_quality_gap_sets,
     find_many_pareto_gaps,
     find_pareto_gap_sets,
     find_risk_band_gap_sets,
@@ -180,6 +181,17 @@ def _volunteer_entry(row: dict[str, Any], score: int) -> dict[str, Any]:
         "major_strength_level",
         "major_strength_source_type",
         "discipline_name",
+        "quality_score",
+        "quality_gain",
+        "quality_anchor_score",
+        "quality_tier",
+        "best_major_rank",
+        "best_rating",
+        "has_key_major",
+        "has_featured_major",
+        "satisfaction_score",
+        "satisfaction_vote_count",
+        "quality_evidence_sources",
         "tuition",
         "tuition_delta",
         "budget_anchor",
@@ -196,6 +208,13 @@ def _volunteer_entry(row: dict[str, Any], score: int) -> dict[str, Any]:
                 "tuition_value_gain",
             }:
                 value = int(float(value))
+            elif key in {
+                "quality_score",
+                "quality_gain",
+                "quality_anchor_score",
+                "satisfaction_score",
+            }:
+                value = float(value)
             entry[key] = value
     return entry
 
@@ -283,6 +302,43 @@ def build_deterministic_persona_from_gap_set(
             "require_complete_volunteer_set": True,
             "require_each_option_strength_and_score_evidence": True,
             "accept_after_verified_strength_jump": best_names,
+        }
+    elif relaxed_constraint == "major_quality":
+        strict_major = str(
+            gap_set.get("strict_major") or tier_a.get("major_name") or "目标专业"
+        )
+        major_name = strict_major
+        anchor_score = gap_set.get("quality_anchor_score") or tier_a.get(
+            "quality_score"
+        )
+        max_quality_gain = gap_set.get("max_quality_gain")
+        explicit_red_lines = {
+            "major": f"优先保持{strict_major}",
+            "quality": "更看重这个专业本身的排名、评估和特色重点证据",
+            "reason": f"不想只看学校名气，希望{strict_major}有更强的专业证据",
+            "current_anchor_school": tier_a_name,
+            "current_anchor_major": tier_a.get("major_name"),
+            "current_anchor_quality_score": anchor_score,
+        }
+        trigger_condition = (
+            f"只有看到{strict_major}或近似同专业的真实可达志愿集合，"
+            "并且每个志愿都有学校、专业、最低分、最低位次、专业排名/学科评估/"
+            "特色重点/满意度等专业质量证据，才会接受跨省比较。"
+        )
+        compromise = (
+            "可以为了更强的专业质量证据接受跨省同专业方案；"
+            f"最高质量增益约为{max_quality_gain}"
+        )
+        initial_utterance = (
+            f"我{score}分，想读{strict_major}，更看重专业实力和专业排名，"
+            "但省外学校先别急着推荐。"
+        )
+        milestones = {
+            "reject_generic_quality_advice": True,
+            "require_major_quality_evidence": True,
+            "require_complete_volunteer_set": True,
+            "require_each_option_quality_and_score_evidence": True,
+            "accept_after_verified_major_quality_set": best_names,
         }
     elif relaxed_constraint == "tuition_value":
         strict_major = str(
@@ -475,6 +531,8 @@ def build_deterministic_persona_from_gap_set(
             "risk_levels": gap_set.get("risk_levels"),
             "portfolio_gain": gap_set.get("portfolio_gain"),
             "strength_anchor_rank": gap_set.get("strength_anchor_rank"),
+            "quality_anchor_score": gap_set.get("quality_anchor_score"),
+            "max_quality_gain": gap_set.get("max_quality_gain"),
             "budget_anchor": gap_set.get("budget_anchor"),
             "budget_window": gap_set.get("budget_window"),
             "max_tuition_delta": gap_set.get("max_tuition_delta"),
@@ -505,6 +563,8 @@ def build_deterministic_persona_from_gap_set(
             "risk_levels": gap_set.get("risk_levels"),
             "portfolio_gain": gap_set.get("portfolio_gain"),
             "strength_anchor_rank": gap_set.get("strength_anchor_rank"),
+            "quality_anchor_score": gap_set.get("quality_anchor_score"),
+            "max_quality_gain": gap_set.get("max_quality_gain"),
             "budget_anchor": gap_set.get("budget_anchor"),
             "budget_window": gap_set.get("budget_window"),
             "max_tuition_delta": gap_set.get("max_tuition_delta"),
@@ -575,6 +635,26 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                 if args.include_suspect_schools
                 else DEFAULT_EXCLUDE_PATTERNS,
                 strict_target_quality=not args.no_strict_target_quality,
+            )
+        elif args.relaxation == "major_quality":
+            gap_sets = await find_major_quality_gap_sets(
+                fetch_query,
+                count=args.count,
+                prov=args.province,
+                strict_major=args.strict_major or None,
+                score_min=args.score_min,
+                score_max=args.score_max,
+                score_step=args.score_step,
+                candidates_per_score=args.candidates_per_score,
+                max_volunteers_per_case=args.max_volunteers_per_case,
+                max_volunteers_per_school=args.max_volunteers_per_school,
+                include_special_majors=args.include_special_majors,
+                max_major_name_length=args.max_major_name_length,
+                exclude_name_patterns=[]
+                if args.include_suspect_schools
+                else DEFAULT_EXCLUDE_PATTERNS,
+                strict_target_quality=not args.no_strict_target_quality,
+                min_quality_gain=args.min_quality_gain,
             )
         elif args.relaxation == "tuition_value":
             gap_sets = await find_tuition_value_gap_sets(
@@ -785,6 +865,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         choices=values(MajorRelaxScope),
         default="national",
         help="Whether tuition-value personas keep province or search nationally.",
+    )
+    parser.add_argument(
+        "--min-quality-gain",
+        type=int,
+        default=10,
+        help="Minimum quality-score gain used by --relaxation major_quality.",
     )
     parser.add_argument(
         "--target-major-clusters",

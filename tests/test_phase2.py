@@ -7,6 +7,7 @@ from app.flows.probers import (
     classify_risk_band,
     probe_city_relax,
     probe_major_geo_relax,
+    probe_major_quality_relax,
     probe_risk_band_relax,
     probe_strength_relax,
     probe_tuition_value_relax,
@@ -82,6 +83,76 @@ class CapturingDb:
 class EmptyDb:
     async def __call__(self, query, *params):
         return []
+
+
+class MajorQualityDb:
+    def __init__(self):
+        self.calls = []
+
+    async def __call__(self, query, *params):
+        self.calls.append((query, params))
+        if len(self.calls) == 1:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "省内锚点大学",
+                    "school_province": "浙江",
+                    "school_city": "杭州",
+                    "major_id": 10,
+                    "major_name": "软件工程",
+                    "min_score": 570,
+                    "min_rank": 70000,
+                    "quality_score": 72,
+                    "quality_tier": "C",
+                    "best_major_rank": 90,
+                    "best_rating": "B",
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "专业强校大学",
+                "school_province": "江苏",
+                "school_city": "南京",
+                "major_id": 10,
+                "major_name": "软件工程",
+                "min_score": 588,
+                "min_rank": 52000,
+                "quality_score": 95,
+                "quality_tier": "A",
+                "best_major_rank": 8,
+                "best_rating": "A",
+                "has_key_major": True,
+                "has_featured_major": False,
+                "quality_evidence_sources": [
+                    {"source_type": "major_ranking", "evidence_label": "专业排名 8"}
+                ],
+                "ranking": 80,
+                "tier": 3,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "特色专业大学",
+                "school_province": "安徽",
+                "school_city": "合肥",
+                "major_id": 10,
+                "major_name": "软件工程",
+                "min_score": 580,
+                "min_rank": 59000,
+                "quality_score": 84,
+                "quality_tier": "B",
+                "best_major_rank": None,
+                "best_rating": "B+",
+                "has_key_major": False,
+                "has_featured_major": True,
+                "ranking": 120,
+                "tier": 2,
+            },
+        ]
 
 
 class RiskDb:
@@ -503,6 +574,33 @@ async def test_strength_relax_keeps_major_and_returns_stronger_rank_options():
     assert f"%{constraints['major']}%" in probe_params
     assert rows[0]["major_strength_rank"] == 80
     assert rows[1]["major_strength_rank"] == 120
+
+
+@pytest.mark.asyncio
+async def test_major_quality_relax_keeps_major_and_returns_quality_options():
+    db = MajorQualityDb()
+    constraints = {
+        **STRICT_CONSTRAINTS,
+        "province": "浙江",
+        "major": "软件工程",
+        "strength": "school_strength",
+    }
+
+    rows = await probe_major_quality_relax(constraints, db=db, limit=2)
+
+    baseline_query, baseline_params = db.calls[0]
+    probe_query, probe_params = db.calls[-1]
+    assert "s.province = %s" in baseline_query
+    assert constraints["province"] in baseline_params
+    assert "s.province <> %s" in probe_query
+    assert "a.major_name_raw LIKE %s" in probe_query
+    assert "mq.quality_score >= %s" in probe_query
+    assert constraints["province"] in probe_params
+    assert f"%{constraints['major']}%" in probe_params
+    assert rows[0]["quality_score"] == 95
+    assert rows[0]["quality_gain"] == 23
+    assert rows[0]["best_major_rank"] == 8
+    assert rows[0]["quality_evidence_sources"][0]["source_type"] == "major_ranking"
 
 
 @pytest.mark.asyncio
