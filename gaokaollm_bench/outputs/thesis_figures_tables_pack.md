@@ -1,16 +1,16 @@
 # 论文图表与算法表格素材包
 
-本文档用于把当前“数据 + Agent + Benchmark”论文主线整理成可直接迁入毕业论文、答辩 PPT 或 LaTeX 绘图工具的图表和算法素材。它不新增实验结论，不替代 summary、reports、transcripts 或 evidence 附录；它的作用是把已经完成的六组 Agent-vs-Baseline 实验、轻量 MAS/多角色 Agent 架构和数据证据层转成更清晰的论文表达材料。
+本文档用于把当前“数据 + Agent + Benchmark”论文主线整理成可直接迁入毕业论文、答辩 PPT 或 LaTeX 绘图工具的图表和算法素材。它不新增实验结论，不替代 summary、reports、transcripts 或 evidence 附录；它的作用是把已经完成的七组 Agent-vs-Baseline 实验、轻量 MAS/多角色 Agent 架构和数据证据层转成更清晰的论文表达材料。
 
 当前论文贡献结构为：
 
 | 贡献线 | 核心对象 | 论文表达重点 |
 | --- | --- | --- |
-| 数据贡献 | PostgreSQL 招生快照、专业树、`school_major_quality_profiles`、`major_employment_outcome_profiles` | 把分数、位次、学费、专业质量和就业结果转成可核验事实证据 |
+| 数据贡献 | PostgreSQL 招生快照、专业树、`school_major_quality_profiles`、`major_employment_outcome_profiles`、`region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json` | 把分数、位次、学费、专业质量、就业结果和地域树节点转成可核验事实证据 |
 | Agent 贡献 | `gatekeeper -> radar -> negotiator` 轻量 MAS/多角色 Agent | 用证据驱动 Pareto 谈判触发隐藏偏好妥协 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` | 用可复现实验验证 Agent 是否优于硬约束 baseline |
 
-本文图表默认遵守两条边界：第一，`major_geo_v1 + risk_band_v1` 是主实验；第二，`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` 是扩展实验，用于支撑数据贡献和框架可扩展性。
+本文图表默认遵守两条边界：第一，`major_geo_v1 + risk_band_v1` 是主实验；第二，`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 是扩展实验，用于支撑数据贡献和框架可扩展性。
 
 ## 1. 图表清单
 
@@ -19,8 +19,8 @@
 | 图 4-1 | 数据 + Agent + Benchmark 总体架构图 | 第 4 章或第 5 章开头 | 展示数据层、Agent 层、Benchmark 层和论文产物层之间的关系 |
 | 图 5-1 | 轻量 MAS/多角色 Agent 工作流图 | 第 5 章 Agent 方法 | 解释 `gatekeeper -> radar -> negotiator` 的角色分工 |
 | 图 4-2 | Benchmark 多轮评测流程图 | 第 4 章 Benchmark 方法 | 说明冰山画像、simulator、target agent、evaluator 和产物的闭环 |
-| 图 4-3 | 数据证据层与 relax 能力映射图 | 第 4 章数据层设计 | 说明招生事实、学费、专业质量、就业结果如何支撑各类 Pareto 机会 |
-| 表 6-1 | 六组实验结果总表 | 第 6 章实验结果 | 汇总主实验与扩展实验的核心指标 |
+| 图 4-3 | 数据证据层与 relax 能力映射图 | 第 4 章数据层设计 | 说明招生事实、学费、专业质量、就业结果、地域树如何支撑各类 Pareto 机会 |
+| 表 6-1 | 七组实验结果总表 | 第 6 章实验结果 | 汇总主实验与扩展实验的核心指标 |
 | 表 5-1 | 算法到实验映射表 | 第 5 章或第 6 章 | 把算法、数据证据、实验结果和论文意义对应起来 |
 
 ## 2. 系统总体架构图
@@ -34,7 +34,9 @@ flowchart TD
         D2["专业树 major_tree_final_reviewed.json"]
         D3["school_major_quality_profiles"]
         D4["major_employment_outcome_profiles"]
-        D5["summary / reports / transcripts"]
+        D5["region_geo_tree_reviewed_v1.json"]
+        D6["region_urban_tier_tree_reviewed_v1.json"]
+        D7["summary / reports / transcripts"]
     end
 
     subgraph AGENT["Agent 层：Agent 贡献"]
@@ -56,16 +58,18 @@ flowchart TD
     D2 --> R
     D3 --> R
     D4 --> R
+    D5 --> R
+    D6 --> R
     A --> AGENT
     N --> T
-    E --> D5
+    E --> D7
 ```
 
 论文说明建议：
 
 | 层次 | 图中节点 | 可写入论文的解释 |
 | --- | --- | --- |
-| 数据层 | PostgreSQL、专业树、专业质量、就业结果 | 提供可查询、可审计的事实证据，不依赖模型臆测 |
+| 数据层 | PostgreSQL、专业树、专业质量、就业结果、地域树 reviewed v1 | 提供可查询、可审计的事实证据，不依赖模型臆测 |
 | Agent 层 | `gatekeeper -> radar -> negotiator` | 通过角色分工完成约束抽取、机会探测和证据谈判 |
 | Benchmark 层 | persona、simulator、target agent、evaluator | 用冰山画像和多轮沙盒评测是否触发隐藏妥协 |
 | 产物层 | summary、reports、transcripts | 支撑论文结果复现和逐例追溯 |
@@ -84,11 +88,13 @@ flowchart LR
     RD --> O3["tuition_value_relax"]
     RD --> O4["major_quality_relax"]
     RD --> O5["employment_outcome_relax"]
+    RD --> O6["region_tree_relax"]
     O1 --> NG["negotiator"]
     O2 --> NG
     O3 --> NG
     O4 --> NG
     O5 --> NG
+    O6 --> NG
     B --> NG
     NG --> OUT["证据驱动 Pareto 谈判回复"]
     NG --> STATE["internal_state：constraints / baseline / opportunities / recommended_schools"]
@@ -146,6 +152,7 @@ flowchart TD
         A4["major_tree_final_reviewed.json"]
         A5["school_major_quality_profiles"]
         A6["major_employment_outcome_profiles"]
+        A7["region_geo_tree_reviewed_v1.json / region_urban_tier_tree_reviewed_v1.json"]
     end
 
     subgraph RELAX["Pareto opportunities"]
@@ -155,6 +162,7 @@ flowchart TD
         R4["tuition_value_relax"]
         R5["major_quality_relax"]
         R6["employment_outcome_relax"]
+        R7["region_tree_relax"]
     end
 
     A1 --> R1
@@ -163,12 +171,14 @@ flowchart TD
     A1 --> R4
     A1 --> R5
     A1 --> R6
+    A1 --> R7
     A2 --> R2
     A3 --> R4
     A4 --> R1
     A4 --> R6
     A5 --> R5
     A6 --> R6
+    A7 --> R7
 ```
 
 可迁入论文的解释表：
@@ -181,6 +191,7 @@ flowchart TD
 | 专业树 | `major_geo_relax`、`employment_outcome_relax` | 同专业、相近专业、专业类或更宽专业集合 |
 | `school_major_quality_profiles` | `major_quality_relax` | `quality_score`、`quality_gain`、专业排名/学科评估/特色/重点/满意度证据 |
 | `major_employment_outcome_profiles` | `employment_outcome_relax` | `outcome_score`、`outcome_gain`、就业排名、行业、岗位、薪资证据 |
+| `region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json` | `region_tree_relax` | `geo_block_relax`、`urban_tier_relax`、源/目标地域节点、树置信度 |
 
 ## 6. 通用算法伪代码
 
@@ -346,6 +357,34 @@ Procedure:
   5. Return candidates with industry, job and salary evidence.
 ```
 
+### 7.6 `region_tree_relax`
+
+```text
+Algorithm 8: region_tree_relax
+
+Keep:
+  score, major, selected_subjects, budget and factual eligibility
+
+Relax:
+  geography preference through reviewed region-tree nodes
+
+Evidence:
+  source_region_node, target_region_node, geo_block_relax, urban_tier_relax,
+  tree_confidence, school, city, province, min_score, min_rank, tier/ranking
+
+Procedure:
+  1. Map the explicit province/city preference to reviewed region-tree nodes.
+  2. For geo_block_relax, expand to adjacent or same-block geography nodes.
+  3. For urban_tier_relax, expand to reviewed city-tier nodes when the user asks for a better city.
+  4. Query reachable candidates under score, major, subject and budget constraints.
+  5. Return candidates with region-tree evidence and admission facts.
+
+Boundary:
+  City tier is reviewed region-tree evidence only.
+  It is not treated as direct evidence of employment opportunity, living cost or city quality.
+  region_tree_v1 Pareto gain is still computed from school tier/ranking improvement.
+```
+
 ## 8. 算法到实验映射表
 
 斜杠格式依次为 `elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turns`。
@@ -358,8 +397,9 @@ Procedure:
 | `tuition_value_v1` | 扩展实验 | `tuition_value_relax` | `admission_plans.tuition`、学费增量、最低分 | `1.000 / 1.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | 证明预算边界可通过性价比证据被校准 |
 | `major_quality_v1` | 扩展实验 | `major_quality_relax` | `school_major_quality_profiles`、`quality_score`、质量证据 | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | 证明专业质量标准化层能支撑更细粒度妥协 |
 | `employment_outcome_v1` | 扩展实验 | `employment_outcome_relax` | `major_employment_outcome_profiles`、`outcome_score`、就业证据 | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 证明就业结果证据可扩展到同一闭环 |
+| `region_tree_v1` | 扩展实验 | `region_tree_relax` | `region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json`、地域树节点 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 证明 reviewed 地域树可扩展到同一闭环 |
 
-## 9. 六组实验结果总表
+## 9. 七组实验结果总表
 
 | 实验组 | `app_pareto` 成功率 | `app_pareto` 平均 Pareto gain | `app_pareto` 幻觉率 | `app_pareto` 平均轮次 | baseline 成功率 | baseline 平均 Pareto gain | baseline 幻觉率 | baseline 平均轮次 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -369,8 +409,9 @@ Procedure:
 | `tuition_value_v1` | `1.000` | `1.000` | `0.000` | `5.00` | `0.000` | `0.000` | `0.000` | `11.00` |
 | `major_quality_v1` | `1.000` | `16.000` | `0.000` | `5.00` | `0.000` | `0.000` | `0.050` | `11.00` |
 | `employment_outcome_v1` | `1.000` | `49.000` | `0.000` | `3.00` | `0.000` | `0.000` | `0.000` | `11.00` |
+| `region_tree_v1` | `1.000` | `1.000` | `0.000` | `3.00` | `0.000` | `0.000` | `0.000` | `11.00` |
 
-论文写法建议：主实验表可以只展示 `major_geo_v1` 与 `risk_band_v1`，扩展实验表展示其余四组。答辩 PPT 可以合并成上表，用颜色区分主实验和扩展实验。
+论文写法建议：主实验表可以只展示 `major_geo_v1` 与 `risk_band_v1`，扩展实验表展示其余五组。答辩 PPT 可以合并成上表，用颜色区分主实验和扩展实验。
 
 ## 10. 可直接迁入论文的边界说明
 
@@ -379,7 +420,7 @@ Procedure:
 | MAS 口径 | 本文采用基于角色分工的轻量 MAS/多角色 Agent 架构，而不是完全自治的多智能体系统。 |
 | Hidden persona | Agent 不读取 `implicit_flexibilities` 或 `volunteer_set`，这些字段只用于 simulator 和 evaluator。 |
 | 主实验定位 | `major_geo_v1 + risk_band_v1` 是论文第一版主实验，验证核心偏好妥协能力。 |
-| 扩展实验定位 | 四组扩展实验支撑数据贡献和框架可扩展性，不替代主实验。 |
+| 扩展实验定位 | 五组扩展实验支撑数据贡献和框架可扩展性，不替代主实验。 |
 | 数据证据边界 | 只有能落到 PostgreSQL 或标准化证据层的因素，才适合进入当前 Benchmark 闭环。 |
 | 未实现方向 | 城市生活质量、家庭距离、校园文化、个人兴趣匹配等暂缺可核验证据，写作后续工作。 |
 
@@ -391,6 +432,6 @@ Procedure:
 | 方法章节 | 第 2、3、4、5 节 Mermaid 图 |
 | 算法章节 | 第 6、7 节伪代码 |
 | 实验章节 | 第 8、9 节结果表 |
-| 答辩 PPT | 系统总体架构图、MAS 工作流图、六组实验结果总表 |
+| 答辩 PPT | 系统总体架构图、MAS 工作流图、七组实验结果总表 |
 
 如果迁入 LaTeX，Mermaid 图可以作为绘图草稿，用 TikZ、draw.io 或 PPT 重画；表格可直接转成三线表。正文中建议优先突出“数据证据驱动”的主线：数据层不是附属材料，而是 Agent 能够安全谈判、Benchmark 能够判定成功的基础。
