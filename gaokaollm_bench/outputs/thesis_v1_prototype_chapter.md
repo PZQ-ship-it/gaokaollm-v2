@@ -1,6 +1,6 @@
 # 第 3 章 第一版 Agentic RAG 原型系统与问题诊断
 
-本文档是毕业论文第 3 章的正文草稿，用于承接第 1 章“绪论”、第 2 章“相关技术”，并自然引出后续 v2 的 Benchmark 构建、证据驱动 Pareto 谈判 Agent 设计与双实验验证。本章的核心定位是：`gaokaollmmodel` 是第一版面向高考志愿咨询的 Agentic RAG 工程原型，是系统基础和问题来源；v2 是研究问题收敛后的最终主贡献。
+本文档是毕业论文第 3 章的正文草稿，用于承接第 1 章“绪论”、第 2 章“相关技术”，并自然引出后续 v2 的数据层构建、轻量 MAS/多角色 Agent 设计、Benchmark 评测和六组实验验证。本章的核心定位是：`gaokaollmmodel` 是第一版面向高考志愿咨询的 Agentic RAG 工程原型，是系统基础和问题来源；v2 是研究问题收敛后的最终主贡献。
 
 本章材料主要参考：
 
@@ -9,7 +9,7 @@
 - v1/v2 整合方案：`gaokaollm_bench/outputs/thesis_v1_v2_integration_plan.md`
 - 绪论与相关技术正文：`gaokaollm_bench/outputs/thesis_intro_related_work_chapters.md`
 - 方法与实验正文：`gaokaollm_bench/outputs/thesis_method_experiment_chapters.md`
-- 双实验审计报告：`gaokaollm_bench/outputs/thesis_artifact_audit.md`
+- 论文审计与证据产物：`gaokaollm_bench/outputs/thesis_artifact_audit.md`
 
 ## 3.1 原型系统定位
 
@@ -90,7 +90,7 @@ v1 中的冲稳保主要作为推荐生成策略存在，其目标是让系统�
 
 v1 还实现了面向真实交互的 SSE 流式响应。系统通过后端接口将 Agent 的生成过程以 token 或 chunk 的形式返回前端，改善用户感知延迟。中期报告中还提到，系统在工程侧尝试了 Flash Attention、Chain of Draft 和全链路计时监控等推理提速手段。
 
-这些内容体现了 v1 的工程完整性，但在最终论文中不宜占据过多篇幅。原因是本文最终主贡献不在推理系统性能优化，而在 Agent+Benchmark 闭环。建议正文中保留流式响应作为原型系统完整性的说明，将细粒度性能优化放入附录或实现细节部分。
+这些内容体现了 v1 的工程完整性，但在最终论文中不宜占据过多篇幅。原因是本文最终主贡献不在推理系统性能优化，而在“数据 + Agent + Benchmark”三贡献闭环。建议正文中保留流式响应作为原型系统完整性的说明，将细粒度性能优化放入附录或实现细节部分。
 
 ## 3.9 原型系统问题诊断
 
@@ -108,37 +108,43 @@ v1 证明了高考志愿咨询可以被构建为 Agentic RAG 系统，但它也�
 
 v1 到 v2 不是推翻关系，而是研究问题的收敛和方法升级。v1 解决的是“能否做出一个可用的高考志愿 Agentic RAG 系统”；v2 解决的是“如何证明一个 Agent 在真实招生数据约束下，能够通过多轮证据谈判触发用户偏好妥协”。
 
-| 维度 | v1：`gaokaollmmodel` | v2：Agent+Benchmark 闭环 |
+| 维度 | v1：`gaokaollmmodel` | v2：数据 + Agent + Benchmark 闭环 |
 |---|---|---|
 | 论文定位 | v1 是工程原型与问题发现 | v2 是最终主贡献 |
 | 核心问题 | 如何让系统能查、能答、能推荐 | 如何让偏好妥协可生成、可运行、可评价 |
-| 系统形态 | Agentic RAG 原型 | 证据驱动 Pareto 谈判 Agent + Benchmark |
-| 主要能力 | LangGraph/状态机、Redis 画像、混合检索、BGE-M3、BCEmbedding、`1:3:9`、SSE | 冰山画像、多轮沙盒、`major_geo_relax`、`risk_band_relax`、事实/过程联合评价 |
+| 系统形态 | Agentic RAG 原型 | 数据层 + 轻量 MAS/多角色 Agent + Benchmark |
+| 数据贡献 | 数据作为问答和推荐的运行依赖 | PostgreSQL 招生快照、分数/位次、学费、专业树、`school_major_quality_profiles`、`major_employment_outcome_profiles` |
+| Agent 架构 | LangGraph/状态机、Redis 画像、混合检索、BGE-M3、BCEmbedding、`1:3:9`、SSE | `gatekeeper -> radar -> negotiator` 轻量 MAS/多角色 Agent 工作流 |
+| 主要能力 | 查分、问答、混合检索、梯度推荐和一致性校验 | `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax` |
 | 风险推荐 | 工程化冲稳保输出 | 可评测的 `chong/wen/bao` 风险偏好放宽 |
 | 证据链 | 系统日志和工程测试为主 | transcripts、reports、summary、evidence、audit |
-| 实验归属 | 不承载 `app_pareto` 主实验指标 | 承载 `major_geo_v1` 与 `risk_band_v1` 双实验 |
+| 实验归属 | 不承载 `app_pareto` 主实验指标 | 承载 `major_geo_v1 + risk_band_v1` 主实验，以及 `school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1` 扩展实验 |
 
 后续章节可以按如下逻辑承接：
 
 ```text
 第 3 章：v1 跑通 Agentic RAG 原型，并诊断出偏好妥协评测不足
-第 4 章：v2 构建冰山画像 Benchmark，让偏好妥协任务可评测
-第 5 章：v2 设计证据驱动 Pareto 谈判 Agent
-第 6 章：v2 用 major_geo_v1 + risk_band_v1 验证 Agent 相对 baseline 的提升
+第 4 章：v2 构建 PostgreSQL 数据层、专业树、质量/就业标准化层和冰山画像 Benchmark
+第 5 章：v2 设计 gatekeeper -> radar -> negotiator 轻量 MAS/多角色 Pareto 谈判 Agent
+第 6 章：v2 用主实验和扩展实验验证 Agent 相对 baseline 的提升与数据证据维度的可扩展性
 ```
 
 ## 3.11 与 v2 实验结果的边界
 
-论文写作中必须明确：`major_geo_v1` 与 `risk_band_v1` 是 v2 的 Agent-vs-Baseline 主实验，不是 v1 原型系统的实验结果。
+论文写作中必须明确：六组 `app_pareto` 与 `hard_constraint` 对照实验均属于 v2 的数据 + Agent + Benchmark 闭环，不是 v1 原型系统的实验结果。其中 `major_geo_v1` 与 `risk_band_v1` 是 v2 的 Agent-vs-Baseline 主实验，四组扩展实验用于支撑数据贡献和框架可扩展性。
 
-当前已审计的双实验结果为：
+当前 v2 实验结果为：
 
 | 实验 | `app_pareto` | `hard_constraint` | 归属 |
 |---|---|---|---|
 | `major_geo_v1` | `0.900 / 0.900 / 0.000 / 5.20` | `0.000 / 0.000 / 0.000 / 7.00` | v2 主实验 |
 | `risk_band_v1` | `1.000 / 3.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 15.00` | v2 主实验 |
+| `school_strength_v1` | `1.000 / 15.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | v2 扩展实验 |
+| `tuition_value_v1` | `1.000 / 1.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | v2 扩展实验 |
+| `major_quality_v1` | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | v2 扩展实验 |
+| `employment_outcome_v1` | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | v2 扩展实验 |
 
-四个指标依次为 `elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turns`。其中 `app_pareto 0.900` 对应 `major_geo_v1`，`app_pareto 1.000` 对应 `risk_band_v1`。这些结果用于证明 v2 的证据驱动 Pareto 谈判能力，不应写成 v1 `gaokaollmmodel` 的直接性能结果。
+四个指标依次为 `elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turns`。其中 `major_geo_v1 + risk_band_v1` 用于证明核心偏好妥协能力，`school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1` 用于证明同一框架可以接入学科实力、学费、专业质量和就业结果等数据证据维度。这些结果用于证明 v2 的证据驱动 Pareto 谈判能力和数据层可扩展性，不应写成 v1 `gaokaollmmodel` 的直接性能结果。
 
 同时，`major_geo_v1` 并非 100% 成功。失败样本为 `real-db-set-浙江-569-009`。论文中应保留这一失败分析，用来说明当前 Agent 闭环已经可审计，但仍存在放宽阶段选择和候选命中方面的改进空间。
 
@@ -146,4 +152,4 @@ v1 到 v2 不是推翻关系，而是研究问题的收敛和方法升级。v1 �
 
 本章介绍了第一版 `gaokaollmmodel` Agentic RAG 原型系统。v1 通过 LangGraph/状态机工作流、意图识别、Redis 用户画像、混合检索、BGE-M3 embedding、BCEmbedding 重排、`1:3:9` 冲稳保推荐、神经-符号一致性校验和 SSE 流式响应，完成了面向高考志愿咨询的工程闭环。
 
-但 v1 的主要价值是工程原型与问题发现，而不是最终主贡献。它证明了系统能回答和推荐，也揭示了传统 RAG 原型难以严格评测隐性妥协、动态放宽、Pareto 增益、逐例证据和可复现审计的问题。基于这一诊断，后续 v2 将研究重点转向 Agent+Benchmark 双贡献：Benchmark 负责构建冰山画像、多轮沙盒和事实/过程联合评价，Agent 负责通过 `major_geo_relax` 与 `risk_band_relax` 进行证据驱动 Pareto 谈判。
+但 v1 的主要价值是工程原型与问题发现，而不是最终主贡献。它证明了系统能回答和推荐，也揭示了传统 RAG 原型难以严格评测隐性妥协、动态放宽、Pareto 增益、逐例证据和可复现审计的问题。基于这一诊断，后续 v2 将研究重点转向“数据 + Agent + Benchmark”三贡献闭环：数据层负责提供 PostgreSQL 招生事实、专业树、专业质量和就业结果等可核验证据；Agent 层通过 `gatekeeper -> radar -> negotiator` 轻量 MAS/多角色工作流进行证据驱动 Pareto 谈判；Benchmark 层负责构建冰山画像、多轮沙盒和事实/过程联合评价。主实验 `major_geo_v1 + risk_band_v1` 证明核心偏好妥协能力，四组扩展实验则证明数据证据维度可以持续接入同一闭环。
