@@ -6,7 +6,8 @@
 
 - 主实验：`major_geo_v1`、`risk_band_v1`。
 - 扩展实验：`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`。
-- 后续优先方向：多年稳定性风险增强、城市收益指标、真实用户校准、概率化录取风险模型。
+- 数据前置层：`region_geo_tree.json`、`region_urban_tier_tree.json` 与 `region_tree_coverage_report.md/json` 已建立，用于后续地域树实验。
+- 后续优先方向：地域树 HITL 审校与 `region_tree_relax`、多年稳定性风险增强、真实用户校准、概率化录取风险模型。
 
 ## 1. 论文贡献结构
 
@@ -14,7 +15,7 @@
 
 | 贡献线 | 当前内容 | 论文作用 |
 |---|---|---|
-| 数据贡献 | 本地 PostgreSQL 招生快照、`admission_scores`、`school_admission_scores`、`score_rank_segments`、`batch_lines`、`admission_plans.tuition`、专业树、`school_major_quality_profiles`、`major_employment_outcome_profiles` | 为每一次 Pareto 谈判提供可核验的分数、位次、学费、风险、专业质量和就业结果证据 |
+| 数据贡献 | 本地 PostgreSQL 招生快照、`admission_scores`、`school_admission_scores`、`score_rank_segments`、`batch_lines`、`admission_plans.tuition`、专业树、`school_major_quality_profiles`、`major_employment_outcome_profiles`、地域树 v0 数据层 | 为每一次 Pareto 谈判提供可核验的分数、位次、学费、风险、专业质量、就业结果和未来地域放宽证据 |
 | Agent 贡献 | LangGraph `gatekeeper -> radar -> negotiator`，以及 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax` 等探测能力 | 把用户显性约束转化为证据驱动的动态妥协谈判 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` 对照 | 验证 Agent 是否真的触发隐藏可妥协条件，而不是只生成看似合理的建议 |
 
@@ -46,9 +47,21 @@
 
 这些结果说明，Pareto gain 不只来自学校层次提升。`risk_band_relax` 证明志愿组合质量也可以成为收益；`tuition_value_relax` 证明预算边界可以被学费增量和学校收益证据校准；`major_quality_relax` 证明补充专业质量标准化层后，Agent 可以从“学校更强”推进到“学校-专业证据更强”；`employment_outcome_relax` 证明就业画像也可以被清洗成可谈判、可核验的就业结果证据。
 
+## 3.1 地域树 v0 数据前置层
+
+地域放宽当前不进入上述六组实验结果表，但已经从“纯设计”推进到可验收的数据前置层。
+
+| 数据层 | 产物 | 当前作用 | 后续实验关系 |
+|---|---|---|---|
+| 地理邻近树 | `gaokaollm_bench/outputs/region_geo_tree.json` | 记录全国、大区/地理板块、省份、城市/都市圈 | 支撑未来 `geo_block_relax` |
+| 城市层级树 | `gaokaollm_bench/outputs/region_urban_tier_tree.json` | 记录一线、新一线、强省会、普通省会/重要地级市等 v0 层级 | 支撑未来 `urban_tier_relax` |
+| 覆盖报告 | `gaokaollm_bench/outputs/region_tree_coverage_report.md/json` | 检查 PostgreSQL `schools.province` / `schools.city` 是否能挂载到两棵树 | 给 HITL review queue 和后续 `region_tree_relax` 提供入口 |
+
+覆盖报告显示，当前 DB 中有 414 个省份-城市组合、3,219 所学校，地理树可挂载 395 个城市组合，城市层级树可挂载 72 个城市组合，并产生 404 条 review queue。这说明地域树已经具备数据层验收基础，但城市层级、低置信映射和未匹配城市仍需 human-in-the-loop 审校。因此，地域树当前应写作“数据贡献前置层”，不能写作已完成 Pareto 放宽实验。
+
 ## 4. 数据贡献现状
 
-当前数据贡献已经超过原始招生表本身，主要体现在四类可复用证据层。
+当前数据贡献已经超过原始招生表本身，主要体现在五类可复用证据层。
 
 第一类是招生事实与风险证据。`admission_scores`、`school_admission_scores`、`score_rank_segments` 和 `batch_lines` 支撑分数、位次、批次线、风险层级和是否可达的判断。这部分是所有放宽实验的底座。
 
@@ -58,12 +71,15 @@
 
 第四类是就业结果标准化证据。`major_employment_profiles` 已经被清洗为 `major_employment_outcome_profiles`，将就业排名、热门就业城市、行业分布、岗位分布、薪资分布和 `outcome_score` 转化为 Agent 可表达、Benchmark 可核验的字段。`employment_outcome_v1` 说明就业画像可以进入同一套数据-探测-沙盒-评价闭环。
 
+第五类是地域树 v0 标准化证据。`region_geo_tree.json` 与 `region_urban_tier_tree.json` 把 `schools.province` / `schools.city` 从自由城市字段推进到可审校的层级节点。它当前只证明覆盖和挂载能力，不证明城市收益；后续只有在 review queue 审校、城市层级证据完善并接入 `region_tree_relax` 后，才能进入 Agent+Benchmark 实验。
+
 ## 5. 仍需开发或清洗的方向
 
 | 状态 | 决策考量 | 当前数据条件 | 是否适合继续做 benchmark | 建议 |
 |---|---|---|---|---|
+| 推荐下一步 | 地域树 HITL 审校与 `region_tree_relax` | v0 `region_geo_tree`、`region_urban_tier_tree` 和覆盖报告已生成，但 review queue 仍高 | 适合先做数据审校，再做小规模 smoke benchmark | 审校低置信城市和未挂载城市，区分 `geo_block_relax` 与 `urban_tier_relax` |
 | 推荐下一步 | 多年稳定性风险增强 | 多年份录取分、学校分数线和批次线可用 | 适合作为 `risk_band_relax` 增强 | 用分数波动、位次波动、近年稳定性增强风险证据 |
-| 需谨慎 | 城市收益指标 | `schools.city` 可用，但缺少城市质量、生活成本、就业机会等收益指标 | 暂不适合直接写成 Pareto gain | 先构造可核验城市收益指标，再考虑 city 实验 |
+| 需谨慎 | 城市收益指标 | `schools.city` 与地域树 v0 可用，但缺少生活成本、城市质量、就业机会等收益指标 | 暂不适合直接写成 Pareto gain | 先构造可核验城市收益指标，或只做地理邻近放宽 |
 | 需谨慎 | 专业就业城市匹配 | 就业数据与城市、行业可能有关，但需要统一口径 | 有条件适合 | 可作为 `employment_outcome_relax` 的二期增强 |
 | 仅展望 | 家庭距离 | 当前缺少家庭位置与距离成本数据 | 不适合 | 写入局限性与未来用户画像扩展 |
 | 仅展望 | 校园文化 | 当前缺少社团、氛围、校园生活质量证据 | 不适合 | 不进入当前 DB benchmark |

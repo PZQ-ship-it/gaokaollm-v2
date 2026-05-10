@@ -2,7 +2,7 @@
 
 本文档用于支撑毕业论文中“层级放宽方法”和“Human-in-the-loop 标注设计”的论述。它把已经完成的专业树方法总结为可写入论文的方法贡献，并进一步讨论地域放宽是否可以类比专业树，形成可审计的地域树设计方案。
 
-本文不新增实验结论，不实现地域树代码，也不把地域树写成已完成闭环。当前已完成的是专业树与 `major_geo_relax` 主实验；地域树仍属于后续可开发方向，需要先建立可核验的地域标准化层和 human-in-the-loop 审校流程。
+本文不新增 Agent/Benchmark 实验结论，也不把地域树写成已完成闭环。当前已完成的是专业树与 `major_geo_relax` 主实验；地域树已经补齐 v0 数据标准化层，包括 `region_geo_tree.json`、`region_urban_tier_tree.json` 和基于 PostgreSQL `schools.province` / `schools.city` 的覆盖报告。它仍属于后续可开发方向，下一步需要完成 human-in-the-loop 审校、`region_tree_relax` 探针和地域冰山画像实验。
 
 ## 1. 为什么层级树适合做动态放宽
 
@@ -248,13 +248,40 @@ Evaluator 可见：
 
 该边界与当前 `major_geo_v1`、`risk_band_v1` 一致，避免信息泄漏。
 
-## 8. 地域树未来闭环路线
+## 8. 地域树 v0 数据层与覆盖报告
+
+当前项目已经新增地域树 v0 数据 artifact，但它的定位是“可审计数据前置层”，不是新的 Agent 实验结论。
+
+| 产物 | 作用 | 当前边界 |
+| --- | --- | --- |
+| `gaokaollm_bench/outputs/region_geo_tree.json` | 记录全国、大区/地理板块、省份、城市/都市圈的地理邻近层级 | 可用于未来 `geo_block_relax`，但当前不产生 Pareto gain |
+| `gaokaollm_bench/outputs/region_urban_tier_tree.json` | 记录一线、新一线、强省会、普通省会/重要地级市等城市层级 | 是人工/规则 v0 标注，需要继续审校，不等同于完整城市收益指标 |
+| `gaokaollm_bench/outputs/region_tree_coverage_report.json` | 机器可读覆盖报告 | 记录 DB 城市、省份挂载和 review queue |
+| `gaokaollm_bench/outputs/region_tree_coverage_report.md` | 论文/开发可读覆盖报告 | 说明未匹配、低置信和人工审校建议 |
+
+覆盖检查脚本只读取 PostgreSQL `schools.province` / `schools.city`，不启动 LLM，也不重跑 benchmark。当前报告摘要如下：
+
+| 指标 | 数值 |
+| --- | ---: |
+| DB 中省份-城市组合数 | 414 |
+| 覆盖学校数 | 3,219 |
+| DB 中省份数 | 35 |
+| 已挂载省份数 | 29 |
+| 地理树可挂载城市组合数 | 395 |
+| 地理树高置信城市组合数 | 12 |
+| 城市层级树可挂载城市组合数 | 72 |
+| 城市层级树高置信城市组合数 | 71 |
+| review queue 条目 | 404 |
+
+这些数字的含义是：地理树已经能通过省份或少量城市节点覆盖大部分学校所在地，但城市层级树仍然需要更充分的人工审校和证据补充。尤其是 `review_queue_count = 404` 说明地域树不能直接进入 Agent+Benchmark 闭环；它需要先完成低置信城市、歧义城市和未挂载城市的 HITL 审校。
+
+## 9. 地域树未来闭环路线
 
 地域树可以作为后续数据 + Agent + Benchmark 扩展实验，但需要分阶段完成。
 
 | 阶段 | 目标 | 产物 |
 | --- | --- | --- |
-| 数据层 | 构建 reviewed 地域树和城市层级证据 | `region_geo_tree.json`、`region_urban_tier_tree.json` 或对应标准化表 |
+| 数据层 | 基于 v0 artifact 继续 HITL 审校，形成 reviewed 地域树和城市层级证据 | 已有 `region_geo_tree.json`、`region_urban_tier_tree.json`、`region_tree_coverage_report.md/json`；后续形成 reviewed v1 |
 | Agent 层 | 新增 `region_tree_relax` | 候选包含学校、省份、城市、地理阶段、城市层级、最低分/位次和收益说明 |
 | Benchmark 层 | 生成地域冰山画像 | 显性不想离家远，隐藏可接受相邻板块或更高城市层级 |
 | Judge 层 | 检查地域证据 | 必须命中隐藏志愿、分数证据和地域树证据 |
@@ -272,9 +299,9 @@ persona 可以命名为：
 iceberg_personas_region_tree_real_db_10.json
 ```
 
-但在完成地域树与城市层级证据前，不建议把它写成当前已实现的 Pareto 放宽能力。
+但在完成 review queue 审校、Agent 探针、benchmark persona 和逐例 evidence 前，不建议把它写成当前已实现的 Pareto 放宽能力。
 
-## 9. 与当前论文主线的关系
+## 10. 与当前论文主线的关系
 
 当前论文仍以“数据 + Agent + Benchmark”为主线。
 
@@ -282,25 +309,26 @@ iceberg_personas_region_tree_real_db_10.json
 | --- | --- | --- |
 | 专业树 | 已完成并支撑 `major_geo_relax` | 写入数据贡献与算法方法 |
 | `major_geo_v1` | 已完成主实验 | 写入实验主结果 |
-| 地域树 | 尚未实现，已有设计可行性 | 写入方法扩展或展望 |
+| 地域树 | v0 数据层已建立，Agent/Benchmark 闭环未完成 | 写入数据贡献前置层、方法扩展或展望 |
 | Human-in-the-loop | 专业树已有离线审校实践，地域树提出离线+在线设计 | 写入方法论与后续工作 |
 
 专业树可以作为已完成方法写实：它证明树结构可以将“放宽”变成可解释、可审计、可评测的阶段式算法。地域树则应作为自然延伸：同样用树结构组织放宽路径，但必须引入地理邻近与城市层级两套正交结构，并通过 Human-in-the-loop 解决用户意图模糊和城市收益证据不足的问题。
 
-## 10. 可迁入论文的总结表述
+## 11. 可迁入论文的总结表述
 
 可直接写入论文的方法总结如下：
 
 > 本文将“约束放宽”设计为层级树上的可解释移动，而不是简单删除条件。专业偏好通过 reviewed 专业树实现从同叶子、同父类、相关大类到任意专业的阶段式放宽；地域偏好则可进一步设计为地理邻近树和城市层级树两类正交结构。前者回答“离家或原区域有多近”，后者回答“城市资源或发展机会有多强”。在这类树结构中，Human-in-the-loop 的作用不是事后修补结果，而是参与定义树边界、审校低置信挂载项，并在用户表达模糊时选择放宽方向。这样，Agent 的妥协建议既保持事实可核验，又能避免无约束地扩大搜索空间。
 
-## 11. 边界说明
+## 12. 边界说明
 
-本文档只讨论方法论和未来设计，不新增实验结果。
+本文档只讨论方法论、v0 数据层和未来设计，不新增 Agent/Benchmark 实验结果。
 
 必须保留以下边界：
 
 - `major_tree_final_reviewed.json` 与 `major_geo_relax` 是已完成能力。
-- `region_geo_tree` 与 `region_urban_tier_tree` 是设计方案，不是当前已完成实验。
+- `region_geo_tree` 与 `region_urban_tier_tree` 是 v0 数据 artifact，不是当前已完成 Agent/Benchmark 实验。
+- `region_tree_coverage_report.md/json` 只证明地域树覆盖情况和 review queue，不证明地域放宽已经产生 Pareto gain。
 - 当前 PostgreSQL 有 `province` / `city` 字段，但没有完整城市繁华程度、生活成本、就业机会等证据层。
 - 地域树不能只凭 `schools.city` 包装成已实现 Pareto gain。
 - Agent 不读取 `implicit_flexibilities` 或 `volunteer_set`。

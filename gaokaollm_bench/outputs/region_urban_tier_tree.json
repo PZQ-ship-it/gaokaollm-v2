@@ -1,0 +1,226 @@
+{
+  "version": "v0",
+  "description": "Urban-tier tree for future region_tree_relax data layer. This is a reviewed v0 seed, not an Agent/Benchmark result.",
+  "nodes": [
+    {
+      "node_id": "urban:root",
+      "name": "城市发展层级",
+      "parent_id": null,
+      "aliases": ["城市层级", "城市资源层级"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_root",
+      "confidence": 1.0,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:tier:first",
+      "name": "一线城市",
+      "parent_id": "urban:root",
+      "aliases": ["一线", "一线城市资源"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_urban_tier",
+      "confidence": 0.9,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:tier:new_first",
+      "name": "新一线城市",
+      "parent_id": "urban:root",
+      "aliases": ["新一线", "强新一线"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_urban_tier",
+      "confidence": 0.85,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:tier:strong_capital",
+      "name": "强省会或区域中心",
+      "parent_id": "urban:root",
+      "aliases": ["强省会", "区域中心城市", "强经济城市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_urban_tier",
+      "confidence": 0.8,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:tier:ordinary_capital",
+      "name": "普通省会或重要地级市",
+      "parent_id": "urban:root",
+      "aliases": ["普通省会", "重要地级市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_urban_tier",
+      "confidence": 0.75,
+      "review_status": "needs_review",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:tier:prefecture",
+      "name": "普通地级市或低线城市",
+      "parent_id": "urban:root",
+      "aliases": ["普通地级市", "低线城市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_urban_tier",
+      "confidence": 0.7,
+      "review_status": "needs_review",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:beijing",
+      "name": "北京",
+      "parent_id": "urban:tier:first",
+      "aliases": ["北京市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.95,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:shanghai",
+      "name": "上海",
+      "parent_id": "urban:tier:first",
+      "aliases": ["上海市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.95,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:guangzhou",
+      "name": "广州",
+      "parent_id": "urban:tier:first",
+      "aliases": ["广州市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.95,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:shenzhen",
+      "name": "深圳",
+      "parent_id": "urban:tier:first",
+      "aliases": ["深圳市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.95,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:hangzhou",
+      "name": "杭州",
+      "parent_id": "urban:tier:new_first",
+      "aliases": ["杭州市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.9,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:chengdu",
+      "name": "成都",
+      "parent_id": "urban:tier:new_first",
+      "aliases": ["成都市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.9,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:nanjing",
+      "name": "南京",
+      "parent_id": "urban:tier:new_first",
+      "aliases": ["南京市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.9,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:wuhan",
+      "name": "武汉",
+      "parent_id": "urban:tier:new_first",
+      "aliases": ["武汉市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.9,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:tianjin",
+      "name": "天津",
+      "parent_id": "urban:tier:new_first",
+      "aliases": ["天津市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.85,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:chongqing",
+      "name": "重庆",
+      "parent_id": "urban:tier:new_first",
+      "aliases": ["重庆市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.85,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:suzhou",
+      "name": "苏州",
+      "parent_id": "urban:tier:new_first",
+      "aliases": ["苏州市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.85,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:ningbo",
+      "name": "宁波",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": ["宁波市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.8,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:hefei",
+      "name": "合肥",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": ["合肥市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.8,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:wenzhou",
+      "name": "温州",
+      "parent_id": "urban:tier:ordinary_capital",
+      "aliases": ["温州市"],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.75,
+      "review_status": "needs_review",
+      "source": "manual_v0"
+    }
+  ]
+}
