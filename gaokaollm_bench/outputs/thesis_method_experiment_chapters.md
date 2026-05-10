@@ -15,6 +15,8 @@
 - `gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md`
 - `gaokaollm_bench/outputs/benchmark_methodology.md`
 - `gaokaollm_bench/outputs/major_tree_methodology.md`
+- `gaokaollm_bench/outputs/thesis_hierarchical_relaxation_methodology.md`
+- `gaokaollm_bench/outputs/thesis_figures_tables_pack.md`
 - `gaokaollm_bench/outputs/dynamic_decision_considerations_roadmap.md`
 - `gaokaollm_bench/放宽与跃迁.md`
 
@@ -57,9 +59,34 @@
 
 这些表共同约束 Agent 的事实边界。例如，风险偏好放宽必须保留省份、专业、选科和预算等硬约束，只改变风险组合；学费放宽必须保留分数、专业和选科等可达性约束，只在 `budget < tuition <= budget + 10000` 的窗口内寻找候选；专业质量放宽必须同时给出最低分/位次和质量证据，不能只说“这个学校更好”。
 
-### 2.2 专业树与专业放宽
+### 2.2 层级放宽本体：专业树与专业放宽
 
-专业树用于把“专业放宽”从任意文本扩展变成可解释的层级策略。系统先在同叶子或近邻专业中搜索，再扩展到同父类、同门类和 probe 邻居；当近邻阶段没有可用 gap 时，才退化到更宽泛的 `any_major`。这一策略服务于 `major_geo_relax`，使 Agent 能解释“为什么这些专业是可以谈判的相近方向”，也使 benchmark 可以把放宽阶段本身纳入评估。
+专业树用于把“专业放宽”从任意文本扩展变成可解释的层级策略。核心产物为 `gaokaollm_bench/outputs/major_tree_final_reviewed.json`。它不是普通专业分类目录，而是连接数据贡献与 Agent 算法的层级放宽本体：一方面，它从真实 PostgreSQL 招生文本中吸收 `admission_scores.major_name_raw` 的观测专业名；另一方面，它为 `major_geo_relax` 提供可解释的 staged relaxation 路径。
+
+当前专业树统计如下。
+
+| 指标 | 数值 |
+|---|---:|
+| 节点数 | 82 |
+| Level 0 大类节点 | 8 |
+| Level 1 中层节点 | 22 |
+| Level 2 叶子簇 | 52 |
+| 叶子簇 observed_names 条目 | 19,096 |
+
+专业树构建采用 human-in-the-loop 的混合流程：
+
+```text
+人工本体骨架
+  -> PostgreSQL admission_scores.major_name_raw 扫描
+  -> include/exclude 规则挂载 observed names
+  -> probe top-k 候选生成
+  -> LLM/人工审校低置信样本
+  -> reviewed tree 与 audit artifact
+```
+
+这一流程的关键是保守自动化：规则和 probe 负责覆盖真实数据库中的噪声专业名与候选生成，最终语义边界仍通过人工本体和审校记录保持可追溯。这样，专业树既能覆盖招生计划中的真实文本变体，又不会把黑箱聚类结果直接写入推荐逻辑。
+
+在 Agent 侧，系统先在同叶子或近邻专业中搜索，再扩展到同父类、相关大类和 probe 邻居；当近邻阶段没有可用 gap 时，才退化到更宽泛的 `any_major`。这一策略服务于 `major_geo_relax`，使 Agent 能解释“为什么这些专业是可以谈判的相近方向”，也使 benchmark 可以把放宽阶段本身纳入评估。
 
 `major_geo_v1` 中唯一失败样本 `real-db-set-浙江-569-009` 正说明了放宽阶段选择的重要性：该样本需要退到更远的 `any_major` 才能命中隐藏志愿，而当前 Agent 停在较近的医学相关大类候选，因此没有被 deterministic judge 判为成功。
 
@@ -80,6 +107,23 @@
 就业导向放宽使用 `major_employment_profiles` 作为原始数据来源，并将其中的就业排名、就业最多地区、行业分布、岗位分布和薪资分布清洗为 `major_employment_outcome_profiles`。该标准化层保留 `major_id`、`major_name`、`employment_rank`、`top_city`、`top_industry`、`job_distribution`、`salary_distribution`、`outcome_score` 和 `evidence_sources` 等字段。
 
 这一设计避免 Agent 直接使用自由文本作判断，而是把就业证据转化为 transcript 中可核验的结构化字段。`employment_outcome_relax` 因此可以表达为：在分数、选科和预算等硬约束不变的情况下，如果选择同专业或专业树近邻专业中就业证据更强的方案，用户是否愿意接受相应的专业或地域妥协。
+
+### 2.5 地域树扩展设计与 Human-in-the-loop
+
+地域放宽可以类比专业树，但不能简单复制。专业树主要处理语义相近性，而地域偏好至少包含两类正交含义：一类是地理距离或行政地块上的“近”，另一类是城市资源、就业机会和繁华程度上的“好”。因此，后续地域放宽更适合设计成两棵树，而不是一棵混合树。
+
+| 设计对象 | 层级含义 | 适用表达 | 当前状态 |
+|---|---|---|---|
+| `region_geo_tree` | 全国 -> 大区/地理板块 -> 省份 -> 城市/都市圈 | “别太远”“江浙沪”“华东可以” | 方法设计，尚未进入实验 |
+| `region_urban_tier_tree` | 一线/新一线/强省会/普通省会/地级市/低线城市 | “想去好城市”“城市资源多一点”“更繁华” | 需要城市层级证据标准化 |
+
+未来可以将地域放宽抽象为 `region_tree_relax`，内部再区分 `geo_block_relax` 与 `urban_tier_relax`。其中，`geo_block_relax` 处理距离、行政板块和相邻省市；`urban_tier_relax` 处理城市层级、资源密度和发展机会。
+
+但该方向必须保留证据边界：当前 PostgreSQL 中已有 `schools.province` 与 `schools.city`，它们只能证明学校所在省市，不能直接证明城市繁华程度、就业机会、生活成本或交通距离。因此，地域树不能只凭 `schools.city` 包装成已完成 Pareto gain。若未来要进入 benchmark 闭环，需要先建立 reviewed 地域树、城市层级证据或外部可核验指标。
+
+地域树也需要 Human-in-the-loop。离线阶段由人工定义树骨架，自动扫描 DB 中的省份和城市，低置信或争议城市进入 review queue，并保留 `source`、`mapping_rule`、`confidence`、`review_status` 等审计字段。在线阶段，当用户只说“别太远”或“想去好城市”时，Agent 应先澄清用户更在意距离近还是城市发展机会，再决定按 `region_geo_tree`、`region_urban_tier_tree` 或两棵树联合放宽。
+
+这一设计当前只作为方法扩展和后续工作，不进入本文六组实验结果表。
 
 ## 3. Benchmark 方法
 
@@ -120,6 +164,8 @@ gatekeeper -> radar -> negotiator
 | `employment_outcome_relax` | 就业导向与相近专业就业结果 | 分数、选科、预算等硬约束 | `employment_rank`、`top_city`、`top_industry`、`job_distribution`、`salary_distribution`、`outcome_score`、`outcome_gain` |
 
 与之对照，`hard_constraint` baseline 只报告当前显性硬约束下的可达志愿，不主动产生 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax` 或 `employment_outcome_relax`。因此，baseline 代表“只迎合用户显性红线”的保守系统；`app_pareto` 代表“在事实约束内寻找可谈判收益”的证据驱动系统。
+
+其中，`major_geo_relax` 的算法重点在于 staged relaxation，而不是简单去掉专业和地域条件。它保留分数、选科、预算等硬约束，在专业树上按“同叶子/近邻专业 -> 同父类 -> 相关大类/probe 邻居 -> `any_major`”逐级扩大搜索空间，同时允许跨省搜索更高层次或更有证据的候选。`real-db-set-浙江-569-009` 的失败说明，放宽阶段选择本身也是可评估对象：如果 Agent 停在较近阶段，而 hidden volunteer set 需要更远的 `any_major` 阶段，则该 case 不应被写成成功。
 
 ## 5. 实验设置
 
@@ -185,7 +231,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 学费放宽、专业质量映射和就业结果放宽已经完成第一版闭环，因此不再作为“未实现能力”描述。更合适的后续方向包括：
 
 - 多年稳定性风险增强：将单年最低分/位次扩展为多年份波动、录取稳定性和风险置信区间。
-- 城市收益指标：不能仅凭 `schools.city` 字段写成“城市跃迁”，需要引入可核验的就业机会、生活成本或产业匹配证据。
+- 地域树与城市收益指标：基于 `region_geo_tree` 和 `region_urban_tier_tree` 设计地域层级放宽，但不能仅凭 `schools.city` 字段写成“城市跃迁”，需要引入可核验的就业机会、生活成本、产业匹配或人工审校城市层级证据。
 - 真实用户校准：检验模拟用户的隐性妥协是否符合真实考生和家长的行为。
 - 概率化录取风险模型：将当前确定性 `score_margin` / `rank_gap` 风险分层升级为概率化录取风险估计。
 
