@@ -6,6 +6,7 @@ from app.core.db_pg import close_pool
 from app.flows.probers import (
     classify_risk_band,
     probe_city_relax,
+    probe_employment_outcome_relax,
     probe_major_geo_relax,
     probe_major_quality_relax,
     probe_risk_band_relax,
@@ -149,6 +150,74 @@ class MajorQualityDb:
                 "best_rating": "B+",
                 "has_key_major": False,
                 "has_featured_major": True,
+                "ranking": 120,
+                "tier": 2,
+            },
+        ]
+
+
+class EmploymentOutcomeDb:
+    def __init__(self):
+        self.calls = []
+
+    async def __call__(self, query, *params):
+        self.calls.append((query, params))
+        if len(self.calls) == 1:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "省内就业锚点大学",
+                    "school_province": "浙江",
+                    "school_city": "杭州",
+                    "major_id": 10,
+                    "major_name": "软件工程",
+                    "min_score": 570,
+                    "min_rank": 70000,
+                    "outcome_score": 62,
+                    "outcome_tier": "D",
+                    "employment_rank": 42,
+                    "top_industry": "软件服务",
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "就业强校大学",
+                "school_province": "江苏",
+                "school_city": "南京",
+                "major_id": 10,
+                "major_name": "软件工程",
+                "min_score": 588,
+                "min_rank": 52000,
+                "outcome_score": 88,
+                "outcome_tier": "B",
+                "employment_rank": 9,
+                "top_industry": "互联网",
+                "salary_distribution": {"items": ["10k-15k"]},
+                "employment_evidence_sources": [
+                    "employment_rank=9",
+                    "salary_distribution",
+                ],
+                "ranking": 80,
+                "tier": 3,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "行业特色大学",
+                "school_province": "安徽",
+                "school_city": "合肥",
+                "major_id": 11,
+                "major_name": "计算机科学与技术",
+                "min_score": 580,
+                "min_rank": 59000,
+                "outcome_score": 80,
+                "outcome_tier": "B",
+                "employment_rank": 17,
+                "top_industry": "信息技术",
                 "ranking": 120,
                 "tier": 2,
             },
@@ -631,3 +700,33 @@ async def test_tuition_value_relax_keeps_hard_filters_and_returns_value_options(
     assert rows[0]["tuition"] == 9000
     assert rows[0]["tuition_delta"] == 3000
     assert rows[1]["tuition_delta"] == 6000
+
+
+@pytest.mark.asyncio
+async def test_employment_outcome_relax_returns_outcome_evidence():
+    db = EmploymentOutcomeDb()
+    constraints = {
+        **STRICT_CONSTRAINTS,
+        "province": "浙江",
+        "major": "软件工程",
+        "employment_preference": "employment_outcome",
+    }
+
+    rows = await probe_employment_outcome_relax(
+        constraints,
+        db=db,
+        limit=2,
+        min_outcome_gain=10,
+    )
+
+    baseline_query, baseline_params = db.calls[0]
+    probe_query, probe_params = db.calls[-1]
+    assert "s.province = %s" in baseline_query
+    assert constraints["province"] in baseline_params
+    assert "s.province <> %s" in probe_query
+    assert "me.outcome_score >= %s" in probe_query
+    assert constraints["province"] in probe_params
+    assert rows[0]["outcome_score"] == 88
+    assert rows[0]["outcome_gain"] == 26
+    assert rows[0]["employment_rank"] == 9
+    assert rows[0]["top_industry"] == "互联网"

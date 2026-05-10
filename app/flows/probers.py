@@ -220,6 +220,82 @@ LEFT JOIN LATERAL (
 ) mq ON true
 """
 
+EMPLOYMENT_OUTCOME_SELECT = """
+SELECT
+    a.id AS admission_score_id,
+    a.year,
+    a.school_id,
+    s.name AS school_name,
+    s.province AS school_province,
+    s.city AS school_city,
+    s.is_985,
+    s.is_211,
+    s.is_double_first_class,
+    s.education_level,
+    s.ranking,
+    a.major_id,
+    a.major_name_raw AS major_name,
+    a.subject_requirement,
+    a.requirement_normalized,
+    COALESCE(sr.requirement_type, 'unknown') AS requirement_type,
+    a.min_score,
+    a.min_rank,
+    plan.min_tuition AS tuition,
+    me.outcome_score,
+    me.outcome_tier,
+    me.employment_rank,
+    me.employment_rank_desc,
+    me.top_city AS employment_top_city,
+    me.top_industry,
+    me.industry_distribution,
+    me.city_distribution AS employment_city_distribution,
+    me.job_distribution,
+    me.salary_distribution,
+    me.evidence_sources AS employment_evidence_sources,
+    CASE
+        WHEN s.is_985 THEN 4
+        WHEN s.is_211 OR s.is_double_first_class THEN 3
+        WHEN s.education_level = '本科' THEN 2
+        ELSE 1
+    END AS tier
+FROM admission_scores a
+JOIN schools s ON s.id = a.school_id
+LEFT JOIN subject_requirements sr ON sr.raw_requirement = a.subject_requirement
+LEFT JOIN LATERAL (
+    SELECT min(p.tuition) AS min_tuition
+    FROM admission_plans p
+    WHERE p.school_id = a.school_id
+      AND p.year = a.year
+      AND (
+          p.major_id = a.major_id
+          OR p.major_code = a.major_code
+          OR p.major_name_raw = a.major_name_raw
+      )
+) plan ON true
+LEFT JOIN LATERAL (
+    SELECT
+        profile.outcome_score,
+        profile.outcome_tier,
+        profile.employment_rank,
+        profile.employment_rank_desc,
+        profile.top_city,
+        profile.top_industry,
+        profile.industry_distribution,
+        profile.city_distribution,
+        profile.job_distribution,
+        profile.salary_distribution,
+        profile.evidence_sources
+    FROM major_employment_outcome_profiles profile
+    WHERE profile.major_id = a.major_id
+      OR profile.major_name = trim(replace(a.major_name_raw, '专业', ''))
+    ORDER BY
+        CASE WHEN profile.major_id = a.major_id THEN 0 ELSE 1 END,
+        profile.outcome_score DESC,
+        profile.employment_rank ASC NULLS LAST
+    LIMIT 1
+) me ON true
+"""
+
 
 async def _fetch(db: Any, query: str, params: list[Any]) -> list[dict[str, Any]]:
     if db is None:
@@ -660,6 +736,20 @@ def _select_relaxation_rows(
     return selected
 
 
+def _outcome_sort_key(row: dict[str, Any]) -> tuple[Any, ...]:
+    score = row.get("outcome_score")
+    rank = row.get("employment_rank")
+    return (
+        -float(score) if score is not None else 0.0,
+        int(rank) if rank is not None else 999999,
+        -int(row.get("tier") or 0),
+        int(row.get("ranking") or 999999),
+        -int(row.get("year") or 0),
+        str(row.get("school_name") or ""),
+        str(row.get("major_name") or ""),
+    )
+
+
 async def run_baseline(
     constraints: dict[str, Any],
     db: Any = None,
@@ -1013,6 +1103,121 @@ async def probe_tuition_value_relax(
     return selected
 
 
+async def probe_employment_outcome_relax(
+    constraints: dict[str, Any],
+    db: Any = None,
+    baseline_results: list[dict[str, Any]] | None = None,
+    limit: int = 5,
+    min_outcome_gain: int = 10,
+    major_tree_path: str | Path | None = DEFAULT_MAJOR_TREE_PATH,
+    max_per_school: int = 2,
+) -> list[dict[str, Any]]:
+    """Find reachable options with stronger employment outcome evidence."""
+
+    if not constraints.get("employment_preference"):
+        return []
+
+    anchor_where, anchor_params = _where_common(constraints)
+    _add_province_filter(anchor_where, anchor_params, constraints)
+    _add_major_filter(anchor_where, anchor_params, constraints)
+    anchor_query = (
+        f"{EMPLOYMENT_OUTCOME_SELECT}\n"
+        f"WHERE {' AND '.join(anchor_where)}\n"
+        "  AND me.outcome_score IS NOT NULL\n"
+        "ORDER BY\n"
+        "    me.outcome_score DESC NULLS LAST,\n"
+        "    me.employment_rank ASC NULLS LAST,\n"
+        "    tier DESC,\n"
+        "    s.ranking ASC NULLS LAST,\n"
+        "    a.min_score DESC NULLS LAST,\n"
+        "    a.year DESC,\n"
+        "    s.name ASC,\n"
+        "    a.major_name_raw ASC\n"
+        "LIMIT %s"
+    )
+    anchor_rows = await _fetch(db, anchor_query, [*anchor_params, 1])
+    anchor = anchor_rows[0] if anchor_rows else None
+    anchor_score = float(anchor.get("outcome_score") or 0) if anchor else 0.0
+
+    selected: list[dict[str, Any]] = []
+    seen_options: set[tuple[Any, Any]] = set()
+    school_counts: dict[Any, int] = {}
+    selection_limit = max(limit * 4, 20)
+    for stage in _major_relaxation_stages(
+        constraints,
+        major_tree_path=major_tree_path,
+    ):
+        relaxed_where, relaxed_params = _where_common(constraints)
+        _add_undergraduate_quality_filters(relaxed_where, relaxed_params)
+        _add_major_quality_filters(
+            relaxed_where,
+            relaxed_params,
+            max_major_name_length=60,
+        )
+        _add_stage_major_filters(
+            relaxed_where,
+            relaxed_params,
+            stage=stage,
+            strict_major=constraints.get("major"),
+        )
+        province = constraints.get("province")
+        if province:
+            relaxed_where.append("s.province <> %s")
+            relaxed_params.append(province)
+        relaxed_where.extend(
+            [
+                "me.outcome_score IS NOT NULL",
+                "me.outcome_score >= %s",
+            ]
+        )
+        relaxed_params.extend([anchor_score + min_outcome_gain, selection_limit])
+        relaxed_query = (
+            f"{EMPLOYMENT_OUTCOME_SELECT}\n"
+            f"WHERE {' AND '.join(relaxed_where)}\n"
+            "ORDER BY\n"
+            "    me.outcome_score DESC NULLS LAST,\n"
+            "    me.employment_rank ASC NULLS LAST,\n"
+            "    tier DESC,\n"
+            "    s.ranking ASC NULLS LAST,\n"
+            "    a.min_score DESC NULLS LAST,\n"
+            "    a.year DESC,\n"
+            "    s.name ASC,\n"
+            "    a.major_name_raw ASC\n"
+            "LIMIT %s"
+        )
+        rows = await _fetch(db, relaxed_query, relaxed_params)
+        for row in sorted(rows, key=_outcome_sort_key):
+            outcome_score = row.get("outcome_score")
+            if outcome_score is None:
+                continue
+            candidate = dict(row)
+            candidate["outcome_score"] = float(outcome_score)
+            candidate["outcome_gain"] = round(
+                candidate["outcome_score"] - anchor_score,
+                3,
+            )
+            candidate["outcome_anchor_score"] = round(anchor_score, 3)
+            if anchor:
+                candidate["outcome_anchor_school"] = anchor.get("school_name")
+                candidate["outcome_anchor_major"] = anchor.get("major_name")
+            candidate["relaxation_stage"] = stage.get("stage")
+            candidate["relaxation_stage_label"] = stage.get("label")
+            candidate["relaxation_strategy"] = stage.get("strategy")
+            if not _append_unique_option(
+                selected,
+                candidate,
+                seen_options=seen_options,
+                school_counts=school_counts,
+                max_per_school=max_per_school,
+            ):
+                continue
+            if len(selected) >= limit:
+                return selected
+        if selected:
+            break
+    return selected
+
+
 async def probe_major_relax(
     constraints: dict[str, Any],
     db: Any = None,
@@ -1141,6 +1346,7 @@ async def run_all_probes(
         strength_relax,
         major_quality_relax,
         tuition_value_relax,
+        employment_outcome_relax,
         major_geo_relax,
         risk_band_relax,
     ) = await asyncio.gather(
@@ -1150,6 +1356,11 @@ async def run_all_probes(
         probe_strength_relax(constraints, db=db, baseline_results=baseline),
         probe_major_quality_relax(constraints, db=db, baseline_results=baseline),
         probe_tuition_value_relax(constraints, db=db, baseline_results=baseline),
+        probe_employment_outcome_relax(
+            constraints,
+            db=db,
+            baseline_results=baseline,
+        ),
         probe_major_geo_relax(constraints, db=db, baseline_results=baseline),
         probe_risk_band_relax(constraints, db=db),
     )
@@ -1160,6 +1371,7 @@ async def run_all_probes(
         "strength_relax": strength_relax,
         "major_quality_relax": major_quality_relax,
         "tuition_value_relax": tuition_value_relax,
+        "employment_outcome_relax": employment_outcome_relax,
         "major_geo_relax": major_geo_relax,
         "risk_band_relax": risk_band_relax,
     }

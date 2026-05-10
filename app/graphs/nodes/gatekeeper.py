@@ -18,6 +18,7 @@ DEFAULT_CONSTRAINTS = {
     "budget": 100000,
     "selected_subjects": None,
     "risk_preference": None,
+    "employment_preference": None,
 }
 
 VALID_SUBJECTS = ["政治", "历史", "地理", "物理", "化学", "生物", "技术"]
@@ -168,6 +169,25 @@ def _fallback_extract(text: str) -> dict[str, Any]:
     ):
         extracted["strength"] = "school_strength"
 
+    if any(
+        token in text
+        for token in (
+            "就业",
+            "好就业",
+            "薪资",
+            "工资",
+            "行业",
+            "岗位",
+            "职业",
+            "就业去向",
+            "employment",
+            "salary",
+            "job",
+            "career",
+        )
+    ):
+        extracted["employment_preference"] = "employment_outcome"
+
     subjects = _extract_subjects(text)
     if subjects:
         extracted["selected_subjects"] = subjects
@@ -247,6 +267,7 @@ def _merge_constraints(
         "budget",
         "selected_subjects",
         "risk_preference",
+        "employment_preference",
     ):
         value = extracted.get(key)
         if value not in (None, ""):
@@ -270,13 +291,14 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
                 "你是高考志愿约束抽取器。只输出 JSON，不要解释。"
                 "字段固定为 score(int|null), province(str|null), major(str|null), "
                 "city(str|null), strength(str|null), budget(int|null), selected_subjects(list[str]|null), "
-                "risk_preference(str|null)。"
+                "risk_preference(str|null), employment_preference(str|null)。"
                 "province 表示目标院校所在地。major 使用用户提到的专业关键词。"
                 "city 表示用户明确限定的目标学校城市，例如杭州、宁波、南京。"
                 "strength 表示用户明确关注学科实力、专业排名、强校或重点学科时的偏好。"
                 "budget 表示用户明确提出的每年学费或费用上限，例如6000以内。"
                 "如果用户明确表示外省、全国或地域不限，province 输出 null。"
                 "如果用户明确表示只求稳、保守、不要冲，risk_preference 输出 conservative。"
+                "如果用户明确关注就业、薪资、行业、岗位或职业发展，employment_preference 输出 employment_outcome。"
                 "selected_subjects 只能从政治、历史、地理、物理、化学、生物、技术中抽取。"
             )
         ),

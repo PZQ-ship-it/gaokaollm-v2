@@ -97,6 +97,8 @@ class DeterministicSimulatorLlm:
             has_trigger_school = _has_major_quality_evidence(flex, agent_reply)
         elif flex.get("constraint_relaxed") == "tuition_value":
             has_trigger_school = _has_tuition_value_evidence(flex, agent_reply)
+        elif flex.get("constraint_relaxed") == "employment_outcome":
+            has_trigger_school = _has_employment_outcome_evidence(flex, agent_reply)
         else:
             has_trigger_school = any(
                 school in agent_reply for school in trigger_schools
@@ -145,6 +147,8 @@ class DeterministicJudgeLlm:
             success = _has_major_quality_evidence(flex, combined)
         elif flex.get("constraint_relaxed") == "tuition_value":
             success = _has_tuition_value_evidence(flex, combined)
+        elif flex.get("constraint_relaxed") == "employment_outcome":
+            success = _has_employment_outcome_evidence(flex, combined)
         else:
             success = any(school in combined for school in trigger_schools) and (
                 "最低分" in combined
@@ -161,6 +165,8 @@ class DeterministicJudgeLlm:
             pareto_gain = _major_quality_gain(flex, combined) if success else 0
         elif flex.get("constraint_relaxed") == "tuition_value":
             pareto_gain = _tuition_value_gain(flex, combined) if success else 0
+        elif flex.get("constraint_relaxed") == "employment_outcome":
+            pareto_gain = _employment_outcome_gain(flex, combined) if success else 0
         else:
             accepted_tier = _max_trigger_tier(flex, combined)
             pareto_gain = max(0, accepted_tier - baseline_tier) if success else 0
@@ -366,7 +372,9 @@ def render_summary_md(summary: dict[str, Any]) -> str:
             "`strength_relax` is used when the persona targets school-strength evidence; "
             "`major_quality_relax` is used when the persona targets school-major quality evidence; "
             "`tuition_value_relax` is used when the persona targets small tuition-budget "
-            "relaxation with value evidence. "
+            "relaxation with value evidence; "
+            "`employment_outcome_relax` is used when the persona targets employment, "
+            "industry, job, or salary evidence. "
             "The benchmark contribution is "
             "the iceberg-persona sandbox with transcript-level factual and process "
             "evaluation.",
@@ -607,6 +615,39 @@ def _has_tuition_value_evidence(flex: dict[str, Any], text: str) -> bool:
     return False
 
 
+def _has_employment_outcome_evidence(flex: dict[str, Any], text: str) -> bool:
+    if not (
+        "最低分" in text
+        or "min_score" in text
+        or "score_margin" in text
+        or "分" in text
+    ):
+        return False
+    employment_tokens = (
+        "就业",
+        "就业排名",
+        "薪资",
+        "工资",
+        "行业",
+        "岗位",
+        "employment",
+        "outcome_score",
+        "outcome_gain",
+        "employment_rank",
+        "top_industry",
+        "salary",
+    )
+    if not any(token in text for token in employment_tokens):
+        return False
+    for row in flex.get("volunteer_set") or []:
+        if not isinstance(row, dict):
+            continue
+        school = str(row.get("school_name") or "")
+        if school and school in text:
+            return True
+    return False
+
+
 def _strength_rank_gain(flex: dict[str, Any], text: str) -> int:
     try:
         anchor_rank = int(float(flex.get("strength_anchor_rank")))
@@ -662,6 +703,21 @@ def _major_quality_gain(flex: dict[str, Any], text: str) -> int:
             continue
         try:
             gains.append(int(float(row.get("quality_gain"))))
+        except (TypeError, ValueError):
+            gains.append(1)
+    return max(gains) if gains else 0
+
+
+def _employment_outcome_gain(flex: dict[str, Any], text: str) -> int:
+    gains: list[int] = []
+    for row in flex.get("volunteer_set") or []:
+        if not isinstance(row, dict):
+            continue
+        school = str(row.get("school_name") or "")
+        if not school or school not in text:
+            continue
+        try:
+            gains.append(int(float(row.get("outcome_gain"))))
         except (TypeError, ValueError):
             gains.append(1)
     return max(gains) if gains else 0

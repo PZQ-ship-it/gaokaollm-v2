@@ -36,6 +36,16 @@ def _compact(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "has_key_major": row.get("has_key_major"),
                 "has_featured_major": row.get("has_featured_major"),
                 "quality_evidence_sources": row.get("quality_evidence_sources"),
+                "outcome_score": row.get("outcome_score"),
+                "outcome_gain": row.get("outcome_gain"),
+                "outcome_tier": row.get("outcome_tier"),
+                "employment_rank": row.get("employment_rank"),
+                "employment_rank_desc": row.get("employment_rank_desc"),
+                "employment_top_city": row.get("employment_top_city"),
+                "top_industry": row.get("top_industry"),
+                "job_distribution": row.get("job_distribution"),
+                "salary_distribution": row.get("salary_distribution"),
+                "employment_evidence_sources": row.get("employment_evidence_sources"),
             }
         )
     return compacted
@@ -48,6 +58,7 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
     strength = evidence.get("strength_relax") or []
     major_quality = evidence.get("major_quality_relax") or []
     tuition = evidence.get("tuition_value_relax") or []
+    employment = evidence.get("employment_outcome_relax") or []
     joint = evidence.get("major_geo_relax") or []
     risk = evidence.get("risk_band_relax") or []
 
@@ -112,6 +123,23 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
             "这些方案仍然需要满足你的分数、专业和选科约束，你可以先看学费增量是否能接受。"
         )
 
+    employment_text = "暂时没有发现就业结果证据更强的可达方案。"
+    if employment:
+        employment_text = "；".join(
+            f"{row.get('school')}({row.get('province')}) "
+            f"{row.get('major')} min_score={row.get('min_score')} "
+            f"outcome_score={row.get('outcome_score')} gain={row.get('outcome_gain')} "
+            f"employment_rank={row.get('employment_rank')} "
+            f"industry={row.get('top_industry')} salary={row.get('salary_distribution')}"
+            for row in employment[:3]
+        )
+        return (
+            "我先不替你做决定，只把可核验的数据摆出来。\n"
+            "就业导向方案：如果你愿意比较同专业或相近专业里就业结果证据更强的选择，可以重点看："
+            f"{employment_text}\n"
+            "这些候选仍需满足你的分数、选科和预算等硬约束，区别在于就业排名、行业、岗位或薪资证据更清楚。"
+        )
+
     joint_text = "暂时没有发现同时放宽地域和专业后的更高层次机会。"
     if joint:
         joint_text = "；".join(_line(row) for row in joint[:5])
@@ -139,6 +167,7 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
         f"学科实力方案：如果更看重专业排名或重点学科，可以比较：{strength_text}\n"
         f"专业质量方案：如果更看重该专业本身的排名、评估或特色重点证据，可以比较：{major_quality_text}\n"
         f"学费方案：如果每年小幅增加预算，可以比较：{tuition_text}\n"
+        f"就业导向方案：如果更看重就业排名、行业、岗位或薪资证据，可以比较：{employment_text}\n"
         f"联合方案：如果同时放宽地域和专业，可以重点比较：{joint_text}\n"
         f"风险方案：如果保留地域、专业、选科和预算，只把“只求稳”放宽为冲稳保组合，可以比较：{risk_text}\n"
         "你可以先挑一个最不排斥的方向，我再继续收窄。"
@@ -157,6 +186,9 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         "strength_relax": _compact(opportunities.get("strength_relax", [])),
         "major_quality_relax": _compact(opportunities.get("major_quality_relax", [])),
         "tuition_value_relax": _compact(opportunities.get("tuition_value_relax", [])),
+        "employment_outcome_relax": _compact(
+            opportunities.get("employment_outcome_relax", [])
+        ),
         "major_geo_relax": _compact(opportunities.get("major_geo_relax", [])),
         "risk_band_relax": _compact(opportunities.get("risk_band_relax", [])),
     }
@@ -173,8 +205,9 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
                 "如果 evidence 中存在 strength_relax，要说明这是在保持省份和专业前提下的学科实力跃迁方案，"
                 "如果 evidence 中存在 major_quality_relax，要说明这是同专业或近似同专业下的专业质量跃迁方案，"
                 "如果 evidence 中存在 tuition_value_relax，要说明这是只小幅放宽每年学费预算后的性价比方案，"
+                "如果 evidence 中存在 employment_outcome_relax，要说明这是同专业或相近专业下就业结果证据更强的方案，"
                 "如果 evidence 中存在 risk_band_relax，要说明这是在不改变地域、专业、选科和预算时的冲稳保组合，"
-                "并给出具体学校、专业、最低分、专业排名/学科评估/特色重点或满意度证据。"
+                "并给出具体学校、专业、最低分、专业排名/学科评估/特色重点、满意度或就业证据。"
             )
         ),
         SystemMessage(content=json.dumps(evidence, ensure_ascii=False, default=str)),

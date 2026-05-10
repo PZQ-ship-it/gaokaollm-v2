@@ -59,6 +59,7 @@ class PersonaRelaxation(StrEnum):
     SCHOOL_STRENGTH = "school_strength"
     MAJOR_QUALITY = "major_quality"
     TUITION_VALUE = "tuition_value"
+    EMPLOYMENT_OUTCOME = "employment_outcome"
     RISK_BAND = "risk_band"
 
 

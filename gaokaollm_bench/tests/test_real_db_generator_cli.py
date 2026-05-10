@@ -4,6 +4,7 @@ import pytest
 
 from gaokaollm_bench.data_gen.db_seeder import (
     find_city_relax_gap_sets,
+    find_employment_outcome_gap_sets,
     find_hierarchical_major_relax_gap_sets,
     find_major_quality_gap_sets,
     find_strength_relax_gap_sets,
@@ -1966,3 +1967,134 @@ async def test_find_tuition_value_gap_sets_builds_budget_improvement_cases():
     ]
     assert gap_sets[0]["volunteer_set"][0]["tuition_value_gain"] == 1
     assert "plan.min_tuition > %s" in calls[-1][0]
+
+
+@pytest.mark.asyncio
+async def test_build_deterministic_persona_from_employment_outcome_gap_set():
+    gap_set = {
+        "score": 600,
+        "province": "Zhejiang",
+        "constraint_relaxed": "employment_outcome",
+        "relaxation_kind": "employment_outcome",
+        "strict_major": "Software Engineering",
+        "outcome_anchor_score": 62,
+        "max_outcome_gain": 26,
+        "max_tier_delta": 1,
+        "tier_a": {
+            "school_id": 1,
+            "school_name": "Anchor University",
+            "school_province": "Zhejiang",
+            "school_city": "Hangzhou",
+            "major_name": "Software Engineering",
+            "min_score": 580,
+            "outcome_score": 62,
+            "tier": 2,
+        },
+        "volunteer_set": [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "Employment University",
+                "school_province": "Jiangsu",
+                "school_city": "Nanjing",
+                "major_id": 20,
+                "major_name": "Software Engineering",
+                "min_score": 598,
+                "min_rank": 42000,
+                "outcome_score": 88,
+                "outcome_gain": 26,
+                "employment_rank": 9,
+                "top_industry": "Internet",
+                "salary_distribution": {"items": ["10k-15k"]},
+                "tier": 3,
+            }
+        ],
+    }
+
+    persona = build_deterministic_persona_from_gap_set(gap_set, 1)
+    restored = IcebergPersona.model_validate_json(persona.model_dump_json())
+
+    assert restored.background["constraint_relaxed"] == "employment_outcome"
+    assert restored.implicit_flexibilities["constraint_relaxed"] == "employment_outcome"
+    assert restored.implicit_flexibilities["volunteer_set"][0]["outcome_gain"] == 26
+    assert restored.process_milestones["require_employment_evidence"] is True
+    assert "就业" in restored.initial_utterance
+
+
+@pytest.mark.asyncio
+async def test_find_employment_outcome_gap_sets_builds_outcome_improvement_cases():
+    calls = []
+
+    async def mock_db(query, *params):
+        calls.append((query, params))
+        if "me.outcome_score >= %s" not in query:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "Anchor University",
+                    "school_province": "Zhejiang",
+                    "school_city": "Hangzhou",
+                    "major_id": 10,
+                    "major_name": "Software Engineering",
+                    "min_score": 580,
+                    "min_rank": 62000,
+                    "outcome_score": 62,
+                    "employment_rank": 42,
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "Employment University A",
+                "school_province": "Jiangsu",
+                "school_city": "Nanjing",
+                "major_id": 20,
+                "major_name": "Software Engineering",
+                "min_score": 598,
+                "min_rank": 42000,
+                "outcome_score": 88,
+                "employment_rank": 9,
+                "top_industry": "Internet",
+                "tier": 3,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "Employment University B",
+                "school_province": "Anhui",
+                "school_city": "Hefei",
+                "major_id": 30,
+                "major_name": "Software Engineering",
+                "min_score": 596,
+                "min_rank": 45000,
+                "outcome_score": 78,
+                "employment_rank": 19,
+                "top_industry": "IT",
+                "tier": 2,
+            },
+        ]
+
+    gap_sets = await find_employment_outcome_gap_sets(
+        mock_db,
+        count=1,
+        prov="Zhejiang",
+        strict_major="Software Engineering",
+        score_min=600,
+        score_max=600,
+        candidates_per_score=3,
+        max_volunteers_per_case=2,
+        strict_target_quality=False,
+        min_outcome_gain=10,
+    )
+
+    assert len(gap_sets) == 1
+    assert gap_sets[0]["constraint_relaxed"] == "employment_outcome"
+    assert gap_sets[0]["outcome_anchor_score"] == 62
+    assert [row["outcome_gain"] for row in gap_sets[0]["volunteer_set"]] == [
+        26,
+        16,
+    ]
+    assert "me.outcome_score >= %s" in calls[-1][0]

@@ -26,6 +26,7 @@ from gaokaollm_bench.constrains.paths import (
 )
 from gaokaollm_bench.data_gen.db_seeder import (
     find_city_relax_gap_sets,
+    find_employment_outcome_gap_sets,
     find_hierarchical_major_relax_gap_sets,
     find_major_relax_gap_sets,
     find_major_quality_gap_sets,
@@ -197,6 +198,19 @@ def _volunteer_entry(row: dict[str, Any], score: int) -> dict[str, Any]:
         "budget_anchor",
         "ranking_gain",
         "tuition_value_gain",
+        "outcome_score",
+        "outcome_gain",
+        "outcome_anchor_score",
+        "outcome_tier",
+        "employment_rank",
+        "employment_rank_desc",
+        "employment_top_city",
+        "top_industry",
+        "industry_distribution",
+        "employment_city_distribution",
+        "job_distribution",
+        "salary_distribution",
+        "employment_evidence_sources",
     ):
         if row.get(key) is not None:
             value = row.get(key)
@@ -206,6 +220,7 @@ def _volunteer_entry(row: dict[str, Any], score: int) -> dict[str, Any]:
                 "budget_anchor",
                 "ranking_gain",
                 "tuition_value_gain",
+                "employment_rank",
             }:
                 value = int(float(value))
             elif key in {
@@ -213,6 +228,9 @@ def _volunteer_entry(row: dict[str, Any], score: int) -> dict[str, Any]:
                 "quality_gain",
                 "quality_anchor_score",
                 "satisfaction_score",
+                "outcome_score",
+                "outcome_gain",
+                "outcome_anchor_score",
             }:
                 value = float(value)
             entry[key] = value
@@ -380,6 +398,43 @@ def build_deterministic_persona_from_gap_set(
             "require_each_option_tuition_and_score_evidence": True,
             "accept_after_verified_tuition_value_set": best_names,
         }
+    elif relaxed_constraint == "employment_outcome":
+        strict_major = str(
+            gap_set.get("strict_major") or tier_a.get("major_name") or "目标专业"
+        )
+        major_name = strict_major
+        anchor_score = gap_set.get("outcome_anchor_score") or tier_a.get(
+            "outcome_score"
+        )
+        max_outcome_gain = gap_set.get("max_outcome_gain")
+        explicit_red_lines = {
+            "major": f"优先保持{strict_major}",
+            "employment": "希望就业、薪资、行业和岗位去向证据更清楚",
+            "reason": "不想只听泛泛而谈的好就业，必须能看到真实就业证据",
+            "current_anchor_school": tier_a_name,
+            "current_anchor_major": tier_a.get("major_name"),
+            "current_anchor_outcome_score": anchor_score,
+        }
+        trigger_condition = (
+            f"只有看到{strict_major}或相近专业的真实可达志愿集合，"
+            "并且每个志愿都有学校、专业、最低分、最低位次、就业排名、行业/岗位/薪资等就业证据，"
+            "才会接受跨省或相近专业比较。"
+        )
+        compromise = (
+            "可以为了更强的就业结果证据接受跨省或相近专业比较，"
+            f"最高就业结果增益约为{max_outcome_gain}"
+        )
+        initial_utterance = (
+            f"我{score}分，想读{strict_major}，希望以后就业和薪资稳定，"
+            "但省外或相近专业先别急着推荐，除非你有真实数据。"
+        )
+        milestones = {
+            "reject_generic_employment_advice": True,
+            "require_employment_evidence": True,
+            "require_complete_volunteer_set": True,
+            "require_each_option_employment_and_score_evidence": True,
+            "accept_after_verified_employment_outcome_set": best_names,
+        }
     elif relaxed_constraint == "risk_band":
         strict_major = str(
             gap_set.get("strict_major") or tier_a.get("major_name") or "目标专业"
@@ -537,6 +592,8 @@ def build_deterministic_persona_from_gap_set(
             "budget_window": gap_set.get("budget_window"),
             "max_tuition_delta": gap_set.get("max_tuition_delta"),
             "max_ranking_gain": gap_set.get("max_ranking_gain"),
+            "outcome_anchor_score": gap_set.get("outcome_anchor_score"),
+            "max_outcome_gain": gap_set.get("max_outcome_gain"),
         },
         explicit_red_lines=explicit_red_lines,
         implicit_flexibilities={
@@ -569,6 +626,8 @@ def build_deterministic_persona_from_gap_set(
             "budget_window": gap_set.get("budget_window"),
             "max_tuition_delta": gap_set.get("max_tuition_delta"),
             "max_ranking_gain": gap_set.get("max_ranking_gain"),
+            "outcome_anchor_score": gap_set.get("outcome_anchor_score"),
+            "max_outcome_gain": gap_set.get("max_outcome_gain"),
             "tier_labels": best_labels,
             "compromise": compromise,
         },
@@ -677,6 +736,26 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                 if args.include_suspect_schools
                 else DEFAULT_EXCLUDE_PATTERNS,
                 strict_target_quality=not args.no_strict_target_quality,
+            )
+        elif args.relaxation == "employment_outcome":
+            gap_sets = await find_employment_outcome_gap_sets(
+                fetch_query,
+                count=args.count,
+                prov=args.province,
+                strict_major=args.strict_major or None,
+                score_min=args.score_min,
+                score_max=args.score_max,
+                score_step=args.score_step,
+                candidates_per_score=args.candidates_per_score,
+                max_volunteers_per_case=args.max_volunteers_per_case,
+                max_volunteers_per_school=args.max_volunteers_per_school,
+                include_special_majors=args.include_special_majors,
+                max_major_name_length=args.max_major_name_length,
+                exclude_name_patterns=[]
+                if args.include_suspect_schools
+                else DEFAULT_EXCLUDE_PATTERNS,
+                strict_target_quality=not args.no_strict_target_quality,
+                min_outcome_gain=args.min_outcome_gain,
             )
         elif args.relaxation == "major_hierarchy":
             try:
@@ -871,6 +950,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         type=int,
         default=10,
         help="Minimum quality-score gain used by --relaxation major_quality.",
+    )
+    parser.add_argument(
+        "--min-outcome-gain",
+        type=int,
+        default=10,
+        help="Minimum outcome-score gain used by --relaxation employment_outcome.",
     )
     parser.add_argument(
         "--target-major-clusters",

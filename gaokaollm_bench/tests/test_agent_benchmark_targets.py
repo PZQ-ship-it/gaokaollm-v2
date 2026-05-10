@@ -14,6 +14,8 @@ from gaokaollm_bench.sandbox.target_agents import (
 from gaokaollm_bench.schemas import IcebergPersona
 from gaokaollm_bench.tests.manual.agent_benchmark_run import (
     RunConfig,
+    _employment_outcome_gain,
+    _has_employment_outcome_evidence,
     _has_major_quality_evidence,
     _major_quality_gain,
     _has_tuition_value_evidence,
@@ -69,6 +71,7 @@ class FakeGraph:
                 "strength_relax": [],
                 "major_quality_relax": [],
                 "tuition_value_relax": [],
+                "employment_outcome_relax": [],
                 "major_geo_relax": [
                     {
                         "school_name": "西南交通大学",
@@ -124,6 +127,7 @@ class FakeRiskGraph:
                 "strength_relax": [],
                 "major_quality_relax": [],
                 "tuition_value_relax": [],
+                "employment_outcome_relax": [],
                 "major_geo_relax": [],
                 "risk_band_relax": [
                     {
@@ -312,6 +316,28 @@ def test_deterministic_judge_accepts_major_quality_evidence():
     assert _major_quality_gain(flex, text) == 23
 
 
+def test_deterministic_judge_accepts_employment_outcome_evidence():
+    flex = {
+        "constraint_relaxed": "employment_outcome",
+        "volunteer_set": [
+            {
+                "school_name": "Employment University",
+                "major_name": "Software Engineering",
+                "outcome_gain": 18,
+                "outcome_score": 88,
+            }
+        ],
+    }
+    text = (
+        "Employment University Software Engineering min_score=598 "
+        "outcome_score=88 outcome_gain=18 employment_rank=9 "
+        "top_industry=互联网 salary=10k-15k"
+    )
+
+    assert _has_employment_outcome_evidence(flex, text)
+    assert _employment_outcome_gain(flex, text) == 18
+
+
 async def evaluate_by_joint_school(transcript, *, judge_llm):
     combined = "\n".join(turn.content for turn in transcript.turns)
     success = "西南交通大学" in combined and "最低分" in combined
@@ -371,6 +397,7 @@ async def test_app_graph_target_agent_preserves_auditable_state():
     assert state["pareto_opportunities"]["strength_relax"] == []
     assert state["pareto_opportunities"]["major_quality_relax"] == []
     assert state["pareto_opportunities"]["tuition_value_relax"] == []
+    assert state["pareto_opportunities"]["employment_outcome_relax"] == []
     assert any(
         item.get("risk_level") == "chong" for item in state["recommended_schools"]
     )
@@ -395,6 +422,7 @@ async def test_hard_constraint_baseline_only_reports_baseline():
         "strength_relax": [],
         "major_quality_relax": [],
         "tuition_value_relax": [],
+        "employment_outcome_relax": [],
         "major_geo_relax": [],
         "risk_band_relax": [],
     }

@@ -62,6 +62,7 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                     "strength_relax": [],
                     "major_quality_relax": [],
                     "tuition_value_relax": [],
+                    "employment_outcome_relax": [],
                     "major_geo_relax": [],
                     "risk_band_relax": [],
                 },
@@ -83,6 +84,7 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                 "strength_relax": [],
                 "major_quality_relax": [],
                 "tuition_value_relax": [],
+                "employment_outcome_relax": [],
                 "major_geo_relax": [],
                 "risk_band_relax": [],
             },
@@ -112,6 +114,9 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             "strength_relax": list(opportunities.get("strength_relax") or []),
             "major_quality_relax": list(opportunities.get("major_quality_relax") or []),
             "tuition_value_relax": list(opportunities.get("tuition_value_relax") or []),
+            "employment_outcome_relax": list(
+                opportunities.get("employment_outcome_relax") or []
+            ),
             "major_geo_relax": list(opportunities.get("major_geo_relax") or []),
             "risk_band_relax": list(opportunities.get("risk_band_relax") or []),
         },
@@ -125,6 +130,7 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             opportunities.get("strength_relax") or [],
             opportunities.get("major_quality_relax") or [],
             opportunities.get("tuition_value_relax") or [],
+            opportunities.get("employment_outcome_relax") or [],
             opportunities.get("major_geo_relax") or [],
             opportunities.get("risk_band_relax") or [],
         ),
@@ -172,6 +178,20 @@ def _recommended_schools(*groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "has_key_major",
                 "has_featured_major",
                 "quality_evidence_sources",
+            ):
+                if row.get(key) is not None:
+                    item[key] = row.get(key)
+            for key in (
+                "outcome_score",
+                "outcome_gain",
+                "outcome_tier",
+                "employment_rank",
+                "employment_rank_desc",
+                "employment_top_city",
+                "top_industry",
+                "job_distribution",
+                "salary_distribution",
+                "employment_evidence_sources",
             ):
                 if row.get(key) is not None:
                     item[key] = row.get(key)
@@ -296,6 +316,25 @@ def _fallback_extract_constraints(text: str) -> dict[str, Any]:
     if any(token in compact for token in conservative_tokens):
         extracted["risk_preference"] = "conservative"
 
+    if any(
+        token in text
+        for token in (
+            "就业",
+            "好就业",
+            "薪资",
+            "工资",
+            "行业",
+            "岗位",
+            "职业",
+            "就业去向",
+            "employment",
+            "salary",
+            "job",
+            "career",
+        )
+    ):
+        extracted["employment_preference"] = "employment_outcome"
+
     return extracted
 
 
@@ -343,6 +382,7 @@ def _merge_constraints(
         "budget": 100000,
         "selected_subjects": None,
         "risk_preference": None,
+        "employment_preference": None,
         **(current or {}),
     }
     for key in (
@@ -353,6 +393,7 @@ def _merge_constraints(
         "budget",
         "selected_subjects",
         "risk_preference",
+        "employment_preference",
     ):
         if key in extracted and extracted[key] not in ("", []):
             merged[key] = extracted[key]

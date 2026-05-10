@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
+
+from gaokaollm_bench.data_gen.major_tree import build_relaxation_stages
+
+
+DEFAULT_MAJOR_TREE_PATH = Path("gaokaollm_bench/outputs/major_tree_final_reviewed.json")
 
 SPECIAL_MAJOR_TERMS = (
     "中外合作",
@@ -92,6 +98,71 @@ def _tier_sql() -> str:
         "        ELSE 1\n"
         "      END"
     )
+
+
+def _fallback_any_major_stage() -> dict[str, Any]:
+    return {
+        "stage": 5,
+        "label": "去除专业限制",
+        "strategy": "any_major",
+        "include_patterns": [],
+        "exclude_patterns": [],
+    }
+
+
+def _stage_major_patterns(
+    stage: dict[str, Any],
+    strict_major: str | None,
+) -> tuple[list[str], list[str]]:
+    strategy = stage.get("strategy")
+    include_patterns = list(stage.get("include_patterns") or [])
+    exclude_patterns = list(stage.get("exclude_patterns") or [])
+    if strategy == "any_major" or not include_patterns:
+        if strict_major:
+            exclude_patterns.append(f"%{strict_major}%")
+        return [], list(dict.fromkeys(exclude_patterns))
+    return list(dict.fromkeys(include_patterns)), list(dict.fromkeys(exclude_patterns))
+
+
+def _add_stage_major_clause(
+    stage: dict[str, Any],
+    strict_major: str | None,
+) -> tuple[str, list[Any]]:
+    include_patterns, exclude_patterns = _stage_major_patterns(stage, strict_major)
+    clauses: list[str] = []
+    params: list[Any] = []
+    if include_patterns:
+        clauses.append(
+            "  AND ("
+            + " OR ".join(["a.major_name_raw LIKE %s"] * len(include_patterns))
+            + ")\n"
+        )
+        params.extend(include_patterns)
+    for pattern in exclude_patterns:
+        clauses.append("  AND a.major_name_raw NOT LIKE %s\n")
+        params.append(pattern)
+    return "".join(clauses), params
+
+
+def _major_relaxation_stages(
+    strict_major: str | None,
+    *,
+    major_tree_path: str | Path | None = DEFAULT_MAJOR_TREE_PATH,
+) -> list[dict[str, Any]]:
+    if not strict_major:
+        return [_fallback_any_major_stage()]
+    tree_path = Path(major_tree_path or DEFAULT_MAJOR_TREE_PATH)
+    if not tree_path.exists():
+        return [_fallback_any_major_stage()]
+    try:
+        stages = build_relaxation_stages(
+            str(strict_major),
+            path=tree_path,
+            include_any_major_stage=True,
+        )
+    except Exception:
+        return [_fallback_any_major_stage()]
+    return stages or [_fallback_any_major_stage()]
 
 
 def _is_special_major_name(
@@ -794,6 +865,80 @@ ORDER BY
 LIMIT %s
 """
 
+EMPLOYMENT_OUTCOME_SELECT = """
+SELECT
+    a.year,
+    a.school_id,
+    s.name AS school_name,
+    s.province AS school_province,
+    s.city AS school_city,
+    s.is_985,
+    s.is_211,
+    s.is_double_first_class,
+    s.education_level,
+    s.ranking,
+    a.major_id,
+    a.major_name_raw AS major_name,
+    a.min_score,
+    a.min_rank,
+    me.outcome_score,
+    me.outcome_tier,
+    me.employment_rank,
+    me.employment_rank_desc,
+    me.top_city AS employment_top_city,
+    me.top_industry,
+    me.industry_distribution,
+    me.city_distribution AS employment_city_distribution,
+    me.job_distribution,
+    me.salary_distribution,
+    me.evidence_sources AS employment_evidence_sources,
+    CASE
+        WHEN s.is_985 THEN 4
+        WHEN s.is_211 OR s.is_double_first_class THEN 3
+        WHEN s.education_level = '本科' THEN 2
+        ELSE 1
+    END AS tier
+FROM admission_scores a
+JOIN schools s ON s.id = a.school_id
+LEFT JOIN LATERAL (
+    SELECT
+        profile.outcome_score,
+        profile.outcome_tier,
+        profile.employment_rank,
+        profile.employment_rank_desc,
+        profile.top_city,
+        profile.top_industry,
+        profile.industry_distribution,
+        profile.city_distribution,
+        profile.job_distribution,
+        profile.salary_distribution,
+        profile.evidence_sources
+    FROM major_employment_outcome_profiles profile
+    WHERE profile.major_id = a.major_id
+      OR profile.major_name = trim(replace(a.major_name_raw, '专业', ''))
+    ORDER BY
+        CASE WHEN profile.major_id = a.major_id THEN 0 ELSE 1 END,
+        profile.outcome_score DESC,
+        profile.employment_rank ASC NULLS LAST
+    LIMIT 1
+) me ON true
+WHERE a.min_score IS NOT NULL
+  AND a.min_score <= %s
+"""
+
+EMPLOYMENT_OUTCOME_ORDER = """
+ORDER BY
+    me.outcome_score DESC NULLS LAST,
+    me.employment_rank ASC NULLS LAST,
+    tier DESC,
+    s.ranking ASC NULLS LAST,
+    a.min_score DESC NULLS LAST,
+    a.year DESC,
+    s.name ASC,
+    a.major_name_raw ASC
+LIMIT %s
+"""
+
 
 async def find_major_quality_gap_candidates(
     db_pool: Any,
@@ -1283,6 +1428,222 @@ async def find_tuition_value_gap_sets(
                 ),
                 "max_tuition_delta": max(
                     int(float(row.get("tuition_delta") or 0)) for row in volunteers
+                ),
+            }
+        )
+        if len(gap_sets) >= count:
+            break
+
+    return gap_sets
+
+
+async def find_employment_outcome_gap_candidates(
+    db_pool: Any,
+    score: int,
+    prov: str,
+    *,
+    strict_major: str | None = None,
+    limit: int = 20,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+    min_outcome_gain: int = 10,
+    major_tree_path: str | Path | None = DEFAULT_MAJOR_TREE_PATH,
+) -> list[dict[str, Any]]:
+    """Return employment outcome gains unlocked by considering national options."""
+
+    if limit < 1:
+        raise ValueError("limit must be at least 1")
+
+    major_clause = "  AND a.major_name_raw LIKE %s\n" if strict_major else ""
+    major_params = [f"%{strict_major}%"] if strict_major else []
+
+    baseline_query = (
+        f"{EMPLOYMENT_OUTCOME_SELECT}"
+        "  AND s.province = %s\n"
+        f"{major_clause}"
+        "  AND me.outcome_score IS NOT NULL\n"
+        f"{EMPLOYMENT_OUTCOME_ORDER}"
+    )
+    baseline_rows = await _fetch(
+        db_pool,
+        baseline_query,
+        [score, prov, *major_params, 1],
+    )
+    tier_a = baseline_rows[0] if baseline_rows else None
+    if not tier_a:
+        return []
+    anchor_score = float(tier_a.get("outcome_score") or 0) if tier_a else 0.0
+
+    exclude_name_patterns = exclude_name_patterns or []
+    exclude_clauses = []
+    exclude_params: list[Any] = []
+    for pattern in exclude_name_patterns:
+        exclude_clauses.append("s.name NOT LIKE %s")
+        exclude_params.append(f"%{pattern}%")
+
+    quality_clause = ""
+    quality_params: list[Any] = []
+    if strict_target_quality:
+        quality_clause = (
+            "  AND (s.name LIKE %s OR s.name LIKE %s)\n"
+            "  AND NOT (s.name LIKE %s AND s.name NOT LIKE %s)\n"
+        )
+        quality_params = ["%大学%", "%医学院%", "%大学%学院%", "%医学院%"]
+
+    candidates: list[dict[str, Any]] = []
+    for stage in _major_relaxation_stages(
+        strict_major, major_tree_path=major_tree_path
+    ):
+        stage_clause, stage_params = _add_stage_major_clause(stage, strict_major)
+        relaxed_query = (
+            f"{EMPLOYMENT_OUTCOME_SELECT}"
+            f"{stage_clause}"
+            "  AND s.province <> %s\n"
+            "  AND s.education_level = '本科'\n"
+            "  AND me.outcome_score IS NOT NULL\n"
+            "  AND me.outcome_score >= %s\n"
+            f"{quality_clause}"
+            f"{'  AND ' + ' AND '.join(exclude_clauses) if exclude_clauses else ''}\n"
+            f"{EMPLOYMENT_OUTCOME_ORDER}"
+        )
+        relaxed_rows = await _fetch(
+            db_pool,
+            relaxed_query,
+            [
+                score,
+                *stage_params,
+                prov,
+                anchor_score + min_outcome_gain,
+                *quality_params,
+                *exclude_params,
+                limit,
+            ],
+        )
+        for tier_b in relaxed_rows:
+            outcome_score = tier_b.get("outcome_score")
+            if outcome_score is None:
+                continue
+            outcome_gain = float(outcome_score) - anchor_score
+            if outcome_gain < min_outcome_gain:
+                continue
+            tier_b = dict(tier_b)
+            tier_b["outcome_score"] = round(float(outcome_score), 3)
+            tier_b["outcome_anchor_score"] = round(anchor_score, 3)
+            tier_b["outcome_gain"] = round(outcome_gain, 3)
+            tier_b["relaxation_stage"] = stage.get("stage")
+            tier_b["relaxation_stage_label"] = stage.get("label")
+            tier_b["relaxation_strategy"] = stage.get("strategy")
+            if tier_a:
+                tier_b["outcome_anchor_school"] = tier_a.get("school_name")
+                tier_b["outcome_anchor_major"] = tier_a.get("major_name")
+            candidates.append(
+                {
+                    "score": score,
+                    "province": prov,
+                    "constraint_relaxed": "employment_outcome",
+                    "relaxation_kind": "employment_outcome",
+                    "relax_scope": "national",
+                    "strict_major": strict_major,
+                    "outcome_anchor_score": round(anchor_score, 3),
+                    "relaxation_stage": stage.get("stage"),
+                    "relaxation_stage_label": stage.get("label"),
+                    "stage_relaxation_kind": stage.get("strategy"),
+                    "tier_a": tier_a or {},
+                    "tier_b": tier_b,
+                    "tier_delta": _tier(tier_b) - _tier(tier_a),
+                    "outcome_gain": round(outcome_gain, 3),
+                }
+            )
+        if candidates:
+            break
+    return candidates
+
+
+async def find_employment_outcome_gap_sets(
+    db_pool: Any,
+    *,
+    count: int,
+    prov: str = "浙江",
+    strict_major: str | None = None,
+    score_min: int = 520,
+    score_max: int = 700,
+    score_step: int = 10,
+    candidates_per_score: int = 120,
+    max_volunteers_per_case: int | None = None,
+    max_volunteers_per_school: int | None = None,
+    include_special_majors: bool = True,
+    max_major_name_length: int | None = None,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+    min_outcome_gain: int = 10,
+) -> list[dict[str, Any]]:
+    """Scan scores and return employment-outcome persona seeds."""
+
+    if count < 1:
+        raise ValueError("count must be at least 1")
+    if score_step < 1:
+        raise ValueError("score_step must be at least 1")
+    if score_min > score_max:
+        raise ValueError("score_min must be less than or equal to score_max")
+
+    gap_sets: list[dict[str, Any]] = []
+    seen_cases: set[tuple[Any, ...]] = set()
+    for score in range(score_min, score_max + 1, score_step):
+        candidates = await find_employment_outcome_gap_candidates(
+            db_pool,
+            score,
+            prov,
+            strict_major=strict_major,
+            limit=candidates_per_score,
+            exclude_name_patterns=exclude_name_patterns,
+            strict_target_quality=strict_target_quality,
+            min_outcome_gain=min_outcome_gain,
+        )
+        if not candidates:
+            continue
+
+        tier_a = candidates[0]["tier_a"]
+        case_key = (
+            tier_a.get("school_id"),
+            int(score),
+            prov,
+            strict_major,
+        )
+        if case_key in seen_cases:
+            continue
+
+        volunteers, selection_audit = _select_volunteers_from_candidates(
+            candidates,
+            max_volunteers_per_case=max_volunteers_per_case,
+            max_volunteers_per_school=max_volunteers_per_school,
+            include_special_majors=include_special_majors,
+            max_major_name_length=max_major_name_length,
+            minimum_volunteers=1,
+        )
+        if not volunteers:
+            continue
+
+        seen_cases.add(case_key)
+        gap_sets.append(
+            {
+                "score": score,
+                "province": prov,
+                "constraint_relaxed": "employment_outcome",
+                "relaxation_kind": "employment_outcome",
+                "relax_scope": "national",
+                "strict_major": strict_major,
+                "tier_a": tier_a,
+                "volunteer_set": volunteers,
+                "volunteer_count": len(volunteers),
+                "years_used": selection_audit["years_used"],
+                "selection_audit": selection_audit,
+                "max_tier_delta": max(_tier(row) - _tier(tier_a) for row in volunteers),
+                "outcome_anchor_score": round(
+                    float((tier_a or {}).get("outcome_score") or 0),
+                    3,
+                ),
+                "max_outcome_gain": max(
+                    float(row.get("outcome_gain") or 0) for row in volunteers
                 ),
             }
         )

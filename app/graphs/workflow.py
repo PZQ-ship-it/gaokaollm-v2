@@ -32,6 +32,7 @@ def route_after_radar(state: AgentState) -> str:
         or opportunities.get("strength_relax")
         or opportunities.get("major_quality_relax")
         or opportunities.get("tuition_value_relax")
+        or opportunities.get("employment_outcome_relax")
         or opportunities.get("major_geo_relax")
         or opportunities.get("risk_band_relax")
     ):
