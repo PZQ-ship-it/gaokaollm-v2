@@ -65,9 +65,19 @@ def _fallback_extract(text: str) -> dict[str, Any]:
     if score_match:
         extracted["score"] = int(score_match.group(1))
 
-    budget_match = re.search(r"预算\s*(\d+)", text)
-    if budget_match:
-        extracted["budget"] = int(budget_match.group(1))
+    budget_patterns = (
+        r"(?:预算|学费|费用|一年|每年)[^\d]{0,8}(\d{4,6})",
+        r"(\d{4,6})\s*(?:元)?\s*(?:以内|以下|封顶)",
+    )
+    for pattern in budget_patterns:
+        budget_match = re.search(pattern, text)
+        if budget_match:
+            extracted["budget"] = int(budget_match.group(1))
+            break
+    if "budget" not in extracted and any(
+        token in text for token in ("学费别太贵", "学费不要太贵", "费用别太高")
+    ):
+        extracted["budget"] = 6000
 
     province_names = [
         "北京",
@@ -132,6 +142,16 @@ def _fallback_extract(text: str) -> dict[str, Any]:
         extracted["major"] = "计算机"
     elif "法学" in text:
         extracted["major"] = "法学"
+    else:
+        major_match = re.search(r"(?:想读|想学|报考|读)([^，,。；;\s]{2,30})", text)
+        if major_match:
+            major = re.split(
+                r"(?:每年|学费|预算|以内|以下|太贵|地域|地区)",
+                major_match.group(1),
+                maxsplit=1,
+            )[0].strip("，,。；; ")
+            if major:
+                extracted["major"] = major
 
     if any(
         token in text
@@ -171,6 +191,12 @@ def _fallback_extract(text: str) -> dict[str, Any]:
 def _extract_subjects(text: str) -> list[str]:
     subjects: list[str] = []
     compact = re.sub(r"\s+", "", text)
+    compact = (
+        compact.replace("地域不限", "")
+        .replace("地区不限", "")
+        .replace("地域不限制", "")
+        .replace("地区不限制", "")
+    )
 
     for alias, subject in SUBJECT_ALIASES.items():
         if alias in compact and subject not in subjects:
@@ -248,6 +274,7 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
                 "province 表示目标院校所在地。major 使用用户提到的专业关键词。"
                 "city 表示用户明确限定的目标学校城市，例如杭州、宁波、南京。"
                 "strength 表示用户明确关注学科实力、专业排名、强校或重点学科时的偏好。"
+                "budget 表示用户明确提出的每年学费或费用上限，例如6000以内。"
                 "如果用户明确表示外省、全国或地域不限，province 输出 null。"
                 "如果用户明确表示只求稳、保守、不要冲，risk_preference 输出 conservative。"
                 "selected_subjects 只能从政治、历史、地理、物理、化学、生物、技术中抽取。"

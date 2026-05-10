@@ -1,0 +1,425 @@
+{
+  "persona": {
+    "case_id": "real-db-set-浙江-554-002",
+    "background": {
+      "score": 554,
+      "province": "浙江",
+      "city": null,
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "软件",
+      "baseline_school": "兰州理工大学",
+      "baseline_major": "信息与计算科学(计算数学与软件)",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 211,
+      "volunteer_count": 2,
+      "max_gap_tier": 2,
+      "max_tier_delta": 0,
+      "constraint_relaxed": "tuition_value",
+      "relaxation_kind": "tuition_value",
+      "stage_relaxation_kind": null,
+      "relax_scope": "national",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2024
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "budget_anchor": 6000,
+      "budget_window": 10000,
+      "max_tuition_delta": 4000,
+      "max_ranking_gain": 80
+    },
+    "explicit_red_lines": {
+      "budget": "每年学费最好不超过6000元",
+      "major": "优先保持软件",
+      "reason": "家庭预算比较保守，暂时不接受明显超预算方案",
+      "current_anchor_school": "兰州理工大学",
+      "current_anchor_major": "信息与计算科学(计算数学与软件)",
+      "current_anchor_tuition": "4300"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "tuition_value",
+      "city": null,
+      "relaxation_kind": "tuition_value",
+      "stage_relaxation_kind": null,
+      "relax_scope": "national",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "只有看到仍满足分数、专业和选科约束，且学费只比6000元/年预算最多增加10000元/年的真实可达志愿集合，并且每个志愿都有学校、专业、最低分、最低位次、学费和学费增量证据，才会接受小幅放宽学费预算。",
+      "volunteer_set": [
+        {
+          "school_id": 210,
+          "school_name": "西北师范大学",
+          "school_province": "甘肃",
+          "school_city": "兰州市",
+          "major_id": 243,
+          "major_name": "软件工程",
+          "year": 2024,
+          "min_score": 553,
+          "score_margin": 1,
+          "min_rank": 107390,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false,
+          "tuition": 9750,
+          "tuition_delta": 3750,
+          "budget_anchor": 6000,
+          "ranking_gain": 80,
+          "tuition_value_gain": 1
+        },
+        {
+          "school_id": 223,
+          "school_name": "江西财经大学",
+          "school_province": "江西",
+          "school_city": "南昌市",
+          "major_id": null,
+          "major_name": "软件工程(VR软件开发)",
+          "year": 2024,
+          "min_score": 553,
+          "score_margin": 1,
+          "min_rank": 107069,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false,
+          "tuition": 10000,
+          "tuition_delta": 4000,
+          "budget_anchor": 6000,
+          "ranking_gain": 69,
+          "tuition_value_gain": 1
+        }
+      ],
+      "minimum_required_volunteers": 2,
+      "representative_schools": [
+        "西北师范大学",
+        "江西财经大学"
+      ],
+      "accepted_major_examples": [
+        "软件工程",
+        "软件工程(VR软件开发)"
+      ],
+      "years_used": [
+        2024
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "budget_anchor": 6000,
+      "budget_window": 10000,
+      "max_tuition_delta": 4000,
+      "max_ranking_gain": 80,
+      "tier_labels": [
+        "本科"
+      ],
+      "compromise": "可以为了更好的学校层次、排名或风险结构，接受每年最多增加4000元学费"
+    },
+    "initial_utterance": "我554分，地域不限，想读软件，每年学费预算最好6000元以内，太贵的先别推荐。",
+    "process_milestones": {
+      "reject_generic_budget_advice": true,
+      "require_tuition_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_tuition_and_score_evidence": true,
+      "accept_after_verified_tuition_value_set": [
+        "西北师范大学",
+        "江西财经大学"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我554分，地域不限，想读软件，每年学费预算最好6000元以内，太贵的先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我还需要补充：3门选考科目（政治、历史、地理、物理、化学、生物、技术中任选3门）。",
+      "internal_state": {
+        "target": "app_pareto",
+        "constraints": {
+          "score": 554,
+          "province": null,
+          "city": null,
+          "major": "软件",
+          "strength": null,
+          "budget": 6000,
+          "selected_subjects": null,
+          "risk_preference": null,
+          "province_relaxed": true
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "tuition_value_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [
+          "selected_subjects"
+        ],
+        "recommended_schools": []
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "我的选考是物理、化学、生物。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "系统在补齐必要约束，继续提供选科。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "我先不替你做决定，只把可核验的数据摆出来。\n学费方案：如果每年小幅增加预算，可以比较：西北师范大学(甘肃) 软件工程 min_score=553 tuition=9750 delta=3750 tier=2 ranking=131；江西财经大学(江西) 软件工程(VR软件开发) min_score=553 tuition=10000 delta=4000 tier=2 ranking=142\n这些方案仍然需要满足你的分数、专业和选科约束，你可以先看学费增量是否能接受。",
+      "internal_state": {
+        "target": "app_pareto",
+        "constraints": {
+          "score": 554,
+          "province": null,
+          "city": null,
+          "major": "软件",
+          "strength": null,
+          "budget": 6000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "province_relaxed": true
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 63994,
+            "year": 2023,
+            "school_id": 1234,
+            "school_name": "安徽师范大学皖江学院",
+            "school_province": "安徽",
+            "school_city": "芜湖市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 929,
+            "major_id": null,
+            "major_name": "计算机类(江北校区.含软件工程,智能科学与技术,数据科学与大数据技术专业)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "530",
+            "min_rank": 129475,
+            "tuition": null,
+            "tier": 4
+          },
+          {
+            "admission_score_id": 44337,
+            "year": 2024,
+            "school_id": 3182,
+            "school_name": "苏州市职业大学",
+            "school_province": "江苏",
+            "school_city": "苏州",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": false,
+            "education_level": "专科",
+            "ranking": null,
+            "major_id": 955,
+            "major_name": "软件技术",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "509",
+            "min_rank": 159065,
+            "tuition": null,
+            "tier": 4
+          },
+          {
+            "admission_score_id": 44930,
+            "year": 2024,
+            "school_id": 3187,
+            "school_name": "天津市职业大学",
+            "school_province": "天津",
+            "school_city": "北辰区",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "专科",
+            "ranking": null,
+            "major_id": null,
+            "major_name": "计算机类(北辰校区.含云计算技术应用,软件技术,计算机应用技术专业)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "502",
+            "min_rank": 167157,
+            "tuition": "5500",
+            "tier": 4
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "tuition_value_relax": [
+            {
+              "admission_score_id": 39778,
+              "year": 2024,
+              "school_id": 210,
+              "school_name": "西北师范大学",
+              "school_province": "甘肃",
+              "school_city": "兰州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 131,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "553",
+              "min_rank": 107390,
+              "tuition": 9750,
+              "tier": 2,
+              "tuition_delta": 3750
+            },
+            {
+              "admission_score_id": 39767,
+              "year": 2024,
+              "school_id": 223,
+              "school_name": "江西财经大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 142,
+              "major_id": null,
+              "major_name": "软件工程(VR软件开发)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "553",
+              "min_rank": 107069,
+              "tuition": 10000,
+              "tier": 2,
+              "tuition_delta": 4000
+            }
+          ],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 24,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "安徽师范大学皖江学院",
+            "province": "安徽",
+            "major": "计算机类(江北校区.含软件工程,智能科学与技术,数据科学与大数据技术专业)",
+            "min_score": "530",
+            "tier": 4,
+            "city": "芜湖市",
+            "min_rank": 129475
+          },
+          {
+            "school": "苏州市职业大学",
+            "province": "江苏",
+            "major": "软件技术",
+            "min_score": "509",
+            "tier": 4,
+            "city": "苏州",
+            "min_rank": 159065
+          },
+          {
+            "school": "天津市职业大学",
+            "province": "天津",
+            "major": "计算机类(北辰校区.含云计算技术应用,软件技术,计算机应用技术专业)",
+            "min_score": "502",
+            "tier": 4,
+            "city": "北辰区",
+            "min_rank": 167157,
+            "tuition": "5500"
+          },
+          {
+            "school": "西北师范大学",
+            "province": "甘肃",
+            "major": "软件工程",
+            "min_score": "553",
+            "tier": 2,
+            "city": "兰州市",
+            "min_rank": 107390,
+            "tuition": 9750,
+            "tuition_delta": 3750
+          },
+          {
+            "school": "江西财经大学",
+            "province": "江西",
+            "major": "软件工程(VR软件开发)",
+            "min_score": "553",
+            "tier": 2,
+            "city": "南昌市",
+            "min_rank": 107069,
+            "tuition": 10000,
+            "tuition_delta": 4000
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "这些学校和分数证据比较具体，我愿意把这个方向纳入考虑。",
+      "internal_state": {
+        "is_persuaded": true,
+        "turn_count": 2,
+        "last_thought": "回复包含隐藏妥协条件中的学校和分数证据。"
+      }
+    }
+  ]
+}

@@ -23,6 +23,8 @@ def _compact(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "risk_level": row.get("risk_level"),
                 "score_margin": row.get("score_margin"),
                 "rank_gap": row.get("rank_gap"),
+                "tuition": row.get("tuition"),
+                "tuition_delta": row.get("tuition_delta"),
                 "major_strength_rank": row.get("major_strength_rank"),
                 "major_strength_rating": row.get("major_strength_rating"),
                 "major_strength_level": row.get("major_strength_level"),
@@ -36,6 +38,7 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
     city = evidence.get("city_relax") or []
     major = evidence.get("major_relax") or []
     strength = evidence.get("strength_relax") or []
+    tuition = evidence.get("tuition_value_relax") or []
     joint = evidence.get("major_geo_relax") or []
     risk = evidence.get("risk_band_relax") or []
 
@@ -67,6 +70,22 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
             for row in strength[:3]
         )
 
+    tuition_text = "暂时没有发现小幅增加学费后的明显性价比跃迁。"
+    if tuition:
+        tuition_text = "；".join(
+            f"{row.get('school')}({row.get('province')}) "
+            f"{row.get('major')} min_score={row.get('min_score')} "
+            f"tuition={row.get('tuition')} delta={row.get('tuition_delta')} "
+            f"tier={row.get('tier')} ranking={row.get('ranking')}"
+            for row in tuition[:3]
+        )
+        return (
+            "我先不替你做决定，只把可核验的数据摆出来。\n"
+            "学费方案：如果每年小幅增加预算，可以比较："
+            f"{tuition_text}\n"
+            "这些方案仍然需要满足你的分数、专业和选科约束，你可以先看学费增量是否能接受。"
+        )
+
     joint_text = "暂时没有发现同时放宽地域和专业后的更高层次机会。"
     if joint:
         joint_text = "；".join(_line(row) for row in joint[:5])
@@ -92,6 +111,7 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
         f"选项A：如果只放松地域，可以比较：{geo_text}\n"
         f"选项B：如果只放松专业，可以比较：{major_text}\n"
         f"学科实力方案：如果更看重专业排名或重点学科，可以比较：{strength_text}\n"
+        f"学费方案：如果每年小幅增加预算，可以比较：{tuition_text}\n"
         f"联合方案：如果同时放宽地域和专业，可以重点比较：{joint_text}\n"
         f"风险方案：如果保留地域、专业、选科和预算，只把“只求稳”放宽为冲稳保组合，可以比较：{risk_text}\n"
         "你可以先挑一个最不排斥的方向，我再继续收窄。"
@@ -108,6 +128,7 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         "city_relax": _compact(opportunities.get("city_relax", [])),
         "major_relax": _compact(opportunities.get("major_relax", [])),
         "strength_relax": _compact(opportunities.get("strength_relax", [])),
+        "tuition_value_relax": _compact(opportunities.get("tuition_value_relax", [])),
         "major_geo_relax": _compact(opportunities.get("major_geo_relax", [])),
         "risk_band_relax": _compact(opportunities.get("risk_band_relax", [])),
     }
@@ -122,8 +143,9 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
                 "如果 evidence 中存在 city_relax，要说明这是只放宽精确城市限制后的方案，"
                 "如果 evidence 中存在 major_geo_relax，要把它作为联合放宽方案重点说明，"
                 "如果 evidence 中存在 strength_relax，要说明这是在保持省份和专业前提下的学科实力跃迁方案，"
+                "如果 evidence 中存在 tuition_value_relax，要说明这是只小幅放宽每年学费预算后的性价比方案，"
                 "如果 evidence 中存在 risk_band_relax，要说明这是在不改变地域、专业、选科和预算时的冲稳保组合，"
-                "并给出具体学校、专业和最低分。"
+                "并给出具体学校、专业、最低分、学费或风险证据。"
             )
         ),
         SystemMessage(content=json.dumps(evidence, ensure_ascii=False, default=str)),

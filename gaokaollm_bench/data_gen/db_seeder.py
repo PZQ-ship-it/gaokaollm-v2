@@ -83,6 +83,17 @@ def _tier(row: dict[str, Any] | None) -> int:
     return int(row.get("tier") or 0)
 
 
+def _tier_sql() -> str:
+    return (
+        "CASE\n"
+        "        WHEN s.is_985 THEN 4\n"
+        "        WHEN s.is_211 OR s.is_double_first_class THEN 3\n"
+        "        WHEN s.education_level = '本科' THEN 2\n"
+        "        ELSE 1\n"
+        "      END"
+    )
+
+
 def _is_special_major_name(
     major_name: str | None,
     *,
@@ -675,6 +686,59 @@ LIMIT %s
 """
 
 
+TUITION_SELECT = """
+SELECT
+    a.year,
+    a.school_id,
+    s.name AS school_name,
+    s.province AS school_province,
+    s.city AS school_city,
+    s.is_985,
+    s.is_211,
+    s.is_double_first_class,
+    s.education_level,
+    s.ranking,
+    a.major_id,
+    a.major_name_raw AS major_name,
+    a.min_score,
+    a.min_rank,
+    plan.min_tuition AS tuition,
+    CASE
+        WHEN s.is_985 THEN 4
+        WHEN s.is_211 OR s.is_double_first_class THEN 3
+        WHEN s.education_level = '本科' THEN 2
+        ELSE 1
+    END AS tier
+FROM admission_scores a
+JOIN schools s ON s.id = a.school_id
+LEFT JOIN LATERAL (
+    SELECT min(p.tuition) AS min_tuition
+    FROM admission_plans p
+    WHERE p.school_id = a.school_id
+      AND p.year = a.year
+      AND (
+          p.major_id = a.major_id
+          OR p.major_code = a.major_code
+          OR p.major_name_raw = a.major_name_raw
+      )
+) plan ON true
+WHERE a.min_score IS NOT NULL
+  AND a.min_score <= %s
+"""
+
+TUITION_ORDER = """
+ORDER BY
+    s.ranking ASC NULLS LAST,
+    tier DESC,
+    plan.min_tuition ASC NULLS LAST,
+    a.min_score DESC NULLS LAST,
+    a.year DESC,
+    s.name ASC,
+    a.major_name_raw ASC
+LIMIT %s
+"""
+
+
 async def find_strength_relax_gap_candidates(
     db_pool: Any,
     score: int,
@@ -784,6 +848,266 @@ async def find_strength_relax_gap_candidates(
             }
         )
     return candidates
+
+
+async def find_tuition_value_gap_candidates(
+    db_pool: Any,
+    score: int,
+    prov: str,
+    *,
+    strict_major: str | None = None,
+    budget: int = 6000,
+    budget_window: int = 10000,
+    relax_scope: str = "national",
+    limit: int = 20,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+) -> list[dict[str, Any]]:
+    """Return value gains unlocked by a small tuition-budget relaxation."""
+
+    if limit < 1:
+        raise ValueError("limit must be at least 1")
+    if budget < 0:
+        raise ValueError("budget must be non-negative")
+    if budget_window < 1:
+        raise ValueError("budget_window must be at least 1")
+    if relax_scope not in {"province", "national"}:
+        raise ValueError("relax_scope must be province or national")
+
+    major_clause = "  AND a.major_name_raw LIKE %s\n" if strict_major else ""
+    major_params = [f"%{strict_major}%"] if strict_major else []
+    geo_clause = "  AND s.province = %s\n" if relax_scope == "province" else ""
+    geo_params = [prov] if relax_scope == "province" else []
+
+    exclude_name_patterns = exclude_name_patterns or []
+    exclude_clauses = []
+    exclude_params: list[Any] = []
+    for pattern in exclude_name_patterns:
+        exclude_clauses.append("s.name NOT LIKE %s")
+        exclude_params.append(f"%{pattern}%")
+
+    quality_clause = ""
+    quality_params: list[Any] = []
+    if strict_target_quality:
+        quality_clause = (
+            "  AND (s.name LIKE %s OR s.name LIKE %s)\n"
+            "  AND NOT (s.name LIKE %s AND s.name NOT LIKE %s)\n"
+        )
+        quality_params = ["%大学%", "%医学院%", "%大学%学院%", "%医学院%"]
+
+    baseline_query = (
+        f"{TUITION_SELECT}"
+        f"{geo_clause}"
+        f"{major_clause}"
+        "  AND s.education_level = '本科'\n"
+        f"{quality_clause}"
+        f"{'  AND ' + ' AND '.join(exclude_clauses) if exclude_clauses else ''}\n"
+        "  AND plan.min_tuition IS NOT NULL\n"
+        "  AND plan.min_tuition <= %s\n"
+        f"{TUITION_ORDER}"
+    )
+    baseline_rows = await _fetch(
+        db_pool,
+        baseline_query,
+        [
+            score,
+            *geo_params,
+            *major_params,
+            *quality_params,
+            *exclude_params,
+            budget,
+            1,
+        ],
+    )
+    tier_a = baseline_rows[0] if baseline_rows else None
+    if not tier_a:
+        return []
+
+    baseline_tier = _tier(tier_a)
+    baseline_ranking = tier_a.get("ranking")
+    ranking_threshold = None
+    if baseline_ranking is not None:
+        ranking_threshold = int(baseline_ranking) - 50
+
+    improvement_clause = f"  AND ({_tier_sql()} > %s"
+    improvement_params: list[Any] = [baseline_tier]
+    if ranking_threshold is not None:
+        improvement_clause += " OR (s.ranking IS NOT NULL AND s.ranking <= %s)"
+        improvement_params.append(ranking_threshold)
+    improvement_clause += ")\n"
+
+    relaxed_query = (
+        f"{TUITION_SELECT}"
+        f"{geo_clause}"
+        f"{major_clause}"
+        "  AND s.education_level = '本科'\n"
+        "  AND plan.min_tuition IS NOT NULL\n"
+        "  AND s.ranking IS NOT NULL\n"
+        "  AND plan.min_tuition > %s\n"
+        "  AND plan.min_tuition <= %s\n"
+        f"{quality_clause}"
+        f"{'  AND ' + ' AND '.join(exclude_clauses) if exclude_clauses else ''}\n"
+        f"{improvement_clause}"
+        f"{TUITION_ORDER}"
+    )
+    relaxed_rows = await _fetch(
+        db_pool,
+        relaxed_query,
+        [
+            score,
+            *geo_params,
+            *major_params,
+            budget,
+            budget + budget_window,
+            *quality_params,
+            *exclude_params,
+            *improvement_params,
+            limit,
+        ],
+    )
+
+    candidates: list[dict[str, Any]] = []
+    for tier_b in relaxed_rows:
+        tuition = tier_b.get("tuition")
+        if tuition is None:
+            continue
+        tier_b = dict(tier_b)
+        tier_b["tuition"] = int(float(tuition))
+        tuition_delta = tier_b["tuition"] - budget
+        if tuition_delta <= 0 or tuition_delta > budget_window:
+            continue
+        tier_b["tuition_delta"] = tuition_delta
+        tier_b["budget_anchor"] = budget
+        ranking_gain = 0
+        if baseline_ranking is not None and tier_b.get("ranking") is not None:
+            ranking_gain = max(0, int(baseline_ranking) - int(tier_b["ranking"]))
+        tuition_value_gain = max(
+            _tier(tier_b) - _tier(tier_a),
+            1 if ranking_gain >= 50 else 0,
+        )
+        tier_b["ranking_gain"] = ranking_gain
+        tier_b["tuition_value_gain"] = tuition_value_gain
+        candidates.append(
+            {
+                "score": score,
+                "province": prov,
+                "constraint_relaxed": "tuition_value",
+                "relaxation_kind": "tuition_value",
+                "relax_scope": relax_scope,
+                "strict_major": strict_major,
+                "budget_anchor": budget,
+                "budget_window": budget_window,
+                "tier_a": tier_a,
+                "tier_b": tier_b,
+                "tier_delta": _tier(tier_b) - _tier(tier_a),
+                "ranking_gain": ranking_gain,
+                "tuition_delta": tuition_delta,
+            }
+        )
+    return candidates
+
+
+async def find_tuition_value_gap_sets(
+    db_pool: Any,
+    *,
+    count: int,
+    prov: str = "浙江",
+    strict_major: str | None = None,
+    budget: int = 6000,
+    budget_window: int = 10000,
+    relax_scope: str = "national",
+    score_min: int = 520,
+    score_max: int = 700,
+    score_step: int = 10,
+    candidates_per_score: int = 120,
+    max_volunteers_per_case: int | None = None,
+    max_volunteers_per_school: int | None = None,
+    include_special_majors: bool = True,
+    max_major_name_length: int | None = None,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+) -> list[dict[str, Any]]:
+    """Scan scores and return tuition-value persona seeds."""
+
+    if count < 1:
+        raise ValueError("count must be at least 1")
+    if score_step < 1:
+        raise ValueError("score_step must be at least 1")
+    if score_min > score_max:
+        raise ValueError("score_min must be less than or equal to score_max")
+
+    gap_sets: list[dict[str, Any]] = []
+    seen_cases: set[tuple[Any, ...]] = set()
+    for score in range(score_min, score_max + 1, score_step):
+        candidates = await find_tuition_value_gap_candidates(
+            db_pool,
+            score,
+            prov,
+            strict_major=strict_major,
+            budget=budget,
+            budget_window=budget_window,
+            relax_scope=relax_scope,
+            limit=candidates_per_score,
+            exclude_name_patterns=exclude_name_patterns,
+            strict_target_quality=strict_target_quality,
+        )
+        if not candidates:
+            continue
+
+        tier_a = candidates[0]["tier_a"]
+        case_key = (
+            tier_a.get("school_id"),
+            int(score),
+            prov,
+            strict_major,
+            budget,
+            relax_scope,
+        )
+        if case_key in seen_cases:
+            continue
+
+        volunteers, selection_audit = _select_volunteers_from_candidates(
+            candidates,
+            max_volunteers_per_case=max_volunteers_per_case,
+            max_volunteers_per_school=max_volunteers_per_school,
+            include_special_majors=include_special_majors,
+            max_major_name_length=max_major_name_length,
+            minimum_volunteers=1,
+        )
+        if not volunteers:
+            continue
+
+        seen_cases.add(case_key)
+        gap_sets.append(
+            {
+                "score": score,
+                "province": prov,
+                "constraint_relaxed": "tuition_value",
+                "relaxation_kind": "tuition_value",
+                "relax_scope": relax_scope,
+                "strict_major": strict_major,
+                "budget_anchor": budget,
+                "budget_window": budget_window,
+                "tier_a": tier_a,
+                "volunteer_set": volunteers,
+                "volunteer_count": len(volunteers),
+                "years_used": selection_audit["years_used"],
+                "selection_audit": selection_audit,
+                "max_tier_delta": max(_tier(row) - _tier(tier_a) for row in volunteers),
+                "max_ranking_gain": max(
+                    int(tier_a.get("ranking") or 999999)
+                    - int(row.get("ranking") or 999999)
+                    for row in volunteers
+                ),
+                "max_tuition_delta": max(
+                    int(float(row.get("tuition_delta") or 0)) for row in volunteers
+                ),
+            }
+        )
+        if len(gap_sets) >= count:
+            break
+
+    return gap_sets
 
 
 async def find_strength_relax_gap_sets(

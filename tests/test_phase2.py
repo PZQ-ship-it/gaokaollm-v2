@@ -9,6 +9,7 @@ from app.flows.probers import (
     probe_major_geo_relax,
     probe_risk_band_relax,
     probe_strength_relax,
+    probe_tuition_value_relax,
     run_all_probes,
     run_baseline,
 )
@@ -430,6 +431,61 @@ class StrengthDb:
         ]
 
 
+class TuitionDb:
+    def __init__(self):
+        self.calls = []
+
+    async def __call__(self, query, *params):
+        self.calls.append((query, params))
+        if "plan.min_tuition > %s" not in query:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "预算内大学",
+                    "school_province": "浙江",
+                    "school_city": "杭州",
+                    "major_id": 10,
+                    "major_name": "计算机科学与技术",
+                    "min_score": 580,
+                    "min_rank": 62000,
+                    "tuition": 5000,
+                    "ranking": 180,
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "性价比大学A",
+                "school_province": "浙江",
+                "school_city": "宁波",
+                "major_id": 20,
+                "major_name": "计算机科学与技术",
+                "min_score": 598,
+                "min_rank": 42000,
+                "tuition": 9000,
+                "ranking": 80,
+                "tier": 3,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "性价比大学B",
+                "school_province": "浙江",
+                "school_city": "温州",
+                "major_id": 30,
+                "major_name": "计算机科学与技术",
+                "min_score": 596,
+                "min_rank": 45000,
+                "tuition": 12000,
+                "ranking": 120,
+                "tier": 2,
+            },
+        ]
+
+
 @pytest.mark.asyncio
 async def test_strength_relax_keeps_major_and_returns_stronger_rank_options():
     db = StrengthDb()
@@ -447,3 +503,33 @@ async def test_strength_relax_keeps_major_and_returns_stronger_rank_options():
     assert f"%{constraints['major']}%" in probe_params
     assert rows[0]["major_strength_rank"] == 80
     assert rows[1]["major_strength_rank"] == 120
+
+
+@pytest.mark.asyncio
+async def test_tuition_value_relax_keeps_hard_filters_and_returns_value_options():
+    db = TuitionDb()
+    constraints = {
+        **STRICT_CONSTRAINTS,
+        "major": "计算机科学与技术",
+        "budget": 6000,
+    }
+
+    rows = await probe_tuition_value_relax(
+        constraints, db=db, limit=2, budget_window=10000
+    )
+
+    baseline_query, baseline_params = db.calls[0]
+    probe_query, probe_params = db.calls[-1]
+    assert "s.province = %s" in baseline_query
+    assert constraints["province"] in baseline_params
+    assert "s.province = %s" in probe_query
+    assert "a.major_name_raw LIKE %s" in probe_query
+    assert "plan.min_tuition > %s" in probe_query
+    assert "plan.min_tuition <= %s" in probe_query
+    assert constraints["province"] in probe_params
+    assert f"%{constraints['major']}%" in probe_params
+    assert 6000 in probe_params
+    assert 16000 in probe_params
+    assert rows[0]["tuition"] == 9000
+    assert rows[0]["tuition_delta"] == 3000
+    assert rows[1]["tuition_delta"] == 6000

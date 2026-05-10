@@ -7,6 +7,7 @@ from gaokaollm_bench.data_gen.db_seeder import (
     find_hierarchical_major_relax_gap_sets,
     find_strength_relax_gap_sets,
     find_risk_band_gap_sets,
+    find_tuition_value_gap_sets,
 )
 from gaokaollm_bench.data_gen.generate_personas import (
     build_deterministic_persona,
@@ -1653,3 +1654,160 @@ async def test_find_strength_relax_gap_sets_builds_rank_improvement_cases():
         120,
     ]
     assert "sms.major_strength_rank < %s" in calls[-1][0]
+
+
+@pytest.mark.asyncio
+async def test_build_deterministic_persona_from_tuition_value_gap_set():
+    gap_set = {
+        "score": 600,
+        "province": "Zhejiang",
+        "constraint_relaxed": "tuition_value",
+        "relaxation_kind": "tuition_value",
+        "strict_major": "Computer Science",
+        "budget_anchor": 6000,
+        "budget_window": 10000,
+        "max_tuition_delta": 5000,
+        "max_tier_delta": 1,
+        "max_ranking_gain": 100,
+        "tier_a": {
+            "school_id": 1,
+            "school_name": "Budget University",
+            "school_province": "Zhejiang",
+            "school_city": "Hangzhou",
+            "is_985": False,
+            "is_211": False,
+            "is_double_first_class": False,
+            "education_level": "本科",
+            "major_name": "Computer Science",
+            "min_score": 580,
+            "min_rank": 62000,
+            "tuition": 5000,
+            "ranking": 180,
+            "tier": 2,
+        },
+        "volunteer_set": [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "Value University",
+                "school_province": "Zhejiang",
+                "school_city": "Ningbo",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 20,
+                "major_name": "Computer Science",
+                "min_score": 598,
+                "min_rank": 42000,
+                "tuition": 9000,
+                "tuition_delta": 3000,
+                "ranking": 80,
+                "ranking_gain": 100,
+                "tuition_value_gain": 1,
+                "tier": 3,
+            }
+        ],
+    }
+
+    persona = build_deterministic_persona_from_gap_set(gap_set, 1)
+    restored = IcebergPersona.model_validate_json(persona.model_dump_json())
+
+    assert restored.background["constraint_relaxed"] == "tuition_value"
+    assert restored.background["budget_anchor"] == 6000
+    assert restored.explicit_red_lines["budget"] == "每年学费最好不超过6000元"
+    assert restored.implicit_flexibilities["constraint_relaxed"] == "tuition_value"
+    assert restored.implicit_flexibilities["budget_window"] == 10000
+    assert restored.implicit_flexibilities["volunteer_set"][0]["tuition_delta"] == 3000
+    assert restored.process_milestones["require_tuition_evidence"] is True
+
+
+@pytest.mark.asyncio
+async def test_find_tuition_value_gap_sets_builds_budget_improvement_cases():
+    calls = []
+
+    async def mock_db(query, *params):
+        calls.append((query, params))
+        if "plan.min_tuition > %s" not in query:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "Budget University",
+                    "school_province": "Zhejiang",
+                    "school_city": "Hangzhou",
+                    "is_985": False,
+                    "is_211": False,
+                    "is_double_first_class": False,
+                    "education_level": "本科",
+                    "major_id": 10,
+                    "major_name": "Computer Science",
+                    "min_score": 580,
+                    "min_rank": 62000,
+                    "tuition": 5000,
+                    "ranking": 180,
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "Value University A",
+                "school_province": "Zhejiang",
+                "school_city": "Ningbo",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 20,
+                "major_name": "Computer Science",
+                "min_score": 598,
+                "min_rank": 42000,
+                "tuition": 9000,
+                "ranking": 80,
+                "tier": 3,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "Value University B",
+                "school_province": "Zhejiang",
+                "school_city": "Wenzhou",
+                "is_985": False,
+                "is_211": False,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 30,
+                "major_name": "Computer Science",
+                "min_score": 596,
+                "min_rank": 45000,
+                "tuition": 11000,
+                "ranking": 120,
+                "tier": 2,
+            },
+        ]
+
+    gap_sets = await find_tuition_value_gap_sets(
+        mock_db,
+        count=1,
+        prov="Zhejiang",
+        strict_major="Computer Science",
+        budget=6000,
+        budget_window=10000,
+        score_min=600,
+        score_max=600,
+        candidates_per_score=3,
+        max_volunteers_per_case=2,
+        strict_target_quality=False,
+    )
+
+    assert len(gap_sets) == 1
+    assert gap_sets[0]["constraint_relaxed"] == "tuition_value"
+    assert gap_sets[0]["budget_anchor"] == 6000
+    assert [row["tuition_delta"] for row in gap_sets[0]["volunteer_set"]] == [
+        3000,
+        5000,
+    ]
+    assert gap_sets[0]["volunteer_set"][0]["tuition_value_gain"] == 1
+    assert "plan.min_tuition > %s" in calls[-1][0]

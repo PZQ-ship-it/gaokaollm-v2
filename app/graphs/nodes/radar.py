@@ -13,6 +13,7 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
         or constraints.get("city")
         or constraints.get("major")
         or constraints.get("strength")
+        or int(constraints.get("budget") or 100000) < 100000
         or constraints.get("risk_preference")
     )
 
@@ -25,6 +26,7 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
             "city_relax": [],
             "major_relax": [],
             "strength_relax": [],
+            "tuition_value_relax": [],
             "major_geo_relax": [],
             "risk_band_relax": [],
         }
@@ -35,6 +37,7 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
         f"city:{len(opportunities.get('city_relax', []))} "
         f"major:{len(opportunities.get('major_relax', []))} "
         f"strength:{len(opportunities.get('strength_relax', []))} "
+        f"tuition:{len(opportunities.get('tuition_value_relax', []))} "
         f"major_geo:{len(opportunities.get('major_geo_relax', []))} "
         f"risk:{len(opportunities.get('risk_band_relax', []))}"
     )

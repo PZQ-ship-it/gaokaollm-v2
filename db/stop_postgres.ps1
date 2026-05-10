@@ -19,12 +19,12 @@ if ($LASTEXITCODE -eq 0) {
 if (Test-Path $RunPidFile) {
   $PidText = Get-Content $RunPidFile -ErrorAction SilentlyContinue | Select-Object -First 1
   if ($PidText) {
-    $Pid = [int]$PidText
-    $Process = Get-Process -Id $Pid -ErrorAction SilentlyContinue
+    $PostgresPid = [int]$PidText
+    $Process = Get-Process -Id $PostgresPid -ErrorAction SilentlyContinue
     if ($Process) {
-      Stop-Process -Id $Pid -Force
+      Stop-Process -Id $PostgresPid -Force
       Remove-Item -Force $RunPidFile
-      Write-Host "PostgreSQL direct process stopped. PID: $Pid"
+      Write-Host "PostgreSQL direct process stopped. PID: $PostgresPid"
       exit 0
     }
   }

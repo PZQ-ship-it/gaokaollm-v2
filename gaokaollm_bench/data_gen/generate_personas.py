@@ -30,8 +30,9 @@ from gaokaollm_bench.data_gen.db_seeder import (
     find_major_relax_gap_sets,
     find_many_pareto_gaps,
     find_pareto_gap_sets,
-    find_strength_relax_gap_sets,
     find_risk_band_gap_sets,
+    find_strength_relax_gap_sets,
+    find_tuition_value_gap_sets,
 )
 from gaokaollm_bench.data_gen.major_tree import (
     UnknownMajorError,
@@ -50,7 +51,10 @@ DEFAULT_EXCLUDE_PATTERNS = [
     "中北学院",
     "泰州学院",
     "职业学院",
+    "职业技术学院",
+    "职业",
     "专科学校",
+    "专科",
     "独立学院",
     "京江学院",
     "杏林学院",
@@ -176,9 +180,23 @@ def _volunteer_entry(row: dict[str, Any], score: int) -> dict[str, Any]:
         "major_strength_level",
         "major_strength_source_type",
         "discipline_name",
+        "tuition",
+        "tuition_delta",
+        "budget_anchor",
+        "ranking_gain",
+        "tuition_value_gain",
     ):
         if row.get(key) is not None:
-            entry[key] = row.get(key)
+            value = row.get(key)
+            if key in {
+                "tuition",
+                "tuition_delta",
+                "budget_anchor",
+                "ranking_gain",
+                "tuition_value_gain",
+            }:
+                value = int(float(value))
+            entry[key] = value
     return entry
 
 
@@ -265,6 +283,46 @@ def build_deterministic_persona_from_gap_set(
             "require_complete_volunteer_set": True,
             "require_each_option_strength_and_score_evidence": True,
             "accept_after_verified_strength_jump": best_names,
+        }
+    elif relaxed_constraint == "tuition_value":
+        strict_major = str(
+            gap_set.get("strict_major") or tier_a.get("major_name") or "目标专业"
+        )
+        major_name = strict_major
+        budget_anchor = int(gap_set.get("budget_anchor") or 6000)
+        budget_window = int(gap_set.get("budget_window") or 10000)
+        max_tuition_delta = int(gap_set.get("max_tuition_delta") or 0)
+        explicit_red_lines = {
+            "budget": f"每年学费最好不超过{budget_anchor}元",
+            "major": f"优先保持{strict_major}",
+            "reason": "家庭预算比较保守，暂时不接受明显超预算方案",
+            "current_anchor_school": tier_a_name,
+            "current_anchor_major": tier_a.get("major_name"),
+            "current_anchor_tuition": tier_a.get("tuition"),
+        }
+        trigger_condition = (
+            f"只有看到仍满足分数、专业和选科约束，且学费只比{budget_anchor}元/年预算"
+            f"最多增加{budget_window}元/年的真实可达志愿集合，"
+            "并且每个志愿都有学校、专业、最低分、最低位次、学费和学费增量证据，"
+            "才会接受小幅放宽学费预算。"
+        )
+        compromise = (
+            f"可以为了更好的学校层次、排名或风险结构，接受每年最多增加"
+            f"{max_tuition_delta}元学费"
+        )
+        scope_phrase = (
+            "地域不限，" if relax_scope == "national" else f"尽量留在{province}，"
+        )
+        initial_utterance = (
+            f"我{score}分，{scope_phrase}想读{strict_major}，每年学费预算最好"
+            f"{budget_anchor}元以内，太贵的先别推荐。"
+        )
+        milestones = {
+            "reject_generic_budget_advice": True,
+            "require_tuition_evidence": True,
+            "require_complete_volunteer_set": True,
+            "require_each_option_tuition_and_score_evidence": True,
+            "accept_after_verified_tuition_value_set": best_names,
         }
     elif relaxed_constraint == "risk_band":
         strict_major = str(
@@ -397,6 +455,7 @@ def build_deterministic_persona_from_gap_set(
             "baseline_major": tier_a.get("major_name"),
             "baseline_tier": tier_a.get("tier"),
             "baseline_label": tier_a_label,
+            "baseline_ranking": tier_a.get("ranking"),
             "volunteer_count": len(volunteers),
             "max_gap_tier": max(item["tier"] for item in volunteers),
             "max_tier_delta": gap_set["max_tier_delta"],
@@ -416,6 +475,10 @@ def build_deterministic_persona_from_gap_set(
             "risk_levels": gap_set.get("risk_levels"),
             "portfolio_gain": gap_set.get("portfolio_gain"),
             "strength_anchor_rank": gap_set.get("strength_anchor_rank"),
+            "budget_anchor": gap_set.get("budget_anchor"),
+            "budget_window": gap_set.get("budget_window"),
+            "max_tuition_delta": gap_set.get("max_tuition_delta"),
+            "max_ranking_gain": gap_set.get("max_ranking_gain"),
         },
         explicit_red_lines=explicit_red_lines,
         implicit_flexibilities={
@@ -442,6 +505,10 @@ def build_deterministic_persona_from_gap_set(
             "risk_levels": gap_set.get("risk_levels"),
             "portfolio_gain": gap_set.get("portfolio_gain"),
             "strength_anchor_rank": gap_set.get("strength_anchor_rank"),
+            "budget_anchor": gap_set.get("budget_anchor"),
+            "budget_window": gap_set.get("budget_window"),
+            "max_tuition_delta": gap_set.get("max_tuition_delta"),
+            "max_ranking_gain": gap_set.get("max_ranking_gain"),
             "tier_labels": best_labels,
             "compromise": compromise,
         },
@@ -496,6 +563,28 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                 count=args.count,
                 prov=args.province,
                 strict_major=args.strict_major or None,
+                score_min=args.score_min,
+                score_max=args.score_max,
+                score_step=args.score_step,
+                candidates_per_score=args.candidates_per_score,
+                max_volunteers_per_case=args.max_volunteers_per_case,
+                max_volunteers_per_school=args.max_volunteers_per_school,
+                include_special_majors=args.include_special_majors,
+                max_major_name_length=args.max_major_name_length,
+                exclude_name_patterns=[]
+                if args.include_suspect_schools
+                else DEFAULT_EXCLUDE_PATTERNS,
+                strict_target_quality=not args.no_strict_target_quality,
+            )
+        elif args.relaxation == "tuition_value":
+            gap_sets = await find_tuition_value_gap_sets(
+                fetch_query,
+                count=args.count,
+                prov=args.province,
+                strict_major=args.strict_major or None,
+                budget=args.budget,
+                budget_window=args.budget_window,
+                relax_scope=args.tuition_relax_scope,
                 score_min=args.score_min,
                 score_max=args.score_max,
                 score_step=args.score_step,
@@ -680,6 +769,24 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="Original hard major constraint for major relaxation.",
     )
     parser.add_argument(
+        "--budget",
+        type=int,
+        default=6000,
+        help="Annual tuition budget used by --relaxation tuition_value.",
+    )
+    parser.add_argument(
+        "--budget-window",
+        type=int,
+        default=10000,
+        help="Maximum annual tuition increase allowed by tuition-value relaxation.",
+    )
+    parser.add_argument(
+        "--tuition-relax-scope",
+        choices=values(MajorRelaxScope),
+        default="national",
+        help="Whether tuition-value personas keep province or search nationally.",
+    )
+    parser.add_argument(
         "--target-major-clusters",
         nargs="+",
         default=["medical_technology"],
@@ -823,6 +930,10 @@ def main(argv: list[str] | None = None) -> int:
         raise ValueError("--max-volunteers-per-school must be at least 1")
     if args.max_major_name_length is not None and args.max_major_name_length < 1:
         raise ValueError("--max-major-name-length must be at least 1")
+    if args.budget < 0:
+        raise ValueError("--budget must be non-negative")
+    if args.budget_window < 1:
+        raise ValueError("--budget-window must be at least 1")
     if args.recommendation_threshold is None:
         if args.min_volunteers_per_case is not None:
             args.recommendation_threshold = args.min_volunteers_per_case

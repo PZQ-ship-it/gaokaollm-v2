@@ -178,6 +178,56 @@ def _max_tier(rows: list[dict[str, Any]]) -> int:
     return max(int(row.get("tier") or 0) for row in rows)
 
 
+def _best_ranking(rows: list[dict[str, Any]]) -> int | None:
+    rankings = []
+    for row in rows:
+        ranking = row.get("ranking")
+        if ranking is None:
+            continue
+        try:
+            rankings.append(int(ranking))
+        except (TypeError, ValueError):
+            continue
+    return min(rankings) if rankings else None
+
+
+async def _tuition_value_anchor(
+    constraints: dict[str, Any],
+    *,
+    db: Any = None,
+    budget: int,
+    limit: int = 3,
+) -> list[dict[str, Any]]:
+    where, params = _where_common({**constraints, "budget": None})
+    _add_province_filter(where, params, constraints)
+    _add_city_filter(where, params, constraints)
+    _add_major_filter(where, params, constraints)
+    _add_undergraduate_quality_filters(where, params)
+    _add_major_quality_filters(where, params, max_major_name_length=60)
+    where.extend(
+        [
+            "plan.min_tuition IS NOT NULL",
+            "plan.min_tuition <= %s",
+            "s.ranking IS NOT NULL",
+        ]
+    )
+    params.extend([budget, limit])
+    query = (
+        f"{BASE_SELECT}\n"
+        f"WHERE {' AND '.join(where)}\n"
+        "ORDER BY\n"
+        "    s.ranking ASC NULLS LAST,\n"
+        "    tier DESC,\n"
+        "    plan.min_tuition ASC NULLS LAST,\n"
+        "    a.min_score DESC NULLS LAST,\n"
+        "    a.year DESC,\n"
+        "    s.name ASC,\n"
+        "    a.major_name_raw ASC\n"
+        "LIMIT %s"
+    )
+    return await _fetch(db, query, params)
+
+
 def classify_risk_band(
     *,
     score_margin: int | float | None,
@@ -702,6 +752,105 @@ async def probe_strength_relax(
     return selected
 
 
+async def probe_tuition_value_relax(
+    constraints: dict[str, Any],
+    db: Any = None,
+    baseline_results: list[dict[str, Any]] | None = None,
+    limit: int = 5,
+    budget_window: int = 10000,
+) -> list[dict[str, Any]]:
+    """Find value gains unlocked by a small tuition-budget relaxation."""
+
+    budget = _budget(constraints)
+    if budget is None:
+        return []
+
+    baseline = baseline_results
+    if baseline is None:
+        baseline = await run_baseline(constraints, db=db)
+    if not baseline:
+        return []
+
+    value_anchor = [
+        row
+        for row in baseline
+        if row.get("ranking") is not None
+        and row.get("tuition") is not None
+        and str(row.get("education_level") or "") == "本科"
+    ]
+    if not value_anchor:
+        value_anchor = await _tuition_value_anchor(
+            constraints,
+            db=db,
+            budget=budget,
+            limit=max(3, limit),
+        )
+    if not value_anchor:
+        value_anchor = baseline
+
+    relaxed_constraints = dict(constraints)
+    relaxed_constraints["budget"] = None
+    where, params = _where_common(relaxed_constraints)
+    _add_province_filter(where, params, constraints)
+    _add_city_filter(where, params, constraints)
+    _add_major_filter(where, params, constraints)
+    _add_undergraduate_quality_filters(where, params)
+    _add_major_quality_filters(where, params, max_major_name_length=60)
+    where.extend(
+        [
+            "plan.min_tuition IS NOT NULL",
+            "s.ranking IS NOT NULL",
+            "plan.min_tuition > %s",
+            "plan.min_tuition <= %s",
+        ]
+    )
+    params.extend([budget, budget + budget_window])
+
+    improvement_clauses = [f"{_tier_sql()} > %s"]
+    params.append(_max_tier(value_anchor))
+    best_ranking = _best_ranking(value_anchor)
+    if best_ranking is not None:
+        improvement_clauses.append("s.ranking IS NOT NULL AND s.ranking <= %s")
+        params.append(best_ranking - 50)
+    where.append("(" + " OR ".join(improvement_clauses) + ")")
+    params.append(max(limit * 4, 20))
+
+    query = (
+        f"{BASE_SELECT}\n"
+        f"WHERE {' AND '.join(where)}\n"
+        "ORDER BY\n"
+        "    s.ranking ASC NULLS LAST,\n"
+        "    tier DESC,\n"
+        "    plan.min_tuition ASC NULLS LAST,\n"
+        "    a.min_score DESC NULLS LAST,\n"
+        "    a.year DESC,\n"
+        "    s.name ASC,\n"
+        "    a.major_name_raw ASC\n"
+        "LIMIT %s"
+    )
+    rows = await _fetch(db, query, params)
+    selected: list[dict[str, Any]] = []
+    seen_options: set[tuple[Any, Any]] = set()
+    for row in rows:
+        tuition = row.get("tuition")
+        if tuition is None:
+            continue
+        candidate = dict(row)
+        candidate["tuition"] = int(float(tuition))
+        candidate["tuition_delta"] = candidate["tuition"] - budget
+        option_key = (
+            candidate.get("school_id"),
+            candidate.get("major_id") or candidate.get("major_name"),
+        )
+        if option_key in seen_options:
+            continue
+        seen_options.add(option_key)
+        selected.append(candidate)
+        if len(selected) >= limit:
+            break
+    return selected
+
+
 async def probe_major_relax(
     constraints: dict[str, Any],
     db: Any = None,
@@ -828,6 +977,7 @@ async def run_all_probes(
         city_relax,
         major_relax,
         strength_relax,
+        tuition_value_relax,
         major_geo_relax,
         risk_band_relax,
     ) = await asyncio.gather(
@@ -835,6 +985,7 @@ async def run_all_probes(
         probe_city_relax(constraints, db=db, baseline_results=baseline),
         probe_major_relax(constraints, db=db, baseline_results=baseline),
         probe_strength_relax(constraints, db=db, baseline_results=baseline),
+        probe_tuition_value_relax(constraints, db=db, baseline_results=baseline),
         probe_major_geo_relax(constraints, db=db, baseline_results=baseline),
         probe_risk_band_relax(constraints, db=db),
     )
@@ -843,6 +994,7 @@ async def run_all_probes(
         "city_relax": city_relax,
         "major_relax": major_relax,
         "strength_relax": strength_relax,
+        "tuition_value_relax": tuition_value_relax,
         "major_geo_relax": major_geo_relax,
         "risk_band_relax": risk_band_relax,
     }

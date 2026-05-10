@@ -14,6 +14,8 @@ from gaokaollm_bench.sandbox.target_agents import (
 from gaokaollm_bench.schemas import IcebergPersona
 from gaokaollm_bench.tests.manual.agent_benchmark_run import (
     RunConfig,
+    _has_tuition_value_evidence,
+    _tuition_value_gain,
     load_personas,
     run_target_cases,
     write_summary_files,
@@ -63,6 +65,7 @@ class FakeGraph:
                 ],
                 "major_relax": [],
                 "strength_relax": [],
+                "tuition_value_relax": [],
                 "major_geo_relax": [
                     {
                         "school_name": "西南交通大学",
@@ -116,6 +119,7 @@ class FakeRiskGraph:
                 "city_relax": [],
                 "major_relax": [],
                 "strength_relax": [],
+                "tuition_value_relax": [],
                 "major_geo_relax": [],
                 "risk_band_relax": [
                     {
@@ -263,6 +267,26 @@ def build_risk_persona():
     )
 
 
+def test_deterministic_judge_accepts_tuition_value_evidence():
+    flex = {
+        "constraint_relaxed": "tuition_value",
+        "volunteer_set": [
+            {
+                "school_name": "西北师范大学",
+                "tuition_value_gain": 1,
+                "ranking_gain": 80,
+            }
+        ],
+    }
+    text = (
+        "西北师范大学 软件工程 min_score=553 "
+        "tuition=9750 tuition_delta=3750 ranking=131"
+    )
+
+    assert _has_tuition_value_evidence(flex, text)
+    assert _tuition_value_gain(flex, text) == 1
+
+
 async def evaluate_by_joint_school(transcript, *, judge_llm):
     combined = "\n".join(turn.content for turn in transcript.turns)
     success = "西南交通大学" in combined and "最低分" in combined
@@ -320,6 +344,7 @@ async def test_app_graph_target_agent_preserves_auditable_state():
     assert state["pareto_opportunities"]["major_geo_relax"]
     assert state["pareto_opportunities"]["risk_band_relax"]
     assert state["pareto_opportunities"]["strength_relax"] == []
+    assert state["pareto_opportunities"]["tuition_value_relax"] == []
     assert any(
         item.get("risk_level") == "chong" for item in state["recommended_schools"]
     )
@@ -342,6 +367,7 @@ async def test_hard_constraint_baseline_only_reports_baseline():
         "city_relax": [],
         "major_relax": [],
         "strength_relax": [],
+        "tuition_value_relax": [],
         "major_geo_relax": [],
         "risk_band_relax": [],
     }

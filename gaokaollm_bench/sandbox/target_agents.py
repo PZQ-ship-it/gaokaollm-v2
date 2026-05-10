@@ -60,6 +60,7 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                     "city_relax": [],
                     "major_relax": [],
                     "strength_relax": [],
+                    "tuition_value_relax": [],
                     "major_geo_relax": [],
                     "risk_band_relax": [],
                 },
@@ -79,6 +80,7 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                 "city_relax": [],
                 "major_relax": [],
                 "strength_relax": [],
+                "tuition_value_relax": [],
                 "major_geo_relax": [],
                 "risk_band_relax": [],
             },
@@ -106,6 +108,7 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             "city_relax": list(opportunities.get("city_relax") or []),
             "major_relax": list(opportunities.get("major_relax") or []),
             "strength_relax": list(opportunities.get("strength_relax") or []),
+            "tuition_value_relax": list(opportunities.get("tuition_value_relax") or []),
             "major_geo_relax": list(opportunities.get("major_geo_relax") or []),
             "risk_band_relax": list(opportunities.get("risk_band_relax") or []),
         },
@@ -117,6 +120,7 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             opportunities.get("city_relax") or [],
             opportunities.get("major_relax") or [],
             opportunities.get("strength_relax") or [],
+            opportunities.get("tuition_value_relax") or [],
             opportunities.get("major_geo_relax") or [],
             opportunities.get("risk_band_relax") or [],
         ),
@@ -143,6 +147,9 @@ def _recommended_schools(*groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
             if city is not None:
                 item["city"] = city
             for key in ("risk_level", "score_margin", "rank_gap", "min_rank"):
+                if row.get(key) is not None:
+                    item[key] = row.get(key)
+            for key in ("tuition", "tuition_delta"):
                 if row.get(key) is not None:
                     item[key] = row.get(key)
             for key in (
@@ -173,6 +180,16 @@ def _fallback_extract_constraints(text: str) -> dict[str, Any]:
     score_match = re.search(r"(\d{3})", text)
     if score_match:
         extracted["score"] = int(score_match.group(1))
+
+    budget_patterns = (
+        r"(?:预算|学费|费用|一年|每年)[^\d]{0,8}(\d{4,6})",
+        r"(\d{4,6})\s*(?:元)?\s*(?:以内|以下|封顶)",
+    )
+    for pattern in budget_patterns:
+        budget_match = re.search(pattern, text)
+        if budget_match:
+            extracted["budget"] = int(budget_match.group(1))
+            break
 
     province_names = (
         "北京",
@@ -235,6 +252,16 @@ def _fallback_extract_constraints(text: str) -> dict[str, Any]:
         extracted["major"] = "计算机"
     elif "法学" in text:
         extracted["major"] = "法学"
+    else:
+        major_match = re.search(r"(?:想读|想学|报考|读)([^，,。；;\s]{2,30})", text)
+        if major_match:
+            major = re.split(
+                r"(?:每年|学费|预算|以内|以下|太贵|地域|地区)",
+                major_match.group(1),
+                maxsplit=1,
+            )[0].strip("，,。；; ")
+            if major:
+                extracted["major"] = major
 
     subjects = _extract_subjects(text)
     if subjects:
@@ -275,6 +302,12 @@ def _extract_subjects(text: str) -> list[str]:
         "技术": "技术",
     }
     compact = re.sub(r"\s+", "", text)
+    compact = (
+        compact.replace("地域不限", "")
+        .replace("地区不限", "")
+        .replace("地域不限制", "")
+        .replace("地区不限制", "")
+    )
     subjects: list[str] = []
     for alias, subject in aliases.items():
         if alias in compact and subject not in subjects:
