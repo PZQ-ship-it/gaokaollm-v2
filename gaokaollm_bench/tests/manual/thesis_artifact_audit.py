@@ -17,6 +17,7 @@ TARGET_BASELINE = "hard_constraint"
 DEFAULT_THESIS_DOCS = [
     Path("gaokaollm_bench/outputs/thesis_intro_related_work_chapters.md"),
     Path("gaokaollm_bench/outputs/thesis_v1_prototype_chapter.md"),
+    Path("gaokaollm_bench/outputs/thesis_conclusion_future_work_chapter.md"),
     Path("gaokaollm_bench/outputs/thesis_agent_benchmark_contribution.md"),
     Path("gaokaollm_bench/outputs/thesis_method_experiment_chapters.md"),
     Path("gaokaollm_bench/outputs/thesis_v1_v2_integration_plan.md"),
@@ -88,6 +89,36 @@ V1_PROTOTYPE_REQUIRED_TERMS = (
     "不混入 v1 成果",
     "real-db-set-浙江-569-009",
     "100% 成功",
+)
+
+CONCLUSION_REQUIRED_TERMS = (
+    "总结与展望",
+    "gaokaollmmodel",
+    "Agentic RAG",
+    "Benchmark 贡献",
+    "Agent 贡献",
+    "gatekeeper -> radar -> negotiator",
+    "major_geo_relax",
+    "risk_band_relax",
+    "app_pareto",
+    "hard_constraint",
+    "0.900 / 0.900 / 0.000 / 5.20",
+    "1.000 / 3.000 / 0.000 / 5.00",
+    "real-db-set-浙江-569-009",
+    "100% 成功",
+    "Agent 不读取",
+    "implicit_flexibilities",
+    "volunteer_set",
+    "v1 是工程原型与问题发现",
+    "v2 是最终主贡献",
+    "不属于 v1",
+    "城市放宽",
+    "学费放宽",
+    "就业导向",
+    "学科实力",
+    "地域就业机会",
+    "多年稳定性",
+    "概率化录取风险模型",
 )
 
 
@@ -451,6 +482,30 @@ def audit_narrative_docs(thesis_docs: list[Path]) -> list[Check]:
         else (
             f"{v1_prototype_doc} missing terms: "
             + ", ".join(missing_v1_prototype_terms or ["file missing"])
+        ),
+    )
+
+    conclusion_doc = Path(
+        "gaokaollm_bench/outputs/thesis_conclusion_future_work_chapter.md"
+    )
+    conclusion_text = (
+        conclusion_doc.read_text(encoding="utf-8") if conclusion_doc.exists() else ""
+    )
+    missing_conclusion_terms = [
+        term for term in CONCLUSION_REQUIRED_TERMS if term not in conclusion_text
+    ]
+    add_check(
+        checks,
+        "conclusion_chapter_summarizes_dual_contribution",
+        conclusion_doc.exists() and not missing_conclusion_terms,
+        (
+            "chapter 7 summarizes v1/v2 positioning, dual experiments, "
+            "limitations, future work, and hidden-field boundary"
+        )
+        if conclusion_doc.exists() and not missing_conclusion_terms
+        else (
+            f"{conclusion_doc} missing terms: "
+            + ", ".join(missing_conclusion_terms or ["file missing"])
         ),
     )
 

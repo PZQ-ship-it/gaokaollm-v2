@@ -85,6 +85,70 @@ ORDER BY
 LIMIT %s
 """
 
+STRENGTH_SELECT = """
+SELECT
+    a.id AS admission_score_id,
+    a.year,
+    a.school_id,
+    s.name AS school_name,
+    s.province AS school_province,
+    s.city AS school_city,
+    s.is_985,
+    s.is_211,
+    s.is_double_first_class,
+    s.education_level,
+    s.ranking,
+    a.major_id,
+    a.major_name_raw AS major_name,
+    a.subject_requirement,
+    a.requirement_normalized,
+    COALESCE(sr.requirement_type, 'unknown') AS requirement_type,
+    a.min_score,
+    a.min_rank,
+    plan.min_tuition AS tuition,
+    sms.major_strength_rank AS major_strength_rank,
+    sms.major_strength_rating AS major_strength_rating,
+    sms.major_strength_level AS major_strength_level,
+    sms.major_strength_source_type AS major_strength_source_type,
+    sms.discipline_name AS discipline_name,
+    CASE
+        WHEN s.is_985 THEN 4
+        WHEN s.is_211 OR s.is_double_first_class THEN 3
+        WHEN s.education_level = '本科' THEN 2
+        ELSE 1
+    END AS tier
+FROM admission_scores a
+JOIN schools s ON s.id = a.school_id
+LEFT JOIN subject_requirements sr ON sr.raw_requirement = a.subject_requirement
+LEFT JOIN LATERAL (
+    SELECT min(p.tuition) AS min_tuition
+    FROM admission_plans p
+    WHERE p.school_id = a.school_id
+      AND p.year = a.year
+      AND (
+          p.major_id = a.major_id
+          OR p.major_code = a.major_code
+          OR p.major_name_raw = a.major_name_raw
+      )
+) plan ON true
+LEFT JOIN (
+    SELECT DISTINCT ON (sms.school_id)
+        sms.school_id,
+        sms.rank AS major_strength_rank,
+        sms.rating AS major_strength_rating,
+        sms.level AS major_strength_level,
+        sms.source_type AS major_strength_source_type,
+        sms.discipline_name AS discipline_name
+    FROM school_major_strengths sms
+    WHERE sms.source_type = 'major_ranking'
+      AND sms.rank IS NOT NULL
+    ORDER BY
+        sms.school_id,
+        sms.rank ASC NULLS LAST,
+        sms.rating ASC NULLS LAST
+) sms ON sms.school_id = a.school_id
+"""
+
 
 async def _fetch(db: Any, query: str, params: list[Any]) -> list[dict[str, Any]]:
     if db is None:
@@ -310,6 +374,17 @@ def _add_province_filter(
         params.append(province)
 
 
+def _add_city_filter(
+    where: list[str],
+    params: list[Any],
+    constraints: dict[str, Any],
+) -> None:
+    city = constraints.get("city")
+    if city:
+        where.append("s.city = %s")
+        params.append(city)
+
+
 def _add_major_filter(
     where: list[str],
     params: list[Any],
@@ -471,6 +546,7 @@ async def run_baseline(
 ) -> list[dict[str, Any]]:
     where, params = _where_common(constraints)
     _add_province_filter(where, params, constraints)
+    _add_city_filter(where, params, constraints)
     _add_major_filter(where, params, constraints)
     params.append(limit)
 
@@ -528,6 +604,102 @@ async def probe_geo_relax(
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
     return await _fetch(db, query, params)
+
+
+async def probe_city_relax(
+    constraints: dict[str, Any],
+    db: Any = None,
+    baseline_results: list[dict[str, Any]] | None = None,
+    limit: int = 5,
+) -> list[dict[str, Any]]:
+    """Find tier gains unlocked by relaxing only the exact city constraint."""
+
+    city = constraints.get("city")
+    if not city:
+        return []
+
+    baseline = baseline_results
+    if baseline is None:
+        baseline = await run_baseline(constraints, db=db)
+
+    where, params = _where_common(constraints)
+    _add_province_filter(where, params, constraints)
+    _add_major_filter(where, params, constraints)
+    where.append("s.city <> %s")
+    params.append(city)
+    _add_higher_tier_filter(where, params, baseline)
+    params.append(limit)
+
+    query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
+    return await _fetch(db, query, params)
+
+
+async def probe_strength_relax(
+    constraints: dict[str, Any],
+    db: Any = None,
+    baseline_results: list[dict[str, Any]] | None = None,
+    limit: int = 5,
+) -> list[dict[str, Any]]:
+    """Find school-strength gains unlocked by relaxing the strength preference."""
+
+    strength = constraints.get("strength")
+    if not strength:
+        return []
+
+    anchor_where, anchor_params = _where_common(constraints)
+    _add_province_filter(anchor_where, anchor_params, constraints)
+    _add_major_filter(anchor_where, anchor_params, constraints)
+
+    anchor_query = (
+        f"{STRENGTH_SELECT}\n"
+        f"WHERE {' AND '.join(anchor_where)}\n"
+        "  AND sms.major_strength_rank IS NOT NULL\n"
+        "ORDER BY\n"
+        "    major_strength_rank DESC NULLS LAST,\n"
+        "    tier DESC,\n"
+        "    s.ranking DESC NULLS LAST,\n"
+        "    a.min_score DESC NULLS LAST,\n"
+        "    a.year DESC,\n"
+        "    s.name ASC,\n"
+        "    a.major_name_raw ASC\n"
+        "LIMIT %s"
+    )
+    anchor_rows = await _fetch(db, anchor_query, [*anchor_params, 1])
+    anchor = anchor_rows[0] if anchor_rows else None
+    if not anchor or anchor.get("major_strength_rank") is None:
+        return []
+
+    anchor_rank = int(float(anchor["major_strength_rank"]))
+
+    relaxed_where, relaxed_params = _where_common(constraints)
+    _add_major_filter(relaxed_where, relaxed_params, constraints)
+    _add_undergraduate_quality_filters(relaxed_where, relaxed_params)
+    _add_major_quality_filters(relaxed_where, relaxed_params, max_major_name_length=60)
+    relaxed_query = (
+        f"{STRENGTH_SELECT}\n"
+        f"WHERE {' AND '.join(relaxed_where)}\n"
+        "  AND sms.major_strength_rank IS NOT NULL\n"
+        "  AND sms.major_strength_rank < %s\n"
+        "ORDER BY\n"
+        "    major_strength_rank ASC NULLS LAST,\n"
+        "    tier DESC,\n"
+        "    s.ranking ASC NULLS LAST,\n"
+        "    a.min_score DESC NULLS LAST,\n"
+        "    a.year DESC,\n"
+        "    s.name ASC,\n"
+        "    a.major_name_raw ASC\n"
+        "LIMIT %s"
+    )
+    rows = await _fetch(db, relaxed_query, [*relaxed_params, anchor_rank, limit])
+    selected: list[dict[str, Any]] = []
+    for row in rows:
+        if row.get("major_strength_rank") is None:
+            continue
+        candidate_rank = int(float(row["major_strength_rank"]))
+        if candidate_rank >= anchor_rank:
+            continue
+        selected.append(row)
+    return selected
 
 
 async def probe_major_relax(
@@ -651,15 +823,26 @@ async def run_all_probes(
     db: Any = None,
 ) -> dict[str, list[dict[str, Any]]]:
     baseline = await run_baseline(constraints, db=db)
-    geo_relax, major_relax, major_geo_relax, risk_band_relax = await asyncio.gather(
+    (
+        geo_relax,
+        city_relax,
+        major_relax,
+        strength_relax,
+        major_geo_relax,
+        risk_band_relax,
+    ) = await asyncio.gather(
         probe_geo_relax(constraints, db=db, baseline_results=baseline),
+        probe_city_relax(constraints, db=db, baseline_results=baseline),
         probe_major_relax(constraints, db=db, baseline_results=baseline),
+        probe_strength_relax(constraints, db=db, baseline_results=baseline),
         probe_major_geo_relax(constraints, db=db, baseline_results=baseline),
         probe_risk_band_relax(constraints, db=db),
     )
     return {
         "geo_relax": geo_relax,
+        "city_relax": city_relax,
         "major_relax": major_relax,
+        "strength_relax": strength_relax,
         "major_geo_relax": major_geo_relax,
         "risk_band_relax": risk_band_relax,
     }

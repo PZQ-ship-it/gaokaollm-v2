@@ -5,8 +5,10 @@ import pytest
 from app.core.db_pg import close_pool
 from app.flows.probers import (
     classify_risk_band,
+    probe_city_relax,
     probe_major_geo_relax,
     probe_risk_band_relax,
+    probe_strength_relax,
     run_all_probes,
     run_baseline,
 )
@@ -132,6 +134,41 @@ class RiskDb:
         ]
 
 
+class CityDb:
+    def __init__(self):
+        self.calls = []
+
+    async def __call__(self, query, *params):
+        self.calls.append((query, params))
+        if len(self.calls) == 1:
+            return [
+                {
+                    "school_id": 1,
+                    "school_name": "杭州医学院",
+                    "school_province": "浙江",
+                    "school_city": "杭州",
+                    "major_id": 10,
+                    "major_name": "临床医学",
+                    "min_score": 580,
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "宁波大学",
+                "school_province": "浙江",
+                "school_city": "宁波",
+                "major_id": 20,
+                "major_name": "临床医学",
+                "min_score": 598,
+                "ranking": 70,
+                "tier": 3,
+            }
+        ]
+
+
 def test_probers_flow_has_no_llm_dependency():
     source = Path("app/flows/probers.py").read_text(encoding="utf-8")
 
@@ -176,6 +213,53 @@ async def test_risk_band_relax_requires_conservative_signal():
     rows = await probe_risk_band_relax(STRICT_CONSTRAINTS, db=RiskDb(), limit=3)
 
     assert rows == []
+
+
+@pytest.mark.asyncio
+async def test_baseline_respects_city_constraint():
+    db = CityDb()
+    constraints = {**STRICT_CONSTRAINTS, "city": "杭州"}
+
+    await run_baseline(constraints, db=db)
+
+    query, params = db.calls[-1]
+    assert "s.province = %s" in query
+    assert "s.city = %s" in query
+    assert "a.major_name_raw LIKE %s" in query
+    assert constraints["province"] in params
+    assert constraints["city"] in params
+    assert f"%{constraints['major']}%" in params
+
+
+@pytest.mark.asyncio
+async def test_city_relax_drops_city_but_keeps_other_hard_filters():
+    db = CityDb()
+    constraints = {**STRICT_CONSTRAINTS, "city": "杭州"}
+
+    rows = await probe_city_relax(constraints, db=db, limit=3)
+
+    probe_query, probe_params = db.calls[-1]
+    assert "s.province = %s" in probe_query
+    assert "s.city = %s" not in probe_query
+    assert "s.city <> %s" in probe_query
+    assert "a.major_name_raw LIKE %s" in probe_query
+    assert constraints["province"] in probe_params
+    assert constraints["city"] in probe_params
+    assert f"%{constraints['major']}%" in probe_params
+    assert rows == [
+        {
+            "year": 2025,
+            "school_id": 2,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波",
+            "major_id": 20,
+            "major_name": "临床医学",
+            "min_score": 598,
+            "ranking": 70,
+            "tier": 3,
+        }
+    ]
 
 
 @pytest.mark.asyncio
@@ -286,3 +370,80 @@ async def test_all_probes_find_real_higher_tier_opportunities():
         for row in major_geo_relax
     )
     assert any("临床医学" not in row["major_name"] for row in major_geo_relax)
+
+
+class StrengthDb:
+    def __init__(self):
+        self.calls = []
+
+    async def __call__(self, query, *params):
+        self.calls.append((query, params))
+        if "sms.major_strength_rank < %s" not in query:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "澶уA",
+                    "school_province": "娴欐睙",
+                    "school_city": "鏉窞",
+                    "major_id": 10,
+                    "major_name": "涓村簥鍖诲",
+                    "min_score": 580,
+                    "major_strength_rank": 260,
+                    "major_strength_rating": "B+",
+                    "major_strength_level": "discipline",
+                    "ranking": 100,
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "澶уB",
+                "school_province": "娴欐睙",
+                "school_city": "瀹佹尝",
+                "major_id": 20,
+                "major_name": "涓村簥鍖诲",
+                "min_score": 598,
+                "major_strength_rank": 80,
+                "major_strength_rating": "A",
+                "major_strength_level": "discipline",
+                "ranking": 50,
+                "tier": 3,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "澶уC",
+                "school_province": "娴欐睙",
+                "school_city": "娓╁窞",
+                "major_id": 30,
+                "major_name": "涓村簥鍖诲",
+                "min_score": 596,
+                "major_strength_rank": 120,
+                "major_strength_rating": "A-",
+                "major_strength_level": "discipline",
+                "ranking": 80,
+                "tier": 3,
+            },
+        ]
+
+
+@pytest.mark.asyncio
+async def test_strength_relax_keeps_major_and_returns_stronger_rank_options():
+    db = StrengthDb()
+    constraints = {**STRICT_CONSTRAINTS, "strength": "school_strength"}
+
+    rows = await probe_strength_relax(constraints, db=db, limit=2)
+
+    baseline_query, baseline_params = db.calls[0]
+    probe_query, probe_params = db.calls[-1]
+    assert "s.province = %s" in baseline_query
+    assert constraints["province"] in baseline_params
+    assert "s.province = %s" not in probe_query
+    assert "a.major_name_raw LIKE %s" in probe_query
+    assert "sms.major_strength_rank < %s" in probe_query
+    assert f"%{constraints['major']}%" in probe_params
+    assert rows[0]["major_strength_rank"] == 80
+    assert rows[1]["major_strength_rank"] == 120

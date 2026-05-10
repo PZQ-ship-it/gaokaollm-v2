@@ -57,7 +57,9 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                 "baseline_results": [],
                 "pareto_opportunities": {
                     "geo_relax": [],
+                    "city_relax": [],
                     "major_relax": [],
+                    "strength_relax": [],
                     "major_geo_relax": [],
                     "risk_band_relax": [],
                 },
@@ -74,7 +76,9 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
             "baseline_results": baseline,
             "pareto_opportunities": {
                 "geo_relax": [],
+                "city_relax": [],
                 "major_relax": [],
+                "strength_relax": [],
                 "major_geo_relax": [],
                 "risk_band_relax": [],
             },
@@ -99,7 +103,9 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
         "baseline_results": baseline,
         "pareto_opportunities": {
             "geo_relax": list(opportunities.get("geo_relax") or []),
+            "city_relax": list(opportunities.get("city_relax") or []),
             "major_relax": list(opportunities.get("major_relax") or []),
+            "strength_relax": list(opportunities.get("strength_relax") or []),
             "major_geo_relax": list(opportunities.get("major_geo_relax") or []),
             "risk_band_relax": list(opportunities.get("risk_band_relax") or []),
         },
@@ -108,7 +114,9 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
         "recommended_schools": _recommended_schools(
             baseline,
             opportunities.get("geo_relax") or [],
+            opportunities.get("city_relax") or [],
             opportunities.get("major_relax") or [],
+            opportunities.get("strength_relax") or [],
             opportunities.get("major_geo_relax") or [],
             opportunities.get("risk_band_relax") or [],
         ),
@@ -131,7 +139,17 @@ def _recommended_schools(*groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "min_score": row.get("min_score"),
                 "tier": row.get("tier"),
             }
+            city = row.get("school_city") or row.get("city")
+            if city is not None:
+                item["city"] = city
             for key in ("risk_level", "score_margin", "rank_gap", "min_rank"):
+                if row.get(key) is not None:
+                    item[key] = row.get(key)
+            for key in (
+                "major_strength_rank",
+                "major_strength_rating",
+                "major_strength_level",
+            ):
                 if row.get(key) is not None:
                     item[key] = row.get(key)
             schools.append(item)
@@ -175,6 +193,26 @@ def _fallback_extract_constraints(text: str) -> dict[str, Any]:
     for province in province_names:
         if province in text:
             extracted["province"] = province
+            break
+
+    city_names = (
+        "杭州",
+        "宁波",
+        "温州",
+        "嘉兴",
+        "湖州",
+        "绍兴",
+        "金华",
+        "台州",
+        "南京",
+        "苏州",
+        "无锡",
+        "上海",
+        "北京",
+    )
+    for city in city_names:
+        if city in text:
+            extracted["city"] = city
             break
 
     if any(
@@ -251,6 +289,7 @@ def _merge_constraints(
     merged = {
         "score": None,
         "province": "浙江",
+        "city": None,
         "major": None,
         "budget": 100000,
         "selected_subjects": None,
@@ -260,6 +299,7 @@ def _merge_constraints(
     for key in (
         "score",
         "province",
+        "city",
         "major",
         "budget",
         "selected_subjects",

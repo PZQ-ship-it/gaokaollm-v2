@@ -25,10 +25,12 @@ from gaokaollm_bench.constrains.paths import (
     MAJOR_FINAL_TREE,
 )
 from gaokaollm_bench.data_gen.db_seeder import (
+    find_city_relax_gap_sets,
     find_hierarchical_major_relax_gap_sets,
     find_major_relax_gap_sets,
     find_many_pareto_gaps,
     find_pareto_gap_sets,
+    find_strength_relax_gap_sets,
     find_risk_band_gap_sets,
 )
 from gaokaollm_bench.data_gen.major_tree import (
@@ -165,7 +167,16 @@ def _volunteer_entry(row: dict[str, Any], score: int) -> dict[str, Any]:
         "is_211": bool(row.get("is_211")),
         "is_double_first_class": bool(row.get("is_double_first_class")),
     }
-    for key in ("student_rank", "rank_gap", "risk_level"):
+    for key in (
+        "student_rank",
+        "rank_gap",
+        "risk_level",
+        "major_strength_rank",
+        "major_strength_rating",
+        "major_strength_level",
+        "major_strength_source_type",
+        "discipline_name",
+    ):
         if row.get(key) is not None:
             entry[key] = row.get(key)
     return entry
@@ -197,7 +208,65 @@ def build_deterministic_persona_from_gap_set(
         )
     )[:8]
 
-    if relaxed_constraint == "risk_band":
+    if relaxed_constraint == "city":
+        strict_major = str(
+            gap_set.get("strict_major") or tier_a.get("major_name") or "目标专业"
+        )
+        major_name = strict_major
+        city = str(gap_set.get("city") or tier_a.get("school_city") or "目标城市")
+        explicit_red_lines = {
+            "city": f"坚决只看{city}",
+            "major": f"优先保持{strict_major}",
+            "reason": f"认为留在{city}更方便安全，暂时不接受同省其他城市",
+            "current_anchor_school": tier_a_name,
+            "current_anchor_city": tier_a.get("school_city"),
+            "current_anchor_major": tier_a.get("major_name"),
+        }
+        trigger_condition = (
+            f"只有看到仍在{province}、但不限定{city}后形成的真实可达更高层次志愿集合，"
+            f"且每个志愿都有城市、学校、专业、最低分不高于{score}分的证据，才会动摇"
+        )
+        compromise = f"可以为了学校层次跃迁，从{city}放宽到{province}内其他城市"
+        initial_utterance = (
+            f"我{score}分，只想在{city}读{strict_major}，其他城市先别推荐。"
+        )
+        milestones = {
+            "reject_generic_city_switch": True,
+            "require_complete_volunteer_set": True,
+            "require_each_option_city_and_score_evidence": True,
+            "accept_after_verified_city_relax_set": best_names,
+        }
+    elif relaxed_constraint == "strength":
+        strict_major = str(
+            gap_set.get("strict_major") or tier_a.get("major_name") or "目标专业"
+        )
+        major_name = strict_major
+        anchor_rank = gap_set.get("strength_anchor_rank") or tier_a.get(
+            "major_strength_rank"
+        )
+        explicit_red_lines = {
+            "strength": "更看重学科实力，普通学校先不考虑",
+            "major": f"优先保持{strict_major}",
+            "reason": f"只想要{strict_major}中学科实力更强的学校",
+            "current_anchor_school": tier_a_name,
+            "current_anchor_strength_rank": anchor_rank,
+        }
+        trigger_condition = (
+            f"只有看到{strict_major}在更强学科实力学校中的真实可达志愿集合，"
+            "且每个志愿都有学校、专业、学科实力排名和最低分证据，才会动摇"
+        )
+        compromise = f"可以为了更强的学科实力，把{strict_major}从普通学校放宽到更强学校"
+        initial_utterance = (
+            f"我{score}分，想读{strict_major}，但更看重学科实力，普通学校先别急着推荐。"
+        )
+        milestones = {
+            "reject_generic_strength_advice": True,
+            "require_strength_evidence": True,
+            "require_complete_volunteer_set": True,
+            "require_each_option_strength_and_score_evidence": True,
+            "accept_after_verified_strength_jump": best_names,
+        }
+    elif relaxed_constraint == "risk_band":
         strict_major = str(
             gap_set.get("strict_major") or tier_a.get("major_name") or "目标专业"
         )
@@ -319,6 +388,7 @@ def build_deterministic_persona_from_gap_set(
         background={
             "score": score,
             "province": province,
+            "city": gap_set.get("city"),
             "subjects": ["物理", "化学", "生物"],
             "preferred_major": strict_major
             if relaxed_constraint == "major"
@@ -345,11 +415,13 @@ def build_deterministic_persona_from_gap_set(
             "student_rank": gap_set.get("student_rank"),
             "risk_levels": gap_set.get("risk_levels"),
             "portfolio_gain": gap_set.get("portfolio_gain"),
+            "strength_anchor_rank": gap_set.get("strength_anchor_rank"),
         },
         explicit_red_lines=explicit_red_lines,
         implicit_flexibilities={
             "trigger_type": "volunteer_set",
             "constraint_relaxed": relaxed_constraint,
+            "city": gap_set.get("city"),
             "relaxation_kind": relaxation_kind,
             "stage_relaxation_kind": stage_relaxation_kind,
             "relax_scope": relax_scope,
@@ -369,6 +441,7 @@ def build_deterministic_persona_from_gap_set(
             "student_rank": gap_set.get("student_rank"),
             "risk_levels": gap_set.get("risk_levels"),
             "portfolio_gain": gap_set.get("portfolio_gain"),
+            "strength_anchor_rank": gap_set.get("strength_anchor_rank"),
             "tier_labels": best_labels,
             "compromise": compromise,
         },
@@ -392,6 +465,45 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                 score_step=args.score_step,
                 candidates_per_score=args.candidates_per_score,
                 max_volunteers_per_case=args.max_volunteers_per_case,
+                exclude_name_patterns=[]
+                if args.include_suspect_schools
+                else DEFAULT_EXCLUDE_PATTERNS,
+                strict_target_quality=not args.no_strict_target_quality,
+            )
+        elif args.relaxation == "city":
+            gap_sets = await find_city_relax_gap_sets(
+                fetch_query,
+                count=args.count,
+                prov=args.province,
+                city=args.city,
+                strict_major=args.strict_major,
+                score_min=args.score_min,
+                score_max=args.score_max,
+                score_step=args.score_step,
+                candidates_per_score=args.candidates_per_score,
+                max_volunteers_per_case=args.max_volunteers_per_case,
+                max_volunteers_per_school=args.max_volunteers_per_school,
+                include_special_majors=args.include_special_majors,
+                max_major_name_length=args.max_major_name_length,
+                exclude_name_patterns=[]
+                if args.include_suspect_schools
+                else DEFAULT_EXCLUDE_PATTERNS,
+                strict_target_quality=not args.no_strict_target_quality,
+            )
+        elif args.relaxation == "school_strength":
+            gap_sets = await find_strength_relax_gap_sets(
+                fetch_query,
+                count=args.count,
+                prov=args.province,
+                strict_major=args.strict_major or None,
+                score_min=args.score_min,
+                score_max=args.score_max,
+                score_step=args.score_step,
+                candidates_per_score=args.candidates_per_score,
+                max_volunteers_per_case=args.max_volunteers_per_case,
+                max_volunteers_per_school=args.max_volunteers_per_school,
+                include_special_majors=args.include_special_majors,
+                max_major_name_length=args.max_major_name_length,
                 exclude_name_patterns=[]
                 if args.include_suspect_schools
                 else DEFAULT_EXCLUDE_PATTERNS,
@@ -542,6 +654,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "--count", type=int, default=10, help="Number of personas to generate."
     )
     parser.add_argument("--province", default="浙江", help="Strict province red-line.")
+    parser.add_argument(
+        "--city",
+        default="杭州",
+        help="Strict city red-line used by --relaxation city.",
+    )
     parser.add_argument(
         "--score-min", type=int, default=520, help="Minimum score to scan."
     )

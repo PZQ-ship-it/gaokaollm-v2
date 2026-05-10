@@ -62,6 +62,7 @@ class FakeGraph:
                     }
                 ],
                 "major_relax": [],
+                "strength_relax": [],
                 "major_geo_relax": [
                     {
                         "school_name": "西南交通大学",
@@ -112,7 +113,9 @@ class FakeRiskGraph:
             "baseline_results": [],
             "pareto_opportunities": {
                 "geo_relax": [],
+                "city_relax": [],
                 "major_relax": [],
+                "strength_relax": [],
                 "major_geo_relax": [],
                 "risk_band_relax": [
                     {
@@ -316,6 +319,7 @@ async def test_app_graph_target_agent_preserves_auditable_state():
     assert state["pareto_opportunities"]["geo_relax"]
     assert state["pareto_opportunities"]["major_geo_relax"]
     assert state["pareto_opportunities"]["risk_band_relax"]
+    assert state["pareto_opportunities"]["strength_relax"] == []
     assert any(
         item.get("risk_level") == "chong" for item in state["recommended_schools"]
     )
@@ -335,7 +339,9 @@ async def test_hard_constraint_baseline_only_reports_baseline():
     assert state["baseline_results"]
     assert state["pareto_opportunities"] == {
         "geo_relax": [],
+        "city_relax": [],
         "major_relax": [],
+        "strength_relax": [],
         "major_geo_relax": [],
         "risk_band_relax": [],
     }

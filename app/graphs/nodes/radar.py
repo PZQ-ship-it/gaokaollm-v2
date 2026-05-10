@@ -10,7 +10,9 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
     constraints = state.get("constraints", {})
     has_negotiable_constraint = bool(
         constraints.get("province")
+        or constraints.get("city")
         or constraints.get("major")
+        or constraints.get("strength")
         or constraints.get("risk_preference")
     )
 
@@ -20,7 +22,9 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
     else:
         opportunities = {
             "geo_relax": [],
+            "city_relax": [],
             "major_relax": [],
+            "strength_relax": [],
             "major_geo_relax": [],
             "risk_band_relax": [],
         }
@@ -28,7 +32,9 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
     print(
         "[radar] opportunities="
         f"geo:{len(opportunities.get('geo_relax', []))} "
+        f"city:{len(opportunities.get('city_relax', []))} "
         f"major:{len(opportunities.get('major_relax', []))} "
+        f"strength:{len(opportunities.get('strength_relax', []))} "
         f"major_geo:{len(opportunities.get('major_geo_relax', []))} "
         f"risk:{len(opportunities.get('risk_band_relax', []))}"
     )

@@ -3,7 +3,9 @@ import json
 import pytest
 
 from gaokaollm_bench.data_gen.db_seeder import (
+    find_city_relax_gap_sets,
     find_hierarchical_major_relax_gap_sets,
+    find_strength_relax_gap_sets,
     find_risk_band_gap_sets,
 )
 from gaokaollm_bench.data_gen.generate_personas import (
@@ -219,6 +221,81 @@ def test_build_deterministic_persona_from_major_relax_gap_set():
     assert restored.process_milestones["reject_generic_major_switch"] is True
 
 
+def test_build_deterministic_persona_from_city_relax_gap_set():
+    gap_set = {
+        "score": 600,
+        "province": "Zhejiang",
+        "city": "Hangzhou",
+        "constraint_relaxed": "city",
+        "relaxation_kind": "city_to_other_city",
+        "strict_major": "Clinical Medicine",
+        "volunteer_count": 2,
+        "max_tier_delta": 1,
+        "tier_a": {
+            "school_id": 1,
+            "school_name": "Hangzhou Medical College",
+            "school_province": "Zhejiang",
+            "school_city": "Hangzhou",
+            "is_985": False,
+            "is_211": False,
+            "is_double_first_class": False,
+            "education_level": "本科",
+            "major_name": "Clinical Medicine",
+            "min_score": 596,
+            "tier": 2,
+        },
+        "volunteer_set": [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "Ningbo University",
+                "school_province": "Zhejiang",
+                "school_city": "Ningbo",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 20,
+                "major_name": "Clinical Medicine",
+                "min_score": 592,
+                "min_rank": 41000,
+                "tier": 3,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "Wenzhou Medical University",
+                "school_province": "Zhejiang",
+                "school_city": "Wenzhou",
+                "is_985": False,
+                "is_211": False,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 30,
+                "major_name": "Clinical Medicine",
+                "min_score": 590,
+                "min_rank": 43000,
+                "tier": 3,
+            },
+        ],
+    }
+
+    persona = build_deterministic_persona_from_gap_set(gap_set, 4)
+    restored = IcebergPersona.model_validate_json(persona.model_dump_json())
+    volunteer_set = restored.implicit_flexibilities["volunteer_set"]
+
+    assert restored.background["constraint_relaxed"] == "city"
+    assert restored.background["city"] == "Hangzhou"
+    assert restored.background["preferred_major"] == "Clinical Medicine"
+    assert restored.explicit_red_lines["city"] == "坚决只看Hangzhou"
+    assert restored.implicit_flexibilities["constraint_relaxed"] == "city"
+    assert {item["school_city"] for item in volunteer_set} == {"Ningbo", "Wenzhou"}
+    assert (
+        restored.process_milestones["require_each_option_city_and_score_evidence"]
+        is True
+    )
+
+
 def test_build_deterministic_persona_from_risk_band_gap_set():
     gap_set = {
         "score": 600,
@@ -405,6 +482,104 @@ async def test_find_risk_band_gap_sets_builds_chong_wen_bao_portfolio():
     ]
     assert "s.province = %s" in calls[-1][0]
     assert "a.major_name_raw LIKE %s" in calls[-1][0]
+
+
+@pytest.mark.asyncio
+async def test_find_city_relax_gap_sets_keep_province_major_and_drop_city():
+    calls = []
+
+    async def mock_db(query, *params):
+        calls.append((query, params))
+        if "s.city = %s" in query:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "Hangzhou Medical College",
+                    "school_province": "Zhejiang",
+                    "school_city": "Hangzhou",
+                    "is_985": False,
+                    "is_211": False,
+                    "is_double_first_class": False,
+                    "education_level": "本科",
+                    "ranking": 200,
+                    "major_id": 10,
+                    "major_name": "Clinical Medicine",
+                    "min_score": 596,
+                    "min_rank": 46000,
+                    "tier": 2,
+                }
+            ]
+        if "s.city <> %s" in query:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 2,
+                    "school_name": "Ningbo University",
+                    "school_province": "Zhejiang",
+                    "school_city": "Ningbo",
+                    "is_985": False,
+                    "is_211": True,
+                    "is_double_first_class": True,
+                    "education_level": "本科",
+                    "ranking": 90,
+                    "major_id": 20,
+                    "major_name": "Clinical Medicine",
+                    "min_score": 592,
+                    "min_rank": 41000,
+                    "tier": 3,
+                },
+                {
+                    "year": 2025,
+                    "school_id": 3,
+                    "school_name": "Wenzhou Medical University",
+                    "school_province": "Zhejiang",
+                    "school_city": "Wenzhou",
+                    "is_985": False,
+                    "is_211": False,
+                    "is_double_first_class": True,
+                    "education_level": "本科",
+                    "ranking": 100,
+                    "major_id": 30,
+                    "major_name": "Clinical Medicine",
+                    "min_score": 590,
+                    "min_rank": 43000,
+                    "tier": 3,
+                },
+            ]
+        return []
+
+    gap_sets = await find_city_relax_gap_sets(
+        mock_db,
+        count=1,
+        prov="Zhejiang",
+        city="Hangzhou",
+        strict_major="Clinical Medicine",
+        score_min=600,
+        score_max=600,
+        candidates_per_score=2,
+        max_volunteers_per_case=2,
+        strict_target_quality=False,
+    )
+
+    assert len(gap_sets) == 1
+    assert gap_sets[0]["constraint_relaxed"] == "city"
+    assert gap_sets[0]["city"] == "Hangzhou"
+    assert gap_sets[0]["strict_major"] == "Clinical Medicine"
+    assert [row["school_city"] for row in gap_sets[0]["volunteer_set"]] == [
+        "Ningbo",
+        "Wenzhou",
+    ]
+
+    baseline_query, baseline_params = calls[0]
+    relaxed_query, relaxed_params = calls[1]
+    assert "s.city = %s" in baseline_query
+    assert "s.province = %s" in relaxed_query
+    assert "s.city <> %s" in relaxed_query
+    assert "a.major_name_raw LIKE %s" in relaxed_query
+    assert baseline_params == (600, "Zhejiang", "Hangzhou", "%Clinical Medicine%", 1)
+    assert "Hangzhou" in relaxed_params
+    assert "%Clinical Medicine%" in relaxed_params
 
 
 def test_medical_major_cluster_patterns_are_auditable():
@@ -1327,3 +1502,154 @@ async def test_hierarchical_major_relax_prefers_latest_year_before_backfill():
 
     assert gap_sets[0]["volunteer_set"][0]["school_name"] == "新年大学"
     assert gap_sets[0]["years_used"] == [2025]
+
+
+@pytest.mark.asyncio
+async def test_build_deterministic_persona_from_strength_relax_gap_set():
+    gap_set = {
+        "score": 600,
+        "province": "Zhejiang",
+        "constraint_relaxed": "strength",
+        "relaxation_kind": "school_strength",
+        "strict_major": "Clinical Medicine",
+        "strength_anchor_rank": 260,
+        "volunteer_count": 2,
+        "max_tier_delta": 1,
+        "tier_a": {
+            "school_id": 1,
+            "school_name": "Zhejiang Medical College",
+            "school_province": "Zhejiang",
+            "school_city": "Hangzhou",
+            "is_985": False,
+            "is_211": False,
+            "is_double_first_class": False,
+            "education_level": "本科",
+            "major_name": "Clinical Medicine",
+            "min_score": 580,
+            "major_strength_rank": 260,
+            "major_strength_rating": "B+",
+            "major_strength_level": "discipline",
+            "tier": 2,
+        },
+        "volunteer_set": [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "Ningbo University",
+                "school_province": "Zhejiang",
+                "school_city": "Ningbo",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 20,
+                "major_name": "Clinical Medicine",
+                "min_score": 598,
+                "min_rank": 41000,
+                "major_strength_rank": 80,
+                "major_strength_rating": "A",
+                "major_strength_level": "discipline",
+                "tier": 3,
+            }
+        ],
+    }
+
+    persona = build_deterministic_persona_from_gap_set(gap_set, 1)
+    restored = IcebergPersona.model_validate_json(persona.model_dump_json())
+
+    assert restored.background["constraint_relaxed"] == "strength"
+    assert restored.background["strength_anchor_rank"] == 260
+    assert restored.explicit_red_lines["strength"] == "更看重学科实力，普通学校先不考虑"
+    assert restored.implicit_flexibilities["strength_anchor_rank"] == 260
+    assert (
+        restored.implicit_flexibilities["volunteer_set"][0]["major_strength_rank"] == 80
+    )
+    assert restored.process_milestones["require_strength_evidence"] is True
+
+
+@pytest.mark.asyncio
+async def test_find_strength_relax_gap_sets_builds_rank_improvement_cases():
+    calls = []
+
+    async def mock_db(query, *params):
+        calls.append((query, params))
+        if "sms.major_strength_rank < %s" not in query:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "Zhejiang Medical College",
+                    "school_province": "Zhejiang",
+                    "school_city": "Hangzhou",
+                    "is_985": False,
+                    "is_211": False,
+                    "is_double_first_class": False,
+                    "education_level": "本科",
+                    "major_id": 10,
+                    "major_name": "Clinical Medicine",
+                    "min_score": 580,
+                    "major_strength_rank": 260,
+                    "major_strength_rating": "B+",
+                    "major_strength_level": "discipline",
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "Ningbo University",
+                "school_province": "Zhejiang",
+                "school_city": "Ningbo",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 20,
+                "major_name": "Clinical Medicine",
+                "min_score": 598,
+                "major_strength_rank": 80,
+                "major_strength_rating": "A",
+                "major_strength_level": "discipline",
+                "tier": 3,
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "Wenzhou Medical University",
+                "school_province": "Zhejiang",
+                "school_city": "Wenzhou",
+                "is_985": False,
+                "is_211": False,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 30,
+                "major_name": "Clinical Medicine",
+                "min_score": 596,
+                "major_strength_rank": 120,
+                "major_strength_rating": "A-",
+                "major_strength_level": "discipline",
+                "tier": 3,
+            },
+        ]
+
+    gap_sets = await find_strength_relax_gap_sets(
+        mock_db,
+        count=1,
+        prov="Zhejiang",
+        strict_major="Clinical Medicine",
+        score_min=600,
+        score_max=600,
+        candidates_per_score=3,
+        max_volunteers_per_case=2,
+        strict_target_quality=False,
+    )
+
+    assert len(gap_sets) == 1
+    assert gap_sets[0]["constraint_relaxed"] == "strength"
+    assert gap_sets[0]["strength_anchor_rank"] == 260
+    assert [row["major_strength_rank"] for row in gap_sets[0]["volunteer_set"]] == [
+        80,
+        120,
+    ]
+    assert "sms.major_strength_rank < %s" in calls[-1][0]

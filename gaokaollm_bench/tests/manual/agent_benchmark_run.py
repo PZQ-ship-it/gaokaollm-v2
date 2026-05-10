@@ -91,6 +91,8 @@ class DeterministicSimulatorLlm:
         trigger_schools = _trigger_schools(flex)
         if flex.get("constraint_relaxed") == "risk_band":
             has_trigger_school = _has_risk_band_evidence(flex, agent_reply)
+        elif flex.get("constraint_relaxed") == "strength":
+            has_trigger_school = _has_strength_evidence(flex, agent_reply)
         else:
             has_trigger_school = any(
                 school in agent_reply for school in trigger_schools
@@ -133,6 +135,8 @@ class DeterministicJudgeLlm:
         combined = "\n".join(str(turn.get("content") or "") for turn in agent_turns)
         if flex.get("constraint_relaxed") == "risk_band":
             success = _has_risk_band_evidence(flex, combined)
+        elif flex.get("constraint_relaxed") == "strength":
+            success = _has_strength_evidence(flex, combined)
         else:
             success = any(school in combined for school in trigger_schools) and (
                 "最低分" in combined
@@ -143,6 +147,8 @@ class DeterministicJudgeLlm:
         baseline_tier = int((persona.get("background") or {}).get("baseline_tier") or 0)
         if flex.get("constraint_relaxed") == "risk_band":
             pareto_gain = _risk_portfolio_gain(flex) if success else 0
+        elif flex.get("constraint_relaxed") == "strength":
+            pareto_gain = _strength_rank_gain(flex, combined) if success else 0
         else:
             accepted_tier = _max_trigger_tier(flex, combined)
             pareto_gain = max(0, accepted_tier - baseline_tier) if success else 0
@@ -344,7 +350,8 @@ def render_summary_md(summary: dict[str, Any]) -> str:
             "the target should expose verifiable counterfactual options rather than only "
             "echoing hard constraints. In this run, `app_pareto` is expected to use "
             "`major_geo_relax` for joint major-and-region relaxation and "
-            "`risk_band_relax` for conservative-to-chong/wen/bao portfolio negotiation. "
+            "`risk_band_relax` for conservative-to-chong/wen/bao portfolio negotiation; "
+            "`strength_relax` is used when the persona targets school-strength evidence. "
             "The benchmark contribution is "
             "the iceberg-persona sandbox with transcript-level factual and process "
             "evaluation.",
@@ -505,6 +512,52 @@ def _has_risk_band_evidence(flex: dict[str, Any], text: str) -> bool:
         if school and school in text and risk_level and risk_level in text:
             hit_levels.add(risk_level)
     return {"chong", "wen", "bao"}.issubset(hit_levels)
+
+
+def _has_strength_evidence(flex: dict[str, Any], text: str) -> bool:
+    if not ("最低分" in text or "min_score" in text or "分" in text):
+        return False
+    strength_tokens = (
+        "学科实力",
+        "专业排名",
+        "major_strength_rank",
+        "strength_rank",
+        "rating",
+        "rank=",
+    )
+    if not any(token in text for token in strength_tokens):
+        return False
+    for row in flex.get("volunteer_set") or []:
+        if not isinstance(row, dict):
+            continue
+        school = str(row.get("school_name") or "")
+        if school and school in text:
+            return True
+    return False
+
+
+def _strength_rank_gain(flex: dict[str, Any], text: str) -> int:
+    try:
+        anchor_rank = int(float(flex.get("strength_anchor_rank")))
+    except (TypeError, ValueError):
+        anchor_rank = 0
+    best_rank: int | None = None
+    for row in flex.get("volunteer_set") or []:
+        if not isinstance(row, dict):
+            continue
+        school = str(row.get("school_name") or "")
+        if not school or school not in text:
+            continue
+        try:
+            candidate_rank = int(float(row.get("major_strength_rank")))
+        except (TypeError, ValueError):
+            continue
+        best_rank = (
+            candidate_rank if best_rank is None else min(best_rank, candidate_rank)
+        )
+    if anchor_rank and best_rank is not None:
+        return max(0, anchor_rank - best_rank)
+    return 1 if best_rank is not None else 0
 
 
 def _risk_portfolio_gain(flex: dict[str, Any]) -> int:

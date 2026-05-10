@@ -52,9 +52,11 @@ class ProbeActivation(StrEnum):
 
 class PersonaRelaxation(StrEnum):
     PROVINCE = "province"
+    CITY = "city"
     MAJOR_CLINICAL_TO_MEDTECH = "major_clinical_to_medtech"
     MAJOR_ANY = "major_any"
     MAJOR_HIERARCHY = "major_hierarchy"
+    SCHOOL_STRENGTH = "school_strength"
     RISK_BAND = "risk_band"
 
 

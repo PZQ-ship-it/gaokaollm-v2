@@ -12,7 +12,9 @@ from app.schemas.state import AgentState
 DEFAULT_CONSTRAINTS = {
     "score": None,
     "province": "浙江",
+    "city": None,
     "major": None,
+    "strength": None,
     "budget": 100000,
     "selected_subjects": None,
     "risk_preference": None,
@@ -88,6 +90,26 @@ def _fallback_extract(text: str) -> dict[str, Any]:
             extracted["province"] = province
             break
 
+    city_names = [
+        "杭州",
+        "宁波",
+        "温州",
+        "嘉兴",
+        "湖州",
+        "绍兴",
+        "金华",
+        "台州",
+        "南京",
+        "苏州",
+        "无锡",
+        "上海",
+        "北京",
+    ]
+    for city in city_names:
+        if city in text:
+            extracted["city"] = city
+            break
+
     if any(
         token in text
         for token in (
@@ -110,6 +132,21 @@ def _fallback_extract(text: str) -> dict[str, Any]:
         extracted["major"] = "计算机"
     elif "法学" in text:
         extracted["major"] = "法学"
+
+    if any(
+        token in text
+        for token in (
+            "学科实力",
+            "学科评估",
+            "专业排名",
+            "重点学科",
+            "强校",
+            "学校实力",
+            "discipline",
+            "ranking",
+        )
+    ):
+        extracted["strength"] = "school_strength"
 
     subjects = _extract_subjects(text)
     if subjects:
@@ -178,7 +215,9 @@ def _merge_constraints(
     for key in (
         "score",
         "province",
+        "city",
         "major",
+        "strength",
         "budget",
         "selected_subjects",
         "risk_preference",
@@ -204,8 +243,11 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
             content=(
                 "你是高考志愿约束抽取器。只输出 JSON，不要解释。"
                 "字段固定为 score(int|null), province(str|null), major(str|null), "
-                "budget(int|null), selected_subjects(list[str]|null), risk_preference(str|null)。"
+                "city(str|null), strength(str|null), budget(int|null), selected_subjects(list[str]|null), "
+                "risk_preference(str|null)。"
                 "province 表示目标院校所在地。major 使用用户提到的专业关键词。"
+                "city 表示用户明确限定的目标学校城市，例如杭州、宁波、南京。"
+                "strength 表示用户明确关注学科实力、专业排名、强校或重点学科时的偏好。"
                 "如果用户明确表示外省、全国或地域不限，province 输出 null。"
                 "如果用户明确表示只求稳、保守、不要冲，risk_preference 输出 conservative。"
                 "selected_subjects 只能从政治、历史、地理、物理、化学、生物、技术中抽取。"

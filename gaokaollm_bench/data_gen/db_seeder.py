@@ -420,6 +420,465 @@ async def find_pareto_gap_sets(
     return gap_sets
 
 
+async def find_city_relax_gap_candidates(
+    db_pool: Any,
+    score: int,
+    prov: str,
+    city: str,
+    *,
+    strict_major: str | None = None,
+    limit: int = 20,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+) -> list[dict[str, Any]]:
+    """Return tier jumps unlocked by relaxing only the exact city constraint."""
+
+    if limit < 1:
+        raise ValueError("limit must be at least 1")
+    if not city:
+        raise ValueError("city must not be empty")
+
+    major_clause = "  AND a.major_name_raw LIKE %s\n" if strict_major else ""
+    major_params = [f"%{strict_major}%"] if strict_major else []
+    baseline_query = (
+        f"{BASE_SELECT}"
+        "  AND s.province = %s\n"
+        "  AND s.city = %s\n"
+        f"{major_clause}"
+        f"{BASE_ORDER}"
+    )
+    baseline_rows = await _fetch(
+        db_pool,
+        baseline_query,
+        [score, prov, city, *major_params, 1],
+    )
+    tier_a = baseline_rows[0] if baseline_rows else None
+    if not tier_a:
+        return []
+
+    exclude_name_patterns = exclude_name_patterns or []
+    exclude_clauses = []
+    exclude_params: list[Any] = []
+    for pattern in exclude_name_patterns:
+        exclude_clauses.append("s.name NOT LIKE %s")
+        exclude_params.append(f"%{pattern}%")
+
+    quality_clause = ""
+    quality_params: list[Any] = []
+    if strict_target_quality:
+        quality_clause = (
+            "  AND (s.name LIKE %s OR s.name LIKE %s)\n"
+            "  AND NOT (s.name LIKE %s AND s.name NOT LIKE %s)\n"
+        )
+        quality_params = ["%大学%", "%医学院%", "%大学%学院%", "%医学院%"]
+
+    relaxed_query = (
+        f"{BASE_SELECT}"
+        "  AND s.province = %s\n"
+        "  AND s.city IS NOT NULL\n"
+        "  AND s.city <> %s\n"
+        f"{major_clause}"
+        "  AND s.education_level = '本科'\n"
+        "  AND CASE\n"
+        "        WHEN s.is_985 THEN 4\n"
+        "        WHEN s.is_211 OR s.is_double_first_class THEN 3\n"
+        "        WHEN s.education_level = '本科' THEN 2\n"
+        "        ELSE 1\n"
+        "      END > %s\n"
+        f"{quality_clause}"
+        f"{'  AND ' + ' AND '.join(exclude_clauses) if exclude_clauses else ''}\n"
+        f"{BASE_ORDER}"
+    )
+    relaxed_rows = await _fetch(
+        db_pool,
+        relaxed_query,
+        [
+            score,
+            prov,
+            city,
+            *major_params,
+            _tier(tier_a),
+            *quality_params,
+            *exclude_params,
+            limit,
+        ],
+    )
+
+    candidates: list[dict[str, Any]] = []
+    for tier_b in relaxed_rows:
+        if _tier(tier_b) <= _tier(tier_a):
+            continue
+        candidates.append(
+            {
+                "score": score,
+                "province": prov,
+                "city": city,
+                "constraint_relaxed": "city",
+                "relaxation_kind": "city_to_other_city",
+                "strict_major": strict_major,
+                "tier_a": tier_a,
+                "tier_b": tier_b,
+                "tier_delta": _tier(tier_b) - _tier(tier_a),
+            }
+        )
+    return candidates
+
+
+async def find_city_relax_gap_sets(
+    db_pool: Any,
+    *,
+    count: int,
+    prov: str = "浙江",
+    city: str = "杭州",
+    strict_major: str | None = None,
+    score_min: int = 520,
+    score_max: int = 700,
+    score_step: int = 10,
+    candidates_per_score: int = 120,
+    max_volunteers_per_case: int | None = None,
+    max_volunteers_per_school: int | None = None,
+    include_special_majors: bool = False,
+    max_major_name_length: int | None = 60,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+) -> list[dict[str, Any]]:
+    """Scan scores and return city-relaxation persona seeds."""
+
+    if count < 1:
+        raise ValueError("count must be at least 1")
+    if score_step < 1:
+        raise ValueError("score_step must be at least 1")
+    if score_min > score_max:
+        raise ValueError("score_min must be less than or equal to score_max")
+    if max_volunteers_per_case is not None and max_volunteers_per_case < 1:
+        raise ValueError("max_volunteers_per_case must be at least 1 when provided")
+    if max_volunteers_per_school is not None and max_volunteers_per_school < 1:
+        raise ValueError("max_volunteers_per_school must be at least 1 when provided")
+    if max_major_name_length is not None and max_major_name_length < 1:
+        raise ValueError("max_major_name_length must be at least 1 when provided")
+
+    gap_sets: list[dict[str, Any]] = []
+    seen_cases: set[tuple[Any, ...]] = set()
+
+    for score in range(score_min, score_max + 1, score_step):
+        candidates = await find_city_relax_gap_candidates(
+            db_pool,
+            score,
+            prov,
+            city,
+            strict_major=strict_major,
+            limit=candidates_per_score,
+            exclude_name_patterns=exclude_name_patterns,
+            strict_target_quality=strict_target_quality,
+        )
+        if not candidates:
+            continue
+
+        tier_a = candidates[0]["tier_a"]
+        case_key = (tier_a.get("school_id"), int(score), city, strict_major)
+        if case_key in seen_cases:
+            continue
+
+        volunteers, selection_audit = _select_volunteers_from_candidates(
+            candidates,
+            max_volunteers_per_case=max_volunteers_per_case,
+            max_volunteers_per_school=max_volunteers_per_school,
+            include_special_majors=include_special_majors,
+            max_major_name_length=max_major_name_length,
+            minimum_volunteers=1,
+        )
+        if not volunteers:
+            continue
+
+        seen_cases.add(case_key)
+        gap_sets.append(
+            {
+                "score": score,
+                "province": prov,
+                "city": city,
+                "constraint_relaxed": "city",
+                "relaxation_kind": "city_to_other_city",
+                "strict_major": strict_major,
+                "tier_a": tier_a,
+                "volunteer_set": volunteers,
+                "volunteer_count": len(volunteers),
+                "years_used": selection_audit["years_used"],
+                "selection_audit": selection_audit,
+                "max_tier_delta": max(_tier(row) - _tier(tier_a) for row in volunteers),
+            }
+        )
+        if len(gap_sets) >= count:
+            break
+
+    return gap_sets
+
+
+STRENGTH_SELECT = """
+SELECT
+    a.year,
+    a.school_id,
+    s.name AS school_name,
+    s.province AS school_province,
+    s.city AS school_city,
+    s.is_985,
+    s.is_211,
+    s.is_double_first_class,
+    s.education_level,
+    s.ranking,
+    a.major_id,
+    a.major_name_raw AS major_name,
+    a.min_score,
+    a.min_rank,
+    sms.major_strength_rank AS major_strength_rank,
+    sms.major_strength_rating AS major_strength_rating,
+    sms.major_strength_level AS major_strength_level,
+    sms.major_strength_source_type AS major_strength_source_type,
+    sms.discipline_name AS discipline_name,
+    CASE
+        WHEN s.is_985 THEN 4
+        WHEN s.is_211 OR s.is_double_first_class THEN 3
+        WHEN s.education_level = '本科' THEN 2
+        ELSE 1
+    END AS tier
+FROM admission_scores a
+JOIN schools s ON s.id = a.school_id
+LEFT JOIN (
+    SELECT DISTINCT ON (sms.school_id)
+        sms.school_id,
+        sms.rank AS major_strength_rank,
+        sms.rating AS major_strength_rating,
+        sms.level AS major_strength_level,
+        sms.source_type AS major_strength_source_type,
+        sms.discipline_name AS discipline_name
+    FROM school_major_strengths sms
+    WHERE sms.source_type = 'major_ranking'
+      AND sms.rank IS NOT NULL
+    ORDER BY
+        sms.school_id,
+        sms.rank ASC NULLS LAST,
+        sms.rating ASC NULLS LAST
+) sms ON sms.school_id = a.school_id
+WHERE a.min_score IS NOT NULL
+  AND a.min_score <= %s
+"""
+
+STRENGTH_ORDER = """
+ORDER BY
+    major_strength_rank ASC NULLS LAST,
+    tier DESC,
+    s.ranking ASC NULLS LAST,
+    a.min_score DESC NULLS LAST,
+    a.year DESC,
+    s.name ASC,
+    a.major_name_raw ASC
+LIMIT %s
+"""
+
+
+async def find_strength_relax_gap_candidates(
+    db_pool: Any,
+    score: int,
+    prov: str,
+    *,
+    strict_major: str | None = None,
+    limit: int = 20,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+) -> list[dict[str, Any]]:
+    """Return school-strength jumps within the same major, using the province as the anchor."""
+
+    if limit < 1:
+        raise ValueError("limit must be at least 1")
+
+    major_clause = "  AND a.major_name_raw LIKE %s\n" if strict_major else ""
+    major_params = [f"%{strict_major}%"] if strict_major else []
+
+    baseline_query = (
+        f"{STRENGTH_SELECT}"
+        "  AND s.province = %s\n"
+        f"{major_clause}"
+        "  AND sms.major_strength_rank IS NOT NULL\n"
+        "ORDER BY\n"
+        "    major_strength_rank DESC NULLS LAST,\n"
+        "    tier DESC,\n"
+        "    s.ranking DESC NULLS LAST,\n"
+        "    a.min_score DESC NULLS LAST,\n"
+        "    a.year DESC,\n"
+        "    s.name ASC,\n"
+        "    a.major_name_raw ASC\n"
+        "LIMIT %s"
+    )
+    baseline_rows = await _fetch(
+        db_pool,
+        baseline_query,
+        [score, prov, *major_params, 1],
+    )
+    tier_a = baseline_rows[0] if baseline_rows else None
+    if not tier_a:
+        return []
+
+    baseline_strength_rank = tier_a.get("major_strength_rank")
+    if baseline_strength_rank is None:
+        return []
+    baseline_strength_rank = int(float(baseline_strength_rank))
+
+    exclude_name_patterns = exclude_name_patterns or []
+    exclude_clauses = []
+    exclude_params: list[Any] = []
+    for pattern in exclude_name_patterns:
+        exclude_clauses.append("s.name NOT LIKE %s")
+        exclude_params.append(f"%{pattern}%")
+
+    quality_clause = ""
+    quality_params: list[Any] = []
+    if strict_target_quality:
+        quality_clause = (
+            "  AND (s.name LIKE %s OR s.name LIKE %s)\n"
+            "  AND NOT (s.name LIKE %s AND s.name NOT LIKE %s)\n"
+        )
+        quality_params = ["%大学%", "%医学院%", "%大学%学院%", "%医学院%"]
+
+    relaxed_query = (
+        f"{STRENGTH_SELECT}"
+        f"{major_clause}"
+        "  AND sms.major_strength_rank IS NOT NULL\n"
+        "  AND sms.major_strength_rank < %s\n"
+        f"{quality_clause}"
+        f"{'  AND ' + ' AND '.join(exclude_clauses) if exclude_clauses else ''}\n"
+        f"{STRENGTH_ORDER}"
+    )
+    relaxed_rows = await _fetch(
+        db_pool,
+        relaxed_query,
+        [
+            score,
+            *major_params,
+            baseline_strength_rank,
+            *quality_params,
+            *exclude_params,
+            limit,
+        ],
+    )
+
+    candidates: list[dict[str, Any]] = []
+    for tier_b in relaxed_rows:
+        candidate_strength_rank = tier_b.get("major_strength_rank")
+        if candidate_strength_rank is None:
+            continue
+        candidate_strength_rank = int(float(candidate_strength_rank))
+        if candidate_strength_rank >= baseline_strength_rank:
+            continue
+        candidates.append(
+            {
+                "score": score,
+                "province": prov,
+                "constraint_relaxed": "strength",
+                "relaxation_kind": "school_strength",
+                "relax_scope": "national",
+                "strict_major": strict_major,
+                "strength_anchor_rank": baseline_strength_rank,
+                "tier_a": tier_a,
+                "tier_b": tier_b,
+                "tier_delta": _tier(tier_b) - _tier(tier_a),
+                "strength_delta": baseline_strength_rank - candidate_strength_rank,
+            }
+        )
+    return candidates
+
+
+async def find_strength_relax_gap_sets(
+    db_pool: Any,
+    *,
+    count: int,
+    prov: str = "浙江",
+    strict_major: str | None = None,
+    score_min: int = 520,
+    score_max: int = 700,
+    score_step: int = 10,
+    candidates_per_score: int = 120,
+    max_volunteers_per_case: int | None = None,
+    max_volunteers_per_school: int | None = None,
+    include_special_majors: bool = True,
+    max_major_name_length: int | None = None,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+) -> list[dict[str, Any]]:
+    """Scan scores and return school-strength persona seeds."""
+
+    if count < 1:
+        raise ValueError("count must be at least 1")
+    if score_step < 1:
+        raise ValueError("score_step must be at least 1")
+    if score_min > score_max:
+        raise ValueError("score_min must be less than or equal to score_max")
+    if max_volunteers_per_case is not None and max_volunteers_per_case < 1:
+        raise ValueError("max_volunteers_per_case must be at least 1 when provided")
+    if max_volunteers_per_school is not None and max_volunteers_per_school < 1:
+        raise ValueError("max_volunteers_per_school must be at least 1 when provided")
+    if max_major_name_length is not None and max_major_name_length < 1:
+        raise ValueError("max_major_name_length must be at least 1 when provided")
+
+    gap_sets: list[dict[str, Any]] = []
+    seen_cases: set[tuple[Any, ...]] = set()
+
+    for score in range(score_min, score_max + 1, score_step):
+        candidates = await find_strength_relax_gap_candidates(
+            db_pool,
+            score,
+            prov,
+            strict_major=strict_major,
+            limit=candidates_per_score,
+            exclude_name_patterns=exclude_name_patterns,
+            strict_target_quality=strict_target_quality,
+        )
+        if not candidates:
+            continue
+
+        tier_a = candidates[0]["tier_a"]
+        case_key = (
+            tier_a.get("school_id"),
+            int(score),
+            prov,
+            strict_major,
+        )
+        if case_key in seen_cases:
+            continue
+
+        volunteers, selection_audit = _select_volunteers_from_candidates(
+            candidates,
+            max_volunteers_per_case=max_volunteers_per_case,
+            max_volunteers_per_school=max_volunteers_per_school,
+            include_special_majors=include_special_majors,
+            max_major_name_length=max_major_name_length,
+            minimum_volunteers=1,
+        )
+        if not volunteers:
+            continue
+
+        seen_cases.add(case_key)
+        gap_sets.append(
+            {
+                "score": score,
+                "province": prov,
+                "constraint_relaxed": "strength",
+                "relaxation_kind": "school_strength",
+                "relax_scope": "national",
+                "strict_major": strict_major,
+                "tier_a": tier_a,
+                "volunteer_set": volunteers,
+                "volunteer_count": len(volunteers),
+                "years_used": selection_audit["years_used"],
+                "selection_audit": selection_audit,
+                "max_tier_delta": max(_tier(row) - _tier(tier_a) for row in volunteers),
+                "strength_anchor_rank": int(float(tier_a["major_strength_rank"])),
+            }
+        )
+        if len(gap_sets) >= count:
+            break
+
+    return gap_sets
+
+
 DEFAULT_MEDTECH_PATTERNS = [
     "%医学检验%",
     "%医学影像%",

@@ -14,6 +14,7 @@ def _compact(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             {
                 "school": row.get("school_name"),
                 "province": row.get("school_province"),
+                "city": row.get("school_city"),
                 "major": row.get("major_name"),
                 "min_score": row.get("min_score"),
                 "min_rank": row.get("min_rank"),
@@ -22,6 +23,9 @@ def _compact(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "risk_level": row.get("risk_level"),
                 "score_margin": row.get("score_margin"),
                 "rank_gap": row.get("rank_gap"),
+                "major_strength_rank": row.get("major_strength_rank"),
+                "major_strength_rating": row.get("major_strength_rating"),
+                "major_strength_level": row.get("major_strength_level"),
             }
         )
     return compacted
@@ -29,7 +33,9 @@ def _compact(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def _fallback_reply(evidence: dict[str, Any]) -> str:
     geo = evidence.get("geo_relax") or []
+    city = evidence.get("city_relax") or []
     major = evidence.get("major_relax") or []
+    strength = evidence.get("strength_relax") or []
     joint = evidence.get("major_geo_relax") or []
     risk = evidence.get("risk_band_relax") or []
 
@@ -40,6 +46,10 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
             f"层次 {row.get('tier')}"
         )
 
+    city_text = "暂时没有发现换到其他城市后的更高层次机会。"
+    if city:
+        city_text = "；".join(_line(row) for row in city[:3])
+
     geo_text = "暂时没有发现比当前硬约束更高层次的地域放宽机会。"
     if geo:
         geo_text = "；".join(_line(row) for row in geo[:3])
@@ -47,6 +57,15 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
     major_text = "暂时没有发现比当前硬约束更高层次的专业放宽机会。"
     if major:
         major_text = "；".join(_line(row) for row in major[:3])
+
+    strength_text = "暂时没有发现学科实力更强的志愿组合。"
+    if strength:
+        strength_text = "；".join(
+            f"{row.get('school')}({row.get('province')}) "
+            f"{row.get('major')} strength_rank={row.get('major_strength_rank')} "
+            f"rating={row.get('major_strength_rating')} min_score={row.get('min_score')}"
+            for row in strength[:3]
+        )
 
     joint_text = "暂时没有发现同时放宽地域和专业后的更高层次机会。"
     if joint:
@@ -69,8 +88,10 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
 
     return (
         "我先不替你做决定，只把可核验的数据摆出来。\n"
+        f"城市方案：如果不限定当前城市，可以比较：{city_text}\n"
         f"选项A：如果只放松地域，可以比较：{geo_text}\n"
         f"选项B：如果只放松专业，可以比较：{major_text}\n"
+        f"学科实力方案：如果更看重专业排名或重点学科，可以比较：{strength_text}\n"
         f"联合方案：如果同时放宽地域和专业，可以重点比较：{joint_text}\n"
         f"风险方案：如果保留地域、专业、选科和预算，只把“只求稳”放宽为冲稳保组合，可以比较：{risk_text}\n"
         "你可以先挑一个最不排斥的方向，我再继续收窄。"
@@ -84,7 +105,9 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         "constraints": state.get("constraints", {}),
         "baseline_results": _compact(state.get("baseline_results", [])),
         "geo_relax": _compact(opportunities.get("geo_relax", [])),
+        "city_relax": _compact(opportunities.get("city_relax", [])),
         "major_relax": _compact(opportunities.get("major_relax", [])),
+        "strength_relax": _compact(opportunities.get("strength_relax", [])),
         "major_geo_relax": _compact(opportunities.get("major_geo_relax", [])),
         "risk_band_relax": _compact(opportunities.get("risk_band_relax", [])),
     }
@@ -96,7 +119,9 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
                 "你是高考志愿谈判官。只能基于给定真实数据说话。"
                 "输出一个简洁中文回复，必须包含“选项A”和“选项B”。"
                 "选项A对应放松地域，选项B对应放松专业；不要替用户做最终决定。"
+                "如果 evidence 中存在 city_relax，要说明这是只放宽精确城市限制后的方案，"
                 "如果 evidence 中存在 major_geo_relax，要把它作为联合放宽方案重点说明，"
+                "如果 evidence 中存在 strength_relax，要说明这是在保持省份和专业前提下的学科实力跃迁方案，"
                 "如果 evidence 中存在 risk_band_relax，要说明这是在不改变地域、专业、选科和预算时的冲稳保组合，"
                 "并给出具体学校、专业和最低分。"
             )
