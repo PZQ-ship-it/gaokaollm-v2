@@ -60,9 +60,9 @@
 
 本文贡献分为数据贡献、Agent 贡献、Benchmark 贡献和 v1 工程原型支撑四部分。
 
-第一，本文构建了面向高考志愿动态决策的结构化数据证据层。基础数据来自本地 PostgreSQL 招生快照，覆盖录取分数、最低位次、批次线、学校信息、专业信息和招生计划学费等字段。在此基础上，项目进一步构建专业树、`school_major_quality_profiles` 专业质量标准化层，以及 `major_employment_outcome_profiles` 就业结果标准化层，使专业质量、就业排名、行业分布、岗位分布和薪资分布等信息可以作为 Agent 输出和 benchmark 裁判的可核验证据。
+第一，本文构建了面向高考志愿动态决策的结构化数据证据层。基础数据来自本地 PostgreSQL 招生快照，覆盖录取分数、最低位次、批次线、学校信息、专业信息和招生计划学费等字段。在此基础上，项目进一步构建专业树、`school_major_quality_profiles` 专业质量标准化层、`major_employment_outcome_profiles` 就业结果标准化层，以及 `region_geo_tree_reviewed_v1.json` / `region_urban_tier_tree_reviewed_v1.json` 地域树 reviewed v1，使专业质量、就业排名、行业分布、岗位分布、薪资分布和地域树节点等信息可以作为 Agent 输出和 benchmark 裁判的可核验证据。
 
-第二，本文设计了证据驱动的 Pareto 谈判 Agent。业务 Agent 使用 LangGraph 组织为 `gatekeeper -> radar -> negotiator` 三段结构：`gatekeeper` 抽取显式约束并查询 baseline，`radar` 调用确定性 SQL 探针寻找放宽机会，`negotiator` 将真实候选组织为面向用户的证据化回复。当前 Agent 核心能力包括 `major_geo_relax` 专业+地域联合放宽、`risk_band_relax` 风险偏好放宽，以及扩展能力 `tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`。同时，`strength_relax` 作为较粗粒度的学校/学科实力过渡实验，帮助说明数据证据维度可以逐步扩展。
+第二，本文设计了证据驱动的 Pareto 谈判 Agent。业务 Agent 使用 LangGraph 组织为 `gatekeeper -> radar -> negotiator` 三段结构：`gatekeeper` 抽取显式约束并查询 baseline，`radar` 调用确定性 SQL 探针寻找放宽机会，`negotiator` 将真实候选组织为面向用户的证据化回复。当前 Agent 核心能力包括 `major_geo_relax` 专业+地域联合放宽、`risk_band_relax` 风险偏好放宽，以及扩展能力 `tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax`。同时，`strength_relax` 作为较粗粒度的学校/学科实力过渡实验，帮助说明数据证据维度可以逐步扩展。
 
 第三，本文提出面向高考志愿偏好妥协的冰山画像 Benchmark。该 Benchmark 从真实 DB gap 出发生成 persona，使用多轮沙盒模拟用户互动，并通过事实/过程联合评价计算 `elicitation_success`、`pareto_gain`、`hallucination_rate` 和 `avg_turns`。对照系统 `hard_constraint` 只报告显性硬约束下可达志愿，不主动谈判；目标系统 `app_pareto` 则尝试在事实约束内提出证据驱动的 Pareto 妥协。
 
@@ -70,7 +70,7 @@
 
 ### 1.5 实验概述
 
-本文第一版主实验为 `major_geo_v1 + risk_band_v1`。其中，`major_geo_v1` 验证专业与地域联合放宽，`risk_band_v1` 验证从“只求稳”到 `chong/wen/bao` 冲稳保组合的风险偏好放宽。四组扩展实验 `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` 用于证明同一框架可以接入新的数据证据维度，支撑“数据贡献可扩展”的论文论点。扩展实验不替代主实验。
+本文第一版主实验为 `major_geo_v1 + risk_band_v1`。其中，`major_geo_v1` 验证专业与地域联合放宽，`risk_band_v1` 验证从“只求稳”到 `chong/wen/bao` 冲稳保组合的风险偏好放宽。五组扩展实验 `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 用于证明同一框架可以接入新的数据证据维度，支撑“数据贡献可扩展”的论文论点。扩展实验不替代主实验。
 
 斜杠格式依次为：
 
@@ -86,6 +86,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 | `tuition_value_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | `admission_plans.tuition` 支撑预算性价比放宽 |
 | `major_quality_v1` | 扩展实验 | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | `school_major_quality_profiles` 支撑专业质量证据跃迁 |
 | `employment_outcome_v1` | 扩展实验 | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | `major_employment_outcome_profiles` 支撑就业排名、行业、岗位和薪资证据谈判 |
+| `region_tree_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | reviewed 地域树支撑地理板块和城市层级证据谈判 |
 
 需要注意的是，`major_geo_v1` 并非 100% 成功。唯一失败样本为 `real-db-set-浙江-569-009`，该样本需要 Agent 进一步退到更远的 `any_major` 候选才能命中 hidden volunteer set，而当前 Agent 停留在医学相关近邻阶段，因此 deterministic judge 未判定成功。论文中应保留这个失败样本，避免把 0.900 写成完全成功。
 
@@ -103,7 +104,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 第 6 章给出主实验和扩展实验结果，分析逐例证据与典型失败样本，说明 `app_pareto` 与 `hard_constraint` 的对照关系。
 
-第 7 章总结全文，并讨论样本规模、真实用户校准、多年稳定性风险增强、城市收益指标、概率化录取风险模型等后续工作。
+第 7 章总结全文，并讨论样本规模、真实用户校准、城市收益指标、概率化录取风险模型、多省份泛化等后续工作。
 
 ## 第 2 章 相关技术
 
