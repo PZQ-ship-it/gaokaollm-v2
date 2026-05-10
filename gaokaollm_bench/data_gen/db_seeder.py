@@ -6,9 +6,21 @@ from pathlib import Path
 from typing import Any
 
 from gaokaollm_bench.data_gen.major_tree import build_relaxation_stages
+from gaokaollm_bench.data_gen.region_tree_relax import (
+    annotate_region_row,
+    build_region_relax_targets,
+    city_variants,
+    load_region_trees,
+)
 
 
 DEFAULT_MAJOR_TREE_PATH = Path("gaokaollm_bench/outputs/major_tree_final_reviewed.json")
+DEFAULT_REGION_GEO_TREE_PATH = Path(
+    "gaokaollm_bench/outputs/region_geo_tree_reviewed_v1.json"
+)
+DEFAULT_REGION_URBAN_TREE_PATH = Path(
+    "gaokaollm_bench/outputs/region_urban_tier_tree_reviewed_v1.json"
+)
 
 SPECIAL_MAJOR_TERMS = (
     "中外合作",
@@ -686,6 +698,248 @@ async def find_city_relax_gap_sets(
                 "volunteer_count": len(volunteers),
                 "years_used": selection_audit["years_used"],
                 "selection_audit": selection_audit,
+                "max_tier_delta": max(_tier(row) - _tier(tier_a) for row in volunteers),
+            }
+        )
+        if len(gap_sets) >= count:
+            break
+
+    return gap_sets
+
+
+async def find_region_tree_relax_gap_candidates(
+    db_pool: Any,
+    score: int,
+    prov: str,
+    city: str,
+    *,
+    strict_major: str | None = None,
+    limit: int = 30,
+    geo_tree_path: str | Path | None = DEFAULT_REGION_GEO_TREE_PATH,
+    urban_tree_path: str | Path | None = DEFAULT_REGION_URBAN_TREE_PATH,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+) -> list[dict[str, Any]]:
+    """Return tier jumps unlocked by reviewed region-tree relaxations."""
+
+    if limit < 1:
+        raise ValueError("limit must be at least 1")
+    if not city:
+        raise ValueError("city must not be empty")
+
+    source_cities = city_variants(city)
+    major_clause = "  AND a.major_name_raw LIKE %s\n" if strict_major else ""
+    major_params = [f"%{strict_major}%"] if strict_major else []
+    baseline_query = (
+        f"{BASE_SELECT}"
+        "  AND s.province = %s\n"
+        "  AND s.city = ANY(%s::text[])\n"
+        f"{major_clause}"
+        f"{BASE_ORDER}"
+    )
+    baseline_rows = await _fetch(
+        db_pool,
+        baseline_query,
+        [score, prov, source_cities, *major_params, 1],
+    )
+    tier_a = baseline_rows[0] if baseline_rows else None
+    if not tier_a:
+        return []
+
+    try:
+        geo_tree, urban_tree = load_region_trees(
+            geo_tree_path=geo_tree_path,
+            urban_tree_path=urban_tree_path,
+        )
+    except (FileNotFoundError, ValueError, KeyError):
+        return []
+
+    targets = build_region_relax_targets(
+        province=prov,
+        city=city,
+        geo_tree=geo_tree,
+        urban_tree=urban_tree,
+    )
+    if not targets:
+        return []
+
+    exclude_name_patterns = exclude_name_patterns or []
+    exclude_clauses = []
+    exclude_params: list[Any] = []
+    for pattern in exclude_name_patterns:
+        exclude_clauses.append("s.name NOT LIKE %s")
+        exclude_params.append(f"%{pattern}%")
+
+    quality_clause = ""
+    quality_params: list[Any] = []
+    if strict_target_quality:
+        quality_clause = (
+            "  AND (s.name LIKE %s OR s.name LIKE %s)\n"
+            "  AND NOT (s.name LIKE %s AND s.name NOT LIKE %s)\n"
+        )
+        quality_params = [
+            "%大学%",
+            "%医学院%",
+            "%大学%学院%",
+            "%医学院%",
+        ]
+
+    candidates: list[dict[str, Any]] = []
+    seen_options: set[tuple[Any, Any, str]] = set()
+    for target in targets:
+        target_cities = list(target.get("target_city_values") or [])
+        if not target_cities:
+            continue
+        province_clause = (
+            "  AND s.province = %s\n"
+            if target.get("region_relax_strategy") == "geo_block_relax"
+            else ""
+        )
+        province_params = [prov] if province_clause else []
+        relaxed_query = (
+            f"{BASE_SELECT}"
+            f"{province_clause}"
+            "  AND s.city = ANY(%s::text[])\n"
+            "  AND s.city <> ALL(%s::text[])\n"
+            f"{major_clause}"
+            "  AND s.education_level = '本科'\n"
+            f"  AND {_tier_sql()} > %s\n"
+            f"{quality_clause}"
+            f"{'  AND ' + ' AND '.join(exclude_clauses) if exclude_clauses else ''}\n"
+            f"{BASE_ORDER}"
+        )
+        relaxed_rows = await _fetch(
+            db_pool,
+            relaxed_query,
+            [
+                score,
+                *province_params,
+                target_cities,
+                source_cities,
+                *major_params,
+                _tier(tier_a),
+                *quality_params,
+                *exclude_params,
+                limit,
+            ],
+        )
+        for row in relaxed_rows:
+            if _tier(row) <= _tier(tier_a):
+                continue
+            annotated = annotate_region_row(row, target)
+            option_key = (
+                annotated.get("school_id"),
+                annotated.get("major_id") or annotated.get("major_name"),
+                str(annotated.get("region_relax_strategy")),
+            )
+            if option_key in seen_options:
+                continue
+            seen_options.add(option_key)
+            candidates.append(
+                {
+                    "score": score,
+                    "province": prov,
+                    "city": city,
+                    "constraint_relaxed": "region_tree",
+                    "relaxation_kind": "region_tree",
+                    "strict_major": strict_major,
+                    "tier_a": tier_a,
+                    "tier_b": annotated,
+                    "region_relax_strategy": annotated.get("region_relax_strategy"),
+                    "region_tree_type": annotated.get("region_tree_type"),
+                    "source_region_node_id": annotated.get("source_region_node_id"),
+                    "source_region_name": annotated.get("source_region_name"),
+                    "target_region_node_id": annotated.get("target_region_node_id"),
+                    "target_region_name": annotated.get("target_region_name"),
+                    "region_tree_confidence": annotated.get("region_tree_confidence"),
+                    "tier_delta": _tier(annotated) - _tier(tier_a),
+                }
+            )
+            if len(candidates) >= limit:
+                return candidates
+    return candidates
+
+
+async def find_region_tree_relax_gap_sets(
+    db_pool: Any,
+    *,
+    count: int,
+    prov: str = "娴欐睙",
+    city: str = "鏉窞",
+    strict_major: str | None = None,
+    score_min: int = 520,
+    score_max: int = 700,
+    score_step: int = 1,
+    candidates_per_score: int = 120,
+    max_volunteers_per_case: int | None = None,
+    max_volunteers_per_school: int | None = None,
+    include_special_majors: bool = False,
+    max_major_name_length: int | None = 60,
+    exclude_name_patterns: list[str] | None = None,
+    strict_target_quality: bool = True,
+    geo_tree_path: str | Path | None = DEFAULT_REGION_GEO_TREE_PATH,
+    urban_tree_path: str | Path | None = DEFAULT_REGION_URBAN_TREE_PATH,
+) -> list[dict[str, Any]]:
+    """Scan scores and return region-tree-relaxation persona seeds."""
+
+    if count < 1:
+        raise ValueError("count must be at least 1")
+    if score_step < 1:
+        raise ValueError("score_step must be at least 1")
+
+    gap_sets: list[dict[str, Any]] = []
+    seen_cases: set[tuple[Any, ...]] = set()
+
+    for score in range(score_min, score_max + 1, score_step):
+        candidates = await find_region_tree_relax_gap_candidates(
+            db_pool,
+            score,
+            prov,
+            city,
+            strict_major=strict_major,
+            limit=candidates_per_score,
+            geo_tree_path=geo_tree_path,
+            urban_tree_path=urban_tree_path,
+            exclude_name_patterns=exclude_name_patterns,
+            strict_target_quality=strict_target_quality,
+        )
+        if not candidates:
+            continue
+
+        tier_a = candidates[0]["tier_a"]
+        case_key = (tier_a.get("school_id"), int(score), city, strict_major)
+        if case_key in seen_cases:
+            continue
+
+        volunteers, selection_audit = _select_volunteers_from_candidates(
+            candidates,
+            max_volunteers_per_case=max_volunteers_per_case,
+            max_volunteers_per_school=max_volunteers_per_school,
+            include_special_majors=include_special_majors,
+            max_major_name_length=max_major_name_length,
+            minimum_volunteers=1,
+        )
+        if not volunteers:
+            continue
+
+        seen_cases.add(case_key)
+        strategies = sorted(
+            {str(row.get("region_relax_strategy") or "") for row in volunteers}
+        )
+        gap_sets.append(
+            {
+                "score": score,
+                "province": prov,
+                "city": city,
+                "constraint_relaxed": "region_tree",
+                "relaxation_kind": "region_tree",
+                "strict_major": strict_major,
+                "tier_a": tier_a,
+                "volunteer_set": volunteers,
+                "volunteer_count": len(volunteers),
+                "years_used": selection_audit["years_used"],
+                "selection_audit": selection_audit,
+                "region_relax_strategies": strategies,
                 "max_tier_delta": max(_tier(row) - _tier(tier_a) for row in volunteers),
             }
         )

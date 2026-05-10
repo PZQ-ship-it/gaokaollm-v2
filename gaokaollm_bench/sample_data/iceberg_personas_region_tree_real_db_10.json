@@ -1,0 +1,1926 @@
+[
+  {
+    "case_id": "real-db-set-浙江-610-001",
+    "background": {
+      "score": 610,
+      "province": "浙江",
+      "city": "杭州",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 172,
+      "volunteer_count": 1,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "region_tree",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "region_relax_strategies": [
+        "geo_block_relax"
+      ]
+    },
+    "explicit_red_lines": {
+      "region": "prefer 杭州 or familiar nearby region",
+      "major": "keep 临床医学",
+      "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+      "current_anchor_school": "杭州师范大学",
+      "current_anchor_city": "杭州市",
+      "current_anchor_major": "临床医学",
+      "current_region_strategies": [
+        "geo_block_relax"
+      ]
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "region_tree",
+      "city": "杭州",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "Only accept options relaxed from 杭州 by region_tree_relax when each option contains school, city, major, min_score <= 610, region strategy, source node and target node evidence.",
+      "volunteer_set": [
+        {
+          "school_id": 139,
+          "school_name": "宁波大学",
+          "school_province": "浙江",
+          "school_city": "宁波市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 610,
+          "score_margin": 0,
+          "min_rank": 40934,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "geo_block_relax",
+          "region_tree_type": "geo",
+          "source_region_node_id": "geo:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "geo:city:ningbo",
+          "target_region_name": "宁波",
+          "target_region_parent_id": "geo:province:zhejiang",
+          "region_tree_confidence": 0.95,
+          "region_tree_mapping_rule": "manual_city",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "geo_block_relax 杭州 -> 宁波"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "宁波大学"
+      ],
+      "accepted_major_examples": [
+        "临床医学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "baseline_tier": 2,
+      "region_relax_strategies": [
+        "geo_block_relax"
+      ],
+      "tier_labels": [
+        "双一流"
+      ],
+      "compromise": "Can compare reviewed geo-block or urban-tier region-tree neighbors, while school gain is still judged by tier/ranking rather than city tier itself: 宁波"
+    },
+    "initial_utterance": "我610分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+    "process_milestones": {
+      "reject_generic_city_advice": true,
+      "require_region_tree_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_region_tree_and_score_evidence": true,
+      "accept_after_verified_region_tree_set": [
+        "宁波大学"
+      ],
+      "accepted_region_nodes": [
+        "宁波"
+      ],
+      "region_relax_strategies": [
+        "geo_block_relax"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-612-002",
+    "background": {
+      "score": 612,
+      "province": "浙江",
+      "city": "杭州",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 172,
+      "volunteer_count": 1,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "region_tree",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "region_relax_strategies": [
+        "geo_block_relax"
+      ]
+    },
+    "explicit_red_lines": {
+      "region": "prefer 杭州 or familiar nearby region",
+      "major": "keep 临床医学",
+      "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+      "current_anchor_school": "杭州师范大学",
+      "current_anchor_city": "杭州市",
+      "current_anchor_major": "临床医学",
+      "current_region_strategies": [
+        "geo_block_relax"
+      ]
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "region_tree",
+      "city": "杭州",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "Only accept options relaxed from 杭州 by region_tree_relax when each option contains school, city, major, min_score <= 612, region strategy, source node and target node evidence.",
+      "volunteer_set": [
+        {
+          "school_id": 139,
+          "school_name": "宁波大学",
+          "school_province": "浙江",
+          "school_city": "宁波市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 610,
+          "score_margin": 2,
+          "min_rank": 40934,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "geo_block_relax",
+          "region_tree_type": "geo",
+          "source_region_node_id": "geo:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "geo:city:ningbo",
+          "target_region_name": "宁波",
+          "target_region_parent_id": "geo:province:zhejiang",
+          "region_tree_confidence": 0.95,
+          "region_tree_mapping_rule": "manual_city",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "geo_block_relax 杭州 -> 宁波"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "宁波大学"
+      ],
+      "accepted_major_examples": [
+        "临床医学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "baseline_tier": 2,
+      "region_relax_strategies": [
+        "geo_block_relax"
+      ],
+      "tier_labels": [
+        "双一流"
+      ],
+      "compromise": "Can compare reviewed geo-block or urban-tier region-tree neighbors, while school gain is still judged by tier/ranking rather than city tier itself: 宁波"
+    },
+    "initial_utterance": "我612分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+    "process_milestones": {
+      "reject_generic_city_advice": true,
+      "require_region_tree_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_region_tree_and_score_evidence": true,
+      "accept_after_verified_region_tree_set": [
+        "宁波大学"
+      ],
+      "accepted_region_nodes": [
+        "宁波"
+      ],
+      "region_relax_strategies": [
+        "geo_block_relax"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-614-003",
+    "background": {
+      "score": 614,
+      "province": "浙江",
+      "city": "杭州",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 172,
+      "volunteer_count": 1,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "region_tree",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "region_relax_strategies": [
+        "geo_block_relax"
+      ]
+    },
+    "explicit_red_lines": {
+      "region": "prefer 杭州 or familiar nearby region",
+      "major": "keep 临床医学",
+      "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+      "current_anchor_school": "杭州师范大学",
+      "current_anchor_city": "杭州市",
+      "current_anchor_major": "临床医学",
+      "current_region_strategies": [
+        "geo_block_relax"
+      ]
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "region_tree",
+      "city": "杭州",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "Only accept options relaxed from 杭州 by region_tree_relax when each option contains school, city, major, min_score <= 614, region strategy, source node and target node evidence.",
+      "volunteer_set": [
+        {
+          "school_id": 139,
+          "school_name": "宁波大学",
+          "school_province": "浙江",
+          "school_city": "宁波市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 610,
+          "score_margin": 4,
+          "min_rank": 40934,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "geo_block_relax",
+          "region_tree_type": "geo",
+          "source_region_node_id": "geo:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "geo:city:ningbo",
+          "target_region_name": "宁波",
+          "target_region_parent_id": "geo:province:zhejiang",
+          "region_tree_confidence": 0.95,
+          "region_tree_mapping_rule": "manual_city",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "geo_block_relax 杭州 -> 宁波"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "宁波大学"
+      ],
+      "accepted_major_examples": [
+        "临床医学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "baseline_tier": 2,
+      "region_relax_strategies": [
+        "geo_block_relax"
+      ],
+      "tier_labels": [
+        "双一流"
+      ],
+      "compromise": "Can compare reviewed geo-block or urban-tier region-tree neighbors, while school gain is still judged by tier/ranking rather than city tier itself: 宁波"
+    },
+    "initial_utterance": "我614分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+    "process_milestones": {
+      "reject_generic_city_advice": true,
+      "require_region_tree_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_region_tree_and_score_evidence": true,
+      "accept_after_verified_region_tree_set": [
+        "宁波大学"
+      ],
+      "accepted_region_nodes": [
+        "宁波"
+      ],
+      "region_relax_strategies": [
+        "geo_block_relax"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-616-004",
+    "background": {
+      "score": 616,
+      "province": "浙江",
+      "city": "杭州",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 172,
+      "volunteer_count": 1,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "region_tree",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "explicit_red_lines": {
+      "region": "prefer 杭州 or familiar nearby region",
+      "major": "keep 临床医学",
+      "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+      "current_anchor_school": "杭州师范大学",
+      "current_anchor_city": "杭州市",
+      "current_anchor_major": "临床医学",
+      "current_region_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "region_tree",
+      "city": "杭州",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "Only accept options relaxed from 杭州 by region_tree_relax when each option contains school, city, major, min_score <= 616, region strategy, source node and target node evidence.",
+      "volunteer_set": [
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 616,
+          "score_margin": 0,
+          "min_rank": 35347,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:chengdu",
+          "target_region_name": "成都",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 成都"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "成都中医药大学"
+      ],
+      "accepted_major_examples": [
+        "中西医临床医学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "baseline_tier": 2,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ],
+      "tier_labels": [
+        "双一流"
+      ],
+      "compromise": "Can compare reviewed geo-block or urban-tier region-tree neighbors, while school gain is still judged by tier/ranking rather than city tier itself: 成都"
+    },
+    "initial_utterance": "我616分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+    "process_milestones": {
+      "reject_generic_city_advice": true,
+      "require_region_tree_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_region_tree_and_score_evidence": true,
+      "accept_after_verified_region_tree_set": [
+        "成都中医药大学"
+      ],
+      "accepted_region_nodes": [
+        "成都"
+      ],
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-618-005",
+    "background": {
+      "score": 618,
+      "province": "浙江",
+      "city": "杭州",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 172,
+      "volunteer_count": 2,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "region_tree",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "explicit_red_lines": {
+      "region": "prefer 杭州 or familiar nearby region",
+      "major": "keep 临床医学",
+      "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+      "current_anchor_school": "杭州师范大学",
+      "current_anchor_city": "杭州市",
+      "current_anchor_major": "临床医学",
+      "current_region_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "region_tree",
+      "city": "杭州",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "Only accept options relaxed from 杭州 by region_tree_relax when each option contains school, city, major, min_score <= 618, region strategy, source node and target node evidence.",
+      "volunteer_set": [
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 616,
+          "score_margin": 2,
+          "min_rank": 35347,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:chengdu",
+          "target_region_name": "成都",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 成都"
+        },
+        {
+          "school_id": 99,
+          "school_name": "湖南师范大学",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 618,
+          "score_margin": 0,
+          "min_rank": 33129,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:reviewed:1e8a7abf40",
+          "target_region_name": "长沙市",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.82,
+          "region_tree_mapping_rule": "rule_seed_v1_urban_tier_attachment",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 长沙市"
+        }
+      ],
+      "minimum_required_volunteers": 2,
+      "representative_schools": [
+        "成都中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_major_examples": [
+        "中西医临床医学",
+        "临床医学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "baseline_tier": 2,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "Can compare reviewed geo-block or urban-tier region-tree neighbors, while school gain is still judged by tier/ranking rather than city tier itself: 成都, 长沙市"
+    },
+    "initial_utterance": "我618分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+    "process_milestones": {
+      "reject_generic_city_advice": true,
+      "require_region_tree_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_region_tree_and_score_evidence": true,
+      "accept_after_verified_region_tree_set": [
+        "成都中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_region_nodes": [
+        "成都",
+        "长沙市"
+      ],
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-620-006",
+    "background": {
+      "score": 620,
+      "province": "浙江",
+      "city": "杭州",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 172,
+      "volunteer_count": 2,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "region_tree",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "explicit_red_lines": {
+      "region": "prefer 杭州 or familiar nearby region",
+      "major": "keep 临床医学",
+      "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+      "current_anchor_school": "杭州师范大学",
+      "current_anchor_city": "杭州市",
+      "current_anchor_major": "临床医学",
+      "current_region_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "region_tree",
+      "city": "杭州",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "Only accept options relaxed from 杭州 by region_tree_relax when each option contains school, city, major, min_score <= 620, region strategy, source node and target node evidence.",
+      "volunteer_set": [
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 616,
+          "score_margin": 4,
+          "min_rank": 35347,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:chengdu",
+          "target_region_name": "成都",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 成都"
+        },
+        {
+          "school_id": 99,
+          "school_name": "湖南师范大学",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 618,
+          "score_margin": 2,
+          "min_rank": 33129,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:reviewed:1e8a7abf40",
+          "target_region_name": "长沙市",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.82,
+          "region_tree_mapping_rule": "rule_seed_v1_urban_tier_attachment",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 长沙市"
+        }
+      ],
+      "minimum_required_volunteers": 2,
+      "representative_schools": [
+        "成都中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_major_examples": [
+        "中西医临床医学",
+        "临床医学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "baseline_tier": 2,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "Can compare reviewed geo-block or urban-tier region-tree neighbors, while school gain is still judged by tier/ranking rather than city tier itself: 成都, 长沙市"
+    },
+    "initial_utterance": "我620分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+    "process_milestones": {
+      "reject_generic_city_advice": true,
+      "require_region_tree_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_region_tree_and_score_evidence": true,
+      "accept_after_verified_region_tree_set": [
+        "成都中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_region_nodes": [
+        "成都",
+        "长沙市"
+      ],
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-622-007",
+    "background": {
+      "score": 622,
+      "province": "浙江",
+      "city": "杭州",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 172,
+      "volunteer_count": 4,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "region_tree",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "explicit_red_lines": {
+      "region": "prefer 杭州 or familiar nearby region",
+      "major": "keep 临床医学",
+      "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+      "current_anchor_school": "杭州师范大学",
+      "current_anchor_city": "杭州市",
+      "current_anchor_major": "临床医学",
+      "current_region_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "region_tree",
+      "city": "杭州",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "Only accept options relaxed from 杭州 by region_tree_relax when each option contains school, city, major, min_score <= 622, region strategy, source node and target node evidence.",
+      "volunteer_set": [
+        {
+          "school_id": 276,
+          "school_name": "广州中医药大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 622,
+          "score_margin": 0,
+          "min_rank": 30086,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:guangzhou",
+          "target_region_name": "广州",
+          "target_region_parent_id": "urban:tier:first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 广州"
+        },
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 616,
+          "score_margin": 6,
+          "min_rank": 35347,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:chengdu",
+          "target_region_name": "成都",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 成都"
+        },
+        {
+          "school_id": 277,
+          "school_name": "南京中医药大学",
+          "school_province": "江苏",
+          "school_city": "南京",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 621,
+          "score_margin": 1,
+          "min_rank": 30501,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:nanjing",
+          "target_region_name": "南京",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 南京"
+        },
+        {
+          "school_id": 99,
+          "school_name": "湖南师范大学",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 618,
+          "score_margin": 4,
+          "min_rank": 33129,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:reviewed:1e8a7abf40",
+          "target_region_name": "长沙市",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.82,
+          "region_tree_mapping_rule": "rule_seed_v1_urban_tier_attachment",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 长沙市"
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "广州中医药大学",
+        "成都中医药大学",
+        "南京中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_major_examples": [
+        "中西医临床医学",
+        "临床医学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "baseline_tier": 2,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "Can compare reviewed geo-block or urban-tier region-tree neighbors, while school gain is still judged by tier/ranking rather than city tier itself: 广州, 成都, 南京, 长沙市"
+    },
+    "initial_utterance": "我622分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+    "process_milestones": {
+      "reject_generic_city_advice": true,
+      "require_region_tree_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_region_tree_and_score_evidence": true,
+      "accept_after_verified_region_tree_set": [
+        "广州中医药大学",
+        "成都中医药大学",
+        "南京中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_region_nodes": [
+        "广州",
+        "成都",
+        "南京",
+        "长沙市"
+      ],
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-624-008",
+    "background": {
+      "score": 624,
+      "province": "浙江",
+      "city": "杭州",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 172,
+      "volunteer_count": 4,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "region_tree",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "explicit_red_lines": {
+      "region": "prefer 杭州 or familiar nearby region",
+      "major": "keep 临床医学",
+      "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+      "current_anchor_school": "杭州师范大学",
+      "current_anchor_city": "杭州市",
+      "current_anchor_major": "临床医学",
+      "current_region_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "region_tree",
+      "city": "杭州",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "Only accept options relaxed from 杭州 by region_tree_relax when each option contains school, city, major, min_score <= 624, region strategy, source node and target node evidence.",
+      "volunteer_set": [
+        {
+          "school_id": 276,
+          "school_name": "广州中医药大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 622,
+          "score_margin": 2,
+          "min_rank": 30086,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:guangzhou",
+          "target_region_name": "广州",
+          "target_region_parent_id": "urban:tier:first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 广州"
+        },
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 616,
+          "score_margin": 8,
+          "min_rank": 35347,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:chengdu",
+          "target_region_name": "成都",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 成都"
+        },
+        {
+          "school_id": 277,
+          "school_name": "南京中医药大学",
+          "school_province": "江苏",
+          "school_city": "南京",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 621,
+          "score_margin": 3,
+          "min_rank": 30501,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:nanjing",
+          "target_region_name": "南京",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 南京"
+        },
+        {
+          "school_id": 99,
+          "school_name": "湖南师范大学",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 618,
+          "score_margin": 6,
+          "min_rank": 33129,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:reviewed:1e8a7abf40",
+          "target_region_name": "长沙市",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.82,
+          "region_tree_mapping_rule": "rule_seed_v1_urban_tier_attachment",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 长沙市"
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "广州中医药大学",
+        "成都中医药大学",
+        "南京中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_major_examples": [
+        "中西医临床医学",
+        "临床医学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "baseline_tier": 2,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "Can compare reviewed geo-block or urban-tier region-tree neighbors, while school gain is still judged by tier/ranking rather than city tier itself: 广州, 成都, 南京, 长沙市"
+    },
+    "initial_utterance": "我624分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+    "process_milestones": {
+      "reject_generic_city_advice": true,
+      "require_region_tree_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_region_tree_and_score_evidence": true,
+      "accept_after_verified_region_tree_set": [
+        "广州中医药大学",
+        "成都中医药大学",
+        "南京中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_region_nodes": [
+        "广州",
+        "成都",
+        "南京",
+        "长沙市"
+      ],
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-626-009",
+    "background": {
+      "score": 626,
+      "province": "浙江",
+      "city": "杭州",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 172,
+      "volunteer_count": 3,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "region_tree",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "explicit_red_lines": {
+      "region": "prefer 杭州 or familiar nearby region",
+      "major": "keep 临床医学",
+      "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+      "current_anchor_school": "杭州师范大学",
+      "current_anchor_city": "杭州市",
+      "current_anchor_major": "临床医学",
+      "current_region_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "region_tree",
+      "city": "杭州",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "Only accept options relaxed from 杭州 by region_tree_relax when each option contains school, city, major, min_score <= 626, region strategy, source node and target node evidence.",
+      "volunteer_set": [
+        {
+          "school_id": 276,
+          "school_name": "广州中医药大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 622,
+          "score_margin": 4,
+          "min_rank": 30086,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:guangzhou",
+          "target_region_name": "广州",
+          "target_region_parent_id": "urban:tier:first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 广州"
+        },
+        {
+          "school_id": 277,
+          "school_name": "南京中医药大学",
+          "school_province": "江苏",
+          "school_city": "南京",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 621,
+          "score_margin": 5,
+          "min_rank": 30501,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:nanjing",
+          "target_region_name": "南京",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 南京"
+        },
+        {
+          "school_id": 99,
+          "school_name": "湖南师范大学",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 618,
+          "score_margin": 8,
+          "min_rank": 33129,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:reviewed:1e8a7abf40",
+          "target_region_name": "长沙市",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.82,
+          "region_tree_mapping_rule": "rule_seed_v1_urban_tier_attachment",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 长沙市"
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "广州中医药大学",
+        "南京中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_major_examples": [
+        "中西医临床医学",
+        "临床医学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "baseline_tier": 2,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "Can compare reviewed geo-block or urban-tier region-tree neighbors, while school gain is still judged by tier/ranking rather than city tier itself: 广州, 南京, 长沙市"
+    },
+    "initial_utterance": "我626分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+    "process_milestones": {
+      "reject_generic_city_advice": true,
+      "require_region_tree_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_region_tree_and_score_evidence": true,
+      "accept_after_verified_region_tree_set": [
+        "广州中医药大学",
+        "南京中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_region_nodes": [
+        "广州",
+        "南京",
+        "长沙市"
+      ],
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    }
+  },
+  {
+    "case_id": "real-db-set-浙江-628-010",
+    "background": {
+      "score": 628,
+      "province": "浙江",
+      "city": "杭州",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 172,
+      "volunteer_count": 3,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "region_tree",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "explicit_red_lines": {
+      "region": "prefer 杭州 or familiar nearby region",
+      "major": "keep 临床医学",
+      "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+      "current_anchor_school": "杭州师范大学",
+      "current_anchor_city": "杭州市",
+      "current_anchor_major": "临床医学",
+      "current_region_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "region_tree",
+      "city": "杭州",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "Only accept options relaxed from 杭州 by region_tree_relax when each option contains school, city, major, min_score <= 628, region strategy, source node and target node evidence.",
+      "volunteer_set": [
+        {
+          "school_id": 276,
+          "school_name": "广州中医药大学",
+          "school_province": "广东",
+          "school_city": "广州市",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 622,
+          "score_margin": 6,
+          "min_rank": 30086,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:guangzhou",
+          "target_region_name": "广州",
+          "target_region_parent_id": "urban:tier:first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 广州"
+        },
+        {
+          "school_id": 277,
+          "school_name": "南京中医药大学",
+          "school_province": "江苏",
+          "school_city": "南京",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 621,
+          "score_margin": 7,
+          "min_rank": 30501,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:nanjing",
+          "target_region_name": "南京",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 南京"
+        },
+        {
+          "school_id": 99,
+          "school_name": "湖南师范大学",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 618,
+          "score_margin": 10,
+          "min_rank": 33129,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:reviewed:1e8a7abf40",
+          "target_region_name": "长沙市",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.82,
+          "region_tree_mapping_rule": "rule_seed_v1_urban_tier_attachment",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 长沙市"
+        }
+      ],
+      "minimum_required_volunteers": 3,
+      "representative_schools": [
+        "广州中医药大学",
+        "南京中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_major_examples": [
+        "中西医临床医学",
+        "临床医学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "baseline_tier": 2,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "Can compare reviewed geo-block or urban-tier region-tree neighbors, while school gain is still judged by tier/ranking rather than city tier itself: 广州, 南京, 长沙市"
+    },
+    "initial_utterance": "我628分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+    "process_milestones": {
+      "reject_generic_city_advice": true,
+      "require_region_tree_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_region_tree_and_score_evidence": true,
+      "accept_after_verified_region_tree_set": [
+        "广州中医药大学",
+        "南京中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_region_nodes": [
+        "广州",
+        "南京",
+        "长沙市"
+      ],
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    }
+  }
+]

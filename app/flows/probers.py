@@ -4,9 +4,21 @@ from typing import Any
 
 from app.core import db_pg
 from gaokaollm_bench.data_gen.major_tree import build_relaxation_stages
+from gaokaollm_bench.data_gen.region_tree_relax import (
+    annotate_region_row,
+    build_region_relax_targets,
+    city_variants,
+    load_region_trees,
+)
 
 
 DEFAULT_MAJOR_TREE_PATH = Path("gaokaollm_bench/outputs/major_tree_final_reviewed.json")
+DEFAULT_REGION_GEO_TREE_PATH = Path(
+    "gaokaollm_bench/outputs/region_geo_tree_reviewed_v1.json"
+)
+DEFAULT_REGION_URBAN_TREE_PATH = Path(
+    "gaokaollm_bench/outputs/region_urban_tier_tree_reviewed_v1.json"
+)
 SPECIAL_MAJOR_TERMS = (
     "中外合作",
     "合作办学",
@@ -578,8 +590,8 @@ def _add_city_filter(
 ) -> None:
     city = constraints.get("city")
     if city:
-        where.append("s.city = %s")
-        params.append(city)
+        where.append("s.city = ANY(%s::text[])")
+        params.append(city_variants(city))
 
 
 def _add_major_filter(
@@ -836,13 +848,89 @@ async def probe_city_relax(
     where, params = _where_common(constraints)
     _add_province_filter(where, params, constraints)
     _add_major_filter(where, params, constraints)
-    where.append("s.city <> %s")
-    params.append(city)
+    where.append("s.city <> ALL(%s::text[])")
+    params.append(city_variants(city))
     _add_higher_tier_filter(where, params, baseline)
     params.append(limit)
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
     return await _fetch(db, query, params)
+
+
+async def probe_region_tree_relax(
+    constraints: dict[str, Any],
+    db: Any = None,
+    baseline_results: list[dict[str, Any]] | None = None,
+    limit: int = 5,
+    max_per_school: int = 2,
+    geo_tree_path: str | Path | None = DEFAULT_REGION_GEO_TREE_PATH,
+    urban_tree_path: str | Path | None = DEFAULT_REGION_URBAN_TREE_PATH,
+) -> list[dict[str, Any]]:
+    """Find tier gains unlocked by reviewed region-tree relaxations."""
+
+    if not constraints.get("city") and not constraints.get("province"):
+        return []
+
+    baseline = baseline_results
+    if baseline is None:
+        baseline = await run_baseline(constraints, db=db)
+
+    try:
+        geo_tree, urban_tree = load_region_trees(
+            geo_tree_path=geo_tree_path,
+            urban_tree_path=urban_tree_path,
+        )
+    except (FileNotFoundError, ValueError, KeyError):
+        return []
+
+    targets = build_region_relax_targets(
+        province=constraints.get("province"),
+        city=constraints.get("city"),
+        geo_tree=geo_tree,
+        urban_tree=urban_tree,
+    )
+    if not targets:
+        return []
+
+    source_city_values = city_variants(constraints.get("city"))
+    selected: list[dict[str, Any]] = []
+    seen_options: set[tuple[Any, Any]] = set()
+    school_counts: dict[Any, int] = {}
+
+    for target in targets:
+        target_cities = list(target.get("target_city_values") or [])
+        if not target_cities:
+            continue
+
+        where, params = _where_common(constraints)
+        _add_major_filter(where, params, constraints)
+        _add_undergraduate_quality_filters(where, params)
+        _add_major_quality_filters(where, params, max_major_name_length=60)
+        where.append("s.city = ANY(%s::text[])")
+        params.append(target_cities)
+        if target.get("region_relax_strategy") == "geo_block_relax":
+            _add_province_filter(where, params, constraints)
+        if source_city_values:
+            where.append("s.city <> ALL(%s::text[])")
+            params.append(source_city_values)
+        _add_higher_tier_filter(where, params, baseline)
+        params.append(max(limit * 4, 20))
+
+        query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
+        rows = await _fetch(db, query, params)
+        for row in rows:
+            candidate = annotate_region_row(row, target)
+            if not _append_unique_option(
+                selected,
+                candidate,
+                seen_options=seen_options,
+                school_counts=school_counts,
+                max_per_school=max_per_school,
+            ):
+                continue
+            if len(selected) >= limit:
+                return selected
+    return selected
 
 
 async def probe_strength_relax(
@@ -1347,6 +1435,7 @@ async def run_all_probes(
         major_quality_relax,
         tuition_value_relax,
         employment_outcome_relax,
+        region_tree_relax,
         major_geo_relax,
         risk_band_relax,
     ) = await asyncio.gather(
@@ -1361,6 +1450,7 @@ async def run_all_probes(
             db=db,
             baseline_results=baseline,
         ),
+        probe_region_tree_relax(constraints, db=db, baseline_results=baseline),
         probe_major_geo_relax(constraints, db=db, baseline_results=baseline),
         probe_risk_band_relax(constraints, db=db),
     )
@@ -1372,6 +1462,7 @@ async def run_all_probes(
         "major_quality_relax": major_quality_relax,
         "tuition_value_relax": tuition_value_relax,
         "employment_outcome_relax": employment_outcome_relax,
+        "region_tree_relax": region_tree_relax,
         "major_geo_relax": major_geo_relax,
         "risk_band_relax": risk_band_relax,
     }

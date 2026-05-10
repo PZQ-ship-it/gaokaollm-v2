@@ -1,0 +1,875 @@
+{
+  "persona": {
+    "case_id": "real-db-set-浙江-620-006",
+    "background": {
+      "score": 620,
+      "province": "浙江",
+      "city": "杭州",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 172,
+      "volunteer_count": 2,
+      "max_gap_tier": 3,
+      "max_tier_delta": 1,
+      "constraint_relaxed": "region_tree",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "explicit_red_lines": {
+      "region": "prefer 杭州 or familiar nearby region",
+      "major": "keep 临床医学",
+      "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+      "current_anchor_school": "杭州师范大学",
+      "current_anchor_city": "杭州市",
+      "current_anchor_major": "临床医学",
+      "current_region_strategies": [
+        "urban_tier_relax"
+      ]
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "constraint_relaxed": "region_tree",
+      "city": "杭州",
+      "relaxation_kind": "region_tree",
+      "stage_relaxation_kind": null,
+      "relax_scope": "province",
+      "baseline_risk_preference": null,
+      "relaxation_stage": null,
+      "relaxation_stage_label": null,
+      "target_major_clusters": null,
+      "target_major_categories": null,
+      "psychological_distance": null,
+      "trigger_condition": "Only accept options relaxed from 杭州 by region_tree_relax when each option contains school, city, major, min_score <= 620, region strategy, source node and target node evidence.",
+      "volunteer_set": [
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 404,
+          "major_name": "中西医临床医学",
+          "year": 2025,
+          "min_score": 616,
+          "score_margin": 4,
+          "min_rank": 35347,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:city:chengdu",
+          "target_region_name": "成都",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.9,
+          "region_tree_mapping_rule": "manual_city_tier",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 成都"
+        },
+        {
+          "school_id": 99,
+          "school_name": "湖南师范大学",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 618,
+          "score_margin": 2,
+          "min_rank": 33129,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:reviewed:1e8a7abf40",
+          "target_region_name": "长沙市",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.82,
+          "region_tree_mapping_rule": "rule_seed_v1_urban_tier_attachment",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 长沙市"
+        }
+      ],
+      "minimum_required_volunteers": 2,
+      "representative_schools": [
+        "成都中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_major_examples": [
+        "中西医临床医学",
+        "临床医学"
+      ],
+      "years_used": [
+        2025
+      ],
+      "stage_attempts": null,
+      "student_rank": null,
+      "risk_levels": null,
+      "portfolio_gain": null,
+      "strength_anchor_rank": null,
+      "quality_anchor_score": null,
+      "max_quality_gain": null,
+      "budget_anchor": null,
+      "budget_window": null,
+      "max_tuition_delta": null,
+      "max_ranking_gain": null,
+      "outcome_anchor_score": null,
+      "max_outcome_gain": null,
+      "baseline_tier": 2,
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ],
+      "tier_labels": [
+        "211/双一流",
+        "双一流"
+      ],
+      "compromise": "Can compare reviewed geo-block or urban-tier region-tree neighbors, while school gain is still judged by tier/ranking rather than city tier itself: 成都, 长沙市"
+    },
+    "initial_utterance": "我620分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+    "process_milestones": {
+      "reject_generic_city_advice": true,
+      "require_region_tree_evidence": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_region_tree_and_score_evidence": true,
+      "accept_after_verified_region_tree_set": [
+        "成都中医药大学",
+        "湖南师范大学"
+      ],
+      "accepted_region_nodes": [
+        "成都",
+        "长沙市"
+      ],
+      "region_relax_strategies": [
+        "urban_tier_relax"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我620分，选考物化生，想读临床医学，优先只看杭州或别太远的地方。如果没有地域树和最低分证据，先别随便推荐其他城市。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "按你当前坚持的硬约束，可直接考虑：\n- 杭州师范大学｜浙江｜临床医学｜最低分 604\n- 杭州师范大学｜浙江｜临床医学｜最低分 590\n- 杭州师范大学｜浙江｜临床医学(第一,二,三学年在仓前校区,第四学年起在杭州市金华路120号)｜最低分 590",
+      "internal_state": {
+        "target": "hard_constraint",
+        "constraints": {
+          "score": 620,
+          "province": "浙江",
+          "city": "杭州",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "地理",
+            "物理",
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 84525,
+            "year": 2023,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "604",
+            "min_rank": 48028,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 772,
+            "year": 2025,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 63187,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 35737,
+            "year": 2024,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": null,
+            "major_name": "临床医学(第一,二,三学年在仓前校区,第四学年起在杭州市金华路120号)",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "590",
+            "min_rank": 64194,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 16,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "604",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 48028
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "还是不太能接受，除非你给出更具体的学校和分数对比。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "还没有看到足够具体且命中隐藏妥协条件的证据。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "按你当前坚持的硬约束，可直接考虑：\n- 杭州师范大学｜浙江｜临床医学｜最低分 604\n- 杭州师范大学｜浙江｜临床医学｜最低分 590\n- 杭州师范大学｜浙江｜临床医学(第一,二,三学年在仓前校区,第四学年起在杭州市金华路120号)｜最低分 590",
+      "internal_state": {
+        "target": "hard_constraint",
+        "constraints": {
+          "score": 620,
+          "province": "浙江",
+          "city": "杭州",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "地理",
+            "物理",
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 84525,
+            "year": 2023,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "604",
+            "min_rank": 48028,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 772,
+            "year": 2025,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 63187,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 35737,
+            "year": 2024,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": null,
+            "major_name": "临床医学(第一,二,三学年在仓前校区,第四学年起在杭州市金华路120号)",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "590",
+            "min_rank": 64194,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 16,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "604",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 48028
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "还是不太能接受，除非你给出更具体的学校和分数对比。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "还没有看到足够具体且命中隐藏妥协条件的证据。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "按你当前坚持的硬约束，可直接考虑：\n- 杭州师范大学｜浙江｜临床医学｜最低分 604\n- 杭州师范大学｜浙江｜临床医学｜最低分 590\n- 杭州师范大学｜浙江｜临床医学(第一,二,三学年在仓前校区,第四学年起在杭州市金华路120号)｜最低分 590",
+      "internal_state": {
+        "target": "hard_constraint",
+        "constraints": {
+          "score": 620,
+          "province": "浙江",
+          "city": "杭州",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "地理",
+            "物理",
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 84525,
+            "year": 2023,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "604",
+            "min_rank": 48028,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 772,
+            "year": 2025,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 63187,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 35737,
+            "year": 2024,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": null,
+            "major_name": "临床医学(第一,二,三学年在仓前校区,第四学年起在杭州市金华路120号)",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "590",
+            "min_rank": 64194,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 16,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "604",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 48028
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "还是不太能接受，除非你给出更具体的学校和分数对比。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "还没有看到足够具体且命中隐藏妥协条件的证据。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "按你当前坚持的硬约束，可直接考虑：\n- 杭州师范大学｜浙江｜临床医学｜最低分 604\n- 杭州师范大学｜浙江｜临床医学｜最低分 590\n- 杭州师范大学｜浙江｜临床医学(第一,二,三学年在仓前校区,第四学年起在杭州市金华路120号)｜最低分 590",
+      "internal_state": {
+        "target": "hard_constraint",
+        "constraints": {
+          "score": 620,
+          "province": "浙江",
+          "city": "杭州",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "地理",
+            "物理",
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 84525,
+            "year": 2023,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "604",
+            "min_rank": 48028,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 772,
+            "year": 2025,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 63187,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 35737,
+            "year": 2024,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": null,
+            "major_name": "临床医学(第一,二,三学年在仓前校区,第四学年起在杭州市金华路120号)",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "590",
+            "min_rank": 64194,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 16,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "604",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 48028
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "还是不太能接受，除非你给出更具体的学校和分数对比。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "还没有看到足够具体且命中隐藏妥协条件的证据。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "按你当前坚持的硬约束，可直接考虑：\n- 杭州师范大学｜浙江｜临床医学｜最低分 604\n- 杭州师范大学｜浙江｜临床医学｜最低分 590\n- 杭州师范大学｜浙江｜临床医学(第一,二,三学年在仓前校区,第四学年起在杭州市金华路120号)｜最低分 590",
+      "internal_state": {
+        "target": "hard_constraint",
+        "constraints": {
+          "score": 620,
+          "province": "浙江",
+          "city": "杭州",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "地理",
+            "物理",
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 84525,
+            "year": 2023,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "604",
+            "min_rank": 48028,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 772,
+            "year": 2025,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 63187,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 35737,
+            "year": 2024,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": null,
+            "major_name": "临床医学(第一,二,三学年在仓前校区,第四学年起在杭州市金华路120号)",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "590",
+            "min_rank": 64194,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 16,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "604",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 48028
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "还是不太能接受，除非你给出更具体的学校和分数对比。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "还没有看到足够具体且命中隐藏妥协条件的证据。"
+      }
+    }
+  ]
+}

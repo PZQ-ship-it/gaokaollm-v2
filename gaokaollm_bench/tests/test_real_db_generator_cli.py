@@ -1,4 +1,6 @@
 import json
+import shutil
+from pathlib import Path
 
 import pytest
 
@@ -7,6 +9,7 @@ from gaokaollm_bench.data_gen.db_seeder import (
     find_employment_outcome_gap_sets,
     find_hierarchical_major_relax_gap_sets,
     find_major_quality_gap_sets,
+    find_region_tree_relax_gap_sets,
     find_strength_relax_gap_sets,
     find_risk_band_gap_sets,
     find_tuition_value_gap_sets,
@@ -299,6 +302,99 @@ def test_build_deterministic_persona_from_city_relax_gap_set():
     )
 
 
+def test_build_deterministic_persona_from_region_tree_gap_set():
+    gap_set = {
+        "score": 600,
+        "province": "Zhejiang",
+        "city": "Hangzhou",
+        "constraint_relaxed": "region_tree",
+        "relaxation_kind": "region_tree",
+        "region_relax_strategies": ["geo_block_relax", "urban_tier_relax"],
+        "strict_major": "Computer Science",
+        "volunteer_count": 2,
+        "max_tier_delta": 1,
+        "tier_a": {
+            "school_id": 1,
+            "school_name": "Hangzhou Anchor University",
+            "school_province": "Zhejiang",
+            "school_city": "Hangzhou",
+            "is_985": False,
+            "is_211": False,
+            "is_double_first_class": False,
+            "education_level": "本科",
+            "major_name": "Computer Science",
+            "min_score": 596,
+            "tier": 2,
+        },
+        "volunteer_set": [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "Ningbo Reviewed University",
+                "school_province": "Zhejiang",
+                "school_city": "Ningbo",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 20,
+                "major_name": "Computer Science",
+                "min_score": 598,
+                "min_rank": 42000,
+                "tier": 3,
+                "region_relax_strategy": "geo_block_relax",
+                "region_tree_type": "geo",
+                "source_region_node_id": "geo:city:hangzhou",
+                "source_region_name": "Hangzhou",
+                "target_region_node_id": "geo:city:ningbo",
+                "target_region_name": "Ningbo",
+                "region_tree_confidence": 0.92,
+                "region_tree_evidence": "geo_block_relax Hangzhou -> Ningbo",
+            },
+            {
+                "year": 2025,
+                "school_id": 3,
+                "school_name": "Nanjing Reviewed University",
+                "school_province": "Jiangsu",
+                "school_city": "Nanjing",
+                "is_985": False,
+                "is_211": True,
+                "is_double_first_class": True,
+                "education_level": "本科",
+                "major_id": 30,
+                "major_name": "Computer Science",
+                "min_score": 597,
+                "min_rank": 43000,
+                "tier": 3,
+                "region_relax_strategy": "urban_tier_relax",
+                "region_tree_type": "urban_tier",
+                "source_region_node_id": "urban:city:hangzhou",
+                "source_region_name": "Hangzhou",
+                "target_region_node_id": "urban:city:nanjing",
+                "target_region_name": "Nanjing",
+                "region_tree_confidence": 0.88,
+                "region_tree_evidence": "urban_tier_relax Hangzhou -> Nanjing",
+            },
+        ],
+    }
+
+    persona = build_deterministic_persona_from_gap_set(gap_set, 5)
+    restored = IcebergPersona.model_validate_json(persona.model_dump_json())
+    volunteer_set = restored.implicit_flexibilities["volunteer_set"]
+
+    assert restored.background["constraint_relaxed"] == "region_tree"
+    assert restored.implicit_flexibilities["constraint_relaxed"] == "region_tree"
+    assert restored.explicit_red_lines["current_region_strategies"] == [
+        "geo_block_relax",
+        "urban_tier_relax",
+    ]
+    assert volunteer_set[0]["region_relax_strategy"] == "geo_block_relax"
+    assert volunteer_set[1]["target_region_name"] == "Nanjing"
+    assert volunteer_set[0]["region_tree_confidence"] == 0.92
+    assert restored.process_milestones["require_region_tree_evidence"] is True
+    assert "region_tree_relax" in restored.implicit_flexibilities["trigger_condition"]
+
+
 def test_build_deterministic_persona_from_risk_band_gap_set():
     gap_set = {
         "score": 600,
@@ -583,6 +679,160 @@ async def test_find_city_relax_gap_sets_keep_province_major_and_drop_city():
     assert baseline_params == (600, "Zhejiang", "Hangzhou", "%Clinical Medicine%", 1)
     assert "Hangzhou" in relaxed_params
     assert "%Clinical Medicine%" in relaxed_params
+
+
+@pytest.mark.asyncio
+async def test_find_region_tree_relax_gap_sets_use_reviewed_tree_nodes():
+    geo_tree = {
+        "version": "test",
+        "nodes": [
+            {
+                "node_id": "geo:china",
+                "name": "China",
+                "parent_id": None,
+                "aliases": [],
+                "tree_type": "geo",
+                "mapping_rule": "manual_root",
+                "confidence": 1.0,
+                "review_status": "reviewed",
+                "source": "test",
+            },
+            {
+                "node_id": "geo:zhejiang",
+                "name": "Zhejiang",
+                "parent_id": "geo:china",
+                "aliases": [],
+                "tree_type": "geo",
+                "mapping_rule": "manual_province",
+                "confidence": 0.95,
+                "review_status": "reviewed",
+                "source": "test",
+            },
+            {
+                "node_id": "geo:hangzhou",
+                "name": "Hangzhou",
+                "parent_id": "geo:zhejiang",
+                "aliases": [],
+                "tree_type": "geo",
+                "mapping_rule": "manual_city",
+                "confidence": 0.95,
+                "review_status": "reviewed",
+                "source": "test",
+            },
+            {
+                "node_id": "geo:ningbo",
+                "name": "Ningbo",
+                "parent_id": "geo:zhejiang",
+                "aliases": [],
+                "tree_type": "geo",
+                "mapping_rule": "manual_city",
+                "confidence": 0.9,
+                "review_status": "reviewed",
+                "source": "test",
+            },
+        ],
+    }
+    urban_tree = {
+        "version": "test",
+        "nodes": [
+            {
+                "node_id": "urban:root",
+                "name": "Urban",
+                "parent_id": None,
+                "aliases": [],
+                "tree_type": "urban_tier",
+                "mapping_rule": "manual_root",
+                "confidence": 1.0,
+                "review_status": "reviewed",
+                "source": "test",
+            }
+        ],
+    }
+    temp_dir = Path("gaokaollm_bench/tests/_tmp_region_tree")
+    try:
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        geo_path = temp_dir / "geo.json"
+        urban_path = temp_dir / "urban.json"
+        geo_path.write_text(json.dumps(geo_tree), encoding="utf-8")
+        urban_path.write_text(json.dumps(urban_tree), encoding="utf-8")
+        calls = []
+
+        async def mock_db(query, *params):
+            calls.append((query, params))
+            if "s.city = ANY(%s::text[])" in query and "s.city <> ALL" not in query:
+                return [
+                    {
+                        "year": 2025,
+                        "school_id": 1,
+                        "school_name": "Hangzhou Anchor University",
+                        "school_province": "Zhejiang",
+                        "school_city": "Hangzhou",
+                        "is_985": False,
+                        "is_211": False,
+                        "is_double_first_class": False,
+                        "education_level": "本科",
+                        "ranking": 200,
+                        "major_id": 10,
+                        "major_name": "Computer Science",
+                        "min_score": 596,
+                        "min_rank": 46000,
+                        "tier": 2,
+                    }
+                ]
+            if "s.city <> ALL(%s::text[])" in query:
+                return [
+                    {
+                        "year": 2025,
+                        "school_id": 2,
+                        "school_name": "Ningbo Reviewed University",
+                        "school_province": "Zhejiang",
+                        "school_city": "Ningbo",
+                        "is_985": False,
+                        "is_211": True,
+                        "is_double_first_class": True,
+                        "education_level": "本科",
+                        "ranking": 80,
+                        "major_id": 20,
+                        "major_name": "Computer Science",
+                        "min_score": 598,
+                        "min_rank": 42000,
+                        "tier": 3,
+                    }
+                ]
+            return []
+
+        gap_sets = await find_region_tree_relax_gap_sets(
+            mock_db,
+            count=1,
+            prov="Zhejiang",
+            city="Hangzhou",
+            strict_major="Computer Science",
+            score_min=600,
+            score_max=600,
+            candidates_per_score=2,
+            max_volunteers_per_case=1,
+            strict_target_quality=False,
+            geo_tree_path=geo_path,
+            urban_tree_path=urban_path,
+        )
+
+        assert len(gap_sets) == 1
+        assert gap_sets[0]["constraint_relaxed"] == "region_tree"
+        assert gap_sets[0]["region_relax_strategies"] == ["geo_block_relax"]
+        volunteer = gap_sets[0]["volunteer_set"][0]
+        assert volunteer["region_relax_strategy"] == "geo_block_relax"
+        assert volunteer["source_region_node_id"] == "geo:hangzhou"
+        assert volunteer["target_region_node_id"] == "geo:ningbo"
+        assert volunteer["region_tree_confidence"] == 0.9
+        relaxed_query, relaxed_params = calls[-1]
+        assert "s.city = ANY(%s::text[])" in relaxed_query
+        assert "s.city <> ALL(%s::text[])" in relaxed_query
+        assert "a.major_name_raw LIKE %s" in relaxed_query
+        assert any(
+            isinstance(param, list) and "Ningbo" in param for param in relaxed_params
+        )
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
 
 
 def test_medical_major_cluster_patterns_are_auditable():

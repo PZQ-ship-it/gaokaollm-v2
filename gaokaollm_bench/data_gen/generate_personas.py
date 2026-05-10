@@ -32,6 +32,7 @@ from gaokaollm_bench.data_gen.db_seeder import (
     find_major_quality_gap_sets,
     find_many_pareto_gaps,
     find_pareto_gap_sets,
+    find_region_tree_relax_gap_sets,
     find_risk_band_gap_sets,
     find_strength_relax_gap_sets,
     find_tuition_value_gap_sets,
@@ -211,6 +212,17 @@ def _volunteer_entry(row: dict[str, Any], score: int) -> dict[str, Any]:
         "job_distribution",
         "salary_distribution",
         "employment_evidence_sources",
+        "region_relax_strategy",
+        "region_tree_type",
+        "source_region_node_id",
+        "source_region_name",
+        "target_region_node_id",
+        "target_region_name",
+        "target_region_parent_id",
+        "region_tree_confidence",
+        "region_tree_mapping_rule",
+        "region_tree_review_status",
+        "region_tree_evidence",
     ):
         if row.get(key) is not None:
             value = row.get(key)
@@ -231,6 +243,7 @@ def _volunteer_entry(row: dict[str, Any], score: int) -> dict[str, Any]:
                 "outcome_score",
                 "outcome_gain",
                 "outcome_anchor_score",
+                "region_tree_confidence",
             }:
                 value = float(value)
             entry[key] = value
@@ -435,6 +448,52 @@ def build_deterministic_persona_from_gap_set(
             "require_each_option_employment_and_score_evidence": True,
             "accept_after_verified_employment_outcome_set": best_names,
         }
+    elif relaxed_constraint == "region_tree":
+        strict_major = str(
+            gap_set.get("strict_major") or tier_a.get("major_name") or "target major"
+        )
+        major_name = strict_major
+        city = str(gap_set.get("city") or tier_a.get("school_city") or "target city")
+        strategies = list(gap_set.get("region_relax_strategies") or [])
+        target_regions = list(
+            dict.fromkeys(
+                item.get("target_region_name")
+                for item in volunteers
+                if item.get("target_region_name")
+            )
+        )[:5]
+        explicit_red_lines = {
+            "region": f"prefer {city} or familiar nearby region",
+            "major": f"keep {strict_major}",
+            "reason": "do not accept arbitrary city switches without region-tree and score evidence",
+            "current_anchor_school": tier_a_name,
+            "current_anchor_city": tier_a.get("school_city"),
+            "current_anchor_major": tier_a.get("major_name"),
+            "current_region_strategies": strategies,
+        }
+        trigger_condition = (
+            f"Only accept options relaxed from {city} by region_tree_relax when each option "
+            f"contains school, city, major, min_score <= {score}, region strategy, "
+            "source node and target node evidence."
+        )
+        compromise = (
+            "Can compare reviewed geo-block or urban-tier region-tree neighbors, "
+            "while school gain is still judged by tier/ranking rather than city tier itself: "
+            f"{', '.join(str(item) for item in target_regions) or 'reviewed region nodes'}"
+        )
+        initial_utterance = (
+            f"我{score}分，选考物化生，想读{strict_major}，优先只看{city}或别太远的地方。"
+            "如果没有地域树和最低分证据，先别随便推荐其他城市。"
+        )
+        milestones = {
+            "reject_generic_city_advice": True,
+            "require_region_tree_evidence": True,
+            "require_complete_volunteer_set": True,
+            "require_each_option_region_tree_and_score_evidence": True,
+            "accept_after_verified_region_tree_set": best_names,
+            "accepted_region_nodes": target_regions,
+            "region_relax_strategies": strategies,
+        }
     elif relaxed_constraint == "risk_band":
         strict_major = str(
             gap_set.get("strict_major") or tier_a.get("major_name") or "目标专业"
@@ -594,6 +653,7 @@ def build_deterministic_persona_from_gap_set(
             "max_ranking_gain": gap_set.get("max_ranking_gain"),
             "outcome_anchor_score": gap_set.get("outcome_anchor_score"),
             "max_outcome_gain": gap_set.get("max_outcome_gain"),
+            "region_relax_strategies": gap_set.get("region_relax_strategies"),
         },
         explicit_red_lines=explicit_red_lines,
         implicit_flexibilities={
@@ -628,6 +688,8 @@ def build_deterministic_persona_from_gap_set(
             "max_ranking_gain": gap_set.get("max_ranking_gain"),
             "outcome_anchor_score": gap_set.get("outcome_anchor_score"),
             "max_outcome_gain": gap_set.get("max_outcome_gain"),
+            "baseline_tier": tier_a.get("tier"),
+            "region_relax_strategies": gap_set.get("region_relax_strategies"),
             "tier_labels": best_labels,
             "compromise": compromise,
         },
@@ -756,6 +818,26 @@ async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
                 else DEFAULT_EXCLUDE_PATTERNS,
                 strict_target_quality=not args.no_strict_target_quality,
                 min_outcome_gain=args.min_outcome_gain,
+            )
+        elif args.relaxation == "region_tree":
+            gap_sets = await find_region_tree_relax_gap_sets(
+                fetch_query,
+                count=args.count,
+                prov=args.province,
+                city=args.city,
+                strict_major=args.strict_major or None,
+                score_min=args.score_min,
+                score_max=args.score_max,
+                score_step=args.score_step,
+                candidates_per_score=args.candidates_per_score,
+                max_volunteers_per_case=args.max_volunteers_per_case,
+                max_volunteers_per_school=args.max_volunteers_per_school,
+                include_special_majors=args.include_special_majors,
+                max_major_name_length=args.max_major_name_length,
+                exclude_name_patterns=[]
+                if args.include_suspect_schools
+                else DEFAULT_EXCLUDE_PATTERNS,
+                strict_target_quality=not args.no_strict_target_quality,
             )
         elif args.relaxation == "major_hierarchy":
             try:

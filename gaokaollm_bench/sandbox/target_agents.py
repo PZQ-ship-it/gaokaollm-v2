@@ -63,6 +63,7 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                     "major_quality_relax": [],
                     "tuition_value_relax": [],
                     "employment_outcome_relax": [],
+                    "region_tree_relax": [],
                     "major_geo_relax": [],
                     "risk_band_relax": [],
                 },
@@ -85,6 +86,7 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
                 "major_quality_relax": [],
                 "tuition_value_relax": [],
                 "employment_outcome_relax": [],
+                "region_tree_relax": [],
                 "major_geo_relax": [],
                 "risk_band_relax": [],
             },
@@ -117,6 +119,7 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             "employment_outcome_relax": list(
                 opportunities.get("employment_outcome_relax") or []
             ),
+            "region_tree_relax": list(opportunities.get("region_tree_relax") or []),
             "major_geo_relax": list(opportunities.get("major_geo_relax") or []),
             "risk_band_relax": list(opportunities.get("risk_band_relax") or []),
         },
@@ -133,6 +136,7 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             opportunities.get("employment_outcome_relax") or [],
             opportunities.get("major_geo_relax") or [],
             opportunities.get("risk_band_relax") or [],
+            opportunities.get("region_tree_relax") or [],
         ),
     }
 
@@ -192,6 +196,14 @@ def _recommended_schools(*groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "job_distribution",
                 "salary_distribution",
                 "employment_evidence_sources",
+                "region_relax_strategy",
+                "region_tree_type",
+                "source_region_node_id",
+                "source_region_name",
+                "target_region_node_id",
+                "target_region_name",
+                "region_tree_confidence",
+                "region_tree_evidence",
             ):
                 if row.get(key) is not None:
                     item[key] = row.get(key)

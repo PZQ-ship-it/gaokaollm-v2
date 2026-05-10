@@ -30,6 +30,7 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
             "major_quality_relax": [],
             "tuition_value_relax": [],
             "employment_outcome_relax": [],
+            "region_tree_relax": [],
             "major_geo_relax": [],
             "risk_band_relax": [],
         }
@@ -43,6 +44,7 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
         f"major_quality:{len(opportunities.get('major_quality_relax', []))} "
         f"tuition:{len(opportunities.get('tuition_value_relax', []))} "
         f"employment:{len(opportunities.get('employment_outcome_relax', []))} "
+        f"region_tree:{len(opportunities.get('region_tree_relax', []))} "
         f"major_geo:{len(opportunities.get('major_geo_relax', []))} "
         f"risk:{len(opportunities.get('risk_band_relax', []))}"
     )

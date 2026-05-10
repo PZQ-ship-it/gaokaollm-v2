@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Any
 
 from langchain_core.messages import AIMessage, SystemMessage
@@ -7,170 +8,182 @@ from app.core.llm_client import get_chat_model
 from app.schemas.state import AgentState
 
 
+COMPACT_FIELDS = (
+    "school_name",
+    "school_province",
+    "school_city",
+    "major_name",
+    "min_score",
+    "min_rank",
+    "tier",
+    "ranking",
+    "risk_level",
+    "score_margin",
+    "rank_gap",
+    "tuition",
+    "tuition_delta",
+    "major_strength_rank",
+    "major_strength_rating",
+    "major_strength_level",
+    "quality_score",
+    "quality_gain",
+    "quality_tier",
+    "best_major_rank",
+    "best_rating",
+    "has_key_major",
+    "has_featured_major",
+    "quality_evidence_sources",
+    "outcome_score",
+    "outcome_gain",
+    "outcome_tier",
+    "employment_rank",
+    "employment_rank_desc",
+    "employment_top_city",
+    "top_industry",
+    "job_distribution",
+    "salary_distribution",
+    "employment_evidence_sources",
+    "region_relax_strategy",
+    "region_tree_type",
+    "source_region_node_id",
+    "source_region_name",
+    "target_region_node_id",
+    "target_region_name",
+    "region_tree_confidence",
+    "region_tree_evidence",
+)
+
+MAJOR_NOTE_PATTERN = re.compile(
+    r"[\(（][^()（）]*(?:学院|校区|班|方向)[^()（）]*[\)）]"
+)
+
+
+def _display_major(value: Any) -> str:
+    text = str(value or "")
+    cleaned = MAJOR_NOTE_PATTERN.sub("", text).strip()
+    return cleaned or text
+
+
 def _compact(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     compacted = []
     for row in rows[:5]:
-        compacted.append(
-            {
-                "school": row.get("school_name"),
-                "province": row.get("school_province"),
-                "city": row.get("school_city"),
-                "major": row.get("major_name"),
-                "min_score": row.get("min_score"),
-                "min_rank": row.get("min_rank"),
-                "tier": row.get("tier"),
-                "ranking": row.get("ranking"),
-                "risk_level": row.get("risk_level"),
-                "score_margin": row.get("score_margin"),
-                "rank_gap": row.get("rank_gap"),
-                "tuition": row.get("tuition"),
-                "tuition_delta": row.get("tuition_delta"),
-                "major_strength_rank": row.get("major_strength_rank"),
-                "major_strength_rating": row.get("major_strength_rating"),
-                "major_strength_level": row.get("major_strength_level"),
-                "quality_score": row.get("quality_score"),
-                "quality_gain": row.get("quality_gain"),
-                "quality_tier": row.get("quality_tier"),
-                "best_major_rank": row.get("best_major_rank"),
-                "best_rating": row.get("best_rating"),
-                "has_key_major": row.get("has_key_major"),
-                "has_featured_major": row.get("has_featured_major"),
-                "quality_evidence_sources": row.get("quality_evidence_sources"),
-                "outcome_score": row.get("outcome_score"),
-                "outcome_gain": row.get("outcome_gain"),
-                "outcome_tier": row.get("outcome_tier"),
-                "employment_rank": row.get("employment_rank"),
-                "employment_rank_desc": row.get("employment_rank_desc"),
-                "employment_top_city": row.get("employment_top_city"),
-                "top_industry": row.get("top_industry"),
-                "job_distribution": row.get("job_distribution"),
-                "salary_distribution": row.get("salary_distribution"),
-                "employment_evidence_sources": row.get("employment_evidence_sources"),
-            }
-        )
+        item = {
+            "school": row.get("school_name") or row.get("school"),
+            "province": row.get("school_province") or row.get("province"),
+            "city": row.get("school_city") or row.get("city"),
+            "major": row.get("major_name") or row.get("major"),
+        }
+        for key in COMPACT_FIELDS:
+            value = row.get(key)
+            if value is not None:
+                item[key] = value
+        compacted.append(item)
     return compacted
 
 
+def _score_text(row: dict[str, Any]) -> str:
+    parts = [
+        str(row.get("school") or row.get("school_name") or ""),
+        f"({row.get('province') or row.get('school_province') or ''}/{row.get('city') or row.get('school_city') or ''})",
+        _display_major(row.get("major") or row.get("major_name") or ""),
+        f"min_score={row.get('min_score')}",
+    ]
+    if row.get("min_rank") is not None:
+        parts.append(f"min_rank={row.get('min_rank')}")
+    if row.get("tier") is not None:
+        parts.append(f"tier={row.get('tier')}")
+    if row.get("ranking") is not None:
+        parts.append(f"ranking={row.get('ranking')}")
+    return " ".join(part for part in parts if part)
+
+
+def _join(rows: list[dict[str, Any]], *, limit: int = 3) -> str:
+    if not rows:
+        return "no verified option"
+    return "；".join(_score_text(row) for row in rows[:limit])
+
+
 def _fallback_reply(evidence: dict[str, Any]) -> str:
-    geo = evidence.get("geo_relax") or []
-    city = evidence.get("city_relax") or []
-    major = evidence.get("major_relax") or []
-    strength = evidence.get("strength_relax") or []
     major_quality = evidence.get("major_quality_relax") or []
     tuition = evidence.get("tuition_value_relax") or []
     employment = evidence.get("employment_outcome_relax") or []
-    joint = evidence.get("major_geo_relax") or []
+    region_tree = evidence.get("region_tree_relax") or []
     risk = evidence.get("risk_band_relax") or []
 
-    def _line(row: dict[str, Any]) -> str:
-        return (
-            f"{row.get('school')}（{row.get('province')}）"
-            f"{row.get('major')}，最低分 {row.get('min_score')}，"
-            f"层次 {row.get('tier')}"
-        )
-
-    city_text = "暂时没有发现换到其他城市后的更高层次机会。"
-    if city:
-        city_text = "；".join(_line(row) for row in city[:3])
-
-    geo_text = "暂时没有发现比当前硬约束更高层次的地域放宽机会。"
-    if geo:
-        geo_text = "；".join(_line(row) for row in geo[:3])
-
-    major_text = "暂时没有发现比当前硬约束更高层次的专业放宽机会。"
-    if major:
-        major_text = "；".join(_line(row) for row in major[:3])
-
-    strength_text = "暂时没有发现学科实力更强的志愿组合。"
-    if strength:
-        strength_text = "；".join(
-            f"{row.get('school')}({row.get('province')}) "
-            f"{row.get('major')} strength_rank={row.get('major_strength_rank')} "
-            f"rating={row.get('major_strength_rating')} min_score={row.get('min_score')}"
-            for row in strength[:3]
-        )
-
-    major_quality_text = "暂时没有发现专业质量证据更强的可达方案。"
     if major_quality:
-        major_quality_text = "；".join(
-            f"{row.get('school')}({row.get('province')}) "
-            f"{row.get('major')} quality={row.get('quality_score')} "
-            f"gain={row.get('quality_gain')} rank={row.get('best_major_rank')} "
-            f"rating={row.get('best_rating')} min_score={row.get('min_score')}"
+        text = "；".join(
+            f"{_score_text(row)} quality_score={row.get('quality_score')} "
+            f"quality_gain={row.get('quality_gain')} best_major_rank={row.get('best_major_rank')} "
+            f"best_rating={row.get('best_rating')}"
             for row in major_quality[:3]
         )
         return (
-            "我先不替你做决定，只把可核验的数据摆出来。\n"
-            "专业质量方案：如果你愿意比较省外同专业或近似同专业，可以重点看："
-            f"{major_quality_text}\n"
-            "这些候选仍需满足你的分数、专业、选科和预算约束，区别在于专业排名、学科评估、"
-            "特色/重点专业或满意度证据更强。"
+            "我先不替你做决定，只给出可核验的专业质量证据。\n"
+            f"major_quality_relax：{text}\n"
+            "这些候选仍需满足分数、选科和预算等硬约束，差异在于专业排名、学科评估、特色重点或满意度证据更强。"
         )
 
-    tuition_text = "暂时没有发现小幅增加学费后的明显性价比跃迁。"
     if tuition:
-        tuition_text = "；".join(
-            f"{row.get('school')}({row.get('province')}) "
-            f"{row.get('major')} min_score={row.get('min_score')} "
-            f"tuition={row.get('tuition')} delta={row.get('tuition_delta')} "
-            f"tier={row.get('tier')} ranking={row.get('ranking')}"
+        text = "；".join(
+            f"{_score_text(row)} tuition={row.get('tuition')} "
+            f"tuition_delta={row.get('tuition_delta')}"
             for row in tuition[:3]
         )
         return (
-            "我先不替你做决定，只把可核验的数据摆出来。\n"
-            "学费方案：如果每年小幅增加预算，可以比较："
-            f"{tuition_text}\n"
-            "这些方案仍然需要满足你的分数、专业和选科约束，你可以先看学费增量是否能接受。"
+            "我先不替你做决定，只给出可核验的学费性价比证据。\n"
+            f"tuition_value_relax：{text}\n"
+            "这些方案只是在原预算附近小幅放宽学费，学校收益仍按 tier/ranking 与最低分证据判断。"
         )
 
-    employment_text = "暂时没有发现就业结果证据更强的可达方案。"
     if employment:
-        employment_text = "；".join(
-            f"{row.get('school')}({row.get('province')}) "
-            f"{row.get('major')} min_score={row.get('min_score')} "
-            f"outcome_score={row.get('outcome_score')} gain={row.get('outcome_gain')} "
-            f"employment_rank={row.get('employment_rank')} "
-            f"industry={row.get('top_industry')} salary={row.get('salary_distribution')}"
+        text = "；".join(
+            f"{_score_text(row)} outcome_score={row.get('outcome_score')} "
+            f"outcome_gain={row.get('outcome_gain')} employment_rank={row.get('employment_rank')} "
+            f"top_industry={row.get('top_industry')} salary={row.get('salary_distribution')}"
             for row in employment[:3]
         )
         return (
-            "我先不替你做决定，只把可核验的数据摆出来。\n"
-            "就业导向方案：如果你愿意比较同专业或相近专业里就业结果证据更强的选择，可以重点看："
-            f"{employment_text}\n"
-            "这些候选仍需满足你的分数、选科和预算等硬约束，区别在于就业排名、行业、岗位或薪资证据更清楚。"
+            "我先不替你做决定，只给出可核验的就业结果证据。\n"
+            f"employment_outcome_relax：{text}\n"
+            "这些候选仍需满足分数、选科和预算等硬约束，差异在于就业排名、行业、岗位或薪资证据更清楚。"
         )
 
-    joint_text = "暂时没有发现同时放宽地域和专业后的更高层次机会。"
-    if joint:
-        joint_text = "；".join(_line(row) for row in joint[:5])
+    if region_tree:
+        text = "；".join(
+            f"{_score_text(row)} strategy={row.get('region_relax_strategy')} "
+            f"region={row.get('source_region_name')}->{row.get('target_region_name')} "
+            f"confidence={row.get('region_tree_confidence')}"
+            for row in region_tree[:3]
+        )
+        return (
+            "我先不替你做决定，只给出可核验的地域树证据。\n"
+            f"region_tree_relax：{text}\n"
+            "这里的地域证据来自 reviewed region tree；城市层级本身不直接计入收益，学校收益仍按 tier/ranking 改善计算。"
+        )
 
-    risk_text = "暂时没有发现满足当前硬约束的冲稳保组合。"
     if risk:
-        risk_text = "；".join(
-            f"{row.get('school')}({row.get('province')}) "
-            f"{row.get('major')} min_score={row.get('min_score')} "
-            f"risk={row.get('risk_level')} margin={row.get('score_margin')}"
+        text = "；".join(
+            f"{_score_text(row)} risk={row.get('risk_level')} "
+            f"score_margin={row.get('score_margin')} rank_gap={row.get('rank_gap')}"
             for row in risk[:6]
         )
         return (
-            "我先不替你做决定，只把可核验的数据摆出来。\n"
-            "风险方案：在不改变地域、专业、选科和预算的前提下，"
-            f"如果把“只求稳”放宽为冲稳保组合，可以比较：{risk_text}\n"
-            "你可以先看这些风险层级是否能接受，我再继续收窄。"
+            "我先不替你做决定，只给出可核验的冲稳保证据。\n"
+            f"risk_band_relax：{text}\n"
+            "这些方案保留地域、专业、选科和预算，只把单一保守偏好放宽成 chong/wen/bao 组合。"
         )
 
+    sections = {
+        "city_relax": _join(evidence.get("city_relax") or []),
+        "geo_relax": _join(evidence.get("geo_relax") or []),
+        "major_relax": _join(evidence.get("major_relax") or []),
+        "strength_relax": _join(evidence.get("strength_relax") or []),
+        "major_geo_relax": _join(evidence.get("major_geo_relax") or [], limit=5),
+    }
     return (
-        "我先不替你做决定，只把可核验的数据摆出来。\n"
-        f"城市方案：如果不限定当前城市，可以比较：{city_text}\n"
-        f"选项A：如果只放松地域，可以比较：{geo_text}\n"
-        f"选项B：如果只放松专业，可以比较：{major_text}\n"
-        f"学科实力方案：如果更看重专业排名或重点学科，可以比较：{strength_text}\n"
-        f"专业质量方案：如果更看重该专业本身的排名、评估或特色重点证据，可以比较：{major_quality_text}\n"
-        f"学费方案：如果每年小幅增加预算，可以比较：{tuition_text}\n"
-        f"就业导向方案：如果更看重就业排名、行业、岗位或薪资证据，可以比较：{employment_text}\n"
-        f"联合方案：如果同时放宽地域和专业，可以重点比较：{joint_text}\n"
-        f"风险方案：如果保留地域、专业、选科和预算，只把“只求稳”放宽为冲稳保组合，可以比较：{risk_text}\n"
-        "你可以先挑一个最不排斥的方向，我再继续收窄。"
+        "我先不替你做决定，只给出可核验的 Pareto 放宽证据。\n"
+        + "\n".join(f"{name}：{value}" for name, value in sections.items())
+        + "\n你可以先挑一个最不排斥的方向，我再继续收窄。"
     )
 
 
@@ -189,6 +202,7 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         "employment_outcome_relax": _compact(
             opportunities.get("employment_outcome_relax", [])
         ),
+        "region_tree_relax": _compact(opportunities.get("region_tree_relax", [])),
         "major_geo_relax": _compact(opportunities.get("major_geo_relax", [])),
         "risk_band_relax": _compact(opportunities.get("risk_band_relax", [])),
     }
@@ -197,17 +211,12 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
     prompt = [
         SystemMessage(
             content=(
-                "你是高考志愿谈判官。只能基于给定真实数据说话。"
-                "输出一个简洁中文回复，必须包含“选项A”和“选项B”。"
-                "选项A对应放松地域，选项B对应放松专业；不要替用户做最终决定。"
-                "如果 evidence 中存在 city_relax，要说明这是只放宽精确城市限制后的方案，"
-                "如果 evidence 中存在 major_geo_relax，要把它作为联合放宽方案重点说明，"
-                "如果 evidence 中存在 strength_relax，要说明这是在保持省份和专业前提下的学科实力跃迁方案，"
-                "如果 evidence 中存在 major_quality_relax，要说明这是同专业或近似同专业下的专业质量跃迁方案，"
-                "如果 evidence 中存在 tuition_value_relax，要说明这是只小幅放宽每年学费预算后的性价比方案，"
-                "如果 evidence 中存在 employment_outcome_relax，要说明这是同专业或相近专业下就业结果证据更强的方案，"
-                "如果 evidence 中存在 risk_band_relax，要说明这是在不改变地域、专业、选科和预算时的冲稳保组合，"
-                "并给出具体学校、专业、最低分、专业排名/学科评估/特色重点、满意度或就业证据。"
+                "你是高考志愿谈判 Agent。只能基于给定真实数据说话。"
+                "输出简洁中文，不替用户做最终决定。"
+                "如果存在 region_tree_relax，要说明这是按地理板块树或城市层级树的可审计地域放宽。"
+                "如果存在 major_geo_relax，要重点说明专业和地域联合放宽。"
+                "如果存在 risk_band_relax，要说明 chong/wen/bao 组合。"
+                "必须给出具体学校、专业、最低分，并在可用时给出最低位次、树节点、学费、专业质量或就业证据。"
             )
         ),
         SystemMessage(content=json.dumps(evidence, ensure_ascii=False, default=str)),

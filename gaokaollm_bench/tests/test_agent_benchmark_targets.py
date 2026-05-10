@@ -17,7 +17,9 @@ from gaokaollm_bench.tests.manual.agent_benchmark_run import (
     _employment_outcome_gain,
     _has_employment_outcome_evidence,
     _has_major_quality_evidence,
+    _has_region_tree_evidence,
     _major_quality_gain,
+    _region_tree_gain,
     _has_tuition_value_evidence,
     _tuition_value_gain,
     load_personas,
@@ -72,6 +74,18 @@ class FakeGraph:
                 "major_quality_relax": [],
                 "tuition_value_relax": [],
                 "employment_outcome_relax": [],
+                "region_tree_relax": [
+                    {
+                        "school_name": "Region Tree University",
+                        "school_province": "Zhejiang",
+                        "school_city": "Ningbo",
+                        "major_name": "Clinical Medicine",
+                        "min_score": 596,
+                        "tier": 3,
+                        "region_relax_strategy": "geo_block_relax",
+                        "target_region_name": "Ningbo",
+                    }
+                ],
                 "major_geo_relax": [
                     {
                         "school_name": "西南交通大学",
@@ -128,6 +142,7 @@ class FakeRiskGraph:
                 "major_quality_relax": [],
                 "tuition_value_relax": [],
                 "employment_outcome_relax": [],
+                "region_tree_relax": [],
                 "major_geo_relax": [],
                 "risk_band_relax": [
                     {
@@ -166,6 +181,57 @@ class FakeRiskGraph:
                 ],
             },
             "score_waste": 0,
+            "missing_constraints": [],
+        }
+
+
+class FakeRegionGraph:
+    async def ainvoke(self, payload, config):
+        return {
+            "messages": [
+                SimpleNamespace(
+                    content=(
+                        "region_tree_relax 证据：Region Tree University "
+                        "Computer Science min_score=596 strategy=geo_block_relax "
+                        "region=Hangzhou->Ningbo confidence=0.95。"
+                    )
+                )
+            ],
+            "constraints": {
+                "score": 600,
+                "province": "Zhejiang",
+                "city": "Hangzhou",
+                "major": "Computer Science",
+                "selected_subjects": ["Physics", "Chemistry", "Biology"],
+            },
+            "baseline_results": [],
+            "pareto_opportunities": {
+                "geo_relax": [],
+                "city_relax": [],
+                "major_relax": [],
+                "strength_relax": [],
+                "major_quality_relax": [],
+                "tuition_value_relax": [],
+                "employment_outcome_relax": [],
+                "region_tree_relax": [
+                    {
+                        "school_name": "Region Tree University",
+                        "school_province": "Zhejiang",
+                        "school_city": "Ningbo",
+                        "major_name": "Computer Science",
+                        "min_score": 596,
+                        "min_rank": 43000,
+                        "tier": 3,
+                        "region_relax_strategy": "geo_block_relax",
+                        "source_region_name": "Hangzhou",
+                        "target_region_name": "Ningbo",
+                        "region_tree_confidence": 0.95,
+                    }
+                ],
+                "major_geo_relax": [],
+                "risk_band_relax": [],
+            },
+            "score_waste": 4,
             "missing_constraints": [],
         }
 
@@ -275,6 +341,43 @@ def build_risk_persona():
     )
 
 
+def build_region_persona():
+    return IcebergPersona(
+        case_id="region-case-001",
+        background={
+            "score": 600,
+            "province": "Zhejiang",
+            "city": "Hangzhou",
+            "baseline_tier": 2,
+            "constraint_relaxed": "region_tree",
+        },
+        explicit_red_lines={
+            "region": "prefer Hangzhou or familiar nearby region",
+            "major": "keep Computer Science",
+        },
+        implicit_flexibilities={
+            "trigger_type": "volunteer_set",
+            "constraint_relaxed": "region_tree",
+            "baseline_tier": 2,
+            "volunteer_set": [
+                {
+                    "school_name": "Region Tree University",
+                    "major_name": "Computer Science",
+                    "min_score": 596,
+                    "tier": 3,
+                    "region_relax_strategy": "geo_block_relax",
+                    "target_region_name": "Ningbo",
+                }
+            ],
+        },
+        initial_utterance=(
+            "我600分，选考物化生，想读Computer Science，"
+            "优先只看Hangzhou或别太远的地方。"
+        ),
+        process_milestones={"require_region_tree_evidence": True},
+    )
+
+
 def test_deterministic_judge_accepts_tuition_value_evidence():
     flex = {
         "constraint_relaxed": "tuition_value",
@@ -338,6 +441,29 @@ def test_deterministic_judge_accepts_employment_outcome_evidence():
     assert _employment_outcome_gain(flex, text) == 18
 
 
+def test_deterministic_judge_accepts_region_tree_evidence():
+    flex = {
+        "constraint_relaxed": "region_tree",
+        "baseline_tier": 2,
+        "volunteer_set": [
+            {
+                "school_name": "Region Tree University",
+                "major_name": "Computer Science",
+                "tier": 3,
+                "region_relax_strategy": "geo_block_relax",
+                "target_region_name": "Ningbo",
+            }
+        ],
+    }
+    text = (
+        "Region Tree University Computer Science min_score=596 "
+        "strategy=geo_block_relax region=Hangzhou->Ningbo confidence=0.95"
+    )
+
+    assert _has_region_tree_evidence(flex, text)
+    assert _region_tree_gain(flex, text) == 1
+
+
 async def evaluate_by_joint_school(transcript, *, judge_llm):
     combined = "\n".join(turn.content for turn in transcript.turns)
     success = "西南交通大学" in combined and "最低分" in combined
@@ -381,6 +507,25 @@ async def evaluate_by_risk_portfolio(transcript, *, judge_llm):
     )
 
 
+async def evaluate_by_region_tree(transcript, *, judge_llm):
+    combined = "\n".join(turn.content for turn in transcript.turns)
+    flex = transcript.persona.implicit_flexibilities
+    success = _has_region_tree_evidence(flex, combined)
+    gain = _region_tree_gain(flex, combined) if success else 0
+    return SimpleNamespace(
+        hallucination_rate=0.0,
+        elicitation_success=success,
+        pareto_gain=gain,
+        judge_reasoning="region-tree deterministic smoke",
+        model_copy=lambda update: SimpleNamespace(
+            hallucination_rate=update.get("hallucination_rate", 0.0),
+            elicitation_success=success,
+            pareto_gain=gain,
+            judge_reasoning="region-tree deterministic smoke",
+        ),
+    )
+
+
 @pytest.mark.asyncio
 async def test_app_graph_target_agent_preserves_auditable_state():
     target = AppGraphTargetAgent(thread_id="case-thread", graph=FakeGraph())
@@ -398,8 +543,13 @@ async def test_app_graph_target_agent_preserves_auditable_state():
     assert state["pareto_opportunities"]["major_quality_relax"] == []
     assert state["pareto_opportunities"]["tuition_value_relax"] == []
     assert state["pareto_opportunities"]["employment_outcome_relax"] == []
+    assert state["pareto_opportunities"]["region_tree_relax"]
     assert any(
         item.get("risk_level") == "chong" for item in state["recommended_schools"]
+    )
+    assert any(
+        item.get("region_relax_strategy") == "geo_block_relax"
+        for item in state["recommended_schools"]
     )
     assert state["recommended_schools"][0]["school"] == "北京学院"
     assert state["recommended_schools"][1]["school"] == "山东大学"
@@ -423,6 +573,7 @@ async def test_hard_constraint_baseline_only_reports_baseline():
         "major_quality_relax": [],
         "tuition_value_relax": [],
         "employment_outcome_relax": [],
+        "region_tree_relax": [],
         "major_geo_relax": [],
         "risk_band_relax": [],
     }
@@ -662,6 +813,80 @@ async def test_agent_benchmark_smoke_risk_band_app_beats_hard_constraint(monkeyp
     )
     assert (
         config.output_dir / "transcripts/app_pareto/transcript_risk-case-001.json"
+    ).exists()
+    assert (config.output_dir / "reports/app_pareto.jsonl").exists()
+    assert (config.output_dir / "summary.json").exists()
+    assert (config.output_dir / "summary.md").exists()
+
+    shutil.rmtree(work_dir)
+
+
+@pytest.mark.asyncio
+async def test_agent_benchmark_smoke_region_tree_app_beats_hard_constraint(
+    monkeypatch,
+):
+    work_dir = Path("gaokaollm_bench/tests/_agent_benchmark_region_output")
+    if work_dir.exists():
+        shutil.rmtree(work_dir)
+    work_dir.mkdir(parents=True)
+
+    persona_path = work_dir / "personas.json"
+    persona_path.write_text(
+        json.dumps([build_region_persona().model_dump()], ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    def fake_build_target(name, case_id):
+        if name == "app_pareto":
+            return AppGraphTargetAgent(
+                thread_id=f"bench-{case_id}",
+                graph=FakeRegionGraph(),
+            )
+        return HardConstraintBaselineAgent(db=FakeDb())
+
+    monkeypatch.setattr(
+        "gaokaollm_bench.tests.manual.agent_benchmark_run.build_target",
+        fake_build_target,
+    )
+    monkeypatch.setattr(
+        "gaokaollm_bench.tests.manual.agent_benchmark_run.evaluate_transcript",
+        evaluate_by_region_tree,
+    )
+
+    config = RunConfig(
+        personas_path=persona_path,
+        targets=["app_pareto", "hard_constraint"],
+        max_turns=1,
+        limit=None,
+        output_dir=work_dir / "agent_benchmark",
+        judge_model="mock-judge",
+        simulator_model="mock-simulator",
+        paper_summary_path=None,
+    )
+    personas = load_personas(persona_path)
+    rows = []
+    for target_name in config.targets:
+        rows.extend(
+            await run_target_cases(
+                target_name=target_name,
+                personas=personas,
+                config=config,
+                simulator_llm=FakeSimulatorLlm(),
+                judge_llm=FakeJudgeLlm(),
+            )
+        )
+    summary = write_summary_files(config=config, personas=personas, rows=rows)
+
+    assert (
+        summary["targets"]["app_pareto"]["elicitation_success_rate"]
+        > summary["targets"]["hard_constraint"]["elicitation_success_rate"]
+    )
+    assert (
+        summary["targets"]["app_pareto"]["mean_pareto_gain"]
+        > summary["targets"]["hard_constraint"]["mean_pareto_gain"]
+    )
+    assert (
+        config.output_dir / "transcripts/app_pareto/transcript_region-case-001.json"
     ).exists()
     assert (config.output_dir / "reports/app_pareto.jsonl").exists()
     assert (config.output_dir / "summary.json").exists()

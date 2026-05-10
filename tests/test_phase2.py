@@ -1,3 +1,5 @@
+import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -9,6 +11,7 @@ from app.flows.probers import (
     probe_employment_outcome_relax,
     probe_major_geo_relax,
     probe_major_quality_relax,
+    probe_region_tree_relax,
     probe_risk_band_relax,
     probe_strength_relax,
     probe_tuition_value_relax,
@@ -310,6 +313,45 @@ class CityDb:
         ]
 
 
+class RegionTreeDb:
+    def __init__(self):
+        self.calls = []
+
+    async def __call__(self, query, *params):
+        self.calls.append((query, params))
+        if len(self.calls) == 1:
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "Hangzhou Anchor University",
+                    "school_province": "Zhejiang",
+                    "school_city": "Hangzhou City",
+                    "major_id": 10,
+                    "major_name": "Computer Science",
+                    "min_score": 580,
+                    "min_rank": 70000,
+                    "ranking": 180,
+                    "tier": 2,
+                }
+            ]
+        return [
+            {
+                "year": 2025,
+                "school_id": 2,
+                "school_name": "Ningbo Jump University",
+                "school_province": "Zhejiang",
+                "school_city": "Ningbo City",
+                "major_id": 20,
+                "major_name": "Computer Science",
+                "min_score": 596,
+                "min_rank": 52000,
+                "ranking": 80,
+                "tier": 3,
+            }
+        ]
+
+
 def test_probers_flow_has_no_llm_dependency():
     source = Path("app/flows/probers.py").read_text(encoding="utf-8")
 
@@ -365,10 +407,12 @@ async def test_baseline_respects_city_constraint():
 
     query, params = db.calls[-1]
     assert "s.province = %s" in query
-    assert "s.city = %s" in query
+    assert "s.city = ANY(%s::text[])" in query
     assert "a.major_name_raw LIKE %s" in query
     assert constraints["province"] in params
-    assert constraints["city"] in params
+    assert any(
+        isinstance(param, list) and constraints["city"] in param for param in params
+    )
     assert f"%{constraints['major']}%" in params
 
 
@@ -382,10 +426,13 @@ async def test_city_relax_drops_city_but_keeps_other_hard_filters():
     probe_query, probe_params = db.calls[-1]
     assert "s.province = %s" in probe_query
     assert "s.city = %s" not in probe_query
-    assert "s.city <> %s" in probe_query
+    assert "s.city <> ALL(%s::text[])" in probe_query
     assert "a.major_name_raw LIKE %s" in probe_query
     assert constraints["province"] in probe_params
-    assert constraints["city"] in probe_params
+    assert any(
+        isinstance(param, list) and constraints["city"] in param
+        for param in probe_params
+    )
     assert f"%{constraints['major']}%" in probe_params
     assert rows == [
         {
@@ -401,6 +448,110 @@ async def test_city_relax_drops_city_but_keeps_other_hard_filters():
             "tier": 3,
         }
     ]
+
+
+@pytest.mark.asyncio
+async def test_region_tree_relax_uses_tree_nodes_and_keeps_hard_filters():
+    db = RegionTreeDb()
+    constraints = {
+        "score": 600,
+        "province": "Zhejiang",
+        "city": "Hangzhou",
+        "major": "Computer Science",
+        "budget": 100000,
+    }
+    geo_tree = {
+        "nodes": [
+            {
+                "node_id": "geo:china",
+                "name": "China",
+                "parent_id": None,
+                "aliases": [],
+                "tree_type": "geo",
+                "mapping_rule": "manual",
+                "confidence": 1.0,
+                "review_status": "reviewed",
+                "source": "test",
+            },
+            {
+                "node_id": "geo:zhejiang",
+                "name": "Zhejiang",
+                "parent_id": "geo:china",
+                "aliases": [],
+                "tree_type": "geo",
+                "mapping_rule": "manual",
+                "confidence": 1.0,
+                "review_status": "reviewed",
+                "source": "test",
+            },
+            {
+                "node_id": "geo:hangzhou",
+                "name": "Hangzhou",
+                "parent_id": "geo:zhejiang",
+                "aliases": ["Hangzhou City"],
+                "tree_type": "geo",
+                "mapping_rule": "manual",
+                "confidence": 0.95,
+                "review_status": "reviewed",
+                "source": "test",
+            },
+            {
+                "node_id": "geo:ningbo",
+                "name": "Ningbo",
+                "parent_id": "geo:zhejiang",
+                "aliases": ["Ningbo City"],
+                "tree_type": "geo",
+                "mapping_rule": "manual",
+                "confidence": 0.95,
+                "review_status": "reviewed",
+                "source": "test",
+            },
+        ]
+    }
+    urban_tree = {
+        "nodes": [
+            {
+                "node_id": "urban:tier:new_first",
+                "name": "New First",
+                "parent_id": None,
+                "aliases": [],
+                "tree_type": "urban_tier",
+                "mapping_rule": "manual",
+                "confidence": 1.0,
+                "review_status": "reviewed",
+                "source": "test",
+            }
+        ]
+    }
+    tmp_dir = Path("tests/_tmp_region_tree")
+    try:
+        tmp_dir.mkdir(parents=True, exist_ok=True)
+        geo_path = tmp_dir / "geo.json"
+        urban_path = tmp_dir / "urban.json"
+        geo_path.write_text(json.dumps(geo_tree), encoding="utf-8")
+        urban_path.write_text(json.dumps(urban_tree), encoding="utf-8")
+
+        rows = await probe_region_tree_relax(
+            constraints,
+            db=db,
+            limit=1,
+            geo_tree_path=geo_path,
+            urban_tree_path=urban_path,
+        )
+
+        assert rows
+        probe_query, probe_params = db.calls[-1]
+        assert "s.city = ANY(%s::text[])" in probe_query
+        assert "s.city <> ALL(%s::text[])" in probe_query
+        assert "a.major_name_raw LIKE %s" in probe_query
+        assert f"%{constraints['major']}%" in probe_params
+        assert rows[0]["region_relax_strategy"] in {
+            "geo_block_relax",
+            "urban_tier_relax",
+        }
+        assert rows[0]["target_region_node_id"]
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
 @pytest.mark.asyncio

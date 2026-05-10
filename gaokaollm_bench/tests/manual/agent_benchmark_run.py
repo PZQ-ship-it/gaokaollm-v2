@@ -99,6 +99,8 @@ class DeterministicSimulatorLlm:
             has_trigger_school = _has_tuition_value_evidence(flex, agent_reply)
         elif flex.get("constraint_relaxed") == "employment_outcome":
             has_trigger_school = _has_employment_outcome_evidence(flex, agent_reply)
+        elif flex.get("constraint_relaxed") == "region_tree":
+            has_trigger_school = _has_region_tree_evidence(flex, agent_reply)
         else:
             has_trigger_school = any(
                 school in agent_reply for school in trigger_schools
@@ -149,6 +151,8 @@ class DeterministicJudgeLlm:
             success = _has_tuition_value_evidence(flex, combined)
         elif flex.get("constraint_relaxed") == "employment_outcome":
             success = _has_employment_outcome_evidence(flex, combined)
+        elif flex.get("constraint_relaxed") == "region_tree":
+            success = _has_region_tree_evidence(flex, combined)
         else:
             success = any(school in combined for school in trigger_schools) and (
                 "最低分" in combined
@@ -167,6 +171,8 @@ class DeterministicJudgeLlm:
             pareto_gain = _tuition_value_gain(flex, combined) if success else 0
         elif flex.get("constraint_relaxed") == "employment_outcome":
             pareto_gain = _employment_outcome_gain(flex, combined) if success else 0
+        elif flex.get("constraint_relaxed") == "region_tree":
+            pareto_gain = _region_tree_gain(flex, combined) if success else 0
         else:
             accepted_tier = _max_trigger_tier(flex, combined)
             pareto_gain = max(0, accepted_tier - baseline_tier) if success else 0
@@ -374,7 +380,9 @@ def render_summary_md(summary: dict[str, Any]) -> str:
             "`tuition_value_relax` is used when the persona targets small tuition-budget "
             "relaxation with value evidence; "
             "`employment_outcome_relax` is used when the persona targets employment, "
-            "industry, job, or salary evidence. "
+            "industry, job, or salary evidence; "
+            "`region_tree_relax` is used when the persona targets reviewed region-tree "
+            "geo-block or urban-tier evidence. "
             "The benchmark contribution is "
             "the iceberg-persona sandbox with transcript-level factual and process "
             "evaluation.",
@@ -648,6 +656,44 @@ def _has_employment_outcome_evidence(flex: dict[str, Any], text: str) -> bool:
     return False
 
 
+def _has_region_tree_evidence(flex: dict[str, Any], text: str) -> bool:
+    if not (
+        "min_score" in text
+        or "score_margin" in text
+        or "最低分" in text
+        or "分" in text
+    ):
+        return False
+    region_tokens = (
+        "region_tree",
+        "region_tree_relax",
+        "geo_block_relax",
+        "urban_tier_relax",
+        "region_relax_strategy",
+        "source_region",
+        "target_region",
+        "region=",
+        "confidence=",
+        "地域树",
+        "地域",
+        "城市层级",
+        "地理",
+    )
+    if not any(token in text for token in region_tokens):
+        return False
+    for row in flex.get("volunteer_set") or []:
+        if not isinstance(row, dict):
+            continue
+        school = str(row.get("school_name") or "")
+        target_region = str(row.get("target_region_name") or "")
+        strategy = str(row.get("region_relax_strategy") or "")
+        if not school or school not in text:
+            continue
+        if (target_region and target_region in text) or (strategy and strategy in text):
+            return True
+    return False
+
+
 def _strength_rank_gain(flex: dict[str, Any], text: str) -> int:
     try:
         anchor_rank = int(float(flex.get("strength_anchor_rank")))
@@ -721,6 +767,25 @@ def _employment_outcome_gain(flex: dict[str, Any], text: str) -> int:
         except (TypeError, ValueError):
             gains.append(1)
     return max(gains) if gains else 0
+
+
+def _region_tree_gain(flex: dict[str, Any], text: str) -> int:
+    baseline_tier = 0
+    try:
+        baseline_tier = int(float(flex.get("baseline_tier") or 0))
+    except (TypeError, ValueError):
+        baseline_tier = 0
+    if not baseline_tier:
+        for row in flex.get("volunteer_set") or []:
+            if not isinstance(row, dict):
+                continue
+            try:
+                baseline_tier = int(float(row.get("baseline_tier") or 0))
+                break
+            except (TypeError, ValueError):
+                pass
+    accepted_tier = _max_trigger_tier(flex, text)
+    return max(0, accepted_tier - baseline_tier)
 
 
 def _risk_portfolio_gain(flex: dict[str, Any]) -> int:
