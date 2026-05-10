@@ -180,7 +180,7 @@ gatekeeper -> radar -> negotiator
 | `major_quality_v1` | 扩展实验 | `gaokaollm_bench/sample_data/iceberg_personas_major_quality_real_db_10.json` | `gaokaollm_bench/outputs/agent_benchmark_major_quality_v1/` | 专业质量标准化证据 |
 | `employment_outcome_v1` | 扩展实验 | `gaokaollm_bench/sample_data/iceberg_personas_employment_outcome_real_db_10.json` | `gaokaollm_bench/outputs/agent_benchmark_employment_outcome_v1/` | 就业排名、行业、岗位和薪资证据 |
 
-所有实验均使用 `app_pareto` 与 `hard_constraint` 两个 target。结果产物包含 transcripts、逐例 reports、`summary.json` 和 Markdown summary。主实验另有单独逐例 evidence 附录；前三组扩展实验证据整理在 `thesis_data_agent_benchmark_extension_evidence.md`，`employment_outcome_v1` 当前引用 `agent_benchmark_employment_outcome_v1_summary.md` 与输出目录中的 transcripts/reports。
+所有实验均使用 `app_pareto` 与 `hard_constraint` 两个 target。结果产物包含 transcripts、逐例 reports、`summary.json` 和 Markdown summary。主实验另有单独逐例 evidence 附录；四组扩展实验 `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` 的逐例证据统一整理在 `thesis_data_agent_benchmark_extension_evidence.md`。
 
 ## 6. 实验结果与分析
 
@@ -217,8 +217,6 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 扩展实验逐例证据见：
 
 - `gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md`
-- `gaokaollm_bench/outputs/agent_benchmark_employment_outcome_v1_summary.md`
-- `gaokaollm_bench/outputs/agent_benchmark_employment_outcome_v1/`
 
 这些 evidence 附录把聚合指标落到每个 case 的 transcript 与候选证据上。对于成功样本，附录列出真实候选学校、专业、最低分、最低位次以及对应的放宽证据；对于 baseline，对照说明其不主动产生相应 Pareto opportunities，因此不能触发隐藏妥协。需要特别强调的是，文档可以引用 hidden persona 作为 evaluator ground truth，但 Agent 输入只来自用户显式话语和 PostgreSQL 查询结果，不读取 `implicit_flexibilities` 或 `volunteer_set`。
 
