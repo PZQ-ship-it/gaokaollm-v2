@@ -11,8 +11,32 @@
 - 逐例报告：`gaokaollm_bench/outputs/agent_benchmark_major_geo_v1/reports/hard_constraint.jsonl`
 - 对话证据：`gaokaollm_bench/outputs/agent_benchmark_major_geo_v1/transcripts/{target}/`
 - 论文母版：`gaokaollm_bench/outputs/thesis_agent_benchmark_contribution.md`
+- 方法正文：`gaokaollm_bench/outputs/thesis_method_experiment_chapters.md`
+- 层级放宽方法：`gaokaollm_bench/outputs/thesis_hierarchical_relaxation_methodology.md`
+- 图表素材：`gaokaollm_bench/outputs/thesis_figures_tables_pack.md`
 
-主实验使用 10 条真实 DB 冰山画像，目标系统为 `app_pareto` 与 `hard_constraint`，最大轮次为 3，评测模式为 offline deterministic。论文主线是双贡献：Agent 贡献为证据驱动 Pareto 谈判，关键能力是 `major_geo_relax`；Benchmark 贡献为冰山画像、多轮沙盒与事实/过程联合评价。
+主实验使用 10 条真实 DB 冰山画像，目标系统为 `app_pareto` 与 `hard_constraint`，最大轮次为 3，评测模式为 offline deterministic。本附录采用当前论文的“三贡献”口径：数据贡献是 PostgreSQL 招生事实、真实最低分/位次和专业树 `major_tree_final_reviewed.json`；Agent 贡献是基于 `major_geo_relax` 的证据驱动 Pareto 谈判；Benchmark 贡献是冰山画像、多轮沙盒与事实/过程联合评价。
+
+## 专业树层级放宽证据链
+
+`major_geo_v1` 的关键并不只是“去掉专业和省份限制”，而是把专业放宽组织成可解释、可审计的 staged relaxation。专业树 `major_tree_final_reviewed.json` 是数据贡献与 Agent 算法之间的桥梁：它把真实招生数据库中的专业文本挂载到面向志愿决策的层级放宽本体上，使 Agent 可以从“最相近专业”逐步扩展到“同父类”“相关大类/probe 邻居”，最后才退到 `any_major`。
+
+该专业树的 reviewed artifact 与 `major_tree_methodology.md` 中统计保持一致：共 82 个节点、8 个 Level 0 大类、22 个 Level 1 节点、52 个叶子簇，叶子簇覆盖 19,096 条 observed names。这说明专业树不是只依赖静态专业目录，而是吸收了 PostgreSQL 录取事实中的真实专业名变体。
+
+构建流程采用 human-in-the-loop 的混合标注路线：
+
+```text
+人工本体骨架
+  -> PostgreSQL admission_scores.major_name_raw 扫描
+  -> include/exclude 规则挂载
+  -> probe top-k 候选生成
+  -> LLM/人工审校低置信样本
+  -> reviewed tree 与审计产物
+```
+
+在 `major_geo_relax` 中，这条数据链具体落到以下 staged relaxation 路径：同叶子/近邻专业 -> 同父类 -> 相关大类/probe 邻居 -> `any_major`。因此，逐例 transcript 中的 Stage 字段不仅是候选来源说明，也是论文中评估“放宽是否到达足够远阶段”的过程证据。
+
+需要强调的是，persona 中的 `implicit_flexibilities` 与 `volunteer_set` 只作为 evaluator 的隐藏真值使用；被测 Agent 只能看到用户显式话语和 PostgreSQL/专业树查询结果，不能读取这些 hidden fields。
 
 ## 聚合指标核对表
 
@@ -135,7 +159,7 @@
 - `app_pareto` 实际提出的是 stage 4“大类兜底”候选，如石河子大学预防医学、南京中医药大学护理学、成都中医药大学康复治疗学、青海大学药学和青海大学护理学。
 - 两组候选在学校层面和学校-专业二元组层面均没有交集，因此 deterministic judge 判定“未观察到命中隐藏妥协条件的学校和分数证据”。
 
-这个失败样本说明当前 `app_pareto` 虽然具备联合专业+地域放宽能力，但在部分 case 中会优先停留在更近的专业大类放宽阶段，没有退到隐藏 persona 所要求的 `any_major` 证据集合。论文中应将 `0.900` 写作当前闭环结果，而不是 100% 成功。
+这个失败样本说明当前 `app_pareto` 虽然具备联合专业+地域放宽能力，但 staged relaxation 的阶段选择本身仍是可评估对象：在部分 case 中，Agent 会优先停留在更近的专业大类放宽阶段，没有退到隐藏 persona 所要求的 `any_major` 证据集合。论文中应将 `0.900` 写作当前闭环结果，而不是 100% 成功。
 
 ## Baseline 对照说明
 
@@ -145,4 +169,4 @@
 
 ## 论文可引用结论
 
-在 10 个真实 PostgreSQL 数据库生成的冰山画像样本上，`app_pareto` 相比 `hard_constraint` 明显提升了多轮偏好妥协效果：`elicitation_success_rate` 从 0.000 提升到 0.900，`mean_pareto_gain` 从 0.000 提升到 0.900，同时两者 `mean_hallucination_rate` 均为 0.000。逐例 transcript 显示，该提升主要来自 `major_geo_relax`：Agent 在不读取 hidden persona 的情况下，仅基于用户显式约束和真实 DB 查询结果，给出跨省且放宽专业后的学校、专业、最低分证据，从而触发用户模拟器接受隐藏志愿集合。唯一失败样本 `real-db-set-浙江-569-009` 表明，当前 Agent 在专业放宽阶段选择上仍可能停留在较近的大类兜底，未命中 persona 要求的任意专业志愿集合，这是后续优化的主要方向。
+在 10 个真实 PostgreSQL 数据库生成的冰山画像样本上，`app_pareto` 相比 `hard_constraint` 明显提升了多轮偏好妥协效果：`elicitation_success_rate` 从 0.000 提升到 0.900，`mean_pareto_gain` 从 0.000 提升到 0.900，同时两者 `mean_hallucination_rate` 均为 0.000。逐例 transcript 显示，该提升来自数据、Agent 与 Benchmark 三层闭环：数据层提供真实最低分/位次和 `major_tree_final_reviewed.json` 的层级放宽本体，Agent 在不读取 hidden persona 的情况下，仅基于用户显式约束和真实 DB 查询结果触发 `major_geo_relax`，Benchmark 则通过冰山画像和 deterministic judge 判断是否命中隐藏妥协集合。唯一失败样本 `real-db-set-浙江-569-009` 表明，当前 Agent 在 staged relaxation 阶段选择上仍可能停留在较近的大类兜底，未命中 persona 要求的任意专业志愿集合，这是后续优化的主要方向。
