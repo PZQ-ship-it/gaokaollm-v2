@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0",
+  "updated_date": "2026-05-11",
+  "purpose": "Single source of high-frequency thesis claims for the data + Agent + Benchmark storyline.",
+  "contribution_structure": {
+    "primary_frame": "数据 + Agent + Benchmark",
+    "data_contribution": [
+      "PostgreSQL 招生快照",
+      "分数/位次/批次线/招生计划/学费事实",
+      "major_tree_final_reviewed.json",
+      "school_major_quality_profiles",
+      "major_employment_outcome_profiles",
+      "region_geo_tree_reviewed_v1.json",
+      "region_urban_tier_tree_reviewed_v1.json"
+    ],
+    "agent_contribution": {
+      "mas_positioning": "基于角色分工的轻量 MAS/多角色 Agent 工作流，不是完全自治多智能体系统。",
+      "workflow": "gatekeeper -> radar -> negotiator",
+      "roles": {
+        "gatekeeper": "抽取用户显式约束并形成 hard-constraint baseline。",
+        "radar": "调用确定性 probe/SQL 查询，探测 Pareto opportunities。",
+        "negotiator": "组织真实证据并生成可审计的谈判回复。"
+      }
+    },
+    "benchmark_contribution": [
+      "冰山画像",
+      "多轮沙盒",
+      "事实/过程联合评价",
+      "app_pareto vs hard_constraint"
+    ]
+  },
+  "global_boundaries": {
+    "hidden_persona_boundary": "Agent 不读取 implicit_flexibilities 或 volunteer_set；这些字段只作为 evaluator ground truth。",
+    "main_experiments": [
+      "major_geo_v1",
+      "risk_band_v1"
+    ],
+    "extension_experiments": [
+      "school_strength_v1",
+      "tuition_value_v1",
+      "major_quality_v1",
+      "employment_outcome_v1",
+      "region_tree_v1"
+    ],
+    "region_tree_boundary": "region_tree_v1 是扩展实验。城市层级只作为 reviewed region-tree 证据，不直接等价于就业机会、生活成本或生活质量收益；pareto_gain 仍按学校 tier/ranking 改善计算。",
+    "major_geo_failure_case": "real-db-set-浙江-569-009 是 major_geo_v1 的失败样本，不能把 0.900 写成 100%。"
+  },
+  "metrics_order": [
+    "elicitation_success_rate",
+    "mean_pareto_gain",
+    "mean_hallucination_rate",
+    "avg_turns"
+  ],
+  "experiments": {
+    "major_geo_v1": {
+      "role": "main",
+      "relaxation": "major_geo_relax",
+      "app_pareto": "0.900 / 0.900 / 0.000 / 5.20",
+      "hard_constraint": "0.000 / 0.000 / 0.000 / 7.00",
+      "output_dir": "gaokaollm_bench/outputs/agent_benchmark_major_geo_v1/",
+      "summary": "gaokaollm_bench/outputs/agent_benchmark_major_geo_v1_summary.md",
+      "evidence": "gaokaollm_bench/outputs/agent_benchmark_major_geo_v1_evidence.md",
+      "note": "专业树层级放宽 + 跨省/跨专业联合探测；10 case 中 app 9 成功、1 失败。"
+    },
+    "risk_band_v1": {
+      "role": "main",
+      "relaxation": "risk_band_relax",
+      "app_pareto": "1.000 / 3.000 / 0.000 / 5.00",
+      "hard_constraint": "0.000 / 0.000 / 0.000 / 15.00",
+      "output_dir": "gaokaollm_bench/outputs/agent_benchmark_risk_band_v1/",
+      "summary": "gaokaollm_bench/outputs/agent_benchmark_risk_band_v1_summary.md",
+      "evidence": "gaokaollm_bench/outputs/agent_benchmark_risk_band_v1_evidence.md",
+      "note": "从显性只求稳到 chong/wen/bao 冲稳保组合。"
+    },
+    "school_strength_v1": {
+      "role": "extension",
+      "relaxation": "strength_relax",
+      "app_pareto": "1.000 / 15.000 / 0.000 / 5.00",
+      "hard_constraint": "0.000 / 0.000 / 0.000 / 11.00",
+      "output_dir": "gaokaollm_bench/outputs/agent_benchmark_school_strength_v1/",
+      "summary": "gaokaollm_bench/outputs/agent_benchmark_school_strength_v1_summary.md",
+      "evidence": "gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md",
+      "note": "较粗粒度学校/学科实力证据接入闭环。"
+    },
+    "tuition_value_v1": {
+      "role": "extension",
+      "relaxation": "tuition_value_relax",
+      "app_pareto": "1.000 / 1.000 / 0.000 / 5.00",
+      "hard_constraint": "0.000 / 0.000 / 0.000 / 11.00",
+      "output_dir": "gaokaollm_bench/outputs/agent_benchmark_tuition_value_v1/",
+      "summary": "gaokaollm_bench/outputs/agent_benchmark_tuition_value_v1_summary.md",
+      "evidence": "gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md",
+      "note": "admission_plans.tuition 支撑预算性价比放宽。"
+    },
+    "major_quality_v1": {
+      "role": "extension",
+      "relaxation": "major_quality_relax",
+      "app_pareto": "1.000 / 16.000 / 0.000 / 5.00",
+      "hard_constraint": "0.000 / 0.000 / 0.050 / 11.00",
+      "output_dir": "gaokaollm_bench/outputs/agent_benchmark_major_quality_v1/",
+      "summary": "gaokaollm_bench/outputs/agent_benchmark_major_quality_v1_summary.md",
+      "evidence": "gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md",
+      "note": "school_major_quality_profiles 支撑专业级质量证据。"
+    },
+    "employment_outcome_v1": {
+      "role": "extension",
+      "relaxation": "employment_outcome_relax",
+      "app_pareto": "1.000 / 49.000 / 0.000 / 3.00",
+      "hard_constraint": "0.000 / 0.000 / 0.000 / 11.00",
+      "output_dir": "gaokaollm_bench/outputs/agent_benchmark_employment_outcome_v1/",
+      "summary": "gaokaollm_bench/outputs/agent_benchmark_employment_outcome_v1_summary.md",
+      "evidence": "gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md",
+      "note": "major_employment_outcome_profiles 支撑就业结果证据。"
+    },
+    "region_tree_v1": {
+      "role": "extension",
+      "relaxation": "region_tree_relax",
+      "app_pareto": "1.000 / 1.000 / 0.000 / 3.00",
+      "hard_constraint": "0.000 / 0.000 / 0.000 / 11.00",
+      "output_dir": "gaokaollm_bench/outputs/agent_benchmark_region_tree_v1/",
+      "summary": "gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_summary.md",
+      "evidence": "gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md",
+      "note": "reviewed 地域树接入 geo_block_relax / urban_tier_relax。"
+    }
+  },
+  "document_sets": {
+    "thesis_body_masters": [
+      "gaokaollm_bench/outputs/thesis_intro_related_work_chapters.md",
+      "gaokaollm_bench/outputs/thesis_v1_prototype_chapter.md",
+      "gaokaollm_bench/outputs/thesis_method_experiment_chapters.md",
+      "gaokaollm_bench/outputs/thesis_conclusion_future_work_chapter.md"
+    ],
+    "positioning_and_architecture": [
+      "gaokaollm_bench/outputs/thesis_agent_benchmark_contribution.md",
+      "gaokaollm_bench/outputs/thesis_v1_v2_integration_plan.md",
+      "gaokaollm_bench/outputs/thesis_system_architecture_algorithms.md",
+      "gaokaollm_bench/outputs/thesis_figures_tables_pack.md",
+      "gaokaollm_bench/放宽与跃迁.md",
+      "gaokaollm_bench/outputs/dynamic_decision_considerations_roadmap.md"
+    ],
+    "methodology": [
+      "gaokaollm_bench/outputs/benchmark_methodology.md",
+      "gaokaollm_bench/outputs/major_tree_methodology.md",
+      "gaokaollm_bench/outputs/thesis_hierarchical_relaxation_methodology.md"
+    ],
+    "evidence": [
+      "gaokaollm_bench/outputs/agent_benchmark_major_geo_v1_evidence.md",
+      "gaokaollm_bench/outputs/agent_benchmark_risk_band_v1_evidence.md",
+      "gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md",
+      "gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md"
+    ],
+    "historical_or_data_quality_reports": [
+      "gaokaollm_bench/outputs/region_tree_coverage_report.md",
+      "gaokaollm_bench/outputs/region_tree_v1_coverage_report.md",
+      "gaokaollm_bench/outputs/thesis_artifact_audit.md"
+    ]
+  }
+}
