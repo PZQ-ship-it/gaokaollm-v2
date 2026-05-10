@@ -1,18 +1,18 @@
 # 系统架构与算法设计正文母版
 
-本文档用于支撑毕业论文中“系统架构与算法设计”章节。其作用是把项目中已经完成的数据层、轻量 MAS/多角色 Agent、Benchmark 评测层和六组实验结果集中组织起来，形成可直接迁入论文正文的架构说明。
+本文档用于支撑毕业论文中“系统架构与算法设计”章节。其作用是把项目中已经完成的数据层、轻量 MAS/多角色 Agent、Benchmark 评测层和七组实验结果集中组织起来，形成可直接迁入论文正文的架构说明。
 
 本文不新增实验结论，不替代已有逐例证据附录和 summary 结果。当前论文主贡献采用“数据 + Agent + Benchmark”三贡献结构：数据层提供可核验事实证据，Agent 层执行证据驱动 Pareto 谈判，Benchmark 层用冰山画像和多轮沙盒验证效果。
 
 ## 1. 总体系统架构
 
-本系统面向高考志愿咨询中的多轮偏好妥协任务。与普通问答系统不同，系统不只生成建议文本，而是在真实招生数据约束下发现可谈判空间，并用学校、专业、最低分、最低位次、学费、专业质量和就业结果等证据支持用户重新考虑约束。
+本系统面向高考志愿咨询中的多轮偏好妥协任务。与普通问答系统不同，系统不只生成建议文本，而是在真实招生数据约束下发现可谈判空间，并用学校、专业、最低分、最低位次、学费、专业质量、就业结果和地域树节点等证据支持用户重新考虑约束。
 
 总体架构可以分为四层：
 
 | 层次 | 核心模块 | 主要职责 | 论文贡献对应 |
 | --- | --- | --- | --- |
-| 数据层 | PostgreSQL 招生快照、专业树、专业质量标准化层、就业结果标准化层 | 提供录取事实、风险、成本、质量和就业证据 | 数据贡献 |
+| 数据层 | PostgreSQL 招生快照、专业树、专业质量标准化层、就业结果标准化层、地域树 reviewed v1 | 提供录取事实、风险、成本、质量、就业和地域树证据 | 数据贡献 |
 | MAS/多角色 Agent 层 | `gatekeeper -> radar -> negotiator` | 抽取显式约束、探测 Pareto 机会、组织谈判回复 | Agent 贡献 |
 | Benchmark 评测层 | 冰山画像、simulator、target agent、evaluator | 生成隐藏妥协需求，运行多轮对话，评价事实与过程 | Benchmark 贡献 |
 | 论文产物层 | summary、reports、transcripts、evidence 附录 | 保存聚合结果、逐例证据和可复现材料 | 结果支撑 |
@@ -68,6 +68,12 @@ PostgreSQL 招生快照提供高考志愿推荐的基础事实约束，主要包
 
 该设计避免把“就业好”写成不可验证的口号，而是要求 Agent 给出结构化就业证据。
 
+### 2.4 地域树 reviewed v1
+
+地域放宽不能只依赖 `schools.city` 字段直接宣称“城市更好”。系统因此引入两份 reviewed 地域树数据资产：`region_geo_tree_reviewed_v1.json` 与 `region_urban_tier_tree_reviewed_v1.json`。前者用于地理板块、相邻省市和“别太远”等偏好，后者用于城市层级、城市资源和“想去好城市”等偏好。
+
+地域树节点保留源节点、目标节点、映射规则、置信度和审校状态。它们只提供可审计的地域树证据，不直接等价于就业机会、生活成本或城市生活质量收益。`region_tree_v1` 的 Pareto gain 仍按学校 tier/ranking 改善计算。
+
 ## 3. 轻量 MAS/多角色 Agent 架构
 
 本文中的 MAS 采用谨慎口径：它不是完全自治的多智能体群体，而是一个基于角色分工的轻量 MAS/多角色 Agent 工作流。其核心是 `gatekeeper -> radar -> negotiator`。
@@ -75,10 +81,10 @@ PostgreSQL 招生快照提供高考志愿推荐的基础事实约束，主要包
 | 角色 | 定位 | 输入 | 输出 |
 | --- | --- | --- | --- |
 | `gatekeeper` | 约束抽取与 baseline agent | 用户显式话语 | 分数、省份、专业、选科、预算、风险偏好等显式约束，以及硬约束 baseline |
-| `radar` | 机会探测 agent | 显式约束与 baseline 结果 | 多类 Pareto opportunities，如 `major_geo_relax`、`risk_band_relax` 等 |
+| `radar` | 机会探测 agent | 显式约束与 baseline 结果 | 多类 Pareto opportunities，如 `major_geo_relax`、`risk_band_relax`、`region_tree_relax` 等 |
 | `negotiator` | 证据组织与谈判 agent | baseline、opportunities、候选证据 | 面向用户的妥协建议与可审计内部状态 |
 
-`gatekeeper` 首先将自然语言转化为结构化约束，并得到“完全迎合显性红线”的 baseline。`radar` 在不读取隐藏 persona 的前提下调用 SQL probe，寻找如果放宽某个可谈判偏好会出现的收益。`negotiator` 将候选的最低分、最低位次、学费、质量和就业证据组织成可解释回复。
+`gatekeeper` 首先将自然语言转化为结构化约束，并得到“完全迎合显性红线”的 baseline。`radar` 在不读取隐藏 persona 的前提下调用 SQL probe，寻找如果放宽某个可谈判偏好会出现的收益。`region_tree_relax` 属于 `radar` 的地域树机会探测能力，内部包含 `geo_block_relax` 与 `urban_tier_relax` 两个子策略。`negotiator` 将候选的最低分、最低位次、学费、质量、就业和地域树证据组织成可解释回复。
 
 Benchmark 侧的 simulator 与 evaluator 也具有 agent-like role，但它们不属于被测业务 Agent 的内部能力。论文中应明确区分：simulator 负责扮演用户，evaluator 负责评价 transcript；`app_pareto` 的内部多角色结构只包括业务侧的 `gatekeeper -> radar -> negotiator`。
 
@@ -155,7 +161,13 @@ budget < tuition <= budget + 10000
 
 该算法说明系统的数据证据可以从录取事实、成本和专业质量继续扩展到就业结果。但论文中仍应把它定位为扩展实验，不替代主实验。
 
-### 5.7 `strength_relax`
+### 5.7 `region_tree_relax`
+
+`region_tree_relax` 使用 `region_geo_tree_reviewed_v1.json` 与 `region_urban_tier_tree_reviewed_v1.json`。算法保留分数、专业、选科、预算等硬约束，只放宽用户显式表达中的地域偏好，例如“只看杭州/浙江”“别太远”“想去好城市”。其中 `geo_block_relax` 按地理板块或相邻地域节点扩展候选，`urban_tier_relax` 按 reviewed 城市层级节点扩展候选。
+
+候选必须同时返回学校、省份、城市、专业、最低分、最低位次、学校 tier/ranking、源地域节点、目标地域节点、放宽策略和树置信度。城市层级只作为 reviewed region-tree 证据，不直接代表就业机会、生活成本或生活质量收益；`region_tree_v1` 的 Pareto gain 仍按学校 tier/ranking 改善计算。
+
+### 5.8 `strength_relax`
 
 `strength_relax` 是较粗粒度的学校或学科实力放宽实验。它在专业质量标准化层完全形成之前提供了“实力证据可驱动妥协”的过渡结果。最终论文可将其作为扩展实验，用于说明从学校级实力到专业级质量证据的演进。
 
@@ -171,8 +183,9 @@ budget < tuition <= budget + 10000
 | `tuition_value_v1` | 扩展实验 | `tuition_value_relax` | `admission_plans.tuition`、学费增量、最低分 | `1.000 / 1.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | 证明成本约束可被小幅放宽并形成性价比谈判 |
 | `major_quality_v1` | 扩展实验 | `major_quality_relax` | `school_major_quality_profiles`、`quality_score`、专业质量证据 | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | 证明专业级质量标准化层可支撑更细粒度妥协 |
 | `employment_outcome_v1` | 扩展实验 | `employment_outcome_relax` | `major_employment_outcome_profiles`、`outcome_score`、就业证据 | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 证明就业结果证据可扩展到 Agent+Benchmark 闭环 |
+| `region_tree_v1` | 扩展实验 | `region_tree_relax` | `region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json`、地域树节点 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 证明 reviewed 地域树可扩展到同一闭环 |
 
-其中 `major_geo_v1 + risk_band_v1` 是当前论文第一版主实验。`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` 是扩展实验，用于证明数据贡献和 Agent 框架的可扩展性。
+其中 `major_geo_v1 + risk_band_v1` 是当前论文第一版主实验。`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 是扩展实验，用于证明数据贡献和 Agent 框架的可扩展性。
 
 `major_geo_v1` 不是 100% 成功，失败样本为 `real-db-set-浙江-569-009`。论文中应保留该失败样本，避免把 `0.900` 写成完全成功。
 
@@ -185,9 +198,9 @@ budget < tuition <= budget + 10000
 | 系统总体架构图 | 数据层 -> MAS/多角色 Agent 层 -> Benchmark 层 -> 论文产物层 |
 | 多角色 Agent 工作流图 | `gatekeeper -> radar -> negotiator` 的输入输出关系 |
 | Benchmark 流程图 | persona -> simulator -> target agent -> transcript -> evaluator -> summary |
-| 算法-数据-实验映射表 | 六组实验如何对应不同数据证据维度与 Pareto 放宽算法 |
+| 算法-数据-实验映射表 | 七组实验如何对应不同数据证据维度与 Pareto 放宽算法 |
 
-章节安排上，可将数据层与 Benchmark 构建放入第 4 章，将 MAS/多角色 Agent 与关键算法放入第 5 章，将六组实验映射和结果分析放入第 6 章。
+章节安排上，可将数据层与 Benchmark 构建放入第 4 章，将 MAS/多角色 Agent 与关键算法放入第 5 章，将七组实验映射和结果分析放入第 6 章。
 
 ## 8. 边界与写作注意
 
@@ -195,7 +208,7 @@ budget < tuition <= budget + 10000
 
 第二，Agent 不读取 `implicit_flexibilities` 或 `volunteer_set`。这些字段只用于 Benchmark 评价，不进入业务 Agent 输入。
 
-第三，主实验与扩展实验要分层书写。`major_geo_v1 + risk_band_v1` 证明核心偏好妥协能力，四组扩展实验证明数据证据维度可扩展。
+第三，主实验与扩展实验要分层书写。`major_geo_v1 + risk_band_v1` 证明核心偏好妥协能力，五组扩展实验证明数据证据维度可扩展。
 
 第四，城市生活质量、家庭距离、校园文化、个人兴趣匹配等因素目前缺少稳定可核验的 PostgreSQL 证据，不应写成已实现 Pareto 放宽能力。它们可以作为后续工作，前提是先建立可审计的数据标准化层。
 
