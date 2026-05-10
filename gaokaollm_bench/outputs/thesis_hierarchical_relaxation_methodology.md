@@ -258,6 +258,9 @@ Evaluator 可见：
 | `gaokaollm_bench/outputs/region_urban_tier_tree.json` | 记录一线、新一线、强省会、普通省会/重要地级市等城市层级 | 是人工/规则 v0 标注，需要继续审校，不等同于完整城市收益指标 |
 | `gaokaollm_bench/outputs/region_tree_coverage_report.json` | 机器可读覆盖报告 | 记录 DB 城市、省份挂载和 review queue |
 | `gaokaollm_bench/outputs/region_tree_coverage_report.md` | 论文/开发可读覆盖报告 | 说明未匹配、低置信和人工审校建议 |
+| `gaokaollm_bench/outputs/region_tree_review_packet.csv/jsonl` | HITL 审校包 | 给人工补充 geo/urban 挂载、置信度和 reviewer note |
+| `gaokaollm_bench/outputs/region_geo_tree_reviewed_v1.json` / `region_urban_tier_tree_reviewed_v1.json` | v1 reviewed seed | 由高优先级 review packet 回填得到，仍需继续人工确认 |
+| `gaokaollm_bench/outputs/region_tree_v1_coverage_report.md/json` | v0/v1 覆盖对比报告 | 验证数据层覆盖提升，不表示 `region_tree_relax` 已实现 |
 
 覆盖检查脚本只读取 PostgreSQL `schools.province` / `schools.city`，不启动 LLM，也不重跑 benchmark。当前报告摘要如下：
 
@@ -275,13 +278,15 @@ Evaluator 可见：
 
 这些数字的含义是：地理树已经能通过省份或少量城市节点覆盖大部分学校所在地，但城市层级树仍然需要更充分的人工审校和证据补充。尤其是 `review_queue_count = 404` 说明地域树不能直接进入 Agent+Benchmark 闭环；它需要先完成低置信城市、歧义城市和未挂载城市的 HITL 审校。
 
+当前已进一步生成 v1 HITL seed：审校包包含 404 条 review queue，规则优先回填 50 条高优先级样本，v1 报告中 `review_queue_count` 从 404 降到 353，`urban_city_pair_mapped_count` 从 72 提升到 123。该流程证明地域树可以沿着“v0 自动挂载 -> HITL 审校包 -> v1 reviewed artifact -> 覆盖对比报告”的路线推进，但 v1 seed 仍不是最终人工审校完成，也不是地域放宽实验结果。
+
 ## 9. 地域树未来闭环路线
 
 地域树可以作为后续数据 + Agent + Benchmark 扩展实验，但需要分阶段完成。
 
 | 阶段 | 目标 | 产物 |
 | --- | --- | --- |
-| 数据层 | 基于 v0 artifact 继续 HITL 审校，形成 reviewed 地域树和城市层级证据 | 已有 `region_geo_tree.json`、`region_urban_tier_tree.json`、`region_tree_coverage_report.md/json`；后续形成 reviewed v1 |
+| 数据层 | 基于 v0 artifact 继续 HITL 审校，形成 reviewed 地域树和城市层级证据 | 已有 v0 树、review packet、reviewed v1 seed 和 v0/v1 覆盖对比报告；后续继续人工确认 |
 | Agent 层 | 新增 `region_tree_relax` | 候选包含学校、省份、城市、地理阶段、城市层级、最低分/位次和收益说明 |
 | Benchmark 层 | 生成地域冰山画像 | 显性不想离家远，隐藏可接受相邻板块或更高城市层级 |
 | Judge 层 | 检查地域证据 | 必须命中隐藏志愿、分数证据和地域树证据 |
@@ -329,6 +334,7 @@ iceberg_personas_region_tree_real_db_10.json
 - `major_tree_final_reviewed.json` 与 `major_geo_relax` 是已完成能力。
 - `region_geo_tree` 与 `region_urban_tier_tree` 是 v0 数据 artifact，不是当前已完成 Agent/Benchmark 实验。
 - `region_tree_coverage_report.md/json` 只证明地域树覆盖情况和 review queue，不证明地域放宽已经产生 Pareto gain。
+- `region_tree_review_packet.csv/jsonl` 与 reviewed v1 树只证明 HITL 数据层可回填，不证明地域树已被 Agent 使用。
 - 当前 PostgreSQL 有 `province` / `city` 字段，但没有完整城市繁华程度、生活成本、就业机会等证据层。
 - 地域树不能只凭 `schools.city` 包装成已实现 Pareto gain。
 - Agent 不读取 `implicit_flexibilities` 或 `volunteer_set`。

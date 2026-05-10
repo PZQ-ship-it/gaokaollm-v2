@@ -1,0 +1,973 @@
+{
+  "version": "v1",
+  "description": "Reviewed v1 seed from region_tree_review_packet; not an Agent/Benchmark result.",
+  "nodes": [
+    {
+      "node_id": "urban:root",
+      "name": "城市发展层级",
+      "parent_id": null,
+      "aliases": [
+        "城市层级",
+        "城市资源层级"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_root",
+      "confidence": 1.0,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:tier:first",
+      "name": "一线城市",
+      "parent_id": "urban:root",
+      "aliases": [
+        "一线",
+        "一线城市资源"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_urban_tier",
+      "confidence": 0.9,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:tier:new_first",
+      "name": "新一线城市",
+      "parent_id": "urban:root",
+      "aliases": [
+        "新一线",
+        "强新一线"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_urban_tier",
+      "confidence": 0.85,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:tier:strong_capital",
+      "name": "强省会或区域中心",
+      "parent_id": "urban:root",
+      "aliases": [
+        "强省会",
+        "区域中心城市",
+        "强经济城市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_urban_tier",
+      "confidence": 0.8,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:tier:ordinary_capital",
+      "name": "普通省会或重要地级市",
+      "parent_id": "urban:root",
+      "aliases": [
+        "普通省会",
+        "重要地级市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_urban_tier",
+      "confidence": 0.75,
+      "review_status": "needs_review",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:tier:prefecture",
+      "name": "普通地级市或低线城市",
+      "parent_id": "urban:root",
+      "aliases": [
+        "普通地级市",
+        "低线城市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_urban_tier",
+      "confidence": 0.7,
+      "review_status": "needs_review",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:beijing",
+      "name": "北京",
+      "parent_id": "urban:tier:first",
+      "aliases": [
+        "北京市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.95,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:shanghai",
+      "name": "上海",
+      "parent_id": "urban:tier:first",
+      "aliases": [
+        "上海市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.95,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:guangzhou",
+      "name": "广州",
+      "parent_id": "urban:tier:first",
+      "aliases": [
+        "广州市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.95,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:shenzhen",
+      "name": "深圳",
+      "parent_id": "urban:tier:first",
+      "aliases": [
+        "深圳市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.95,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:hangzhou",
+      "name": "杭州",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "杭州市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.9,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:chengdu",
+      "name": "成都",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "成都市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.9,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:nanjing",
+      "name": "南京",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "南京市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.9,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:wuhan",
+      "name": "武汉",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "武汉市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.9,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:tianjin",
+      "name": "天津",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "天津市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.85,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:chongqing",
+      "name": "重庆",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "重庆市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.85,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:suzhou",
+      "name": "苏州",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "苏州市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.85,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:ningbo",
+      "name": "宁波",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "宁波市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.8,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:hefei",
+      "name": "合肥",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "合肥市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.8,
+      "review_status": "reviewed",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:city:wenzhou",
+      "name": "温州",
+      "parent_id": "urban:tier:ordinary_capital",
+      "aliases": [
+        "温州市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "manual_city_tier",
+      "confidence": 0.75,
+      "review_status": "needs_review",
+      "source": "manual_v0"
+    },
+    {
+      "node_id": "urban:reviewed:86bc47e76d",
+      "name": "呼和浩特市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "呼和浩特市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 1; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:86f7c048e0",
+      "name": "香港",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "香港"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 2; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:9c966c75e2",
+      "name": "包头市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "包头市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 3; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:6d5e2ea2fd",
+      "name": "澳门",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "澳门"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 4; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:9d45d654f4",
+      "name": "赤峰市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "赤峰市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 5; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:9a7a59dfe7",
+      "name": "鄂尔多斯市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "鄂尔多斯市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 6; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:6991d8a67d",
+      "name": "拉萨市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "拉萨市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 7; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:56f4d806db",
+      "name": "呼伦贝尔市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "呼伦贝尔市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 8; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:3221229f27",
+      "name": "乌兰察布市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "乌兰察布市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 9; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:686f6852d9",
+      "name": "通辽市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "通辽市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 10; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:ce994ad981",
+      "name": "巴彦淖尔市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "巴彦淖尔市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 11; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:c93ddeefda",
+      "name": "乌海市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "乌海市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 12; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:8fc20f343e",
+      "name": "兴安盟",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "兴安盟"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 13; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:f319f82a9a",
+      "name": "呼伦贝尔市满洲里市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "呼伦贝尔市满洲里市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 14; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:f30b835886",
+      "name": "锡林郭勒盟",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "锡林郭勒盟"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 15; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:d049236f9c",
+      "name": "阿拉善盟",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "阿拉善盟"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 16; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:728e8c9503",
+      "name": "林芝市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "林芝市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 18; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:42388133b2",
+      "name": "西安市",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "西安市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 20; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:0b5e7719d9",
+      "name": "郑州市",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "郑州市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 21; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:eb229352f9",
+      "name": "南昌市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "南昌市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 22; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:1e8a7abf40",
+      "name": "长沙市",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "长沙市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 23; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:e68324568a",
+      "name": "哈尔滨市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "哈尔滨市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 24; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:6750913c8f",
+      "name": "昆明市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "昆明市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 25; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:e3ebf8a859",
+      "name": "石家庄",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "石家庄"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 26; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:449c848081",
+      "name": "太原市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "太原市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 27; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:06d8747910",
+      "name": "长春市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "长春市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 28; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:7fd7c98541",
+      "name": "沈阳市",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "沈阳市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 29; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:9c7ebb0d42",
+      "name": "贵阳市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "贵阳市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 30; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:1c68e17b69",
+      "name": "济南市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "济南市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 31; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:2b9d166cb7",
+      "name": "南宁市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "南宁市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 32; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:fed9c946f3",
+      "name": "兰州市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "兰州市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 33; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:17e3d8d6b2",
+      "name": "福州市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "福州市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 34; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:1d21bf3b47",
+      "name": "大连市",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "大连市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 35; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:810ef37044",
+      "name": "青岛市",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "青岛市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 36; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:35367f7b15",
+      "name": "乌鲁木齐市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "乌鲁木齐市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 37; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:361574c292",
+      "name": "烟台市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "烟台市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 38; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:0047c4f731",
+      "name": "桂林市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "桂林市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 39; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:4e9e48c9d6",
+      "name": "泉州市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "泉州市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 40; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:c311afba24",
+      "name": "保定市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "保定市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 41; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:c9c060080f",
+      "name": "银川市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "银川市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 42; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:75bfe4645e",
+      "name": "潍坊市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "潍坊市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 43; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:0e2edb1a41",
+      "name": "湘潭市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "湘潭市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 44; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:5d49725c87",
+      "name": "厦门市",
+      "parent_id": "urban:tier:new_first",
+      "aliases": [
+        "厦门市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 45; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:43836e50ef",
+      "name": "廊坊市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "廊坊市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 46; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:ee61dea5ad",
+      "name": "徐州",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "徐州"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 47; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:ad5d1f56be",
+      "name": "无锡",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "无锡"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 48; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:bd4790178f",
+      "name": "绵阳市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "绵阳市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 49; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:d4b471606e",
+      "name": "唐山市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "唐山市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 50; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:052d574591",
+      "name": "海口市",
+      "parent_id": "urban:tier:strong_capital",
+      "aliases": [
+        "海口市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 51; requires later human confirmation."
+    },
+    {
+      "node_id": "urban:reviewed:a9f318aec9",
+      "name": "芜湖市",
+      "parent_id": "urban:tier:prefecture",
+      "aliases": [
+        "芜湖市"
+      ],
+      "tree_type": "urban_tier",
+      "mapping_rule": "rule_seed_v1_urban_tier_attachment",
+      "confidence": 0.82,
+      "review_status": "reviewed",
+      "source": "region_tree_review_packet_v1",
+      "reviewer_note": "Rule-seeded v1 review for high-priority coverage row 52; requires later human confirmation."
+    }
+  ]
+}
