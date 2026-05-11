@@ -8,9 +8,11 @@ For graduation-thesis work, start here:
 - `thesis_claims_manifest.json`: machine-readable source of high-frequency thesis claims.
 - `thesis_term_mapping.json`: terminology source for replacing implementation names with thesis terms.
 - `thesis_full_draft_v1.md`: continuous dissertation draft assembled from chapter masters, figures, metrics, and evidence.
-- `thesis_diagrams_with_diagrams.md`: Diagrams-based figure rendering guide.
+- `thesis_diagrams_with_diagrams.md`: hand-authored SVG/PNG figure rendering guide; Diagrams is historical context only.
+- `thesis_figure_visual_acceptance.md`: PDF-page visual acceptance report for the current thesis figures.
 - `thesis_mas_architecture_acceptance.md`: acceptance note for the v1 semantic-normalization and v2 LLM-guided planning integration.
 - `thesis_figures/`: generated SVG/PNG figure assets for dissertation and PPT use.
+- `thesis_figures_pdf_snapshots/`: rendered PDF pages for quick figure-layout review.
 
 Current thesis framing:
 
@@ -26,7 +28,7 @@ Current thesis framing:
 | --- | --- | --- |
 | Thesis body drafts | `thesis_full_draft_v1.md`, `thesis_intro_related_work_chapters.md`, `thesis_method_experiment_chapters.md`, `thesis_conclusion_future_work_chapter.md` | Continuous draft and chapter-level text that can be migrated into the dissertation. |
 | Contribution and roadmap | `thesis_agent_benchmark_contribution.md`, `dynamic_decision_considerations_roadmap.md`, `thesis_v1_v2_integration_plan.md` | High-level positioning and maintenance of the data + Agent + Benchmark storyline. |
-| Architecture and figures | `thesis_system_architecture_algorithms.md`, `thesis_figures_tables_pack.md`, `thesis_diagrams_with_diagrams.md`, `thesis_figures/` | MAS architecture, algorithms, generated SVG/PNG figures, Mermaid drafts, tables, and pseudocode. |
+| Architecture and figures | `thesis_system_architecture_algorithms.md`, `thesis_figures_tables_pack.md`, `thesis_diagrams_with_diagrams.md`, `thesis_figure_visual_acceptance.md`, `thesis_figures/`, `thesis_figures_pdf_snapshots/` | MAS architecture, algorithms, generated SVG/PNG figures, PDF visual acceptance snapshots, Mermaid drafts, tables, and pseudocode. |
 | Methodology | `benchmark_methodology.md`, `major_tree_methodology.md`, `thesis_hierarchical_relaxation_methodology.md` | Benchmark, major-tree, and hierarchical-relaxation methodology. |
 | Summaries | `agent_benchmark_*_summary.md` | Aggregate experiment results, plus `agent_benchmark_multi_axis_v1_summary.md` and `agent_benchmark_multi_axis_v2_summary.md` for multi-axis pressure tests. |
 | Evidence appendices | `agent_benchmark_*_evidence.md`, `thesis_data_agent_benchmark_extension_evidence.md` | Per-case transcript evidence and baseline comparisons, including `agent_benchmark_multi_axis_v1_evidence.md` and `agent_benchmark_multi_axis_v2_evidence.md` for pressure tests. |

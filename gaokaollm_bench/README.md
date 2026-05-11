@@ -31,7 +31,8 @@ Start from:
 - `outputs/thesis_method_experiment_chapters.md`: method and experiment chapter draft.
 - `outputs/thesis_system_architecture_algorithms.md`: system architecture and algorithm draft.
 - `outputs/thesis_figures_tables_pack.md`: figures, tables, and pseudocode pack.
-- `outputs/thesis_diagrams_with_diagrams.md`: Diagrams rendering guide for thesis figures.
+- `outputs/thesis_diagrams_with_diagrams.md`: current hand-authored SVG/PNG rendering guide for thesis figures; Diagrams is retained as historical context.
+- `outputs/thesis_figure_visual_acceptance.md`: PDF-page visual acceptance report for thesis figures.
 - `outputs/thesis_figures/`: generated SVG/PNG figures for dissertation and PPT use.
 - `outputs/thesis_mas_architecture_acceptance.md`: acceptance note for semantic normalization and LLM-guided opportunity planning.
 

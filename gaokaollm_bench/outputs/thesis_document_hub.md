@@ -75,12 +75,14 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 | `thesis_v1_v2_integration_plan.md` | v1/v2 论文组织方案 | 修改 v1 定位或 v2 主线时同步 |
 | `thesis_system_architecture_algorithms.md` | MAS、系统架构和算法设计正文母版 | 修改 Agent 架构或算法清单时同步 |
 | `thesis_figures_tables_pack.md` | 图、表、伪代码和答辩素材包 | 修改实验数量、图表标题或算法映射时同步 |
-| `thesis_diagrams_with_diagrams.md` | Diagrams 作图说明与渲染命令 | 修改论文图像生成方式或图号时同步 |
+| `thesis_diagrams_with_diagrams.md` | 手工 SVG/PNG 论文框图生成说明与渲染命令 | 修改论文图像生成方式或图号时同步 |
+| `thesis_figure_visual_acceptance.md` | 当前论文插图在 PDF 中的视觉验收报告 | 重绘插图、替换图号或调整 LaTeX 图位置后同步 |
 | `thesis_figures/` | 当前可迁入论文/PPT 的 SVG/PNG 图像资产 | 重新渲染图像或替换正式插图时同步 |
+| `thesis_figures_pdf_snapshots/` | LaTeX PDF 页面快照 | 检查图像是否裁切、重叠或与正文口径不一致 |
 | `dynamic_decision_considerations_roadmap.md` | 动态决策路线图 | 修改后续开发优先级和能力矩阵时同步 |
 | `gaokaollm_bench/放宽与跃迁.md` | 动态放宽与 Pareto 跃迁总览 | 修改放宽能力清单和实验总览时同步 |
 
-说明：`thesis_figures_tables_pack.md` 中的 Mermaid 图保留为概念草稿和可编辑结构说明；当前正式写论文或做答辩 PPT 时，优先使用 `thesis_figures/` 中由 Diagrams 生成的 SVG/PNG。
+说明：`thesis_figures_tables_pack.md` 中的 Mermaid 图保留为概念草稿和可编辑结构说明；当前正式写论文或做答辩 PPT 时，优先使用 `thesis_figures/` 中由手工 SVG/PNG 论文框图生成器生成的图像资产。Diagrams 仅作为早期探索和概念草稿来源保留。
 
 ### 3.3 方法论与数据层说明
 
@@ -114,7 +116,7 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 | 新增或删除实验 | `thesis_claims_manifest.json`、本 hub | 方法实验正文、贡献母版、路线图、放宽总览、系统架构、图表包、总结章 |
 | 修改实验指标 | `thesis_claims_manifest.json`、对应 summary/evidence | 结果表所在正文母版和 PPT/图表素材 |
 | 修改 MAS 表述 | 本 hub、系统架构算法母版、术语映射 | 方法正文、贡献母版、绪论、图表包 |
-| 修改图像资产或图号 | `thesis_diagrams_with_diagrams.md`、`thesis_figures/` | 图表包、最终成稿装配清单、README 入口 |
+| 修改图像资产或图号 | `thesis_diagrams_with_diagrams.md`、`thesis_figures/`、`thesis_figure_visual_acceptance.md` | 图表包、最终成稿装配清单、README 入口 |
 | 修改 hidden persona 边界 | `thesis_claims_manifest.json`、本 hub | 方法正文、证据附录、Benchmark 方法学 |
 | 修改地域树边界 | 本 hub、术语映射、层级放宽方法论 | 放宽总览、路线图、系统架构、region evidence |
 | 修改 v1/v2 关系 | v1/v2 整合方案 | 第 3 章、绪论、总结章 |
@@ -123,7 +125,7 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 ## 5. 使用建议
 
 1. 写论文正文时，先查 `thesis_full_draft_v1.md`；需要展开局部章节时，再查 `thesis_method_experiment_chapters.md` 和 `thesis_system_architecture_algorithms.md`。
-2. 写摘要、创新点、答辩 PPT 时，先查 `thesis_agent_benchmark_contribution.md`、`thesis_figures_tables_pack.md`、`thesis_diagrams_with_diagrams.md` 和 `thesis_figures/`。
+2. 写摘要、创新点、答辩 PPT 时，先查 `thesis_agent_benchmark_contribution.md`、`thesis_figures_tables_pack.md`、`thesis_diagrams_with_diagrams.md`、`thesis_figure_visual_acceptance.md` 和 `thesis_figures/`。
 3. 查逐例证据时，按主实验 evidence、扩展 evidence、region evidence 三类入口进入。
 4. 做全局口径变更时，先更新 `thesis_claims_manifest.json`、`thesis_term_mapping.json` 与本 hub，再按第 4 节同步相关母版。
 5. coverage report、artifact audit 等历史报告只用于追溯，不建议为了当前论文口径反复改写。
