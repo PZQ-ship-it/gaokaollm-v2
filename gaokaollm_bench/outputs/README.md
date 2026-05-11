@@ -9,12 +9,13 @@ For graduation-thesis work, start here:
 - `thesis_term_mapping.json`: terminology source for replacing implementation names with thesis terms.
 - `thesis_full_draft_v1.md`: continuous dissertation draft assembled from chapter masters, figures, metrics, and evidence.
 - `thesis_diagrams_with_diagrams.md`: Diagrams-based figure rendering guide.
+- `thesis_mas_architecture_acceptance.md`: acceptance note for the v1 semantic-normalization and v2 LLM-guided planning integration.
 - `thesis_figures/`: generated SVG/PNG figure assets for dissertation and PPT use.
 
 Current thesis framing:
 
 - Contribution structure: 数据 + Agent + Benchmark.
-- Agent architecture: lightweight MAS / multi-role Agent, `gatekeeper -> radar -> negotiator`.
+- Agent architecture: lightweight MAS / multi-role Agent, `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`.
 - Main experiments: `major_geo_v1 + risk_band_v1`.
 - Extension experiments: `school_strength_v1`, `tuition_value_v1`, `major_quality_v1`, `employment_outcome_v1`, `region_tree_v1`.
 - Benchmark pressure tests: `multi_axis_v1` is the historical 30-persona two-axis test; `multi_axis_v2` is the coherent-axis revision. They are not part of the seven-experiment thesis table and do not replace the main experiments.
@@ -38,3 +39,5 @@ When an experiment metric or thesis claim changes, update `thesis_claims_manifes
 Coverage reports and the thesis audit are historical or data-quality materials. Do not treat them as the current source of thesis claims unless a new audit pass is explicitly requested.
 
 When revising thesis prose, use `thesis_term_mapping.json` before editing chapter drafts. Engineering identifiers such as experiment ids, output paths, and internal fields should stay in result tables, appendices, or reproducibility notes, not in the main thesis narrative.
+
+Implementation trace: `semantic_normalizer -> gatekeeper -> llm-guided radar planner -> deterministic probes -> negotiator`. LLM 不生成学校、专业、分数、位次等事实候选，只输出 `probe_plan`、`opportunity_rankings` 和 `clarification_hint`；Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`。

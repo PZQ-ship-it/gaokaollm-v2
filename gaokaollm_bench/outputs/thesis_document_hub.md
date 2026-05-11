@@ -18,6 +18,15 @@
 
 机器可读事实源：`gaokaollm_bench/outputs/thesis_claims_manifest.json`。术语事实源：`gaokaollm_bench/outputs/thesis_term_mapping.json`。
 
+### 1.1 当前 MAS 架构事实
+
+当前业务 Agent 的论文主叙述为：`前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`。实现层可追溯为 `semantic_normalizer -> gatekeeper -> llm-guided radar planner -> deterministic probes -> negotiator`。
+
+前置语义归一层继承 v1 查询重写能力，只对用户显式话语做语义归一、偏好轴拆解和歧义提示。LLM 引导的机会规划器只输出 `probe_plan`、`opportunity_rankings` 和 `clarification_hint`；确定性证据探针仍是学校、专业、分数、位次等事实候选的唯一来源。证据谈判器负责把候选证据组织为可审计的 Pareto 谈判回复。
+
+LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`。验收说明见 `thesis_mas_architecture_acceptance.md`。
+
+
 ## 2. 七组实验事实表
 
 斜杠格式依次为：`elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turns`。
@@ -118,3 +127,5 @@
 3. 查逐例证据时，按主实验 evidence、扩展 evidence、region evidence 三类入口进入。
 4. 做全局口径变更时，先更新 `thesis_claims_manifest.json`、`thesis_term_mapping.json` 与本 hub，再按第 4 节同步相关母版。
 5. coverage report、artifact audit 等历史报告只用于追溯，不建议为了当前论文口径反复改写。
+
+- `thesis_mas_architecture_acceptance.md`: ? MAS ???????

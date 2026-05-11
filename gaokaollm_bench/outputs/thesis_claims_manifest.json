@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_date": "2026-05-11",
+  "updated_date": "2026-05-12",
   "purpose": "Single source of high-frequency thesis claims for the data + Agent + Benchmark storyline.",
   "contribution_structure": {
     "primary_frame": "数据 + Agent + Benchmark",
@@ -14,13 +14,17 @@
       "region_urban_tier_tree_reviewed_v1.json"
     ],
     "agent_contribution": {
-      "mas_positioning": "基于角色分工的轻量 MAS/多角色 Agent 工作流，不是完全自治多智能体系统。",
-      "workflow": "gatekeeper -> radar -> negotiator",
-      "roles": {
-        "gatekeeper": "抽取用户显式约束并形成 hard-constraint baseline。",
-        "radar": "调用确定性 probe/SQL 查询，探测 Pareto opportunities。",
-        "negotiator": "组织真实证据并生成可审计的谈判回复。"
-      }
+      "mas_positioning": "基于角色分工的轻量 MAS/多角色 Agent 工作流；业务 Agent 由前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器协作完成，不夸大为完全自治多智能体系统。",
+      "workflow": "semantic_normalizer -> gatekeeper -> llm-guided radar planner -> deterministic probes -> negotiator",
+      "thesis_expression": "前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器",
+      "implementation_roles": {
+        "semantic_normalizer": "前置语义归一层：继承 v1 查询重写能力，只对用户显式话语做语义归一、偏好轴拆解、歧义提示和查询压缩。",
+        "gatekeeper": "约束解析器：抽取用户显式约束并形成 hard-constraint baseline。",
+        "radar_planner": "LLM 引导的机会规划器：输出 probe_plan、opportunity_rankings、clarification_hint，不生成事实候选。",
+        "deterministic_probes": "确定性证据探针：通过 PostgreSQL 与标准化证据层产生可审计候选，是事实候选唯一来源。",
+        "negotiator": "证据谈判器：组织真实证据并生成可审计的 Pareto 谈判回复。"
+      },
+      "llm_boundary": "LLM 只参与语义归一、机会排序、证据编排和澄清策略；不直接编造候选学校、专业、分数或位次。"
     },
     "benchmark_contribution": [
       "冰山画像",
@@ -30,7 +34,7 @@
     ]
   },
   "global_boundaries": {
-    "hidden_persona_boundary": "Agent 不读取 implicit_flexibilities 或 volunteer_set；这些字段只作为 evaluator ground truth。",
+    "hidden_persona_boundary": "Agent 不读取 implicit_flexibilities、volunteer_set 或 axis_flexibilities；这些字段只作为 simulator/evaluator ground truth。",
     "main_experiments": [
       "major_geo_v1",
       "risk_band_v1"
@@ -43,7 +47,8 @@
       "region_tree_v1"
     ],
     "region_tree_boundary": "region_tree_v1 ?????????????????????????????????????????????????pareto_gain ???? tier/ranking ?????",
-    "major_geo_failure_case": "real-db-set-浙江-569-009 是 major_geo_v1 的失败样本，不能把 0.900 写成 100%。"
+    "major_geo_failure_case": "real-db-set-浙江-569-009 是 major_geo_v1 的失败样本，不能把 0.900 写成 100%。",
+    "llm_fact_boundary": "LLM 不生成事实候选；事实候选只能来自确定性 SQL probes、PostgreSQL 招生事实与标准化证据层。"
   },
   "metrics_order": [
     "elicitation_success_rate",
@@ -140,7 +145,8 @@
       "gaokaollm_bench/outputs/thesis_diagrams_with_diagrams.md",
       "gaokaollm_bench/outputs/thesis_figures/",
       "gaokaollm_bench/放宽与跃迁.md",
-      "gaokaollm_bench/outputs/dynamic_decision_considerations_roadmap.md"
+      "gaokaollm_bench/outputs/dynamic_decision_considerations_roadmap.md",
+      "gaokaollm_bench/outputs/thesis_mas_architecture_acceptance.md"
     ],
     "methodology": [
       "gaokaollm_bench/outputs/benchmark_methodology.md",

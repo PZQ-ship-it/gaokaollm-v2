@@ -66,7 +66,10 @@
 Agent 贡献方面，本文设计轻量 MAS / 多角色 Agent 工作流：
 
 ```text
-gatekeeper -> radar -> negotiator
+??????? -> ????? -> LLM 
+> MAS ????????? Agent ??????????????????前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器?????????? `semantic_normalizer -> gatekeeper -> llm-guided radar planner -> deterministic probes -> negotiator`?LLM 不生成学校、专业、分数、位次等事实候选，只输出 `probe_plan`、`opportunity_rankings` 和 `clarification_hint`；Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`。
+
+???????? -> ??????? -> ?????
 ```
 
 其中 `gatekeeper` 负责抽取显式约束并形成 hard-constraint baseline，`radar` 调用确定性 probe / SQL 查询探测 Pareto opportunities，`negotiator` 组织真实证据并生成可审计谈判回复。
@@ -139,7 +142,7 @@ v2 并不是推翻 v1，而是将 v1 的工程能力收敛到可评测的研究�
 | --- | --- | --- |
 | 系统目标 | 能回答、能检索、能推荐 | 能评测、能审计、能触发偏好妥协 |
 | 数据基础 | RAG 知识与用户画像 | PostgreSQL 招生事实 + 标准化证据层 |
-| Agent 形态 | Agentic RAG 工作流 | `gatekeeper -> radar -> negotiator` 轻量 MAS |
+| Agent 形态 | Agentic RAG 工作流 | `??????? -> ????? -> LLM ???????? -> ??????? -> ?????` 轻量 MAS |
 | 风险推荐 | `1:3:9` 冲稳保工程策略 | `risk_band_relax` 可评测升级 |
 | 评测方式 | 工程调试与中期报告 | 冰山画像、多轮沙盒、事实/过程联合评价 |
 
@@ -183,7 +186,7 @@ Benchmark 输入为冰山 persona，其中显性画像用于 simulator 生成用
 
 ### 4.6 Target Agents
 
-本文主要比较 `app_pareto` 与 `hard_constraint`。`hard_constraint` baseline 只按用户显式约束返回结果，不主动提出放宽谈判。`app_pareto` 则通过 `gatekeeper -> radar -> negotiator` 探测并组织证据，尝试触发 hidden flexibility。
+本文主要比较 `app_pareto` 与 `hard_constraint`。`hard_constraint` baseline 只按用户显式约束返回结果，不主动提出放宽谈判。`app_pareto` 则通过 `??????? -> ????? -> LLM ???????? -> ??????? -> ?????` 探测并组织证据，尝试触发 hidden flexibility。
 
 ## 第 5 章 证据驱动 Pareto 谈判 Agent 设计
 
@@ -206,7 +209,7 @@ Input: user utterances, explicit constraints, PostgreSQL evidence tables
 3. For each supported relaxation type, run deterministic probe.
 4. Filter candidates by hard constraints and factual evidence.
 5. Rank candidates by Pareto gain and evidence quality.
-6. Return opportunities to negotiator.
+6. Return planned opportunities and evidence to negotiator.
 Output: evidence-backed negotiation response and internal_state.pareto_opportunities
 ```
 
@@ -285,7 +288,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 本文从 v1 Agentic RAG 工程原型出发，最终形成了 v2 的数据 + Agent + Benchmark 三贡献闭环。v1 证明了高考志愿咨询可以通过 Agentic RAG、状态机、用户画像、混合检索和流式响应实现工程可用；v2 则进一步将问题收敛为可评测、可审计、可逐例追溯的偏好妥协任务。
 
-数据贡献方面，本文不仅使用 PostgreSQL 招生事实，还构建了专业树、专业质量、就业结果和地域树等标准化证据层。Agent 贡献方面，本文采用 `gatekeeper -> radar -> negotiator` 轻量 MAS / 多角色 Agent 结构，实现证据驱动 Pareto 谈判。Benchmark 贡献方面，本文通过冰山画像、多轮沙盒、事实/过程联合评价和 Agent-vs-Baseline 对照，使“触发隐藏妥协”成为可复现实验对象。
+数据贡献方面，本文不仅使用 PostgreSQL 招生事实，还构建了专业树、专业质量、就业结果和地域树等标准化证据层。Agent 贡献方面，本文采用 `??????? -> ????? -> LLM ???????? -> ??????? -> ?????` 轻量 MAS / 多角色 Agent 结构，实现证据驱动 Pareto 谈判。Benchmark 贡献方面，本文通过冰山画像、多轮沙盒、事实/过程联合评价和 Agent-vs-Baseline 对照，使“触发隐藏妥协”成为可复现实验对象。
 
 ### 7.2 主要结论
 

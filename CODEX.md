@@ -45,21 +45,30 @@
 
 ## Agent / MAS 口径
 
-论文中使用“轻量 MAS / 多角色 Agent”表述业务 Agent 架构：
+论文中使用“轻量 MAS / 多角色 Agent”表述业务 Agent 架构。当前正文主叙述应采用：
 
 ```text
-gatekeeper -> radar -> negotiator
+前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器
+```
+
+实现层可追溯到：
+
+```text
+semantic_normalizer -> gatekeeper -> llm-guided radar planner -> deterministic probes -> negotiator
 ```
 
 推荐写法：
+- 前置语义归一层：继承 v1 查询重写能力，只规范化用户显式话语，做偏好轴拆解、歧义提示和查询压缩。
+- 约束解析器：抽取用户显式约束并形成 hard-constraint baseline。
+- LLM 引导的机会规划器：判断先探测哪些可谈判偏好轴、先解释哪些证据、是否需要澄清。
+- 确定性证据探针：通过 PostgreSQL / 标准化证据层产生候选，是事实候选唯一来源。
+- 证据谈判器：组织真实证据并生成可审计的 Pareto 谈判回复。
 
-- `gatekeeper`：抽取用户显式约束并形成 hard-constraint baseline。
-- `radar`：调用确定性 probe / SQL 查询，探测 Pareto opportunities。
-- `negotiator`：组织真实证据并生成可审计的谈判回复。
+LLM 不生成学校、专业、分数、位次等事实候选，只输出 `probe_plan`、`opportunity_rankings` 和 `clarification_hint`；Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`。
 
 不要把它夸大为完全自治多智能体系统。simulator 和 evaluator 属于 benchmark 侧 agent-like role，不写成被测业务 Agent 的内部能力。
 
-## Hidden Persona 边界
+## Hidden Persona ?? 边界
 
 被测 Agent 不读取 benchmark persona 的 hidden fields：
 

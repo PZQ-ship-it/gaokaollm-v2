@@ -7,7 +7,7 @@
 | 贡献线 | 核心对象 | 论文表达重点 |
 | --- | --- | --- |
 | 数据贡献 | PostgreSQL 招生快照、专业树、`school_major_quality_profiles`、`major_employment_outcome_profiles`、`region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json` | 把分数、位次、学费、专业质量、就业结果和地域树节点转成可核验事实证据 |
-| Agent 贡献 | `gatekeeper -> radar -> negotiator` 轻量 MAS/多角色 Agent | 用证据驱动 Pareto 谈判触发隐藏偏好妥协 |
+| Agent 贡献 | `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器` 轻量 MAS/多角色 Agent | 用证据驱动 Pareto 谈判触发隐藏偏好妥协 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` | 用可复现实验验证 Agent 是否优于硬约束 baseline |
 
 本文图表默认遵守两条边界：第一，`major_geo_v1 + risk_band_v1` 是主实验；第二，`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 是扩展实验，用于支撑数据贡献和框架可扩展性。
@@ -30,7 +30,7 @@
 | 编号 | 图表名称 | 建议放置章节 | 作用 |
 | --- | --- | --- | --- |
 | 图 4-1 | 数据 + Agent + Benchmark 总体架构图 | 第 4 章或第 5 章开头 | 展示数据层、Agent 层、Benchmark 层和论文产物层之间的关系 |
-| 图 5-1 | 轻量 MAS/多角色 Agent 工作流图 | 第 5 章 Agent 方法 | 解释 `gatekeeper -> radar -> negotiator` 的角色分工 |
+| 图 5-1 | 轻量 MAS/多角色 Agent 工作流图 | 第 5 章 Agent 方法 | 解释 `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器` 的角色分工 |
 | 图 4-2 | Benchmark 多轮评测流程图 | 第 4 章 Benchmark 方法 | 说明冰山画像、simulator、target agent、evaluator 和产物的闭环 |
 | 图 4-3 | 数据证据层与 relax 能力映射图 | 第 4 章数据层设计 | 说明招生事实、学费、专业质量、就业结果、地域树如何支撑各类 Pareto 机会 |
 | 表 6-1 | 七组实验结果总表 | 第 6 章实验结果 | 汇总主实验与扩展实验的核心指标 |
@@ -84,7 +84,7 @@ flowchart TD
 | 层次 | 图中节点 | 可写入论文的解释 |
 | --- | --- | --- |
 | 数据层 | PostgreSQL、专业树、专业质量、就业结果、地域树 reviewed v1 | 提供可查询、可审计的事实证据，不依赖模型臆测 |
-| Agent 层 | `gatekeeper -> radar -> negotiator` | 通过角色分工完成约束抽取、机会探测和证据谈判 |
+| Agent 层 | `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器` | 通过角色分工完成约束抽取、机会探测和证据谈判 |
 | Benchmark 层 | persona、simulator、target agent、evaluator | 用冰山画像和多轮沙盒评测是否触发隐藏妥协 |
 | 产物层 | summary、reports、transcripts | 支撑论文结果复现和逐例追溯 |
 
@@ -95,15 +95,17 @@ flowchart LR
     IN["用户显式话语"] --> GK["gatekeeper"]
     GK --> C["结构化显式约束"]
     GK --> B["hard-constraint baseline"]
-    C --> RD["radar"]
+    C --> RD["LLM ???????"]
     B --> RD
-    RD --> O1["major_geo_relax"]
+    RD --> PLAN["probe_plan / opportunity_rankings"]
+    PLAN --> PROBE["???????"]
+    PROBE --> O1["major_geo_relax"]
     RD --> O2["risk_band_relax"]
     RD --> O3["tuition_value_relax"]
     RD --> O4["major_quality_relax"]
     RD --> O5["employment_outcome_relax"]
     RD --> O6["region_tree_relax"]
-    O1 --> NG["negotiator"]
+    O1 --> NG["?????"]
     O2 --> NG
     O3 --> NG
     O4 --> NG
@@ -224,17 +226,19 @@ Output:
   internal_state
 
 Steps:
-  1. gatekeeper extracts explicit constraints from user_utterances.
-  2. gatekeeper queries hard-constraint baseline under explicit constraints.
-  3. radar enumerates supported_relax_types.
+  1. semantic_normalizer normalizes explicit user utterances and extracts intent axes.
+  2. gatekeeper extracts hard constraints from original and normalized input.
+  3. gatekeeper queries hard-constraint baseline under explicit constraints.
+  4. LLM-guided radar planner ranks supported_relax_types and emits clarification hints.
+  5. deterministic probes run SQL/evidence queries for selected relax types.
   4. for each relax_type:
        a. keep hard constraints such as score, selected_subjects and eligibility.
        b. relax only the target negotiable preference.
        c. query PostgreSQL evidence tables.
        d. filter candidates by factual validity and quality rules.
        e. rank candidates by Pareto gain and evidence strength.
-  5. negotiator compares baseline with Pareto opportunities.
-  6. negotiator produces a reply grounded in candidate evidence.
+  6. negotiator compares baseline with Pareto opportunities.
+  7. negotiator produces a reply grounded in candidate evidence.
   7. return reply and internal_state with constraints, baseline, opportunities and recommended_schools.
 ```
 

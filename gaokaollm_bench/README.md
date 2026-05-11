@@ -21,7 +21,7 @@ Business code should depend on `chains`, `flows`, and `llm` abstractions, not di
 ## Thesis / 论文材料
 
 Graduation-thesis materials live under `outputs/`. The current thesis framing is
-数据 + Agent + Benchmark, with a lightweight MAS / multi-role Agent architecture:
+数据 + Agent + Benchmark, with a lightweight MAS / multi-role Agent architecture: lightweight MAS / multi-role Agent, `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`.
 `gatekeeper -> radar -> negotiator`.
 
 Start from:
@@ -33,3 +33,11 @@ Start from:
 - `outputs/thesis_figures_tables_pack.md`: figures, tables, and pseudocode pack.
 - `outputs/thesis_diagrams_with_diagrams.md`: Diagrams rendering guide for thesis figures.
 - `outputs/thesis_figures/`: generated SVG/PNG figures for dissertation and PPT use.
+- `outputs/thesis_mas_architecture_acceptance.md`: acceptance note for semantic normalization and LLM-guided opportunity planning.
+
+
+Graduation-thesis materials live under `outputs/`. The current thesis framing is
+?? + Agent + Benchmark, with a lightweight MAS / multi-role Agent architecture: lightweight MAS / multi-role Agent, `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`.
+`??????? -> ????? -> LLM ???????? -> ??????? -> ?????`.
+
+Implementation roles remain traceable as `semantic_normalizer -> gatekeeper -> llm-guided radar planner -> deterministic probes -> negotiator`; LLM planning never generates factual candidates.
