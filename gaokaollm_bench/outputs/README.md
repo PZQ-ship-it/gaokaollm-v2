@@ -6,6 +6,7 @@ For graduation-thesis work, start here:
 
 - `thesis_document_hub.md`: human-readable entrypoint and maintenance index.
 - `thesis_claims_manifest.json`: machine-readable source of high-frequency thesis claims.
+- `thesis_term_mapping.json`: terminology source for replacing implementation names with thesis terms.
 - `thesis_full_draft_v1.md`: continuous dissertation draft assembled from chapter masters, figures, metrics, and evidence.
 - `thesis_diagrams_with_diagrams.md`: Diagrams-based figure rendering guide.
 - `thesis_figures/`: generated SVG/PNG figure assets for dissertation and PPT use.
@@ -35,3 +36,5 @@ Current thesis framing:
 When an experiment metric or thesis claim changes, update `thesis_claims_manifest.json` and `thesis_document_hub.md` first, then follow the hub's synchronization checklist.
 
 Coverage reports and the thesis audit are historical or data-quality materials. Do not treat them as the current source of thesis claims unless a new audit pass is explicitly requested.
+
+When revising thesis prose, use `thesis_term_mapping.json` before editing chapter drafts. Engineering identifiers such as experiment ids, output paths, and internal fields should stay in result tables, appendices, or reproducibility notes, not in the main thesis narrative.

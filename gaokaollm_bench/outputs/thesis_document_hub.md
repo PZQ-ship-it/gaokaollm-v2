@@ -7,16 +7,16 @@
 | 项目 | 当前口径 |
 | --- | --- |
 | 论文贡献结构 | 数据贡献 + Agent 贡献 + Benchmark 贡献 |
-| 数据贡献 | PostgreSQL 招生快照、专业树、学费字段、专业质量标准化层、就业结果标准化层、地域树 reviewed v1 |
+| 数据贡献 | PostgreSQL 招生快照、专业树、学费字段、专业质量标准化层、就业结果标准化层、经人工审校的地域层级画像 |
 | Agent 贡献 | `gatekeeper -> radar -> negotiator` 轻量 MAS/多角色 Agent，执行证据驱动 Pareto 谈判 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` |
 | 主实验 | `major_geo_v1 + risk_band_v1` |
 | 扩展实验 | `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` |
 | Hidden persona 边界 | Agent 不读取 `implicit_flexibilities` 或 `volunteer_set`；这些字段只作为 evaluator ground truth |
 | MAS 边界 | 本文采用基于角色分工的轻量 MAS/多角色 Agent，不写成完全自治多智能体系统 |
-| 地域树边界 | `region_tree_v1` 是扩展实验；城市层级只作为 reviewed region-tree 证据，不直接等价于就业机会、生活成本或生活质量收益 |
+| 地域树边界 | `region_tree_v1` 是扩展实验；城市层级只作为 经人工审校的地域层级证据，不直接等价于就业机会、生活成本或生活质量收益 |
 
-机器可读事实源：`gaokaollm_bench/outputs/thesis_claims_manifest.json`。
+机器可读事实源：`gaokaollm_bench/outputs/thesis_claims_manifest.json`。术语事实源：`gaokaollm_bench/outputs/thesis_term_mapping.json`。
 
 ## 2. 七组实验事实表
 
@@ -41,6 +41,7 @@
 | 文档 | 角色 | 维护建议 |
 | --- | --- | --- |
 | `thesis_full_draft_v1.md` | 第 1-7 章连续正文总稿 | 修改章节装配、图表占位或最终成稿主线时优先同步 |
+| `thesis_term_mapping.json` | 正文术语与工程标识映射 | 修改术语、实验 id 展示方式或去工程化规则时优先同步 |
 | `thesis_intro_related_work_chapters.md` | 第 1-2 章绪论与相关技术正文母版 | 修改贡献结构或实验总览时同步 |
 | `thesis_v1_prototype_chapter.md` | 第 3 章 v1 原型与问题诊断正文母版 | 修改 v1/v2 关系时同步 |
 | `thesis_method_experiment_chapters.md` | 方法与实验章节主文母版 | 修改数据层、Agent 算法、实验指标时优先同步 |
@@ -92,10 +93,10 @@
 | --- | --- | --- |
 | 新增或删除实验 | `thesis_claims_manifest.json`、本 hub | 方法实验正文、贡献母版、路线图、放宽总览、系统架构、图表包、总结章 |
 | 修改实验指标 | `thesis_claims_manifest.json`、对应 summary/evidence | 结果表所在正文母版和 PPT/图表素材 |
-| 修改 MAS 表述 | 本 hub、系统架构算法母版 | 方法正文、贡献母版、绪论、图表包 |
+| 修改 MAS 表述 | 本 hub、系统架构算法母版、术语映射 | 方法正文、贡献母版、绪论、图表包 |
 | 修改图像资产或图号 | `thesis_diagrams_with_diagrams.md`、`thesis_figures/` | 图表包、最终成稿装配清单、README 入口 |
 | 修改 hidden persona 边界 | `thesis_claims_manifest.json`、本 hub | 方法正文、证据附录、Benchmark 方法学 |
-| 修改地域树边界 | 本 hub、层级放宽方法论 | 放宽总览、路线图、系统架构、region evidence |
+| 修改地域树边界 | 本 hub、术语映射、层级放宽方法论 | 放宽总览、路线图、系统架构、region evidence |
 | 修改 v1/v2 关系 | v1/v2 整合方案 | 第 3 章、绪论、总结章 |
 | 修改后续工作 | 路线图、总结章 | 绪论和放宽总览中的展望段落 |
 
@@ -104,5 +105,5 @@
 1. 写论文正文时，先查 `thesis_full_draft_v1.md`；需要展开局部章节时，再查 `thesis_method_experiment_chapters.md` 和 `thesis_system_architecture_algorithms.md`。
 2. 写摘要、创新点、答辩 PPT 时，先查 `thesis_agent_benchmark_contribution.md`、`thesis_figures_tables_pack.md`、`thesis_diagrams_with_diagrams.md` 和 `thesis_figures/`。
 3. 查逐例证据时，按主实验 evidence、扩展 evidence、region evidence 三类入口进入。
-4. 做全局口径变更时，先更新 `thesis_claims_manifest.json` 与本 hub，再按第 4 节同步相关母版。
+4. 做全局口径变更时，先更新 `thesis_claims_manifest.json`、`thesis_term_mapping.json` 与本 hub，再按第 4 节同步相关母版。
 5. coverage report、artifact audit 等历史报告只用于追溯，不建议为了当前论文口径反复改写。

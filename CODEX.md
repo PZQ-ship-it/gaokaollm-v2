@@ -12,7 +12,7 @@
 
 其中：
 
-- 数据贡献：PostgreSQL 招生快照、专业树、学费字段、专业质量标准化层、就业结果标准化层、地域树 reviewed v1。
+- 数据贡献：PostgreSQL 招生快照、专业树、学费字段、专业质量标准化层、就业结果标准化层、经人工审校的地域层级画像。
 - Agent 贡献：证据驱动 Pareto 谈判 Agent。
 - Benchmark 贡献：冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint`。
 
@@ -22,8 +22,9 @@
 
 - `gaokaollm_bench/outputs/thesis_document_hub.md`
 - `gaokaollm_bench/outputs/thesis_claims_manifest.json`
+- `gaokaollm_bench/outputs/thesis_term_mapping.json`
 
-若论文口径、实验指标、MAS 表述或地域树边界需要调整，应先更新这两个入口，再按 hub 中的同步清单更新相关正文母版、贡献母版、路线图、图表包和 evidence。
+若论文口径、实验指标、MAS 表述、术语映射或地域树边界需要调整，应先更新这些入口，再按 hub 中的同步清单更新相关正文母版、贡献母版、路线图、图表包和 evidence。
 
 ## 当前实验口径
 
@@ -72,7 +73,7 @@ gatekeeper -> radar -> negotiator
 开发、数据补充或实验完成后，论文文档更新采用“一次性长更新”的方式：
 
 - 先判断本次变更影响哪些事实、指标、术语和章节。
-- 先更新 `thesis_claims_manifest.json` 与 `thesis_document_hub.md`。
+- 先更新 `thesis_claims_manifest.json`、`thesis_document_hub.md` 与 `thesis_term_mapping.json`。
 - 再按 hub 同步所有受影响文档。
 - 避免每发现一个文档就单独开一轮短更新。
 
@@ -95,9 +96,10 @@ gatekeeper -> radar -> negotiator
 1. 读 `CODEX.md`。
 2. 读 `gaokaollm_bench/outputs/thesis_document_hub.md`。
 3. 读 `gaokaollm_bench/outputs/thesis_claims_manifest.json`。
-4. 如果是代码开发，再读相关模块 README 和实现文件。
-5. 如果是论文维护，先定位受影响文档集合，再做一次性长更新。
-6. 最后做只读关键词和指标一致性检查。
+4. 读 `gaokaollm_bench/outputs/thesis_term_mapping.json`，确认正文术语和工程标识的边界。
+5. 如果是代码开发，再读相关模块 README 和实现文件。
+6. 如果是论文维护，先定位受影响文档集合，再做一次性长更新。
+7. 最后做只读关键词、术语映射和指标一致性检查。
 
 ## 边界
 

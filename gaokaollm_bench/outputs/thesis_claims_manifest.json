@@ -42,7 +42,7 @@
       "employment_outcome_v1",
       "region_tree_v1"
     ],
-    "region_tree_boundary": "region_tree_v1 是扩展实验。城市层级只作为 reviewed region-tree 证据，不直接等价于就业机会、生活成本或生活质量收益；pareto_gain 仍按学校 tier/ranking 改善计算。",
+    "region_tree_boundary": "region_tree_v1 ?????????????????????????????????????????????????pareto_gain ???? tier/ranking ?????",
     "major_geo_failure_case": "real-db-set-浙江-569-009 是 major_geo_v1 的失败样本，不能把 0.900 写成 100%。"
   },
   "metrics_order": [
@@ -120,7 +120,7 @@
       "output_dir": "gaokaollm_bench/outputs/agent_benchmark_region_tree_v1/",
       "summary": "gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_summary.md",
       "evidence": "gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md",
-      "note": "reviewed 地域树接入 geo_block_relax / urban_tier_relax。"
+      "note": "经人工审校的地域层级画像接入地理板块放宽与城市层级放宽。"
     }
   },
   "document_sets": {
@@ -132,6 +132,7 @@
       "gaokaollm_bench/outputs/thesis_conclusion_future_work_chapter.md"
     ],
     "positioning_and_architecture": [
+      "gaokaollm_bench/outputs/thesis_term_mapping.json",
       "gaokaollm_bench/outputs/thesis_agent_benchmark_contribution.md",
       "gaokaollm_bench/outputs/thesis_v1_v2_integration_plan.md",
       "gaokaollm_bench/outputs/thesis_system_architecture_algorithms.md",
@@ -197,5 +198,10 @@
       "evidence": "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md",
       "note": "A case succeeds only when both required axes are evidenced; single-axis success is reported in axis_successes but does not count as elicitation_success."
     }
+  },
+  "terminology": {
+    "mapping": "gaokaollm_bench/outputs/thesis_term_mapping.json",
+    "policy": "Use academic thesis terms in main prose. Keep implementation ids only in result-table parentheses, appendices, reproducibility notes, or machine-readable manifests.",
+    "latex_mapping": "D:/??/latex-for-zju-master/latex-for-zju-master/body/undergraduate/final/term_mapping.json"
   }
 }
