@@ -12,7 +12,7 @@
 
 | 层次 | 核心模块 | 主要职责 | 论文贡献对应 |
 | --- | --- | --- | --- |
-| 数据层 | PostgreSQL 招生快照、专业树、专业质量标准化层、就业结果标准化层、地域树 reviewed v1 | 提供录取事实、风险、成本、质量、就业和地域树证据 | 数据贡献 |
+| 数据层 | PostgreSQL 招生快照、专业层级本体、专业质量标准化层、就业结果标准化层、经人工审校的地域层级画像 | 提供录取事实、风险、成本、质量、就业和地域层级证据 | 数据贡献 |
 | MAS/多角色 Agent 层 | `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器` | 抽取显式约束、探测 Pareto 机会、组织谈判回复 | Agent 贡献 |
 | Benchmark 评测层 | 冰山画像、simulator、target agent、evaluator | 生成隐藏妥协需求，运行多轮对话，评价事实与过程 | Benchmark 贡献 |
 | 论文产物层 | summary、reports、transcripts、evidence 附录 | 保存聚合结果、逐例证据和可复现材料 | 结果支撑 |
@@ -41,16 +41,16 @@ PostgreSQL 招生快照提供高考志愿推荐的基础事实约束，主要包
 
 ### 2.2 专业树与专业质量标准化层
 
-专业相关决策需要解决两个问题：专业相近性和专业质量证据。系统使用专业树和专业质量标准化层分别处理这两类问题。
+专业相关决策需要解决两个问题：专业相近性和专业质量证据。系统使用专业层级本体和专业质量标准化层分别处理这两类问题。
 
 | 数据资产 | 作用 |
 | --- | --- |
-| `major_tree_final_reviewed.json` | 支撑专业层级放宽与相近专业搜索 |
+| 专业层级本体 | 支撑专业层级放宽与相近专业搜索；全量覆盖 v2 事实源见 `major_tree_annotation_summary.md` |
 | `discipline_major_mappings` | 记录学科评估、专业类与本科专业之间的映射关系 |
 | `school_major_quality_signals` | 汇总专业排名、学科评估、特色专业、重点专业、满意度等原始信号 |
 | `school_major_quality_profiles` | 聚合学校-专业质量画像，输出 `quality_score`、`quality_gain`、`evidence_sources` |
 
-`school_major_quality_profiles` 使 Agent 能从“学校更好”推进到“该学校在该专业上有明确质量证据”。这也是 `major_quality_relax` 相比粗粒度 `strength_relax` 的主要改进。
+专业层级本体全量覆盖 v2 将 `22,759 / 22,759` 个原始去重专业名和 `140,995 / 140,995` 条录取记录挂载到叶子簇，并保留规则、probe、DeepSeek-R1 复核或 fallback 来源。这里的全覆盖是可审计挂载覆盖，不等于全部语义边界已经人工逐条确认正确；剩余边界问题仍通过 clean validation set 和错分聚类分析维护。`school_major_quality_profiles` 使 Agent 能从“学校更好”推进到“该学校在该专业上有明确质量证据”。这也是 `major_quality_relax` 相比粗粒度 `strength_relax` 的主要改进。
 
 ### 2.3 就业结果标准化层
 
@@ -68,11 +68,11 @@ PostgreSQL 招生快照提供高考志愿推荐的基础事实约束，主要包
 
 该设计避免把“就业好”写成不可验证的口号，而是要求 Agent 给出结构化就业证据。
 
-### 2.4 地域树 reviewed v1
+### 2.4 经人工审校的地域层级画像
 
-地域放宽不能只依赖 `schools.city` 字段直接宣称“城市更好”。系统因此引入两份 reviewed 地域树数据资产：`region_geo_tree_reviewed_v1.json` 与 `region_urban_tier_tree_reviewed_v1.json`。前者用于地理板块、相邻省市和“别太远”等偏好，后者用于城市层级、城市资源和“想去好城市”等偏好。
+地域放宽不能只依赖 `schools.city` 字段直接宣称“城市更好”。系统因此引入两类经人工审校的地域层级画像：地理邻近层级画像用于地理板块、相邻省市和“别太远”等偏好，城市层级画像用于城市层级、城市资源和“想去好城市”等偏好。
 
-地域树节点保留源节点、目标节点、映射规则、置信度和审校状态。它们只提供可审计的地域树证据，不直接等价于就业机会、生活成本或城市生活质量收益。`region_tree_v1` 的 Pareto gain 仍按学校 tier/ranking 改善计算。
+地域层级节点保留源节点、目标节点、映射规则、置信度和审校状态。它们只提供可审计的地域层级证据，不直接等价于就业机会、生活成本或城市生活质量收益。`region_tree_v1` 的 Pareto gain 仍按学校 tier/ranking 改善计算。
 
 ## 3. 轻量 MAS / 多角色 Agent 设计
 
@@ -165,9 +165,9 @@ budget < tuition <= budget + 10000
 
 ### 5.7 `region_tree_relax`
 
-`region_tree_relax` 使用 `region_geo_tree_reviewed_v1.json` 与 `region_urban_tier_tree_reviewed_v1.json`。算法保留分数、专业、选科、预算等硬约束，只放宽用户显式表达中的地域偏好，例如“只看杭州/浙江”“别太远”“想去好城市”。其中 `geo_block_relax` 按地理板块或相邻地域节点扩展候选，`urban_tier_relax` 按 reviewed 城市层级节点扩展候选。
+`region_tree_relax` 使用经人工审校的地理邻近层级画像与城市层级画像。算法保留分数、专业、选科、预算等硬约束，只放宽用户显式表达中的地域偏好，例如“只看杭州/浙江”“别太远”“想去好城市”。其中 `geo_block_relax` 按地理板块或相邻地域节点扩展候选，`urban_tier_relax` 按经审校的城市层级节点扩展候选。
 
-候选必须同时返回学校、省份、城市、专业、最低分、最低位次、学校 tier/ranking、源地域节点、目标地域节点、放宽策略和树置信度。城市层级只作为 reviewed region-tree 证据，不直接代表就业机会、生活成本或生活质量收益；`region_tree_v1` 的 Pareto gain 仍按学校 tier/ranking 改善计算。
+候选必须同时返回学校、省份、城市、专业、最低分、最低位次、学校 tier/ranking、源地域节点、目标地域节点、放宽策略和树置信度。城市层级只作为经人工审校的地域层级证据，不直接代表就业机会、生活成本或生活质量收益；`region_tree_v1` 的 Pareto gain 仍按学校 tier/ranking 改善计算。
 
 ### 5.8 `strength_relax`
 
@@ -185,7 +185,7 @@ budget < tuition <= budget + 10000
 | `tuition_value_v1` | 扩展实验 | `tuition_value_relax` | `admission_plans.tuition`、学费增量、最低分 | `1.000 / 1.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | 证明成本约束可被小幅放宽并形成性价比谈判 |
 | `major_quality_v1` | 扩展实验 | `major_quality_relax` | `school_major_quality_profiles`、`quality_score`、专业质量证据 | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | 证明专业级质量标准化层可支撑更细粒度妥协 |
 | `employment_outcome_v1` | 扩展实验 | `employment_outcome_relax` | `major_employment_outcome_profiles`、`outcome_score`、就业证据 | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 证明就业结果证据可扩展到 Agent+Benchmark 闭环 |
-| `region_tree_v1` | 扩展实验 | `region_tree_relax` | `region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json`、地域树节点 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 证明 reviewed 地域树可扩展到同一闭环 |
+| `region_tree_v1` | 扩展实验 | `region_tree_relax` | 地理邻近层级画像、城市层级画像、地域层级节点 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 证明经人工审校的地域层级画像可扩展到同一闭环 |
 
 其中 `major_geo_v1 + risk_band_v1` 是当前论文第一版主实验。`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 是扩展实验，用于证明数据贡献和 Agent 框架的可扩展性。
 
