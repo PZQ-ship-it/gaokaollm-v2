@@ -11,8 +11,10 @@
 Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 
 ```text
-gatekeeper -> radar -> negotiator
+前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器
 ```
+
+实现层名称 gatekeeper、radar、negotiator 只在括注、附录或复现材料中保留，不作为正文主叙述。
 
 ## 1. 成稿前优先阅读顺序
 
@@ -33,7 +35,7 @@ gatekeeper -> radar -> negotiator
 | 第 2 章 | 相关技术 | `thesis_intro_related_work_chapters.md`、`thesis_hierarchical_relaxation_methodology.md` | 组织 RAG、Agent、轻量 MAS、Benchmark、LLM-as-a-Judge、专业树/地域树和 Pareto 妥协 |
 | 第 3 章 | 第一版 Agentic RAG 原型系统与问题诊断 | `thesis_v1_prototype_chapter.md`、`thesis_v1_v2_integration_plan.md` | v1 `gaokaollmmodel` 写成工程原型与问题发现，不写成最终主贡献 |
 | 第 4 章 | 高考志愿偏好妥协 Benchmark 与数据层构建 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md` | 写 PostgreSQL 快照、专业树、质量/就业/地域树标准化层、冰山画像和沙盒 |
-| 第 5 章 | 证据驱动 Pareto 谈判 Agent 设计 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md` | 写 `gatekeeper -> radar -> negotiator`、各类 relax 算法和轻量 MAS 边界 |
+| 第 5 章 | 证据驱动 Pareto 谈判 Agent 设计 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md` | 写 `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`、各类 relax 算法和轻量 MAS 边界 |
 | 第 6 章 | 实验结果、逐例证据与分析 | `thesis_method_experiment_chapters.md`、各 summary/evidence | 主实验与扩展实验分层写，补充 `multi_axis_v1` / `multi_axis_v2` Benchmark 压力测试对照，保留失败样本和 evidence 引用 |
 | 第 7 章 | 总结与展望 | `thesis_conclusion_future_work_chapter.md`、`dynamic_decision_considerations_roadmap.md` | 总结 v1 到 v2 的演进，保留真实用户校准、城市收益指标、多省份泛化等后续工作 |
 

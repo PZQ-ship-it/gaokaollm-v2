@@ -17,7 +17,7 @@
 | 贡献线 | 当前内容 | 论文作用 |
 |---|---|---|
 | 数据贡献 | 本地 PostgreSQL 招生快照、`admission_scores`、`school_admission_scores`、`score_rank_segments`、`batch_lines`、`admission_plans.tuition`、专业树、`school_major_quality_profiles`、`major_employment_outcome_profiles`、`region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json`、HITL review packet、coverage report | 为每一次 Pareto 谈判提供可核验的分数、位次、学费、风险、专业质量、就业结果和地域树证据 |
-| Agent 贡献 | LangGraph `gatekeeper -> radar -> negotiator`，以及 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax`、`geo_block_relax`、`urban_tier_relax` 等探测能力 | 把用户显式约束转化为证据驱动的动态妥协谈判 |
+| Agent 贡献 | LangGraph 轻量 MAS：前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器，以及 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax`、`geo_block_relax`、`urban_tier_relax` 等探测能力 | 把用户显式约束转化为证据驱动的动态妥协谈判 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` 对照 | 验证 Agent 是否真的触发隐藏可妥协条件，而不是只生成看似合理的建议 |
 
 需要特别强调：被测 Agent 不读取 benchmark 的 `implicit_flexibilities` 或 `volunteer_set`。Agent 输入只来自用户显式话语抽取出的约束和 PostgreSQL/标准化数据层查询结果；隐藏画像只用于模拟用户与评价。

@@ -8,7 +8,7 @@
 | --- | --- |
 | 论文贡献结构 | 数据贡献 + Agent 贡献 + Benchmark 贡献 |
 | 数据贡献 | PostgreSQL 招生快照、专业树、学费字段、专业质量标准化层、就业结果标准化层、经人工审校的地域层级画像 |
-| Agent 贡献 | `gatekeeper -> radar -> negotiator` 轻量 MAS/多角色 Agent，执行证据驱动 Pareto 谈判 |
+| Agent 贡献 | 前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器组成的轻量 MAS/多角色 Agent，执行证据驱动 Pareto 谈判 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` |
 | 主实验 | `major_geo_v1 + risk_band_v1` |
 | 扩展实验 | `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` |

@@ -37,7 +37,7 @@
 | 贡献层次 | 核心内容 | 论文作用 |
 |---|---|---|
 | 数据贡献 | PostgreSQL 招生快照、分数/位次、批次线、学费字段、专业树、专业质量标准化层、就业结果标准化层、地域树 reviewed v1 标准化层 | 为 Agent 和 benchmark 提供可核验事实基础 |
-| Agent 贡献 | `gatekeeper -> radar -> negotiator`，支持 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` 等证据驱动 Pareto 谈判 | 证明业务 Agent 能主动提出有事实依据的偏好妥协方案 |
+| Agent 贡献 | 前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器，支持 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` 等证据驱动 Pareto 谈判 | 证明业务 Agent 能主动提出有事实依据的偏好妥协方案 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` 对照 | 证明改进不是主观叙事，而是可复现实验结果 |
 
 本文第一版主实验仍为 `major_geo_v1 + risk_band_v1`。其中，`major_geo_v1` 验证专业与地域联合放宽，`risk_band_v1` 验证从“只求稳”到 `chong/wen/bao` 冲稳保组合的风险偏好放宽。`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 作为扩展实验，用于证明同一框架可以接入新的数据证据维度，支撑论文的数据贡献和方法可扩展性。
@@ -149,11 +149,13 @@
 
 ## 4. Agent 方法
 
-业务 Agent 使用 LangGraph 编排，核心流程为：
+业务 Agent 使用 LangGraph 编排，论文主叙述为：
 
 ```text
-gatekeeper -> radar -> negotiator
+前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器
 ```
+
+其中，LLM 只负责语义归一、机会规划、证据排序和澄清提示；学校、专业、分数、位次等事实候选仍由确定性证据探针返回。
 
 `gatekeeper` 从用户话语中抽取分数、省份、城市、专业、选科、预算、风险偏好、质量偏好和就业导向等约束，并查询当前硬约束下的 baseline 结果。`radar` 调用确定性 SQL 探针，寻找放宽某个偏好维度后的 Pareto 机会。`negotiator` 将候选学校、专业、最低分、最低位次、学费、风险层级、质量评分、就业排名、行业/岗位/薪资分布、地域树源节点和目标节点等证据组织成自然语言回复，引导用户理解“放宽哪一部分条件可以换来什么收益”。
 

@@ -117,7 +117,7 @@ v1 到 v2 不是推翻关系，而是研究问题的收敛和方法升级。v1 �
 | 核心问题 | 如何让系统能查、能答、能推荐 | 如何让偏好妥协可生成、可运行、可评价 |
 | 系统形态 | Agentic RAG 原型 | 数据层 + 轻量 MAS/多角色 Agent + Benchmark |
 | 数据贡献 | 数据作为问答和推荐的运行依赖 | PostgreSQL 招生快照、分数/位次、学费、专业树、`school_major_quality_profiles`、`major_employment_outcome_profiles`、`region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json` |
-| Agent 架构 | LangGraph/状态机、Redis 画像、混合检索、BGE-M3、BCEmbedding、`1:3:9`、SSE | `gatekeeper -> radar -> negotiator` 轻量 MAS/多角色 Agent 工作流 |
+| Agent 架构 | LangGraph/状态机、Redis 画像、混合检索、BGE-M3、BCEmbedding、`1:3:9`、SSE | 前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器组成的轻量 MAS/多角色 Agent 工作流 |
 | 主要能力 | 查分、问答、混合检索、梯度推荐和一致性校验 | `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` |
 | 风险推荐 | 工程化冲稳保输出 | 可评测的 `chong/wen/bao` 风险偏好放宽 |
 | 证据链 | 系统日志和工程测试为主 | transcripts、reports、summary、evidence、audit |
@@ -128,7 +128,7 @@ v1 到 v2 不是推翻关系，而是研究问题的收敛和方法升级。v1 �
 ```text
 第 3 章：v1 跑通 Agentic RAG 原型，并诊断出偏好妥协评测不足
 第 4 章：v2 构建 PostgreSQL 数据层、专业树、质量/就业标准化层和冰山画像 Benchmark
-第 5 章：v2 设计 gatekeeper -> radar -> negotiator 轻量 MAS/多角色 Pareto 谈判 Agent
+第 5 章：v2 设计 前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器轻量 MAS/多角色 Pareto 谈判 Agent
 第 6 章：v2 用主实验和扩展实验验证 Agent 相对 baseline 的提升与数据证据维度的可扩展性
 ```
 
@@ -158,4 +158,4 @@ v1 到 v2 不是推翻关系，而是研究问题的收敛和方法升级。v1 �
 
 本章介绍了第一版 `gaokaollmmodel` Agentic RAG 原型系统。v1 通过 LangGraph/状态机工作流、意图识别、Redis 用户画像、混合检索、BGE-M3 embedding、BCEmbedding 重排、`1:3:9` 冲稳保推荐、神经-符号一致性校验和 SSE 流式响应，完成了面向高考志愿咨询的工程闭环。
 
-但 v1 的主要价值是工程原型与问题发现，而不是最终主贡献。它证明了系统能回答和推荐，也揭示了传统 RAG 原型难以严格评测隐性妥协、动态放宽、Pareto 增益、逐例证据和可复现审计的问题。基于这一诊断，后续 v2 将研究重点转向“数据 + Agent + Benchmark”三贡献闭环：数据层负责提供 PostgreSQL 招生事实、专业树、专业质量、就业结果和地域树 reviewed v1 等可核验证据；Agent 层通过 `gatekeeper -> radar -> negotiator` 轻量 MAS/多角色工作流进行证据驱动 Pareto 谈判；Benchmark 层负责构建冰山画像、多轮沙盒和事实/过程联合评价。主实验 `major_geo_v1 + risk_band_v1` 证明核心偏好妥协能力，五组扩展实验则证明数据证据维度可以持续接入同一闭环。后续若论文口径或实验指标发生变化，应优先查看并更新 `thesis_document_hub.md` 与 `thesis_claims_manifest.json`，再同步本章及其他正文母版。
+但 v1 的主要价值是工程原型与问题发现，而不是最终主贡献。它证明了系统能回答和推荐，也揭示了传统 RAG 原型难以严格评测隐性妥协、动态放宽、Pareto 增益、逐例证据和可复现审计的问题。基于这一诊断，后续 v2 将研究重点转向“数据 + Agent + Benchmark”三贡献闭环：数据层负责提供 PostgreSQL 招生事实、专业树、专业质量、就业结果和地域树 reviewed v1 等可核验证据；Agent 层通过 `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器` 轻量 MAS/多角色工作流进行证据驱动 Pareto 谈判；Benchmark 层负责构建冰山画像、多轮沙盒和事实/过程联合评价。主实验 `major_geo_v1 + risk_band_v1` 证明核心偏好妥协能力，五组扩展实验则证明数据证据维度可以持续接入同一闭环。后续若论文口径或实验指标发生变化，应优先查看并更新 `thesis_document_hub.md` 与 `thesis_claims_manifest.json`，再同步本章及其他正文母版。

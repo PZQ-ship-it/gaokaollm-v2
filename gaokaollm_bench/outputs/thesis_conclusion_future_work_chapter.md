@@ -12,7 +12,7 @@
 
 第一阶段是 v1 `gaokaollmmodel` Agentic RAG 原型系统。该阶段完成了面向高考志愿咨询的工程闭环，包括 LangGraph/状态机工作流、意图识别、Redis 用户画像、混合检索、BGE-M3 embedding、BCEmbedding 重排、`1:3:9` 冲稳保推荐、神经-符号一致性校验和 SSE 流式响应。v1 证明了高考志愿咨询可以被构建为一个可运行的 Agentic RAG 系统，也暴露出传统工程原型难以严格证明偏好妥协效果的问题。
 
-第二阶段是 v2 数据 + Agent + Benchmark 闭环。该阶段将研究重点从“系统能否回答志愿问题”推进到“系统能否在真实数据库约束下，通过证据驱动谈判触发用户可接受的 Pareto 妥协”。v2 构建了 PostgreSQL 招生事实与标准化证据层，设计了 `gatekeeper -> radar -> negotiator` 轻量 MAS/多角色 Agent，并用冰山画像、多轮沙盒、事实/过程联合评价和逐例 evidence 验证 Agent 相对 `hard_constraint` baseline 的提升。
+第二阶段是 v2 数据 + Agent + Benchmark 闭环。该阶段将研究重点从“系统能否回答志愿问题”推进到“系统能否在真实数据库约束下，通过证据驱动谈判触发用户可接受的 Pareto 妥协”。v2 构建了 PostgreSQL 招生事实与标准化证据层，设计了 前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器组成的轻量 MAS/多角色 Agent，并用冰山画像、多轮沙盒、事实/过程联合评价和逐例 evidence 验证 Agent 相对 `hard_constraint` baseline 的提升。
 
 因此，本文最终不是两个割裂项目的简单拼接，而是一条自然演进的研究主线：v1 解决工程可用性并发现评测缺口，v2 将该缺口收敛为可生成、可运行、可评价、可审计的数据驱动偏好妥协任务。
 
@@ -33,7 +33,7 @@
 
 ## 7.3 Agent 贡献总结
 
-本文的 Agent 贡献是证据驱动 Pareto 谈判。v2 业务 Agent 采用 `gatekeeper -> radar -> negotiator` 的轻量 MAS/多角色 Agent 架构，但论文中需要谨慎表述：它是基于角色分工的工作流式 MAS，而不是完全自治的多智能体系统。
+本文的 Agent 贡献是证据驱动 Pareto 谈判。v2 业务 Agent 采用 `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器` 的轻量 MAS/多角色 Agent 架构，但论文中需要谨慎表述：它是基于角色分工的工作流式 MAS，而不是完全自治的多智能体系统。
 
 | 角色 | 主要职责 | 论文意义 |
 | --- | --- | --- |
@@ -137,7 +137,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 本文最终形成了一条从工程原型到可评测决策 Agent 的研究主线。v1 `gaokaollmmodel` 通过 Agentic RAG 跑通高考志愿咨询系统，积累了状态机编排、混合检索、用户画像、冲稳保推荐和防幻觉校验经验；v2 在此基础上进一步提出数据 + Agent + Benchmark 三层闭环，将高考志愿咨询中的动态约束放宽转化为可运行、可评分、可审计的多轮评测任务。
 
-从贡献结构看，本文的最终贡献包括三部分：数据贡献在于构建 PostgreSQL 招生事实、专业质量和就业结果等可核验证据层；Agent 贡献在于基于 `gatekeeper -> radar -> negotiator` 的轻量 MAS/多角色 Agent 执行证据驱动 Pareto 谈判；Benchmark 贡献在于用冰山画像、多轮沙盒和事实/过程联合评价检验 Agent 是否真正触发隐藏偏好妥协。
+从贡献结构看，本文的最终贡献包括三部分：数据贡献在于构建 PostgreSQL 招生事实、专业质量和就业结果等可核验证据层；Agent 贡献在于基于 `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器` 的轻量 MAS/多角色 Agent 执行证据驱动 Pareto 谈判；Benchmark 贡献在于用冰山画像、多轮沙盒和事实/过程联合评价检验 Agent 是否真正触发隐藏偏好妥协。
 
 主实验 `major_geo_v1 + risk_band_v1` 表明，在保持 0.000 幻觉率的前提下，`app_pareto` 相比 `hard_constraint` 在专业+地域联合放宽和风险偏好放宽两类任务上均显著提升了偏好启发效果。五组扩展实验进一步说明，同一框架可以接入学校/学科实力、学费预算、专业质量、就业结果和地域树等数据证据维度。
 

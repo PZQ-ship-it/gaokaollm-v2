@@ -62,7 +62,7 @@
 
 第一，本文构建了面向高考志愿动态决策的结构化数据证据层。基础数据来自本地 PostgreSQL 招生快照，覆盖录取分数、最低位次、批次线、学校信息、专业信息和招生计划学费等字段。在此基础上，项目进一步构建专业树、`school_major_quality_profiles` 专业质量标准化层、`major_employment_outcome_profiles` 就业结果标准化层，以及 `region_geo_tree_reviewed_v1.json` / `region_urban_tier_tree_reviewed_v1.json` 地域树 reviewed v1，使专业质量、就业排名、行业分布、岗位分布、薪资分布和地域树节点等信息可以作为 Agent 输出和 benchmark 裁判的可核验证据。
 
-第二，本文设计了证据驱动的 Pareto 谈判 Agent。业务 Agent 使用 LangGraph 组织为 `gatekeeper -> radar -> negotiator` 三段结构：`gatekeeper` 抽取显式约束并查询 baseline，`radar` 调用确定性 SQL 探针寻找放宽机会，`negotiator` 将真实候选组织为面向用户的证据化回复。当前 Agent 核心能力包括 `major_geo_relax` 专业+地域联合放宽、`risk_band_relax` 风险偏好放宽，以及扩展能力 `tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax`。同时，`strength_relax` 作为较粗粒度的学校/学科实力过渡实验，帮助说明数据证据维度可以逐步扩展。
+第二，本文设计了证据驱动的 Pareto 谈判 Agent。业务 Agent 使用 LangGraph 组织为“前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器”的五阶段轻量 MAS：前置语义归一层继承 v1 查询重写能力，只处理用户显式话语；约束解析器锁定硬约束；LLM 引导的机会规划器只输出探针计划、机会排序和澄清提示；确定性证据探针从数据库和标准化证据层返回事实候选；证据谈判器将真实候选组织为面向用户的证据化回复。当前 Agent 核心能力包括 `major_geo_relax` 专业+地域联合放宽、`risk_band_relax` 风险偏好放宽，以及扩展能力 `tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax`。同时，`strength_relax` 作为较粗粒度的学校/学科实力过渡实验，帮助说明数据证据维度可以逐步扩展。
 
 第三，本文提出面向高考志愿偏好妥协的冰山画像 Benchmark。该 Benchmark 从真实 DB gap 出发生成 persona，使用多轮沙盒模拟用户互动，并通过事实/过程联合评价计算 `elicitation_success`、`pareto_gain`、`hallucination_rate` 和 `avg_turns`。对照系统 `hard_constraint` 只报告显性硬约束下可达志愿，不主动谈判；目标系统 `app_pareto` 则尝试在事实约束内提出证据驱动的 Pareto 妥协。
 
@@ -102,7 +102,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 第 4 章介绍 Benchmark 与数据生成方法，包括 PostgreSQL 数据快照、专业树、专业质量与就业结果标准化层、`region_geo_tree_reviewed_v1.json` / `region_urban_tier_tree_reviewed_v1.json` 地域树 reviewed v1、冰山画像、真实 DB gap、多轮沙盒和事实/过程联合评价。
 
-第 5 章介绍证据驱动 Pareto Agent，包括 `gatekeeper -> radar -> negotiator` 架构，以及 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` 等能力。其中 `region_tree_relax` 包含 `geo_block_relax` 与 `urban_tier_relax` 两个子策略。
+第 5 章介绍证据驱动 Pareto Agent，包括 前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器架构，以及 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` 等能力。其中 `region_tree_relax` 包含 `geo_block_relax` 与 `urban_tier_relax` 两个子策略。
 
 第 6 章给出主实验和扩展实验结果，分析逐例证据与典型失败样本，说明 `app_pareto` 与 `hard_constraint` 的对照关系。主实验为 `major_geo_v1 + risk_band_v1`，五组扩展实验包含 `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` 和 `region_tree_v1`。此外，第 6 章可将 `multi_axis_v1` 与 `multi_axis_v2` 作为 Benchmark 压力测试单独报告，用于讨论多轴隐藏妥协、轴一致性修正和证据编排瓶颈。
 
@@ -139,7 +139,7 @@ Agent 技术强调让大语言模型不只是直接生成文本，而是能够�
 LangGraph 提供图式状态机编排能力，适合表达多步骤、多状态和可回溯的 Agent 工作流（可替换引用占位：LangGraph）。本文 v2 业务 Agent 使用如下工作流：
 
 ```text
-gatekeeper -> radar -> negotiator
+前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器
 ```
 
 其中，`gatekeeper` 面向显式约束抽取和 baseline 查询；`radar` 面向 Pareto 机会探测；`negotiator` 面向证据化对话回复。这种划分使 Agent 的核心行为可以被 benchmark 审计：系统是否正确抽取用户约束，是否在数据库中发现了可谈判候选，是否把候选以事实证据而非泛化说服话术的形式呈现给用户。

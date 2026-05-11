@@ -13,7 +13,7 @@
 | 贡献层次 | 核心内容 | 论文作用 |
 |---|---|---|
 | 数据贡献 | PostgreSQL 招生快照、分数/位次、学费字段、专业树、`school_major_quality_profiles`、`major_employment_outcome_profiles`、`region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json` | 为推荐、放宽和评测提供可核验事实基础 |
-| Agent 贡献 | LangGraph 轻量 MAS `gatekeeper -> radar -> negotiator`，支持多类证据驱动 Pareto 谈判 | 证明业务 Agent 能主动提出有事实依据的偏好妥协方案 |
+| Agent 贡献 | LangGraph 轻量 MAS：前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器，支持多类证据驱动 Pareto 谈判 | 证明业务 Agent 能主动提出有事实依据的偏好妥协方案 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` 对照 | 证明改进不是主观叙事，而是可复现实验结果 |
 
 被测 Agent 不读取 benchmark 的 `implicit_flexibilities` 或 `volunteer_set`。这些 hidden persona 字段只用于模拟用户和 evaluator ground truth；Agent 输入只来自用户显式话语和 PostgreSQL 查询结果。
@@ -64,7 +64,7 @@ Benchmark 的关键设计包括：
 业务 Agent 使用 LangGraph 编排，主流程为：
 
 ```text
-gatekeeper -> radar -> negotiator
+前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器
 ```
 
 | 节点 | 职责 | 论文作用 |

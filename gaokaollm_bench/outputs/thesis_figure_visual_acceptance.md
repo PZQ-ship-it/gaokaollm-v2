@@ -41,7 +41,7 @@
 
 ## 4. 周边一致性提醒
 
-本次只验收并同步图像资产，不改七组实验指标、不重跑 benchmark，也不更新 thesis audit。PDF 第 5 章正文仍有部分段落使用“约束解析器、机会探测器、证据谈判器”的三段式概括；这不影响图像资产验收，但后续若继续精修正文，建议把该段进一步改写为与图 5.1 一致的五阶段 MAS 叙述。
+本次只验收并同步图像资产，不改七组实验指标、不重跑 benchmark，也不更新 thesis audit。PDF 第 5 章正文已同步为与图 5.1 一致的五阶段 MAS 叙述；后续若再次调整 Agent 架构，应同时维护图像资产、LaTeX 正文和本文档。
 
 ## 5. 维护规则
 
@@ -52,4 +52,3 @@
 3. 重新编译 LaTeX PDF。
 4. 重新渲染 `thesis_figures_pdf_snapshots/`。
 5. 更新本文档、`thesis_diagrams_with_diagrams.md`、`thesis_figures_tables_pack.md`、`thesis_document_hub.md` 和 `outputs/README.md`。
-
