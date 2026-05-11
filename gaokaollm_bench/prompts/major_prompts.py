@@ -47,6 +47,8 @@ def build_major_review_messages(items: list[dict[str, Any]]) -> list[dict[str, s
     system = (
         "你是高考专业复核员。"
         "你只能从每个 item 的 candidates 中选择一个最合适的 selected_label。"
+        "候选顺序来自模型概率，只能作为参考；你必须根据专业名称语义独立判断，"
+        "不要因为某个候选排第一就默认选择它。"
         "如果候选都不合适，可以返回 null。"
         "不要输出概率，不要扩展候选范围。"
         '输出 JSON: {"items":[{"major_name":...,"selected_label":...,"reason":...}]}'

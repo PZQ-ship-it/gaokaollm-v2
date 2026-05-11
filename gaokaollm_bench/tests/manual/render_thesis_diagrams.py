@@ -1,4 +1,4 @@
-"""Render clean thesis box diagrams with mingrammer/diagrams.
+"""Render thesis box diagrams with academic terminology.
 
 This manual artifact generator does not read benchmark hidden fields, connect to
 PostgreSQL, call an LLM, or rerun any experiment. It only turns the current
@@ -32,25 +32,25 @@ GRAPH_ATTR = {
     "fontname": FONT,
     "fontsize": "18",
     "label": "",
-    "pad": "0.25",
-    "ranksep": "0.75",
-    "nodesep": "0.5",
+    "nodesep": "0.48",
+    "pad": "0.24",
+    "ranksep": "0.72",
     "splines": "ortho",
 }
 NODE_ATTR = {
+    "color": "#7a8a99",
     "fontname": FONT,
     "fontsize": "13",
     "margin": "0.12,0.08",
+    "penwidth": "1.3",
     "shape": "box",
     "style": "rounded,filled",
-    "color": "#7a8a99",
-    "penwidth": "1.3",
 }
 EDGE_ATTR = {
+    "arrowsize": "0.7",
     "color": EDGE_COLOR,
     "fontname": FONT,
     "fontsize": "11",
-    "arrowsize": "0.7",
     "penwidth": "1.15",
 }
 
@@ -66,8 +66,7 @@ def _load_diagrams() -> tuple[Any, Any, Any, Any]:
         from diagrams import Cluster, Diagram, Edge, Node
     except ImportError as exc:
         missing.append("Python package `diagrams`")
-        message = _missing_dependency_message(missing)
-        raise RuntimeError(message) from exc
+        raise RuntimeError(_missing_dependency_message(missing)) from exc
 
     if missing:
         raise RuntimeError(_missing_dependency_message(missing))
@@ -205,58 +204,53 @@ def _hidden(label: str):
 def render_system_architecture(output_dir: Path) -> None:
     _, _, Edge, _ = _load_diagrams()
     with _diagram_context("fig_4_1_system_architecture", output_dir):
-        with _cluster("数据层：可核验证据", DATA_COLOR):
-            data = _data(
-                "PostgreSQL 招生事实\n"
-                "专业树 / 地域树 reviewed v1\n"
-                "学费 / 质量 / 就业标准化层"
-            )
+        with _cluster("数据层：可核验事实与标准化证据", DATA_COLOR):
+            facts = _data("招生事实库\n分数 / 位次 / 选科 / 学费")
+            ontology = _data("层级本体与画像\n专业层级本体\n经审校的地域层级画像")
+            profiles = _data("质量与就业画像\n学校-专业质量\n专业就业结果")
+            facts >> ontology >> profiles
 
-        with _cluster("Agent 层：轻量 MAS", AGENT_COLOR):
-            gatekeeper = _agent("gatekeeper\n显式约束抽取")
-            radar = _agent("radar\nSQL probe / opportunity")
-            negotiator = _agent("negotiator\n证据组织与谈判")
-            gatekeeper >> radar >> negotiator
+        with _cluster("Agent 层：轻量多角色工作流", AGENT_COLOR):
+            parser = _agent("约束解析器\nConstraint Parser")
+            detector = _agent("机会探测器\nOpportunity Detector")
+            negotiator = _agent("证据谈判器\nEvidence Negotiator")
+            parser >> detector >> negotiator
 
-        with _cluster("Benchmark 层：多轮评测", BENCH_COLOR):
-            bench = _benchmark(
-                "冰山画像 + simulator\n"
-                "app_pareto vs hard_constraint\n"
-                "事实 / 过程联合评价"
-            )
+        with _cluster("Benchmark 层：交互式偏好启发评测", BENCH_COLOR):
+            bench = _benchmark("冰山用户画像\n多轮用户模拟\n事实/过程联合评价")
+            stress = _benchmark("多轴隐藏妥协\n压力测试")
+            bench >> stress
 
-        with _cluster("论文产物层", ARTIFACT_COLOR):
-            outputs = _artifact("summary / transcripts / evidence\nSVG / PNG 图表素材")
+        with _cluster("论文产物层：可复核材料", ARTIFACT_COLOR):
+            outputs = _artifact("聚合指标\n逐例证据\n论文图表")
 
-        data >> Edge(label="事实证据") >> gatekeeper
-        data >> Edge(label="真实 DB gap") >> bench
-        negotiator >> Edge(label="可审计回复") >> bench
-        bench >> Edge(label="指标与逐例证据") >> outputs
+        facts >> Edge(label="硬约束事实") >> parser
+        ontology >> Edge(label="可谈判偏好轴") >> detector
+        profiles >> Edge(label="收益证据") >> negotiator
+        negotiator >> Edge(label="证据链") >> bench
+        stress >> Edge(label="结果与失败分析") >> outputs
 
 
 def render_mas_workflow(output_dir: Path) -> None:
     _, _, Edge, _ = _load_diagrams()
     with _diagram_context("fig_5_1_mas_workflow", output_dir):
-        user = _node("用户显式话语\n分数 / 专业 / 地域 / 风险等", "#ffffff")
+        user = _node("用户显式需求\n分数 / 专业 / 地域 / 风险 / 预算", "#ffffff")
 
-        with _cluster("业务 Agent：gatekeeper -> radar -> negotiator", AGENT_COLOR):
-            gatekeeper = _agent("gatekeeper\n抽取显式约束")
-            baseline = _agent("hard-constraint\nbaseline")
-            radar = _agent("radar\n探测 Pareto 机会")
-            opportunities = _agent(
-                "opportunities\n"
-                "major_geo / risk_band / strength\n"
-                "tuition / quality / employment\n"
-                "region_tree"
+        with _cluster("业务 Agent：约束解析 -> 机会探测 -> 证据谈判", AGENT_COLOR):
+            parser = _agent("约束解析器\nCoT 重写 + 实体校验\nSQL 硬约束锁定")
+            baseline = _agent("硬约束基线\n只返回显式约束内结果")
+            detector = _agent("机会探测器\n单变量 Delta Analysis\nBoundary Exploration")
+            axes = _agent(
+                "可谈判偏好轴\n专业-地域 / 风险组合\n预算 / 质量 / 就业 / 地域层级"
             )
-            negotiator = _agent("negotiator\n组织证据与话术")
-            gatekeeper >> radar >> opportunities >> negotiator
-            gatekeeper >> baseline >> Edge(label="对照") >> negotiator
+            negotiator = _agent("证据谈判器\n候选重排\n二选一偏好启发")
+            parser >> detector >> axes >> negotiator
+            parser >> baseline >> Edge(label="对照") >> negotiator
 
-        reply = _artifact("面向用户的谈判回复")
-        state = _artifact("internal_state\nopportunities / recommended_schools")
+        reply = _artifact("面向用户的谈判回复\n保留什么 / 放宽什么 / 换来什么")
+        state = _artifact("状态记录\n机会集合 / 推荐候选 / 证据来源")
 
-        user >> gatekeeper
+        user >> parser
         negotiator >> reply
         negotiator >> state
 
@@ -264,46 +258,49 @@ def render_mas_workflow(output_dir: Path) -> None:
 def render_benchmark_flow(output_dir: Path) -> None:
     _, _, Edge, _ = _load_diagrams()
     with _diagram_context("fig_4_2_benchmark_flow", output_dir):
-        db_gap = _data("真实 DB gap\nbaseline vs relaxed")
-        persona = _benchmark("冰山画像 persona")
-        explicit = _benchmark("显式红线\n给 simulator")
-        simulator = _benchmark("simulator\n多轮用户")
-        target = _agent("target agent\napp_pareto / hard_constraint")
-        transcript = _artifact("transcript\nturns + internal_state")
-        judge = _benchmark("deterministic judge\n事实 + 过程")
-        summary = _artifact("summary / report / evidence")
+        gap = _data("真实数据库 gap\n基线集合 vs 放宽集合")
+        persona = _benchmark("冰山用户画像")
+        visible = _benchmark("显性需求\n生成用户话语")
+        simulator = _benchmark("用户模拟器\n多轮交互")
+        target = _agent("被测 Agent\n证据谈判 Agent / 硬约束基线")
+        transcript = _artifact("对话记录\n回复 + 状态")
+        judge = _benchmark("评测器\n事实命中 + 过程检查")
+        summary = _artifact("聚合结果\n逐例证据")
+        hidden = _hidden("隐藏偏好与可接受集合\n仅评测端可见")
 
-        hidden = _hidden("hidden ground truth\nimplicit_flexibilities\nvolunteer_set")
-
-        db_gap >> persona >> explicit >> simulator >> target >> transcript >> judge
+        gap >> persona >> visible >> simulator >> target >> transcript >> judge
         judge >> summary
-        persona >> Edge(style="dashed", label="仅 evaluator 可见") >> hidden
+        persona >> Edge(style="dashed", label="不进入 Agent 输入") >> hidden
         hidden >> Edge(style="dashed", label="判定隐藏妥协") >> judge
 
 
 def render_data_evidence_mapping(output_dir: Path) -> None:
     _, _, Edge, _ = _load_diagrams()
     with _diagram_context("fig_4_3_data_evidence_relax_mapping", output_dir):
-        with _cluster("证据族", DATA_COLOR, direction="TB"):
-            admissions = _data("招生事实\n最低分 / 位次 / 批次线")
-            hierarchy = _data("层级本体\n专业树 / 地域树 reviewed v1")
-            cost = _data("成本证据\nadmission_plans.tuition")
-            quality = _data("专业质量证据\nschool_major_quality_profiles")
-            employment = _data("就业结果证据\nmajor_employment_outcome_profiles")
+        with _cluster("证据族：从原始事实到标准化画像", DATA_COLOR, direction="TB"):
+            admissions = _data("招生事实\n最低分 / 位次 / 选科")
+            major_tree = _data("专业层级本体\n人工骨架 + 规则挂载\n模型辅助候选 + 审校")
+            risk = _data("风险证据\n分差 / 位次差")
+            tuition = _data("成本证据\n学费与预算差")
+            quality = _data("专业质量画像\n排名 / 评估 / 特色")
+            employment = _data("就业结果画像\n就业排名 / 行业 / 薪资")
+            region = _data("地域层级画像\n地理板块 / 城市层级\n偏好显性化工具")
 
-        with _cluster("Relax 能力族", AGENT_COLOR, direction="TB"):
-            admission_relax = _agent("录取与层级放宽\nmajor_geo / risk_band / strength")
-            cost_relax = _agent("预算性价比\n tuition_value_relax")
-            quality_relax = _agent("专业质量\nmajor_quality_relax")
-            employment_relax = _agent("就业导向\nemployment_outcome_relax")
-            region_relax = _agent("地域树\nregion_tree_relax\ngeo_block / urban_tier")
+        with _cluster("放宽动作：可谈判偏好轴", AGENT_COLOR, direction="TB"):
+            major_geo = _agent("专业-地域联合放宽\nStaged Relaxation")
+            risk_band = _agent("风险组合放宽\n冲 / 稳 / 保")
+            tuition_value = _agent("预算性价比放宽\n小幅超预算")
+            major_quality = _agent("专业质量放宽\n质量收益证据")
+            employment_outcome = _agent("就业导向放宽\n结果证据")
+            region_tree = _agent("地域层级放宽\n不直接计入城市收益")
 
-        admissions >> Edge(label="score / rank") >> admission_relax
-        hierarchy >> Edge(label="staged relaxation") >> admission_relax
-        cost >> Edge(label="tuition delta") >> cost_relax
-        quality >> Edge(label="quality gain") >> quality_relax
-        employment >> Edge(label="outcome gain") >> employment_relax
-        hierarchy >> Edge(label="reviewed region nodes") >> region_relax
+        admissions >> Edge(label="可达性锁定") >> major_geo
+        major_tree >> Edge(label="同叶子 / 同父类") >> major_geo
+        risk >> Edge(label="风险分层") >> risk_band
+        tuition >> Edge(label="学费增量") >> tuition_value
+        quality >> Edge(label="质量增益") >> major_quality
+        employment >> Edge(label="结果增益") >> employment_outcome
+        region >> Edge(label="地域证据") >> region_tree
 
 
 def render_all(output_dir: Path) -> list[Path]:
