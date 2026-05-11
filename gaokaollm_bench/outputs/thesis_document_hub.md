@@ -40,6 +40,7 @@
 
 | 文档 | 角色 | 维护建议 |
 | --- | --- | --- |
+| `thesis_full_draft_v1.md` | 第 1-7 章连续正文总稿 | 修改章节装配、图表占位或最终成稿主线时优先同步 |
 | `thesis_intro_related_work_chapters.md` | 第 1-2 章绪论与相关技术正文母版 | 修改贡献结构或实验总览时同步 |
 | `thesis_v1_prototype_chapter.md` | 第 3 章 v1 原型与问题诊断正文母版 | 修改 v1/v2 关系时同步 |
 | `thesis_method_experiment_chapters.md` | 方法与实验章节主文母版 | 修改数据层、Agent 算法、实验指标时优先同步 |
@@ -100,7 +101,7 @@
 
 ## 5. 使用建议
 
-1. 写论文正文时，先查 `thesis_method_experiment_chapters.md` 和 `thesis_system_architecture_algorithms.md`。
+1. 写论文正文时，先查 `thesis_full_draft_v1.md`；需要展开局部章节时，再查 `thesis_method_experiment_chapters.md` 和 `thesis_system_architecture_algorithms.md`。
 2. 写摘要、创新点、答辩 PPT 时，先查 `thesis_agent_benchmark_contribution.md`、`thesis_figures_tables_pack.md`、`thesis_diagrams_with_diagrams.md` 和 `thesis_figures/`。
 3. 查逐例证据时，按主实验 evidence、扩展 evidence、region evidence 三类入口进入。
 4. 做全局口径变更时，先更新 `thesis_claims_manifest.json` 与本 hub，再按第 4 节同步相关母版。
