@@ -201,6 +201,12 @@ def _fallback_reply_v2(evidence: dict[str, Any]) -> str:
     geo = evidence.get("geo_relax") or []
     major = evidence.get("major_relax") or []
     strength = evidence.get("strength_relax") or []
+    rankings = [
+        str(item)
+        for item in evidence.get("opportunity_rankings", [])
+        if isinstance(item, str)
+    ]
+    clarification_hint = evidence.get("clarification_hint")
 
     def section_major_geo() -> str:
         rows = major_geo or geo or major or city
@@ -273,7 +279,40 @@ def _fallback_reply_v2(evidence: dict[str, Any]) -> str:
             + "\nRegion nodes come from reviewed region trees; city tier itself is not counted as Pareto gain."
         )
 
-    if (major_geo or geo or major or city) and risk:
+    sections_by_key = {
+        "major_geo_relax": lambda: (
+            section_major_geo() if (major_geo or geo or major or city) else ""
+        ),
+        "geo_relax": lambda: (
+            section_major_geo() if (major_geo or geo or major or city) else ""
+        ),
+        "major_relax": lambda: (
+            section_major_geo() if (major_geo or geo or major or city) else ""
+        ),
+        "city_relax": lambda: (
+            section_major_geo() if (major_geo or geo or major or city) else ""
+        ),
+        "risk_band_relax": lambda: section_risk() if risk else "",
+        "major_quality_relax": lambda: section_quality() if major_quality else "",
+        "tuition_value_relax": lambda: section_tuition() if tuition else "",
+        "employment_outcome_relax": lambda: section_employment() if employment else "",
+        "region_tree_relax": lambda: section_region() if region_tree else "",
+        "strength_relax": lambda: (
+            "strength_relax: " + _join(strength) if strength else ""
+        ),
+    }
+    ranked_sections: list[str] = []
+    for key in rankings:
+        factory = sections_by_key.get(key)
+        if factory is None:
+            continue
+        section = factory()
+        if section and section not in ranked_sections:
+            ranked_sections.append(section)
+
+    if len(ranked_sections) >= 2:
+        selected = ranked_sections[:2]
+    elif (major_geo or geo or major or city) and risk:
         selected = [section_major_geo(), section_risk()]
     elif major_quality and tuition:
         selected = [section_quality(), section_tuition()]
@@ -296,9 +335,19 @@ def _fallback_reply_v2(evidence: dict[str, Any]) -> str:
             "No verified Pareto opportunity was found beyond the current hard constraints."
         ]
 
+    option_labels = ["\u9009\u9879A", "\u9009\u9879B"]
+    labelled_selected = [
+        f"{option_labels[index]}: {section}" if index < len(option_labels) else section
+        for index, section in enumerate(selected)
+    ]
+    prefix = ""
+    if clarification_hint:
+        prefix = f"Clarification hint: {clarification_hint}\n\n"
+
     return (
-        "I will not decide for you; I will only expose auditable Pareto evidence.\n"
-        + "\n\n".join(selected)
+        prefix
+        + "I will not decide for you; I will only expose auditable Pareto evidence.\n"
+        + "\n\n".join(labelled_selected)
         + "\n\nAgent input is limited to explicit user constraints and verified DB evidence."
     )
 
@@ -308,6 +357,10 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
     opportunities = state.get("pareto_opportunities", {})
     evidence = {
         "constraints": state.get("constraints", {}),
+        "normalized_intent": state.get("normalized_intent", {}),
+        "probe_plan": state.get("probe_plan", []),
+        "opportunity_rankings": state.get("opportunity_rankings", []),
+        "clarification_hint": state.get("clarification_hint"),
         "baseline_results": _compact(state.get("baseline_results", [])),
         "geo_relax": _compact(opportunities.get("geo_relax", [])),
         "city_relax": _compact(opportunities.get("city_relax", [])),

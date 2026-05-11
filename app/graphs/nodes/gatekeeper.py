@@ -324,7 +324,12 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
 
 async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
     print("[gatekeeper] extracting constraints")
-    text = _latest_user_text(state)
+    original_text = _latest_user_text(state)
+    rewritten_text = str(state.get("rewritten_query") or "").strip()
+    if rewritten_text and rewritten_text != original_text:
+        text = f"{original_text}\n{rewritten_text}"
+    else:
+        text = original_text
     current = state.get("constraints", {})
     extracted = await _extract_constraints(text, current)
     constraints = _merge_constraints(current, extracted)

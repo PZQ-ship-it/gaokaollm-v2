@@ -5,6 +5,7 @@ from langgraph.graph import END, START, StateGraph
 from app.graphs.nodes.gatekeeper import gatekeeper_node
 from app.graphs.nodes.negotiator import negotiator_node
 from app.graphs.nodes.radar import radar_node
+from app.graphs.nodes.semantic_normalizer import semantic_normalizer_node
 from app.schemas.state import AgentState
 
 
@@ -26,7 +27,8 @@ async def report_node(state: AgentState) -> dict:
 def route_after_radar(state: AgentState) -> str:
     opportunities = state.get("pareto_opportunities", {})
     if (
-        opportunities.get("geo_relax")
+        state.get("clarification_hint")
+        or opportunities.get("geo_relax")
         or opportunities.get("city_relax")
         or opportunities.get("major_relax")
         or opportunities.get("strength_relax")
@@ -49,12 +51,14 @@ def route_after_gatekeeper(state: AgentState) -> str:
 
 def build_graph():
     graph = StateGraph(AgentState)
+    graph.add_node("semantic_normalizer", semantic_normalizer_node)
     graph.add_node("gatekeeper", gatekeeper_node)
     graph.add_node("radar", radar_node)
     graph.add_node("negotiator", negotiator_node)
     graph.add_node("report", report_node)
 
-    graph.add_edge(START, "gatekeeper")
+    graph.add_edge(START, "semantic_normalizer")
+    graph.add_edge("semantic_normalizer", "gatekeeper")
     graph.add_conditional_edges(
         "gatekeeper",
         route_after_gatekeeper,

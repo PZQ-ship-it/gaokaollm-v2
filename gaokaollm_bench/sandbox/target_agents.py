@@ -125,6 +125,11 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
         },
         "score_waste": int(result.get("score_waste") or 0),
         "missing_constraints": list(result.get("missing_constraints") or []),
+        "rewritten_query": result.get("rewritten_query"),
+        "intent_axes": list(result.get("intent_axes") or []),
+        "probe_plan": list(result.get("probe_plan") or []),
+        "opportunity_rankings": list(result.get("opportunity_rankings") or []),
+        "clarification_hint": result.get("clarification_hint"),
         "recommended_schools": _recommended_schools(
             baseline,
             opportunities.get("geo_relax") or [],

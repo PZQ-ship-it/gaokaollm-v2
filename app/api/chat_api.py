@@ -24,4 +24,9 @@ async def chat(req: ChatRequest) -> dict:
         "pareto_opportunities": result.get("pareto_opportunities", {}),
         "score_waste": result.get("score_waste", 0),
         "missing_constraints": result.get("missing_constraints", []),
+        "rewritten_query": result.get("rewritten_query"),
+        "intent_axes": result.get("intent_axes", []),
+        "probe_plan": result.get("probe_plan", []),
+        "opportunity_rankings": result.get("opportunity_rankings", []),
+        "clarification_hint": result.get("clarification_hint"),
     }
