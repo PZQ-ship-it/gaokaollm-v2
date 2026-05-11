@@ -111,9 +111,9 @@ Benchmark 的目标是评估 Agent 是否能在真实招生数据约束下发现
 
 ### 4.1 多轴隐藏妥协压力测试
 
-除七组单轴或单类闭环实验外，Benchmark 层还加入 `multi_axis_v1` 压力测试，用于检验用户同时存在两个隐藏妥协轴时，Agent 是否能把多个 opportunity group 同时组织成有效证据链。该测试不新增业务 relax 算法，而是组合现有 `major_geo_relax`、`risk_band_relax`、`major_quality_relax`、`tuition_value_relax`、`employment_outcome_relax` 和 `region_tree_relax`。
+除七组单轴或单类闭环实验外，Benchmark 层还加入 `multi_axis_v1` 与 `multi_axis_v2` 压力测试，用于检验用户同时存在两个隐藏妥协轴时，Agent 是否能把多个 opportunity group 同时组织成有效证据链。压力测试不新增业务 relax 算法，而是组合现有 `major_geo_relax`、`risk_band_relax`、`major_quality_relax`、`tuition_value_relax`、`employment_outcome_relax` 和 `region_tree_relax`。
 
-`multi_axis_v1` 的 persona 使用 `relaxation_axes` 与 `axis_flexibilities` 描述两个 required axes。Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`；这些字段只作为 simulator/evaluator ground truth。deterministic judge 逐轴检查证据，只有两个轴都命中时才判定 elicitation success，并额外保留 `axis_successes` 与 `axis_pareto_gains` 便于分析证据编排瓶颈。
+`multi_axis_v1` 是历史压力测试版本；`multi_axis_v2` 是轴一致性修正版，在画像生成时要求两个 required axes 围绕一致显性需求或可解释正交需求构造。persona 使用 `relaxation_axes` 与 `axis_flexibilities` 描述两个 required axes。Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`；这些字段只作为 simulator/evaluator ground truth。deterministic judge 逐轴检查证据，只有两个轴都命中时才判定 elicitation success，并额外保留 `axis_successes` 与 `axis_pareto_gains` 便于分析证据编排瓶颈。
 
 ## 5. 关键算法设计
 
@@ -195,11 +195,12 @@ budget < tuition <= budget + 10000
 
 `major_geo_v1` 不是 100% 成功，失败样本为 `real-db-set-浙江-569-009`。论文中应保留该失败样本，避免把 `0.900` 写成完全成功。
 
-`multi_axis_v1` 作为 Benchmark 压力测试单独报告，不并入上表的七组实验事实口径。其三类 profile 为 `major_geo_risk`、`quality_tuition`、`employment_region`，聚合结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`。逐 profile 结果分别为 1/10、5/10、10/10，说明多轴 benchmark 能暴露单轴实验看不出的证据编排瓶颈，尤其 `major_geo_relax + risk_band_relax` 组合较难。
+`multi_axis_v1` 与 `multi_axis_v2` 作为 Benchmark 压力测试单独报告，不并入上表的七组实验事实口径。v1 的三类 profile 为 `major_geo_risk`、`quality_tuition`、`employment_region`，聚合结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`，逐 profile 结果分别为 1/10、5/10、10/10。v2 是轴一致性修正版，聚合结果为 `app_pareto 0.367 / 1.133 / 0.005 / 9.33` vs `hard_constraint 0.000 / 0.000 / 0.008 / 13.00`，逐 profile 结果为 6/10、5/10、0/10，说明修正后可以更清楚地区分画像构造问题与 Agent 证据编排瓶颈，尤其 `employment_region` 暴露出就业证据与地域树证据联合组织不足。
 
 | 压力测试 | 定位 | 组合 profile | `app_pareto` | `hard_constraint` | 论文含义 |
 | --- | --- | --- | --- | --- | --- |
-| `multi_axis_v1` | Benchmark 压力测试 | `major_geo_risk`、`quality_tuition`、`employment_region` | `0.533 / 1.133 / 0.029 / 7.67` | `0.000 / 0.000 / 0.000 / 13.00` | 检验两个隐藏放宽轴同时成立时的证据编排能力 |
+| `multi_axis_v1` | 历史压力测试版本 | `major_geo_risk`、`quality_tuition`、`employment_region` | `0.533 / 1.133 / 0.029 / 7.67` | `0.000 / 0.000 / 0.000 / 13.00` | 暴露多轴证据编排问题，但部分画像存在轴一致性不足 |
+| `multi_axis_v2` | 轴一致性修正版 | `major_geo_risk`、`quality_tuition`、`employment_region` | `0.367 / 1.133 / 0.005 / 9.33` | `0.000 / 0.000 / 0.008 / 13.00` | 检验一致画像下两个隐藏放宽轴同时成立时的证据编排能力 |
 
 ## 7. 论文图表建议
 

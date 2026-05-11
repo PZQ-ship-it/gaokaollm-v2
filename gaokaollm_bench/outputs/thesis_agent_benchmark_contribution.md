@@ -112,7 +112,20 @@ gatekeeper -> radar -> negotiator
 - `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md`
 - `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md`
 - `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_summary.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_evidence.md`
 - `gaokaollm_bench/outputs/thesis_method_experiment_chapters.md`
+
+## Benchmark 压力测试
+
+除七组实验事实表外，论文可单独报告多轴 Benchmark 压力测试。该压力测试不替代主实验 `major_geo_v1 + risk_band_v1`，也不把当前七实验口径改写为第八组主实验；它只组合已有 relax 能力，检查两个隐藏放宽轴同时成立时的证据编排能力。
+
+| 压力测试 | 定位 | 三类 profile | `app_pareto` | `hard_constraint` | profile 成功分布 |
+|---|---|---|---:|---:|---|
+| `multi_axis_v1` | 历史压力测试版本 | `major_geo_risk`、`quality_tuition`、`employment_region` | `0.533 / 1.133 / 0.029 / 7.67` | `0.000 / 0.000 / 0.000 / 13.00` | 1/10、5/10、10/10 |
+| `multi_axis_v2` | 轴一致性修正版 | `major_geo_risk`、`quality_tuition`、`employment_region` | `0.367 / 1.133 / 0.005 / 9.33` | `0.000 / 0.000 / 0.008 / 13.00` | 6/10、5/10、0/10 |
+
+`multi_axis_v2` 的论文价值在于修正 v1 中部分画像轴不一致的问题，使失败分析更清楚：专业-地域与风险组合在一致画像下改善到 6/10，专业质量与预算组合保持 5/10，就业与地域组合则暴露出就业证据与地域树证据联合编排不足。压力测试中的 `axis_flexibilities` 只作为 simulator/evaluator ground truth，Agent 不读取该字段。
 
 ## 结果分析
 
