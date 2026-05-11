@@ -62,6 +62,7 @@ class PersonaRelaxation(StrEnum):
     EMPLOYMENT_OUTCOME = "employment_outcome"
     REGION_TREE = "region_tree"
     RISK_BAND = "risk_band"
+    MULTI_AXIS = "multi_axis"
 
 
 class MajorRelaxScope(StrEnum):

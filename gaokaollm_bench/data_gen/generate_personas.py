@@ -68,6 +68,17 @@ DEFAULT_EXCLUDE_PATTERNS = [
     "张家界学院",
 ]
 
+SAMPLE_DATA_DIR = Path("gaokaollm_bench/sample_data")
+MULTI_AXIS_SOURCE_FILES = {
+    "major_geo": SAMPLE_DATA_DIR / "iceberg_personas_real_db_10.json",
+    "risk_band": SAMPLE_DATA_DIR / "iceberg_personas_risk_band_real_db_10.json",
+    "major_quality": SAMPLE_DATA_DIR / "iceberg_personas_major_quality_real_db_10.json",
+    "tuition_value": SAMPLE_DATA_DIR / "iceberg_personas_tuition_value_real_db_10.json",
+    "employment_outcome": SAMPLE_DATA_DIR
+    / "iceberg_personas_employment_outcome_real_db_10.json",
+    "region_tree": SAMPLE_DATA_DIR / "iceberg_personas_region_tree_real_db_10.json",
+}
+
 
 async def _probe_neighbor_clusters(args: argparse.Namespace) -> list[str]:
     if args.neighbor_clusters:
@@ -698,11 +709,479 @@ def build_deterministic_persona_from_gap_set(
     )
 
 
+MULTI_AXIS_PROFILES: dict[str, tuple[str, str]] = {
+    "major_geo_risk": ("major_geo", "risk_band"),
+    "quality_tuition": ("major_quality", "tuition_value"),
+    "employment_region": ("employment_outcome", "region_tree"),
+}
+
+
+def _axis_volunteer_entries(
+    axis: str,
+    gap_set: dict[str, Any],
+    score: int,
+) -> list[dict[str, Any]]:
+    entries = []
+    for row in gap_set.get("volunteer_set") or []:
+        entry = _volunteer_entry(row, score)
+        entry["axis"] = axis
+        entries.append(entry)
+    return entries
+
+
+def _axis_flexibility(
+    axis: str,
+    gap_set: dict[str, Any],
+    score: int,
+) -> dict[str, Any]:
+    volunteers = _axis_volunteer_entries(axis, gap_set, score)
+    flex = {
+        "constraint_relaxed": axis,
+        "trigger_type": "volunteer_set",
+        "volunteer_set": volunteers,
+        "representative_schools": [
+            row.get("school_name") for row in volunteers[:5] if row.get("school_name")
+        ],
+        "baseline_tier": (gap_set.get("tier_a") or {}).get("tier"),
+        "max_tier_delta": gap_set.get("max_tier_delta"),
+    }
+    for key in (
+        "risk_levels",
+        "portfolio_gain",
+        "strength_anchor_rank",
+        "quality_anchor_score",
+        "max_quality_gain",
+        "budget_anchor",
+        "budget_window",
+        "max_tuition_delta",
+        "max_ranking_gain",
+        "outcome_anchor_score",
+        "max_outcome_gain",
+        "region_relax_strategies",
+        "city",
+        "strict_major",
+    ):
+        if gap_set.get(key) is not None:
+            flex[key] = gap_set.get(key)
+    return flex
+
+
+def _multi_axis_gap_set(
+    *,
+    profile: str,
+    first_axis: str,
+    first_gap: dict[str, Any],
+    second_axis: str,
+    second_gap: dict[str, Any],
+) -> dict[str, Any]:
+    score = max(int(first_gap["score"]), int(second_gap["score"]))
+    tier_a = first_gap["tier_a"]
+    first_flex = _axis_flexibility(first_axis, first_gap, score)
+    second_flex = _axis_flexibility(second_axis, second_gap, score)
+    volunteers = first_flex["volunteer_set"] + second_flex["volunteer_set"]
+    max_tier_delta = max(
+        int(first_gap.get("max_tier_delta") or 0),
+        int(second_gap.get("max_tier_delta") or 0),
+    )
+    return {
+        "constraint_relaxed": "multi_axis",
+        "multi_axis_profile": profile,
+        "relaxation_axes": [first_axis, second_axis],
+        "axis_flexibilities": {
+            first_axis: first_flex,
+            second_axis: second_flex,
+        },
+        "tier_a": tier_a,
+        "score": score,
+        "province": first_gap.get("province") or second_gap.get("province"),
+        "city": second_gap.get("city") or first_gap.get("city"),
+        "strict_major": (
+            first_gap.get("strict_major")
+            or second_gap.get("strict_major")
+            or tier_a.get("major_name")
+        ),
+        "volunteer_set": volunteers,
+        "max_tier_delta": max_tier_delta,
+        "axis_case_scores": {
+            first_axis: int(first_gap["score"]),
+            second_axis: int(second_gap["score"]),
+        },
+    }
+
+
+def build_multi_axis_persona_from_gap_set(
+    gap_set: dict[str, Any],
+    index: int,
+) -> IcebergPersona:
+    """Build a two-axis iceberg persona from verified single-axis gap sets."""
+
+    score = int(gap_set["score"])
+    province = str(gap_set["province"])
+    city = str(gap_set.get("city") or (gap_set["tier_a"].get("school_city") or ""))
+    strict_major = str(gap_set.get("strict_major") or "target major")
+    profile = str(gap_set["multi_axis_profile"])
+    axes = list(gap_set["relaxation_axes"])
+    axis_flexibilities = dict(gap_set["axis_flexibilities"])
+    all_schools = []
+    for axis in axes:
+        all_schools.extend(axis_flexibilities[axis].get("representative_schools") or [])
+    all_schools = list(dict.fromkeys(str(item) for item in all_schools if item))[:8]
+    tier_a = gap_set["tier_a"]
+
+    if profile == "major_geo_risk":
+        explicit_red_lines = {
+            "major": f"keep {strict_major}",
+            "geo": f"prefer {province}",
+            "risk": "prefer conservative choices only",
+            "reason": "will only reconsider if both major/region relaxation and chong/wen/bao evidence are shown",
+        }
+        initial_utterance = (
+            f"我{score}分，选考物理化学生物，想读{strict_major}，优先留在{province}，"
+            "而且只求稳，不接受冲刺。除非你能同时给出专业/地域放宽和冲稳保证据，"
+            "否则先不要推荐随机外省或冒险方案。"
+        )
+    elif profile == "quality_tuition":
+        budget = axis_flexibilities.get("tuition_value", {}).get("budget_anchor", 6000)
+        explicit_red_lines = {
+            "major": f"prefer {strict_major}",
+            "budget": f"annual tuition should stay near {budget}",
+            "quality": "care about major-level quality evidence",
+            "reason": "will only accept a small budget relaxation if professional quality evidence is strong",
+        }
+        initial_utterance = (
+            f"我{score}分，选考物理化学生物，地域不限，想读{strict_major}，每年学费预算大概{budget}以内，"
+            "也很看重专业排名和学科实力。除非你能同时给出小幅超预算的性价比证据"
+            "和专业质量证据，否则太贵的先别推荐。"
+        )
+    else:
+        explicit_red_lines = {
+            "major": f"prefer {strict_major}",
+            "region": f"prefer {city or province} or a familiar region",
+            "employment": "care about employment outcome evidence",
+            "reason": "will only consider a region-tree move if employment evidence and region-tree evidence are both concrete",
+        }
+        initial_utterance = (
+            f"我{score}分，选考物理化学生物，想读{strict_major}，希望就业和薪资稳定，"
+            f"但不想随便离开{city or province}。除非你能同时给出就业结果证据"
+            "和 reviewed 地域树证据，否则先别随便换地域。"
+        )
+
+    axis_descriptions = {
+        "major_geo": "major/region joint relaxation evidence",
+        "risk_band": "chong/wen/bao risk portfolio evidence",
+        "major_quality": "school-major quality evidence",
+        "tuition_value": "small tuition-budget relaxation with value evidence",
+        "employment_outcome": "employment outcome evidence",
+        "region_tree": "reviewed region-tree evidence",
+    }
+    trigger_condition = (
+        "The persona accepts only if the target agent supplies both required axes: "
+        + ", ".join(axis_descriptions.get(axis, axis) for axis in axes)
+        + ". Hidden axis_flexibilities and volunteer_set are evaluator-only."
+    )
+
+    return IcebergPersona(
+        case_id=f"multi-axis-{profile}-{province}-{score}-{index:03d}",
+        background={
+            "score": score,
+            "province": province,
+            "city": city,
+            "subjects": ["物理", "化学", "生物"],
+            "preferred_major": strict_major,
+            "baseline_school": tier_a.get("school_name"),
+            "baseline_major": tier_a.get("major_name"),
+            "baseline_tier": tier_a.get("tier"),
+            "baseline_label": _school_label(tier_a),
+            "constraint_relaxed": "multi_axis",
+            "multi_axis_profile": profile,
+            "relaxation_axes": axes,
+            "volunteer_count": len(gap_set.get("volunteer_set") or []),
+            "max_tier_delta": gap_set.get("max_tier_delta"),
+            "axis_case_scores": gap_set.get("axis_case_scores"),
+        },
+        explicit_red_lines=explicit_red_lines,
+        implicit_flexibilities={
+            "trigger_type": "multi_axis",
+            "constraint_relaxed": "multi_axis",
+            "multi_axis_profile": profile,
+            "relaxation_axes": axes,
+            "axis_flexibilities": axis_flexibilities,
+            "volunteer_set": gap_set.get("volunteer_set") or [],
+            "minimum_required_axes": len(axes),
+            "representative_schools": all_schools,
+            "trigger_condition": trigger_condition,
+            "compromise": (
+                "The user can compromise only when both axes are evidenced with "
+                "real school, major, minimum-score/rank, and axis-specific evidence."
+            ),
+        },
+        initial_utterance=initial_utterance,
+        process_milestones={
+            "reject_single_axis_solution": True,
+            "require_multi_axis_evidence": True,
+            "required_axes": axes,
+            "accept_after_verified_multi_axis_set": all_schools,
+        },
+    )
+
+
+def _load_source_axis_personas(axis: str) -> list[dict[str, Any]]:
+    path = MULTI_AXIS_SOURCE_FILES[axis]
+    if not path.exists():
+        return []
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(data, dict) and "items" in data:
+        data = data["items"]
+    return data if isinstance(data, list) else []
+
+
+def _gap_from_source_persona(item: dict[str, Any], axis: str) -> dict[str, Any]:
+    background = item.get("background") or {}
+    flex = item.get("implicit_flexibilities") or {}
+    volunteers = [
+        row for row in flex.get("volunteer_set") or [] if isinstance(row, dict)
+    ]
+    if not volunteers:
+        raise ValueError(f"source persona {item.get('case_id')} has no volunteer_set")
+    tier_a = {
+        "school_name": background.get("baseline_school"),
+        "major_name": background.get("baseline_major")
+        or background.get("preferred_major"),
+        "school_city": background.get("city"),
+        "tier": background.get("baseline_tier"),
+        "ranking": background.get("baseline_ranking"),
+    }
+    gap = {
+        "score": int(background.get("score") or 0),
+        "province": background.get("province"),
+        "city": background.get("city"),
+        "strict_major": background.get("preferred_major"),
+        "tier_a": tier_a,
+        "volunteer_set": volunteers,
+        "max_tier_delta": background.get("max_tier_delta") or 0,
+        "constraint_relaxed": axis,
+    }
+    for key in (
+        "risk_levels",
+        "portfolio_gain",
+        "strength_anchor_rank",
+        "quality_anchor_score",
+        "max_quality_gain",
+        "budget_anchor",
+        "budget_window",
+        "max_tuition_delta",
+        "max_ranking_gain",
+        "outcome_anchor_score",
+        "max_outcome_gain",
+        "region_relax_strategies",
+    ):
+        if flex.get(key) is not None:
+            gap[key] = flex.get(key)
+        elif background.get(key) is not None:
+            gap[key] = background.get(key)
+    return gap
+
+
+def _multi_axis_gap_sets_from_source_files(count: int) -> list[dict[str, Any]]:
+    if count % len(MULTI_AXIS_PROFILES) != 0:
+        raise ValueError(
+            f"--count for --relaxation multi_axis must be divisible by 3 (got {count})."
+        )
+    per_profile = count // len(MULTI_AXIS_PROFILES)
+    source_items = {
+        axis: _load_source_axis_personas(axis) for axis in MULTI_AXIS_SOURCE_FILES
+    }
+    required_axes = {axis for axes in MULTI_AXIS_PROFILES.values() for axis in axes}
+    if any(len(source_items[axis]) < per_profile for axis in required_axes):
+        return []
+
+    gap_sets: list[dict[str, Any]] = []
+    for profile, (first_axis, second_axis) in MULTI_AXIS_PROFILES.items():
+        for idx in range(per_profile):
+            first_gap = _gap_from_source_persona(
+                source_items[first_axis][idx], first_axis
+            )
+            second_gap = _gap_from_source_persona(
+                source_items[second_axis][idx],
+                second_axis,
+            )
+            gap_sets.append(
+                _multi_axis_gap_set(
+                    profile=profile,
+                    first_axis=first_axis,
+                    first_gap=first_gap,
+                    second_axis=second_axis,
+                    second_gap=second_gap,
+                )
+            )
+    return gap_sets
+
+
+async def find_multi_axis_gap_sets(
+    fetch_query: Any,
+    *,
+    count: int,
+    args: argparse.Namespace,
+) -> list[dict[str, Any]]:
+    """Compose existing real-DB single-axis gap sets into two-axis cases."""
+
+    source_gap_sets = _multi_axis_gap_sets_from_source_files(count)
+    if source_gap_sets:
+        return source_gap_sets
+
+    if count % len(MULTI_AXIS_PROFILES) != 0:
+        raise ValueError(
+            f"--count for --relaxation multi_axis must be divisible by 3 (got {count})."
+        )
+    per_profile = count // len(MULTI_AXIS_PROFILES)
+    common_kwargs = {
+        "prov": args.province,
+        "score_min": args.score_min,
+        "score_max": args.score_max,
+        "score_step": args.score_step,
+        "candidates_per_score": args.candidates_per_score,
+        "max_volunteers_per_case": args.max_volunteers_per_case,
+        "max_volunteers_per_school": args.max_volunteers_per_school,
+        "include_special_majors": args.include_special_majors,
+        "max_major_name_length": args.max_major_name_length,
+        "strict_target_quality": not args.no_strict_target_quality,
+    }
+    exclude_name_patterns = (
+        [] if args.include_suspect_schools else DEFAULT_EXCLUDE_PATTERNS
+    )
+
+    major_geo_gaps = await find_pareto_gap_sets(
+        fetch_query,
+        count=per_profile,
+        prov=args.province,
+        score_min=args.score_min,
+        score_max=args.score_max,
+        score_step=args.score_step,
+        candidates_per_score=args.candidates_per_score,
+        max_volunteers_per_case=args.max_volunteers_per_case,
+        exclude_name_patterns=exclude_name_patterns,
+        strict_target_quality=not args.no_strict_target_quality,
+    )
+    risk_gaps = await find_risk_band_gap_sets(
+        fetch_query,
+        count=per_profile,
+        prov=args.province,
+        strict_major=args.strict_major,
+        score_min=args.score_min,
+        score_max=args.score_max,
+        score_step=args.score_step,
+        candidates_per_score=args.candidates_per_score,
+        max_volunteers_per_case=args.max_volunteers_per_case,
+        max_volunteers_per_school=args.max_volunteers_per_school,
+        strict_target_quality=not args.no_strict_target_quality,
+    )
+    quality_gaps = await find_major_quality_gap_sets(
+        fetch_query,
+        count=per_profile,
+        strict_major=args.strict_major or None,
+        exclude_name_patterns=exclude_name_patterns,
+        min_quality_gain=args.min_quality_gain,
+        **common_kwargs,
+    )
+    tuition_gaps = await find_tuition_value_gap_sets(
+        fetch_query,
+        count=per_profile,
+        budget=args.budget,
+        budget_window=args.budget_window,
+        relax_scope=args.tuition_relax_scope,
+        strict_major=args.strict_major or None,
+        exclude_name_patterns=exclude_name_patterns,
+        **common_kwargs,
+    )
+    employment_gaps = await find_employment_outcome_gap_sets(
+        fetch_query,
+        count=per_profile,
+        strict_major=args.strict_major or None,
+        exclude_name_patterns=exclude_name_patterns,
+        min_outcome_gain=args.min_outcome_gain,
+        **common_kwargs,
+    )
+    region_gaps = await find_region_tree_relax_gap_sets(
+        fetch_query,
+        count=per_profile,
+        city=args.city,
+        strict_major=args.strict_major or None,
+        exclude_name_patterns=exclude_name_patterns,
+        **common_kwargs,
+    )
+
+    source_pairs = {
+        "major_geo_risk": ("major_geo", major_geo_gaps, "risk_band", risk_gaps),
+        "quality_tuition": (
+            "major_quality",
+            quality_gaps,
+            "tuition_value",
+            tuition_gaps,
+        ),
+        "employment_region": (
+            "employment_outcome",
+            employment_gaps,
+            "region_tree",
+            region_gaps,
+        ),
+    }
+    missing = {
+        profile: {
+            first_axis: len(first_gaps),
+            second_axis: len(second_gaps),
+            "required_each": per_profile,
+        }
+        for profile, (
+            first_axis,
+            first_gaps,
+            second_axis,
+            second_gaps,
+        ) in source_pairs.items()
+        if len(first_gaps) < per_profile or len(second_gaps) < per_profile
+    }
+    if missing:
+        raise ValueError(
+            "Cannot build enough multi_axis real-DB cases: "
+            + json.dumps(missing, ensure_ascii=False)
+        )
+
+    gap_sets: list[dict[str, Any]] = []
+    for profile, (
+        first_axis,
+        first_gaps,
+        second_axis,
+        second_gaps,
+    ) in source_pairs.items():
+        for idx in range(per_profile):
+            gap_sets.append(
+                _multi_axis_gap_set(
+                    profile=profile,
+                    first_axis=first_axis,
+                    first_gap=first_gaps[idx],
+                    second_axis=second_axis,
+                    second_gap=second_gaps[idx],
+                )
+            )
+    return gap_sets
+
+
 async def _generate(args: argparse.Namespace) -> list[IcebergPersona]:
     from app.core.db_pg import close_pool, fetch_query
 
     personas: list[IcebergPersona] = []
     if args.persona_shape == "volunteer_set":
+        if args.relaxation == "multi_axis":
+            gap_sets = await find_multi_axis_gap_sets(
+                fetch_query,
+                count=args.count,
+                args=args,
+            )
+            personas = [
+                build_multi_axis_persona_from_gap_set(gap_set, i + 1)
+                for i, gap_set in enumerate(gap_sets)
+            ]
+            await close_pool()
+            return personas
         if args.relaxation == "province":
             gap_sets = await find_pareto_gap_sets(
                 fetch_query,

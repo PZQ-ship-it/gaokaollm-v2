@@ -17,8 +17,11 @@ from gaokaollm_bench.tests.manual.agent_benchmark_run import (
     _employment_outcome_gain,
     _has_employment_outcome_evidence,
     _has_major_quality_evidence,
+    _has_multi_axis_evidence,
     _has_region_tree_evidence,
     _major_quality_gain,
+    _multi_axis_details,
+    _multi_axis_gain,
     _region_tree_gain,
     _has_tuition_value_evidence,
     _tuition_value_gain,
@@ -26,6 +29,7 @@ from gaokaollm_bench.tests.manual.agent_benchmark_run import (
     run_target_cases,
     write_summary_files,
 )
+from app.graphs.nodes.negotiator import _fallback_reply_v2
 
 
 class FakeGraph:
@@ -462,6 +466,79 @@ def test_deterministic_judge_accepts_region_tree_evidence():
 
     assert _has_region_tree_evidence(flex, text)
     assert _region_tree_gain(flex, text) == 1
+
+
+def test_multi_axis_requires_all_axes():
+    flex = {
+        "constraint_relaxed": "multi_axis",
+        "relaxation_axes": ["major_quality", "tuition_value"],
+        "axis_flexibilities": {
+            "major_quality": {
+                "constraint_relaxed": "major_quality",
+                "volunteer_set": [
+                    {
+                        "school_name": "Major Quality University",
+                        "quality_gain": 16,
+                    }
+                ],
+            },
+            "tuition_value": {
+                "constraint_relaxed": "tuition_value",
+                "volunteer_set": [
+                    {
+                        "school_name": "Tuition Value University",
+                        "tuition_value_gain": 1,
+                    }
+                ],
+            },
+        },
+    }
+    one_axis_text = (
+        "Major Quality University min_score=598 quality_score=90 "
+        "quality_gain=16 best_major_rank=8"
+    )
+    both_axes_text = (
+        one_axis_text + "\nTuition Value University min_score=590 tuition=12000 "
+        "tuition_delta=3000"
+    )
+
+    assert not _has_multi_axis_evidence(flex, one_axis_text)
+    assert _has_multi_axis_evidence(flex, both_axes_text)
+    assert _multi_axis_gain(flex, both_axes_text) == 17
+    assert _multi_axis_details(flex, both_axes_text)["axis_successes"] == {
+        "major_quality": True,
+        "tuition_value": True,
+    }
+
+
+def test_negotiator_fallback_outputs_two_axis_evidence():
+    reply = _fallback_reply_v2(
+        {
+            "major_quality_relax": [
+                {
+                    "school_name": "Major Quality University",
+                    "major_name": "Software Engineering",
+                    "min_score": 598,
+                    "quality_score": 90,
+                    "quality_gain": 16,
+                }
+            ],
+            "tuition_value_relax": [
+                {
+                    "school_name": "Tuition Value University",
+                    "major_name": "Software Engineering",
+                    "min_score": 590,
+                    "tuition": 12000,
+                    "tuition_delta": 3000,
+                }
+            ],
+        }
+    )
+
+    assert "major_quality_relax" in reply
+    assert "tuition_value_relax" in reply
+    assert "Major Quality University" in reply
+    assert "Tuition Value University" in reply
 
 
 async def evaluate_by_joint_school(transcript, *, judge_llm):

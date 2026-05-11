@@ -6,6 +6,7 @@ import argparse
 import asyncio
 import json
 import os
+import re
 import socket
 from dataclasses import dataclass
 from datetime import datetime
@@ -89,7 +90,9 @@ class DeterministicSimulatorLlm:
             )
 
         trigger_schools = _trigger_schools(flex)
-        if flex.get("constraint_relaxed") == "risk_band":
+        if flex.get("constraint_relaxed") == "multi_axis":
+            has_trigger_school = _has_multi_axis_evidence(flex, agent_reply)
+        elif flex.get("constraint_relaxed") == "risk_band":
             has_trigger_school = _has_risk_band_evidence(flex, agent_reply)
         elif flex.get("constraint_relaxed") == "strength":
             has_trigger_school = _has_strength_evidence(flex, agent_reply)
@@ -141,7 +144,9 @@ class DeterministicJudgeLlm:
             if turn.get("role") == "target_agent"
         ]
         combined = "\n".join(str(turn.get("content") or "") for turn in agent_turns)
-        if flex.get("constraint_relaxed") == "risk_band":
+        if flex.get("constraint_relaxed") == "multi_axis":
+            success = _has_multi_axis_evidence(flex, combined)
+        elif flex.get("constraint_relaxed") == "risk_band":
             success = _has_risk_band_evidence(flex, combined)
         elif flex.get("constraint_relaxed") == "strength":
             success = _has_strength_evidence(flex, combined)
@@ -161,7 +166,9 @@ class DeterministicJudgeLlm:
                 or "分" in combined
             )
         baseline_tier = int((persona.get("background") or {}).get("baseline_tier") or 0)
-        if flex.get("constraint_relaxed") == "risk_band":
+        if flex.get("constraint_relaxed") == "multi_axis":
+            pareto_gain = _multi_axis_gain(flex, combined) if success else 0
+        elif flex.get("constraint_relaxed") == "risk_band":
             pareto_gain = _risk_portfolio_gain(flex) if success else 0
         elif flex.get("constraint_relaxed") == "strength":
             pareto_gain = _strength_rank_gain(flex, combined) if success else 0
@@ -241,6 +248,14 @@ async def run_target_cases(
                     transcript_dir / f"transcript_{persona.case_id}.json"
                 ),
             }
+            flex = persona.implicit_flexibilities or {}
+            if flex.get("constraint_relaxed") == "multi_axis":
+                details = _multi_axis_details(
+                    flex, _combined_target_agent_text(transcript)
+                )
+                row["required_axes"] = details["required_axes"]
+                row["axis_successes"] = details["axis_successes"]
+                row["axis_pareto_gains"] = details["axis_pareto_gains"]
         except Exception as exc:
             row = {
                 "status": "failed",
@@ -382,7 +397,9 @@ def render_summary_md(summary: dict[str, Any]) -> str:
             "`employment_outcome_relax` is used when the persona targets employment, "
             "industry, job, or salary evidence; "
             "`region_tree_relax` is used when the persona targets reviewed region-tree "
-            "geo-block or urban-tier evidence. "
+            "geo-block or urban-tier evidence; "
+            "`multi_axis` pressure tests require two existing opportunity axes to be "
+            "found and evidenced in the same dialogue. "
             "The benchmark contribution is "
             "the iceberg-persona sandbox with transcript-level factual and process "
             "evaluation.",
@@ -509,7 +526,31 @@ def _trigger_schools(flex: dict[str, Any]) -> list[str]:
     for row in flex.get("volunteer_set") or []:
         if isinstance(row, dict) and row.get("school_name"):
             schools.append(str(row["school_name"]))
+    for axis_flex in (flex.get("axis_flexibilities") or {}).values():
+        if not isinstance(axis_flex, dict):
+            continue
+        for row in axis_flex.get("volunteer_set") or []:
+            if isinstance(row, dict) and row.get("school_name"):
+                schools.append(str(row["school_name"]))
     return list(dict.fromkeys(schools))
+
+
+def _combined_target_agent_text(transcript: Transcript) -> str:
+    return "\n".join(
+        str(turn.content)
+        for turn in transcript.turns
+        if str(turn.role) == "target_agent"
+    )
+
+
+def _score_evidence_present(text: str) -> bool:
+    return (
+        "鏈€浣庡垎" in text
+        or "min_score" in text
+        or "score_margin" in text
+        or "鍒?" in text
+        or "score=" in text
+    )
 
 
 def _max_trigger_tier(flex: dict[str, Any], text: str) -> int:
@@ -694,6 +735,106 @@ def _has_region_tree_evidence(flex: dict[str, Any], text: str) -> bool:
     return False
 
 
+def _has_major_geo_evidence(flex: dict[str, Any], text: str) -> bool:
+    if not _score_evidence_present(text):
+        return False
+    if "major_geo_relax" in text:
+        return True
+    for row in flex.get("volunteer_set") or []:
+        if not isinstance(row, dict):
+            continue
+        school = str(row.get("school_name") or "")
+        if school and school in text:
+            return True
+    return False
+
+
+def _axis_flex(flex: dict[str, Any], axis: str) -> dict[str, Any]:
+    axis_flexibilities = flex.get("axis_flexibilities") or {}
+    value = axis_flexibilities.get(axis)
+    return value if isinstance(value, dict) else {}
+
+
+def _has_axis_evidence(axis: str, axis_flex: dict[str, Any], text: str) -> bool:
+    if axis == "major_geo":
+        return _has_major_geo_evidence(axis_flex, text)
+    if axis == "risk_band":
+        return _score_evidence_present(text) and (
+            "risk_band_relax" in text
+            or {"chong", "wen", "bao"}.issubset(set(re.findall(r"chong|wen|bao", text)))
+        )
+    if axis == "major_quality":
+        return _score_evidence_present(text) and (
+            "major_quality_relax" in text
+            or "strength_relax" in text
+            or "quality_score" in text
+            or "major_strength_rank" in text
+        )
+    if axis == "tuition_value":
+        return _score_evidence_present(text) and (
+            "tuition_value_relax" in text
+            or ("tuition=" in text and "tuition_delta" in text)
+        )
+    if axis == "employment_outcome":
+        return _score_evidence_present(text) and (
+            "employment_outcome_relax" in text
+            or "outcome_score" in text
+            or "employment_rank" in text
+        )
+    if axis == "region_tree":
+        return _score_evidence_present(text) and (
+            "region_tree_relax" in text
+            or "geo_block_relax" in text
+            or "urban_tier_relax" in text
+        )
+    return False
+
+
+def _axis_gain(axis: str, axis_flex: dict[str, Any], text: str) -> int:
+    if axis == "major_geo":
+        baseline_tier = int(float(axis_flex.get("baseline_tier") or 0))
+        accepted_tier = _max_trigger_tier(axis_flex, text)
+        return max(1, accepted_tier - baseline_tier)
+    if axis == "risk_band":
+        return max(1, _risk_portfolio_gain(axis_flex))
+    if axis == "major_quality":
+        return max(1, _major_quality_gain(axis_flex, text))
+    if axis == "tuition_value":
+        return max(1, _tuition_value_gain(axis_flex, text))
+    if axis == "employment_outcome":
+        return max(1, _employment_outcome_gain(axis_flex, text))
+    if axis == "region_tree":
+        return max(1, _region_tree_gain(axis_flex, text))
+    return 0
+
+
+def _multi_axis_details(flex: dict[str, Any], text: str) -> dict[str, Any]:
+    required_axes = [str(axis) for axis in flex.get("relaxation_axes") or []]
+    axis_successes: dict[str, bool] = {}
+    axis_pareto_gains: dict[str, int] = {}
+    for axis in required_axes:
+        axis_flex = _axis_flex(flex, axis)
+        success = _has_axis_evidence(axis, axis_flex, text)
+        axis_successes[axis] = success
+        axis_pareto_gains[axis] = _axis_gain(axis, axis_flex, text) if success else 0
+    satisfied = bool(required_axes) and all(axis_successes.values())
+    return {
+        "required_axes": required_axes,
+        "axis_successes": axis_successes,
+        "axis_pareto_gains": axis_pareto_gains,
+        "satisfied": satisfied,
+        "pareto_gain": sum(axis_pareto_gains.values()) if satisfied else 0,
+    }
+
+
+def _has_multi_axis_evidence(flex: dict[str, Any], text: str) -> bool:
+    return bool(_multi_axis_details(flex, text)["satisfied"])
+
+
+def _multi_axis_gain(flex: dict[str, Any], text: str) -> int:
+    return int(_multi_axis_details(flex, text)["pareto_gain"])
+
+
 def _strength_rank_gain(flex: dict[str, Any], text: str) -> int:
     try:
         anchor_rank = int(float(flex.get("strength_anchor_rank")))
@@ -831,6 +972,7 @@ async def async_main(args: argparse.Namespace) -> None:
             return
 
     if config.offline_deterministic:
+        os.environ["GAOKAOLLM_OFFLINE_DETERMINISTIC"] = "1"
         simulator_llm = DeterministicSimulatorLlm()
         judge_llm = DeterministicJudgeLlm()
     else:

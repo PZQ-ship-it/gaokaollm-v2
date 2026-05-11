@@ -156,6 +156,46 @@
       "gaokaollm_bench/outputs/region_tree_coverage_report.md",
       "gaokaollm_bench/outputs/region_tree_v1_coverage_report.md",
       "gaokaollm_bench/outputs/thesis_artifact_audit.md"
+    ],
+    "benchmark_pressure_tests": [
+      "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md",
+      "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md",
+      "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1/"
     ]
+  },
+  "benchmark_pressure_tests": {
+    "multi_axis_v1": {
+      "role": "benchmark_pressure_test",
+      "relaxation": "multi_axis",
+      "positioning": "Benchmark design upgrade for two-axis hidden flexibility; it does not replace the main experiments or the seven-experiment thesis table.",
+      "profiles": {
+        "major_geo_risk": [
+          "major_geo",
+          "risk_band"
+        ],
+        "quality_tuition": [
+          "major_quality",
+          "tuition_value"
+        ],
+        "employment_region": [
+          "employment_outcome",
+          "region_tree"
+        ]
+      },
+      "app_pareto": "0.533 / 1.133 / 0.029 / 7.67",
+      "hard_constraint": "0.000 / 0.000 / 0.000 / 13.00",
+      "cases": 30,
+      "app_success_count": 16,
+      "profile_success": {
+        "major_geo_risk": "1/10",
+        "quality_tuition": "5/10",
+        "employment_region": "10/10"
+      },
+      "persona": "gaokaollm_bench/sample_data/iceberg_personas_multi_axis_real_db_30.json",
+      "output_dir": "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1/",
+      "summary": "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md",
+      "evidence": "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md",
+      "note": "A case succeeds only when both required axes are evidenced; single-axis success is reported in axis_successes but does not count as elicitation_success."
+    }
   }
 }

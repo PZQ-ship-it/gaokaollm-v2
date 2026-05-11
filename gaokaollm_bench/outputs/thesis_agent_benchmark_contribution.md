@@ -110,6 +110,8 @@ gatekeeper -> radar -> negotiator
 - `gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md`
 - `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_summary.md`
 - `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md`
 - `gaokaollm_bench/outputs/thesis_method_experiment_chapters.md`
 
 ## 结果分析

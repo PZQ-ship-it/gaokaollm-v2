@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from typing import Any
 
@@ -284,6 +285,8 @@ def _merge_constraints(
 
 async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, Any]:
     fallback = _fallback_extract(text)
+    if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
+        return fallback
     llm = get_chat_model()
     prompt = [
         SystemMessage(

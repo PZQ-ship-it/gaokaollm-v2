@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from typing import Any
 
@@ -187,6 +188,121 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
     )
 
 
+def _fallback_reply_v2(evidence: dict[str, Any]) -> str:
+    """Fallback reply that can expose two opportunity axes in one turn."""
+
+    major_quality = evidence.get("major_quality_relax") or []
+    tuition = evidence.get("tuition_value_relax") or []
+    employment = evidence.get("employment_outcome_relax") or []
+    region_tree = evidence.get("region_tree_relax") or []
+    risk = evidence.get("risk_band_relax") or []
+    major_geo = evidence.get("major_geo_relax") or []
+    city = evidence.get("city_relax") or []
+    geo = evidence.get("geo_relax") or []
+    major = evidence.get("major_relax") or []
+    strength = evidence.get("strength_relax") or []
+
+    def section_major_geo() -> str:
+        rows = major_geo or geo or major or city
+        return (
+            "major_geo_relax: "
+            + _join(rows, limit=5)
+            + "\nThis is a joint major/region Pareto opportunity with real min_score evidence."
+        )
+
+    def section_risk() -> str:
+        text = "; ".join(
+            f"{_score_text(row)} risk={row.get('risk_level')} "
+            f"score_margin={row.get('score_margin')} rank_gap={row.get('rank_gap')}"
+            for row in risk[:6]
+        )
+        return (
+            "risk_band_relax: "
+            + text
+            + "\nThese options expand one conservative preference into a chong/wen/bao portfolio."
+        )
+
+    def section_quality() -> str:
+        text = "; ".join(
+            f"{_score_text(row)} quality_score={row.get('quality_score')} "
+            f"quality_gain={row.get('quality_gain')} best_major_rank={row.get('best_major_rank')} "
+            f"best_rating={row.get('best_rating')}"
+            for row in major_quality[:3]
+        )
+        return (
+            "major_quality_relax: "
+            + text
+            + "\nThis section uses school-major quality evidence while score constraints remain checked."
+        )
+
+    def section_tuition() -> str:
+        text = "; ".join(
+            f"{_score_text(row)} tuition={row.get('tuition')} "
+            f"tuition_delta={row.get('tuition_delta')}"
+            for row in tuition[:3]
+        )
+        return (
+            "tuition_value_relax: "
+            + text
+            + "\nThe budget is relaxed only in a small audited window with school/ranking evidence."
+        )
+
+    def section_employment() -> str:
+        text = "; ".join(
+            f"{_score_text(row)} outcome_score={row.get('outcome_score')} "
+            f"outcome_gain={row.get('outcome_gain')} employment_rank={row.get('employment_rank')} "
+            f"top_industry={row.get('top_industry')} salary={row.get('salary_distribution')}"
+            for row in employment[:3]
+        )
+        return (
+            "employment_outcome_relax: "
+            + text
+            + "\nThis section uses structured employment outcome evidence: rank, industry, job, or salary."
+        )
+
+    def section_region() -> str:
+        text = "; ".join(
+            f"{_score_text(row)} strategy={row.get('region_relax_strategy')} "
+            f"region={row.get('source_region_name')}->{row.get('target_region_name')} "
+            f"confidence={row.get('region_tree_confidence')}"
+            for row in region_tree[:3]
+        )
+        return (
+            "region_tree_relax: "
+            + text
+            + "\nRegion nodes come from reviewed region trees; city tier itself is not counted as Pareto gain."
+        )
+
+    if (major_geo or geo or major or city) and risk:
+        selected = [section_major_geo(), section_risk()]
+    elif major_quality and tuition:
+        selected = [section_quality(), section_tuition()]
+    elif employment and region_tree:
+        selected = [section_employment(), section_region()]
+    else:
+        candidates = [
+            (bool(major_quality), section_quality),
+            (bool(tuition), section_tuition),
+            (bool(employment), section_employment),
+            (bool(region_tree), section_region),
+            (bool(risk), section_risk),
+            (bool(major_geo or geo or major or city), section_major_geo),
+            (bool(strength), lambda: "strength_relax: " + _join(strength)),
+        ]
+        selected = [factory() for present, factory in candidates if present][:2]
+
+    if not selected:
+        selected = [
+            "No verified Pareto opportunity was found beyond the current hard constraints."
+        ]
+
+    return (
+        "I will not decide for you; I will only expose auditable Pareto evidence.\n"
+        + "\n\n".join(selected)
+        + "\n\nAgent input is limited to explicit user constraints and verified DB evidence."
+    )
+
+
 async def negotiator_node(state: AgentState) -> dict[str, Any]:
     print("[negotiator] generating options")
     opportunities = state.get("pareto_opportunities", {})
@@ -206,6 +322,9 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         "major_geo_relax": _compact(opportunities.get("major_geo_relax", [])),
         "risk_band_relax": _compact(opportunities.get("risk_band_relax", [])),
     }
+
+    if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
+        return {"messages": [AIMessage(content=_fallback_reply_v2(evidence))]}
 
     llm = get_chat_model()
     prompt = [
@@ -229,5 +348,5 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
             "[negotiator] llm_generation_failed="
             f"{type(exc).__name__}; using fallback reply"
         )
-        content = _fallback_reply(evidence)
+        content = _fallback_reply_v2(evidence)
     return {"messages": [AIMessage(content=content)]}

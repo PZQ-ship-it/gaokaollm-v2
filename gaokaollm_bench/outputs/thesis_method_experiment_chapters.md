@@ -14,6 +14,8 @@
 - `gaokaollm_bench/outputs/agent_benchmark_employment_outcome_v1_summary.md`
 - `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_summary.md`
 - `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md`
 - `gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md`
 - `gaokaollm_bench/outputs/benchmark_methodology.md`
 - `gaokaollm_bench/outputs/major_tree_methodology.md`
@@ -222,6 +224,8 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 - `gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md`
 - `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md`
 
 这些 evidence 附录把聚合指标落到每个 case 的 transcript 与候选证据上。对于成功样本，附录列出真实候选学校、专业、最低分、最低位次以及对应的放宽证据；对于 baseline，对照说明其不主动产生相应 Pareto opportunities，因此不能触发隐藏妥协。需要特别强调的是，文档可以引用 hidden persona 作为 evaluator ground truth，但 Agent 输入只来自用户显式话语和 PostgreSQL 查询结果，不读取 `implicit_flexibilities` 或 `volunteer_set`。
 
