@@ -100,6 +100,8 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 | `agent_benchmark_risk_band_v1_evidence.md` | `risk_band_v1` 逐例 evidence | 主实验重跑或风险证据变化时同步 |
 | `thesis_data_agent_benchmark_extension_evidence.md` | `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` | 四组数据扩展实验重跑时同步 |
 | `agent_benchmark_region_tree_v1_evidence.md` | `region_tree_v1` 逐例 evidence | 地域树实验重跑或地域树解释变化时同步 |
+| `agent_benchmark_multi_axis_v1_evidence.md` | `multi_axis_v1` 历史压力测试逐例 evidence | 只在说明历史压力测试时引用 |
+| `agent_benchmark_multi_axis_v2_evidence.md` | `multi_axis_v2` 轴一致性压力测试逐例 evidence | 压力测试修正版重跑或解释变化时同步 |
 
 ### 3.5 历史报告与数据质量报告
 
@@ -130,4 +132,4 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 4. 做全局口径变更时，先更新 `thesis_claims_manifest.json`、`thesis_term_mapping.json` 与本 hub，再按第 4 节同步相关母版。
 5. coverage report、artifact audit 等历史报告只用于追溯，不建议为了当前论文口径反复改写。
 
-- `thesis_mas_architecture_acceptance.md`: ? MAS ???????
+- `thesis_mas_architecture_acceptance.md`：新 MAS 架构接入、LLM 参与边界和 smoke/regression 验收说明。

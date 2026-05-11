@@ -20,25 +20,39 @@ Business code should depend on `chains`, `flows`, and `llm` abstractions, not di
 
 ## Thesis / 论文材料
 
-Graduation-thesis materials live under `outputs/`. The current thesis framing is
-数据 + Agent + Benchmark, with a lightweight MAS / multi-role Agent architecture: lightweight MAS / multi-role Agent, `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`.
-`gatekeeper -> radar -> negotiator`.
+Graduation-thesis materials live under `outputs/`. The current thesis framing is 数据贡献 + Agent 贡献 + Benchmark 贡献.
+
+The business Agent is described in the thesis as a lightweight MAS / multi-role Agent:
+
+```text
+前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器
+```
+
+Implementation roles remain traceable as:
+
+```text
+semantic_normalizer -> gatekeeper -> llm-guided radar planner -> deterministic probes -> negotiator
+```
+
+The LLM plans, orders evidence, normalizes user intent, and suggests clarifications. It does not generate factual school, major, score, rank, tuition, employment, or region candidates; those candidates come from deterministic probes over PostgreSQL and standardized evidence layers.
 
 Start from:
 
 - `outputs/thesis_document_hub.md`: document entrypoint and maintenance index.
 - `outputs/thesis_claims_manifest.json`: machine-readable thesis claim facts.
+- `outputs/thesis_term_mapping.json`: terminology mapping for de-engineering thesis prose.
 - `outputs/thesis_method_experiment_chapters.md`: method and experiment chapter draft.
 - `outputs/thesis_system_architecture_algorithms.md`: system architecture and algorithm draft.
 - `outputs/thesis_figures_tables_pack.md`: figures, tables, and pseudocode pack.
-- `outputs/thesis_diagrams_with_diagrams.md`: current hand-authored SVG/PNG rendering guide for thesis figures; Diagrams is retained as historical context.
+- `outputs/thesis_diagrams_with_diagrams.md`: current hand-authored SVG/PNG rendering guide; Diagrams is retained as historical context.
 - `outputs/thesis_figure_visual_acceptance.md`: PDF-page visual acceptance report for thesis figures.
 - `outputs/thesis_figures/`: generated SVG/PNG figures for dissertation and PPT use.
 - `outputs/thesis_mas_architecture_acceptance.md`: acceptance note for semantic normalization and LLM-guided opportunity planning.
 
+Current thesis experiments:
 
-Graduation-thesis materials live under `outputs/`. The current thesis framing is
-?? + Agent + Benchmark, with a lightweight MAS / multi-role Agent architecture: lightweight MAS / multi-role Agent, `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`.
-`??????? -> ????? -> LLM ???????? -> ??????? -> ?????`.
+- Main experiments: `major_geo_v1 + risk_band_v1`.
+- Extension experiments: `school_strength_v1`, `tuition_value_v1`, `major_quality_v1`, `employment_outcome_v1`, `region_tree_v1`.
+- Benchmark pressure tests: `multi_axis_v1` is the historical version, and `multi_axis_v2` is the coherent-axis revision. They are not part of the seven-experiment thesis table.
 
-Implementation roles remain traceable as `semantic_normalizer -> gatekeeper -> llm-guided radar planner -> deterministic probes -> negotiator`; LLM planning never generates factual candidates.
+Hidden fields such as `implicit_flexibilities`, `volunteer_set`, and `axis_flexibilities` are evaluator-side ground truth only and must not enter target Agent input.

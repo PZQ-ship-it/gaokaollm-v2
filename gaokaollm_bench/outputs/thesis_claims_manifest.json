@@ -7,11 +7,11 @@
     "data_contribution": [
       "PostgreSQL 招生快照",
       "分数/位次/批次线/招生计划/学费事实",
-      "major_tree_final_reviewed.json",
-      "school_major_quality_profiles",
-      "major_employment_outcome_profiles",
-      "region_geo_tree_reviewed_v1.json",
-      "region_urban_tier_tree_reviewed_v1.json"
+      "专业层级本体",
+      "学校-专业质量画像",
+      "专业就业结果画像",
+      "地理邻近层级画像",
+      "城市层级画像"
     ],
     "agent_contribution": {
       "mas_positioning": "基于角色分工的轻量 MAS/多角色 Agent 工作流；业务 Agent 由前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器协作完成，不夸大为完全自治多智能体系统。",
@@ -46,7 +46,7 @@
       "employment_outcome_v1",
       "region_tree_v1"
     ],
-    "region_tree_boundary": "region_tree_v1 ?????????????????????????????????????????????????pareto_gain ???? tier/ranking ?????",
+    "region_tree_boundary": "region_tree_v1 是扩展实验；城市层级只作为经人工审校的地域层级证据，不直接等价于就业机会、生活成本或生活质量收益；pareto_gain 仍按学校 tier/ranking 改善计算。",
     "major_geo_failure_case": "real-db-set-浙江-569-009 是 major_geo_v1 的失败样本，不能把 0.900 写成 100%。",
     "llm_fact_boundary": "LLM 不生成事实候选；事实候选只能来自确定性 SQL probes、PostgreSQL 招生事实与标准化证据层。"
   },
@@ -258,6 +258,6 @@
   "terminology": {
     "mapping": "gaokaollm_bench/outputs/thesis_term_mapping.json",
     "policy": "Use academic thesis terms in main prose. Keep implementation ids only in result-table parentheses, appendices, reproducibility notes, or machine-readable manifests.",
-    "latex_mapping": "D:/??/latex-for-zju-master/latex-for-zju-master/body/undergraduate/final/term_mapping.json"
+    "latex_mapping": "D:/毕设/latex-for-zju-master/latex-for-zju-master/body/undergraduate/final/term_mapping.json"
   }
 }
