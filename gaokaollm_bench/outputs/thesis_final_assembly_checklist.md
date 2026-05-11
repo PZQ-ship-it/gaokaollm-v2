@@ -32,9 +32,9 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | 章节 | 建议标题 | 主要来源文档 | 装配要点 |
 |---|---|---|---|
 | 第 1 章 | 绪论 | `thesis_intro_related_work_chapters.md`、`thesis_agent_benchmark_contribution.md` | 写清高风险志愿咨询、显性红线/隐性妥协、数据 + Agent + Benchmark 三贡献 |
-| 第 2 章 | 相关技术 | `thesis_intro_related_work_chapters.md`、`thesis_hierarchical_relaxation_methodology.md` | 组织 RAG、Agent、轻量 MAS、Benchmark、LLM-as-a-Judge、专业树/地域树和 Pareto 妥协 |
+| 第 2 章 | 相关技术 | `thesis_intro_related_work_chapters.md`、`thesis_hierarchical_relaxation_methodology.md` | 组织 RAG、Agent、轻量 MAS、Benchmark、LLM-as-a-Judge、专业层级本体、经人工审校的地域层级画像和 Pareto 妥协 |
 | 第 3 章 | 第一版 Agentic RAG 原型系统与问题诊断 | `thesis_v1_prototype_chapter.md`、`thesis_v1_v2_integration_plan.md` | v1 `gaokaollmmodel` 写成工程原型与问题发现，不写成最终主贡献 |
-| 第 4 章 | 高考志愿偏好妥协 Benchmark 与数据层构建 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md` | 写 PostgreSQL 快照、专业树、质量/就业/地域树标准化层、冰山画像和沙盒 |
+| 第 4 章 | 高考志愿偏好妥协 Benchmark 与数据层构建 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md`、`major_tree_annotation_summary.md` | 写 PostgreSQL 快照、专业层级本体全量覆盖 v2、质量/就业/经人工审校的地域层级画像、冰山画像和沙盒 |
 | 第 5 章 | 证据驱动 Pareto 谈判 Agent 设计 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md` | 写 `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`、各类 relax 算法和轻量 MAS 边界 |
 | 第 6 章 | 实验结果、逐例证据与分析 | `thesis_method_experiment_chapters.md`、各 summary/evidence | 主实验与扩展实验分层写，补充 `multi_axis_v1` / `multi_axis_v2` Benchmark 压力测试对照，保留失败样本和 evidence 引用 |
 | 第 7 章 | 总结与展望 | `thesis_conclusion_future_work_chapter.md`、`dynamic_decision_considerations_roadmap.md` | 总结 v1 到 v2 的演进，保留真实用户校准、城市收益指标、多省份泛化等后续工作 |
@@ -65,6 +65,16 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | `employment_outcome_relax` | `thesis_method_experiment_chapters.md` | 第 5 章或扩展实验 | 引用 `major_employment_outcome_profiles` |
 | `region_tree_relax` | `thesis_method_experiment_chapters.md`、`thesis_hierarchical_relaxation_methodology.md` | 第 5 章或扩展实验 | 写清 `geo_block_relax` / `urban_tier_relax`，城市层级不直接等价于城市收益 |
 
+## 4.1 专业层级本体全量覆盖 v2 必写事实
+
+第 4 章和第 6 章必须把专业层级本体写成数据贡献中的可验证实验，而不是只作为预处理说明。事实源优先使用 `major_tree_annotation_summary.md` 与 `thesis_claims_manifest.json`。
+
+| 成稿位置 | 必写内容 | 边界 |
+|---|---|---|
+| 第 4 章数据层 | 全量覆盖 v2 已完成 `22,759 / 22,759` 个原始去重专业名和 `140,995 / 140,995` 条录取记录的可审计挂载，`remaining_unassigned = 0` | “全覆盖”是可审计挂载覆盖，不等于全部语义边界已经人工逐条确认正确 |
+| 第 6 章专业树实验 | 保留 clean validation set 方法对比、DeepSeek-R1 低置信复核、Top-k 候选池上限和错分聚类分析 | validation 有效输出覆盖与全库挂载覆盖是两个不同口径 |
+| 第 7 章总结 | 将专业层级本体总结为数据贡献之一，并把后续工作写成复合大类优先级、跨父类近邻边和高职/本科层级标记维护 | 不再把覆盖补齐写成未来任务 |
+
 ## 5. 七实验指标总表
 
 斜杠格式依次为：
@@ -94,7 +104,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 | `agent_benchmark_major_geo_v1_evidence.md` | `major_geo_v1` 10 个 case | 证明主实验 9/10 成功和失败样本 |
 | `agent_benchmark_risk_band_v1_evidence.md` | `risk_band_v1` 10 个 case | 证明风险偏好放宽和 `chong/wen/bao` 组合 |
 | `thesis_data_agent_benchmark_extension_evidence.md` | `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` | 证明数据证据维度可扩展 |
-| `agent_benchmark_region_tree_v1_evidence.md` | `region_tree_v1` 10 个 case | 证明地域树 reviewed v1 能接入 Agent+Benchmark |
+| `agent_benchmark_region_tree_v1_evidence.md` | `region_tree_v1` 10 个 case | 证明经人工审校的地域层级画像能接入 Agent+Benchmark |
 | `agent_benchmark_multi_axis_v1_evidence.md` | `multi_axis_v1` 30 个 case | 证明多轴隐藏妥协压力测试的逐例轴命中与失败原因 |
 | `agent_benchmark_multi_axis_v2_evidence.md` | `multi_axis_v2` 30 个 case | 证明轴一致性修正版压力测试的逐例轴命中与失败原因 |
 
@@ -115,9 +125,9 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - v2 是最终主贡献，由数据贡献、Agent 贡献和 Benchmark 贡献组成。
 - `major_geo_v1 + risk_band_v1` 是主实验。
 - `school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1 + region_tree_v1` 是扩展实验。
-- `region_tree_v1` 不替代主实验；城市层级只作为 reviewed region-tree 证据，不直接等价于就业机会、生活成本或城市生活质量收益。
+- `region_tree_v1` 不替代主实验；城市层级只作为经人工审校的地域层级证据，不直接等价于就业机会、生活成本或城市生活质量收益。
 - `multi_axis_v1` 与 `multi_axis_v2` 是 Benchmark 压力测试，不替代主实验，也不改写七组实验主线；它们只组合已有 relax 能力，不新增业务放宽算法。
-- `multi_axis_v2` 是轴一致性修正版，不是第八组主实验；三类 profile 仍为 `major_geo_risk`、`quality_tuition`、`employment_region`。
+- `multi_axis_v2` 是轴一致性修正版，不进入七组实验主表；三类 profile 仍为 `major_geo_risk`、`quality_tuition`、`employment_region`。
 - Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`；这些字段只作为 simulator / evaluator ground truth。
 - 除非用户明确要求，不主动扩展或重跑 thesis audit。
 
@@ -128,7 +138,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - 七组实验指标与 `thesis_claims_manifest.json` 一致。
 - 第 1 章贡献表述和第 7 章总结表述一致。
 - 第 3 章不把 v1 写成最终主贡献。
-- 第 4 章包含 PostgreSQL、专业树、专业质量、就业结果和地域树 reviewed v1。
+- 第 4 章包含 PostgreSQL、专业层级本体全量覆盖 v2、专业质量、就业结果和经人工审校的地域层级画像。
 - 第 5 章包含轻量 MAS / 多角色 Agent 和各类 relax 算法。
 - 第 6 章主实验和扩展实验分层清楚。
 - 逐例 evidence 能支撑所有聚合 claim。
