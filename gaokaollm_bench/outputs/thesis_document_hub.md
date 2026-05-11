@@ -90,6 +90,7 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 | --- | --- | --- |
 | `benchmark_methodology.md` | Benchmark 方法学说明 | Benchmark schema 或评测原则变化时同步 |
 | `major_tree_methodology.md` | 专业树构建方法说明 | 专业树统计或审校流程变化时同步 |
+| `major_tree_annotation_summary.md` | 专业树标注实验与全量覆盖 v2 汇总 | 专业树覆盖、模型候选、LLM 复核或错分聚类变化时同步 |
 | `thesis_hierarchical_relaxation_methodology.md` | 专业树与地域树层级放宽方法论 | 层级放宽、HITL、地域树边界变化时同步 |
 
 ### 3.4 逐例证据与实验产物
