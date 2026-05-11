@@ -7,6 +7,7 @@ For graduation-thesis work, start here:
 - `thesis_document_hub.md`: human-readable entrypoint and maintenance index.
 - `thesis_claims_manifest.json`: machine-readable source of high-frequency thesis claims.
 - `thesis_term_mapping.json`: terminology source for replacing implementation names with thesis terms.
+- `major_tree_annotation_summary.md`: professional-tree annotation experiment, DeepSeek-R1 low-confidence review, and full-coverage v2 data-contribution facts.
 - `thesis_full_draft_v1.md`: continuous dissertation draft assembled from chapter masters, figures, metrics, and evidence.
 - `thesis_diagrams_with_diagrams.md`: hand-authored SVG/PNG figure rendering guide; Diagrams is historical context only.
 - `thesis_figure_visual_acceptance.md`: PDF-page visual acceptance report for the current thesis figures.
@@ -16,7 +17,8 @@ For graduation-thesis work, start here:
 
 Current thesis framing:
 
-- Contribution structure: 数据贡献 + Agent 贡献 + Benchmark 贡献.
+- Contribution structure: 数据贡献 + Agent 贡献 + Benchmark 贡献, abbreviated as 数据 + Agent + Benchmark.
+- Professional-tree data contribution: full-coverage v2 auditable mounting covers `22,759 / 22,759` raw distinct major names and `140,995 / 140,995` admission rows, with `remaining_unassigned = 0`; this does not mean every semantic boundary has been manually confirmed.
 - Agent architecture: lightweight MAS / multi-role Agent, `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`.
 - Implementation trace: `semantic_normalizer -> gatekeeper -> llm-guided radar planner -> deterministic probes -> negotiator`.
 - LLM boundary: the LLM normalizes intent, plans probes, ranks opportunities, and suggests clarification; deterministic probes are the only factual candidate source.

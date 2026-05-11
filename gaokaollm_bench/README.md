@@ -20,7 +20,7 @@ Business code should depend on `chains`, `flows`, and `llm` abstractions, not di
 
 ## Thesis / 论文材料
 
-Graduation-thesis materials live under `outputs/`. The current thesis framing is 数据贡献 + Agent 贡献 + Benchmark 贡献.
+Graduation-thesis materials live under `outputs/`. The current thesis framing is 数据贡献 + Agent 贡献 + Benchmark 贡献, abbreviated as 数据 + Agent + Benchmark.
 
 The business Agent is described in the thesis as a lightweight MAS / multi-role Agent:
 
@@ -41,6 +41,7 @@ Start from:
 - `outputs/thesis_document_hub.md`: document entrypoint and maintenance index.
 - `outputs/thesis_claims_manifest.json`: machine-readable thesis claim facts.
 - `outputs/thesis_term_mapping.json`: terminology mapping for de-engineering thesis prose.
+- `outputs/major_tree_annotation_summary.md`: major-tree annotation, DeepSeek-R1 low-confidence review, and full-coverage v2 data-contribution facts.
 - `outputs/thesis_method_experiment_chapters.md`: method and experiment chapter draft.
 - `outputs/thesis_system_architecture_algorithms.md`: system architecture and algorithm draft.
 - `outputs/thesis_figures_tables_pack.md`: figures, tables, and pseudocode pack.
@@ -54,5 +55,7 @@ Current thesis experiments:
 - Main experiments: `major_geo_v1 + risk_band_v1`.
 - Extension experiments: `school_strength_v1`, `tuition_value_v1`, `major_quality_v1`, `employment_outcome_v1`, `region_tree_v1`.
 - Benchmark pressure tests: `multi_axis_v1` is the historical version, and `multi_axis_v2` is the coherent-axis revision. They are not part of the seven-experiment thesis table.
+
+Major-tree data contribution: full-coverage v2 auditable mounting covers `22,759 / 22,759` raw distinct major names and `140,995 / 140,995` admission rows, with `remaining_unassigned = 0`. This is a traceable coverage claim, not a claim that every semantic boundary has been manually confirmed.
 
 Hidden fields such as `implicit_flexibilities`, `volunteer_set`, and `axis_flexibilities` are evaluator-side ground truth only and must not enter target Agent input.
