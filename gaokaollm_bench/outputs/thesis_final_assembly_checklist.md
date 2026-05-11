@@ -26,6 +26,7 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | 4 | `gaokaollm_bench/outputs/thesis_method_experiment_chapters.md` | 第 4-6 章核心正文母版 |
 | 5 | `gaokaollm_bench/outputs/thesis_diagrams_with_diagrams.md`、`gaokaollm_bench/outputs/thesis_figures/` | 已生成 SVG/PNG 论文插图 |
 | 6 | `gaokaollm_bench/outputs/thesis_figures_tables_pack.md` | 图、表、伪代码和 Mermaid 草稿 |
+| 7 | `gaokaollm_bench/outputs/thesis_latex_final_consistency_report.md` | LaTeX 终稿事实一致性、`zjuthesis.pdf` 编译状态和剩余版式 warning |
 
 ## 2. 最终 7 章装配表
 
@@ -143,3 +144,4 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - 第 6 章主实验和扩展实验分层清楚。
 - 逐例 evidence 能支撑所有聚合 claim。
 - 图表编号、表格编号、附录编号与正文引用一致。
+- 查看 `thesis_latex_final_consistency_report.md`，确认 `zjuthesis.pdf` 已生成、无 LaTeX fatal error，且七组实验、新 MAS、专业树全量覆盖 v2、`multi_axis_v2` 和 hidden persona 边界均通过一致性检查。

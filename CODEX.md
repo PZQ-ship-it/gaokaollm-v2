@@ -124,7 +124,8 @@ LLM 不生成学校、专业、分数、位次等事实候选，只输出 `probe
 4. 读 `gaokaollm_bench/outputs/thesis_term_mapping.json`，确认正文术语和工程标识边界。
 5. 如果是代码开发，再读相关模块 README 和实现文件。
 6. 如果是论文维护，先定位受影响文档集合，再做一次性长更新。
-7. 最后做只读关键词、术语映射和指标一致性检查。
+7. 如果涉及正式论文交付或 LaTeX 终稿，读 `gaokaollm_bench/outputs/thesis_latex_final_consistency_report.md`，确认 `zjuthesis.pdf` 编译状态、事实一致性和剩余版式 warning。
+8. 最后做只读关键词、术语映射和指标一致性检查。
 
 ## 边界
 
