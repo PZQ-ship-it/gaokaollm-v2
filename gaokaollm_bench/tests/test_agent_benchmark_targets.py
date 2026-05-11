@@ -7,6 +7,11 @@ import pytest
 
 from gaokaollm_bench.evaluator.deterministic_judge import check_hallucination
 from gaokaollm_bench.evaluator.llm_as_a_judge import evaluate_process
+from gaokaollm_bench.data_gen.generate_personas import (
+    MULTI_AXIS_VERSION_V2,
+    _multi_axis_coherence_report,
+    _select_coherent_multi_axis_pairs,
+)
 from gaokaollm_bench.sandbox.target_agents import (
     AppGraphTargetAgent,
     HardConstraintBaselineAgent,
@@ -539,6 +544,72 @@ def test_negotiator_fallback_outputs_two_axis_evidence():
     assert "tuition_value_relax" in reply
     assert "Major Quality University" in reply
     assert "Tuition Value University" in reply
+
+
+def test_multi_axis_v2_validator_rejects_unrelated_major_family():
+    ok, report = _multi_axis_coherence_report(
+        profile="major_geo_risk",
+        first_gap={
+            "score": 592,
+            "province": "浙江",
+            "strict_major": "城市设计",
+            "tier_a": {"major_name": "城市设计"},
+            "volunteer_set": [{"major_name": "城乡规划"}],
+        },
+        second_gap={
+            "score": 592,
+            "province": "浙江",
+            "strict_major": "临床医学",
+            "tier_a": {"major_name": "临床医学"},
+            "volunteer_set": [{"major_name": "临床医学"}],
+        },
+        score_tolerance=8,
+    )
+
+    assert not ok
+    assert not report["major_match"]
+
+
+def test_multi_axis_v2_pair_selector_keeps_coherent_axes():
+    pairs, diagnostic = _select_coherent_multi_axis_pairs(
+        profile="quality_tuition",
+        first_axis="major_quality",
+        first_gaps=[
+            {
+                "score": 600,
+                "province": "浙江",
+                "strict_major": "软件工程",
+                "tier_a": {"major_name": "软件工程"},
+                "volunteer_set": [
+                    {"major_name": "软件工程", "school_name": "A", "min_score": 596}
+                ],
+                "max_tier_delta": 1,
+            }
+        ],
+        second_axis="tuition_value",
+        second_gaps=[
+            {
+                "score": 604,
+                "province": "浙江",
+                "strict_major": "计算机科学与技术",
+                "tier_a": {"major_name": "计算机科学与技术"},
+                "volunteer_set": [
+                    {
+                        "major_name": "计算机科学与技术",
+                        "school_name": "B",
+                        "min_score": 598,
+                    }
+                ],
+                "max_tier_delta": 1,
+            }
+        ],
+        required=1,
+        score_tolerance=8,
+    )
+
+    assert diagnostic["found"] == 1
+    assert pairs[0]["multi_axis_version"] == MULTI_AXIS_VERSION_V2
+    assert pairs[0]["coherence_checks"]["major_match"]
 
 
 async def evaluate_by_joint_school(transcript, *, judge_llm):

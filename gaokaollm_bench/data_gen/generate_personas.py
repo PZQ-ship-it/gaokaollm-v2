@@ -6,6 +6,7 @@ import argparse
 import asyncio
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -26,14 +27,18 @@ from gaokaollm_bench.constrains.paths import (
 )
 from gaokaollm_bench.data_gen.db_seeder import (
     find_city_relax_gap_sets,
+    find_employment_outcome_gap_candidates,
     find_employment_outcome_gap_sets,
     find_hierarchical_major_relax_gap_sets,
+    find_major_quality_gap_candidates,
     find_major_relax_gap_sets,
     find_major_quality_gap_sets,
     find_many_pareto_gaps,
     find_pareto_gap_sets,
+    find_region_tree_relax_gap_candidates,
     find_region_tree_relax_gap_sets,
     find_risk_band_gap_sets,
+    find_tuition_value_gap_candidates,
     find_strength_relax_gap_sets,
     find_tuition_value_gap_sets,
 )
@@ -714,6 +719,590 @@ MULTI_AXIS_PROFILES: dict[str, tuple[str, str]] = {
     "quality_tuition": ("major_quality", "tuition_value"),
     "employment_region": ("employment_outcome", "region_tree"),
 }
+MULTI_AXIS_VERSION_V1 = "v1"
+MULTI_AXIS_VERSION_V2 = "v2"
+DEFAULT_MULTI_AXIS_SCORE_TOLERANCE = 8
+
+MAJOR_FAMILY_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "computer": ("计算机", "软件", "人工智能", "数据", "网络", "信息安全"),
+    "medicine": ("临床医学", "医学", "口腔", "药学", "护理", "医学影像"),
+    "engineering": ("机械", "电气", "电子", "通信", "自动化", "车辆", "能源"),
+    "civil_arch": ("建筑", "城乡规划", "城市设计", "风景园林", "土木"),
+    "economics": ("经济", "金融", "会计", "财务", "工商管理", "管理"),
+    "law": ("法学", "知识产权", "社会工作"),
+    "education": ("教育", "师范", "学前教育", "小学教育"),
+    "language": ("英语", "日语", "法语", "翻译", "外国语言"),
+    "biology_env": ("生物", "生态", "环境", "资源", "食品"),
+    "materials": ("材料", "化工", "高分子", "冶金"),
+    "art_design": ("设计", "美术", "视觉传达", "产品设计", "动画"),
+}
+
+
+def _canonical_major_name(value: Any) -> str:
+    text = str(value or "").strip()
+    text = re.sub(r"[（(].*?[）)]", "", text)
+    text = re.sub(r"\s+", "", text)
+    text = text.replace("专业", "")
+    if text.endswith("类"):
+        text = text[:-1]
+    return text
+
+
+def _gap_major_candidates(gap_set: dict[str, Any]) -> list[str]:
+    values: list[Any] = [
+        gap_set.get("strict_major"),
+        (gap_set.get("tier_a") or {}).get("major_name"),
+    ]
+    for row in gap_set.get("volunteer_set") or []:
+        if isinstance(row, dict):
+            values.append(row.get("major_name") or row.get("major_name_raw"))
+    majors = [_canonical_major_name(value) for value in values]
+    return [major for major in dict.fromkeys(majors) if major]
+
+
+def _major_family_tokens(major: str) -> set[str]:
+    tokens = set()
+    for family, keywords in MAJOR_FAMILY_KEYWORDS.items():
+        if any(keyword in major for keyword in keywords):
+            tokens.add(family)
+    return tokens
+
+
+def _major_names_coherent(first: str, second: str) -> bool:
+    if not first or not second:
+        return False
+    if first == second or first in second or second in first:
+        return True
+    first_tokens = _major_family_tokens(first)
+    second_tokens = _major_family_tokens(second)
+    if first_tokens and second_tokens and first_tokens.intersection(second_tokens):
+        return True
+    # A conservative fallback for names with a shared specialized prefix.
+    return len(first) >= 4 and len(second) >= 4 and first[:4] == second[:4]
+
+
+def _major_sets_coherent(
+    first_gap: dict[str, Any],
+    second_gap: dict[str, Any],
+) -> tuple[bool, dict[str, Any]]:
+    first_majors = _gap_major_candidates(first_gap)
+    second_majors = _gap_major_candidates(second_gap)
+    for first in first_majors:
+        for second in second_majors:
+            if _major_names_coherent(first, second):
+                return True, {
+                    "first_major": first,
+                    "second_major": second,
+                    "rule": "same_major_or_major_family",
+                }
+    return False, {
+        "first_major_candidates": first_majors[:5],
+        "second_major_candidates": second_majors[:5],
+        "rule": "same_major_or_major_family",
+    }
+
+
+def _subject_signature(gap_set: dict[str, Any]) -> tuple[str, ...]:
+    subjects = gap_set.get("subjects")
+    if not subjects:
+        return ()
+    return tuple(sorted(str(subject) for subject in subjects if subject))
+
+
+def _multi_axis_coherence_report(
+    *,
+    profile: str,
+    first_gap: dict[str, Any],
+    second_gap: dict[str, Any],
+    score_tolerance: int,
+) -> tuple[bool, dict[str, Any]]:
+    first_score = int(first_gap.get("score") or 0)
+    second_score = int(second_gap.get("score") or 0)
+    score_delta = abs(first_score - second_score)
+    first_province = first_gap.get("province")
+    second_province = second_gap.get("province")
+    first_subjects = _subject_signature(first_gap)
+    second_subjects = _subject_signature(second_gap)
+    major_match, major_report = _major_sets_coherent(first_gap, second_gap)
+    if profile == "employment_region":
+        major_match = True
+        major_report = {
+            "rule": "employment_outcome_and_region_tree_are_orthogonal_axes",
+        }
+    report = {
+        "profile": profile,
+        "score_delta": score_delta,
+        "score_tolerance": score_tolerance,
+        "province_match": bool(
+            not first_province
+            or not second_province
+            or first_province == second_province
+        ),
+        "subject_match": bool(
+            not first_subjects
+            or not second_subjects
+            or first_subjects == second_subjects
+        ),
+        "major_match": major_match,
+        "major_rule": major_report.get("rule"),
+        "matched_first_major": major_report.get("first_major"),
+        "matched_second_major": major_report.get("second_major"),
+        "first_major_candidates": major_report.get("first_major_candidates"),
+        "second_major_candidates": major_report.get("second_major_candidates"),
+    }
+    ok = (
+        report["score_delta"] <= score_tolerance
+        and report["province_match"]
+        and report["subject_match"]
+        and report["major_match"]
+    )
+    return ok, report
+
+
+def _select_coherent_multi_axis_pairs(
+    *,
+    profile: str,
+    first_axis: str,
+    first_gaps: list[dict[str, Any]],
+    second_axis: str,
+    second_gaps: list[dict[str, Any]],
+    required: int,
+    score_tolerance: int,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    pairs: list[dict[str, Any]] = []
+    used_second_indexes: set[int] = set()
+    rejected_examples: list[dict[str, Any]] = []
+    for first_gap in first_gaps:
+        for second_index, second_gap in enumerate(second_gaps):
+            if second_index in used_second_indexes:
+                continue
+            ok, report = _multi_axis_coherence_report(
+                profile=profile,
+                first_gap=first_gap,
+                second_gap=second_gap,
+                score_tolerance=score_tolerance,
+            )
+            if ok:
+                used_second_indexes.add(second_index)
+                pairs.append(
+                    _multi_axis_gap_set(
+                        profile=profile,
+                        first_axis=first_axis,
+                        first_gap=first_gap,
+                        second_axis=second_axis,
+                        second_gap=second_gap,
+                        multi_axis_version=MULTI_AXIS_VERSION_V2,
+                        coherence_checks=report,
+                    )
+                )
+                break
+            if len(rejected_examples) < 6:
+                rejected_examples.append(report)
+        if len(pairs) >= required:
+            break
+    diagnostic = {
+        "found": len(pairs),
+        "required": required,
+        "first_axis": first_axis,
+        "first_axis_candidates": len(first_gaps),
+        "second_axis": second_axis,
+        "second_axis_candidates": len(second_gaps),
+        "score_tolerance": score_tolerance,
+        "rejected_examples": rejected_examples,
+    }
+    return pairs, diagnostic
+
+
+def _filter_gap_pool_for_major_family(
+    gaps: list[dict[str, Any]],
+    strict_major: str,
+) -> list[dict[str, Any]]:
+    anchor_gap = {
+        "strict_major": strict_major,
+        "tier_a": {"major_name": strict_major},
+        "volunteer_set": [{"major_name": strict_major}],
+    }
+    filtered = []
+    for gap in gaps:
+        match, _ = _major_sets_coherent(anchor_gap, gap)
+        if match:
+            filtered.append(gap)
+    return filtered
+
+
+def _gap_set_from_candidates(
+    candidates: list[dict[str, Any]],
+    *,
+    axis: str,
+    max_volunteers_per_case: int | None,
+    max_volunteers_per_school: int | None,
+) -> dict[str, Any] | None:
+    if not candidates:
+        return None
+    tier_a = candidates[0].get("tier_a") or {}
+    volunteers = []
+    seen_schools: set[Any] = set()
+    school_counts: dict[Any, int] = {}
+    for candidate in candidates:
+        row = dict(candidate.get("tier_b") or {})
+        if not row:
+            continue
+        school_key = row.get("school_id") or row.get("school_name")
+        if max_volunteers_per_school is not None:
+            if school_counts.get(school_key, 0) >= max_volunteers_per_school:
+                continue
+            school_counts[school_key] = school_counts.get(school_key, 0) + 1
+        elif school_key in seen_schools:
+            continue
+        seen_schools.add(school_key)
+        volunteers.append(row)
+        if max_volunteers_per_case and len(volunteers) >= max_volunteers_per_case:
+            break
+    if not volunteers:
+        return None
+    first = candidates[0]
+    gap = {
+        "score": int(first["score"]),
+        "province": first.get("province"),
+        "city": first.get("city"),
+        "constraint_relaxed": axis,
+        "strict_major": first.get("strict_major"),
+        "tier_a": tier_a,
+        "volunteer_set": volunteers,
+        "volunteer_count": len(volunteers),
+        "max_tier_delta": max(
+            int(row.get("tier") or 0) - int(tier_a.get("tier") or 0)
+            for row in volunteers
+        ),
+    }
+    for key in (
+        "budget_anchor",
+        "budget_window",
+        "quality_anchor_score",
+        "outcome_anchor_score",
+        "relaxation_kind",
+        "relax_scope",
+    ):
+        if first.get(key) is not None:
+            gap[key] = first.get(key)
+    if axis == "tuition_value":
+        gap["max_tuition_delta"] = max(
+            int(float(row.get("tuition_delta") or 0)) for row in volunteers
+        )
+        gap["max_ranking_gain"] = max(
+            int(row.get("ranking_gain") or 0) for row in volunteers
+        )
+    if axis == "major_quality":
+        gap["max_quality_gain"] = max(
+            float(row.get("quality_gain") or 0) for row in volunteers
+        )
+    if axis == "employment_outcome":
+        gap["max_outcome_gain"] = max(
+            float(row.get("outcome_gain") or 0) for row in volunteers
+        )
+    if axis == "region_tree":
+        gap["region_relax_strategies"] = list(
+            dict.fromkeys(
+                str(row.get("region_relax_strategy"))
+                for row in volunteers
+                if row.get("region_relax_strategy")
+            )
+        )
+    return gap
+
+
+async def _fetch_axis_candidates_at_score(
+    fetch_query: Any,
+    *,
+    axis: str,
+    score: int,
+    strict_major: str | None,
+    city: str | None,
+    args: argparse.Namespace,
+    exclude_name_patterns: list[str],
+) -> list[dict[str, Any]]:
+    if axis == "major_quality":
+        return await find_major_quality_gap_candidates(
+            fetch_query,
+            score,
+            args.province,
+            strict_major=strict_major,
+            limit=args.candidates_per_score,
+            exclude_name_patterns=exclude_name_patterns,
+            strict_target_quality=not args.no_strict_target_quality,
+            min_quality_gain=args.min_quality_gain,
+        )
+    if axis == "tuition_value":
+        return await find_tuition_value_gap_candidates(
+            fetch_query,
+            score,
+            args.province,
+            strict_major=strict_major,
+            budget=args.budget,
+            budget_window=args.budget_window,
+            relax_scope=args.tuition_relax_scope,
+            limit=args.candidates_per_score,
+            exclude_name_patterns=exclude_name_patterns,
+            strict_target_quality=not args.no_strict_target_quality,
+        )
+    if axis == "employment_outcome":
+        return await find_employment_outcome_gap_candidates(
+            fetch_query,
+            score,
+            args.province,
+            strict_major=strict_major,
+            limit=args.candidates_per_score,
+            exclude_name_patterns=exclude_name_patterns,
+            strict_target_quality=not args.no_strict_target_quality,
+            min_outcome_gain=args.min_outcome_gain,
+        )
+    if axis == "region_tree":
+        return await find_region_tree_relax_gap_candidates(
+            fetch_query,
+            score,
+            args.province,
+            city or args.city,
+            strict_major=None if strict_major is None and city else strict_major,
+            limit=args.candidates_per_score,
+            exclude_name_patterns=exclude_name_patterns,
+            strict_target_quality=not args.no_strict_target_quality,
+        )
+    return []
+
+
+async def _fetch_anchor_axis_gaps(
+    fetch_query: Any,
+    *,
+    axis: str,
+    strict_major: str | None,
+    count: int,
+    city: str | None = None,
+    args: argparse.Namespace,
+    common_kwargs: dict[str, Any],
+    exclude_name_patterns: list[str],
+) -> list[dict[str, Any]]:
+    if axis == "risk_band":
+        return await find_risk_band_gap_sets(
+            fetch_query,
+            count=count,
+            prov=args.province,
+            strict_major=strict_major or args.strict_major,
+            score_min=args.score_min,
+            score_max=args.score_max,
+            score_step=args.score_step,
+            candidates_per_score=args.candidates_per_score,
+            max_volunteers_per_case=args.max_volunteers_per_case,
+            max_volunteers_per_school=args.max_volunteers_per_school,
+            strict_target_quality=not args.no_strict_target_quality,
+        )
+    if axis == "major_quality":
+        return await find_major_quality_gap_sets(
+            fetch_query,
+            count=count,
+            strict_major=strict_major,
+            exclude_name_patterns=exclude_name_patterns,
+            min_quality_gain=args.min_quality_gain,
+            **common_kwargs,
+        )
+    if axis == "tuition_value":
+        return await find_tuition_value_gap_sets(
+            fetch_query,
+            count=count,
+            budget=args.budget,
+            budget_window=args.budget_window,
+            relax_scope=args.tuition_relax_scope,
+            strict_major=strict_major,
+            exclude_name_patterns=exclude_name_patterns,
+            **common_kwargs,
+        )
+    if axis == "employment_outcome":
+        return await find_employment_outcome_gap_sets(
+            fetch_query,
+            count=count,
+            strict_major=strict_major,
+            exclude_name_patterns=exclude_name_patterns,
+            min_outcome_gain=args.min_outcome_gain,
+            **common_kwargs,
+        )
+    if axis == "region_tree":
+        return await find_region_tree_relax_gap_sets(
+            fetch_query,
+            count=count,
+            city=city or args.city,
+            strict_major=None if strict_major is None and city else strict_major,
+            exclude_name_patterns=exclude_name_patterns,
+            **common_kwargs,
+        )
+    return []
+
+
+async def _anchored_coherent_axis_pairs(
+    fetch_query: Any,
+    *,
+    profile: str,
+    first_axis: str,
+    first_gaps: list[dict[str, Any]],
+    second_axis: str,
+    second_gaps: list[dict[str, Any]],
+    required: int,
+    score_tolerance: int,
+    args: argparse.Namespace,
+    common_kwargs: dict[str, Any],
+    exclude_name_patterns: list[str],
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    pairs, diagnostic = _select_coherent_multi_axis_pairs(
+        profile=profile,
+        first_axis=first_axis,
+        first_gaps=first_gaps,
+        second_axis=second_axis,
+        second_gaps=second_gaps,
+        required=required,
+        score_tolerance=score_tolerance,
+    )
+    if len(pairs) >= required:
+        return pairs, diagnostic
+
+    # If broad pools are sparse, anchor missing second-axis queries on the first
+    # axis' explicit major family. This keeps the two axes semantically tied
+    # instead of pairing unrelated prebuilt cases.
+    used_pair_keys = {
+        (
+            pair.get("axis_case_scores", {}).get(first_axis),
+            (pair.get("tier_a") or {}).get("school_name"),
+            pair.get("strict_major"),
+        )
+        for pair in pairs
+    }
+    for first_gap in first_gaps:
+        if len(pairs) >= required:
+            break
+        major_candidates = _gap_major_candidates(first_gap)
+        strict_major = major_candidates[0] if major_candidates else None
+        if profile == "employment_region" and second_axis == "region_tree":
+            strict_major = None
+        if not strict_major and profile != "employment_region":
+            continue
+        anchored_second_gaps = await _fetch_anchor_axis_gaps(
+            fetch_query,
+            axis=second_axis,
+            strict_major=strict_major,
+            count=max(required * 2, 6),
+            city=(first_gap.get("tier_a") or {}).get("school_city")
+            or first_gap.get("city"),
+            args=args,
+            common_kwargs=common_kwargs,
+            exclude_name_patterns=exclude_name_patterns,
+        )
+        trial_pairs, _ = _select_coherent_multi_axis_pairs(
+            profile=profile,
+            first_axis=first_axis,
+            first_gaps=[first_gap],
+            second_axis=second_axis,
+            second_gaps=anchored_second_gaps,
+            required=1,
+            score_tolerance=score_tolerance,
+        )
+        if not trial_pairs:
+            continue
+        pair = trial_pairs[0]
+        pair_key = (
+            pair.get("axis_case_scores", {}).get(first_axis),
+            (pair.get("tier_a") or {}).get("school_name"),
+            pair.get("strict_major"),
+        )
+        if pair_key in used_pair_keys:
+            continue
+        used_pair_keys.add(pair_key)
+        pairs.append(pair)
+
+    # For profiles whose two axes are both candidate-query based, build both
+    # axes at the exact same score and major anchor. This avoids depending on
+    # two separately generated single-axis datasets having matching slices.
+    if len(pairs) < required and (profile in {"quality_tuition", "employment_region"}):
+        anchors = list(first_gaps)
+        if not anchors:
+            anchors = [
+                {
+                    "score": score,
+                    "province": args.province,
+                    "strict_major": args.strict_major,
+                }
+                for score in range(args.score_min, args.score_max + 1, args.score_step)
+            ]
+        for anchor_gap in anchors:
+            if len(pairs) >= required:
+                break
+            major_candidates = _gap_major_candidates(anchor_gap)
+            strict_major = (
+                major_candidates[0] if major_candidates else args.strict_major or None
+            )
+            if profile == "employment_region" and second_axis == "region_tree":
+                strict_major = None
+            score = int(anchor_gap.get("score") or 0)
+            if (not strict_major and profile != "employment_region") or not score:
+                continue
+            first_candidates = await _fetch_axis_candidates_at_score(
+                fetch_query,
+                axis=first_axis,
+                score=score,
+                strict_major=strict_major,
+                city=(anchor_gap.get("tier_a") or {}).get("school_city")
+                or anchor_gap.get("city"),
+                args=args,
+                exclude_name_patterns=exclude_name_patterns,
+            )
+            second_candidates = await _fetch_axis_candidates_at_score(
+                fetch_query,
+                axis=second_axis,
+                score=score,
+                strict_major=strict_major,
+                city=(anchor_gap.get("tier_a") or {}).get("school_city")
+                or anchor_gap.get("city"),
+                args=args,
+                exclude_name_patterns=exclude_name_patterns,
+            )
+            first_gap_at_score = _gap_set_from_candidates(
+                first_candidates,
+                axis=first_axis,
+                max_volunteers_per_case=args.max_volunteers_per_case,
+                max_volunteers_per_school=args.max_volunteers_per_school,
+            )
+            second_gap_at_score = _gap_set_from_candidates(
+                second_candidates,
+                axis=second_axis,
+                max_volunteers_per_case=args.max_volunteers_per_case,
+                max_volunteers_per_school=args.max_volunteers_per_school,
+            )
+            if not first_gap_at_score or not second_gap_at_score:
+                continue
+            trial_pairs, _ = _select_coherent_multi_axis_pairs(
+                profile=profile,
+                first_axis=first_axis,
+                first_gaps=[first_gap_at_score],
+                second_axis=second_axis,
+                second_gaps=[second_gap_at_score],
+                required=1,
+                score_tolerance=score_tolerance,
+            )
+            if not trial_pairs:
+                continue
+            pair = trial_pairs[0]
+            pair_key = (
+                pair.get("axis_case_scores", {}).get(first_axis),
+                (pair.get("tier_a") or {}).get("school_name"),
+                pair.get("strict_major"),
+            )
+            if pair_key in used_pair_keys:
+                continue
+            used_pair_keys.add(pair_key)
+            pairs.append(pair)
+
+    diagnostic = {
+        **diagnostic,
+        "found_after_anchored_retry": len(pairs),
+        "anchored_retry": True,
+    }
+    return pairs[:required], diagnostic
 
 
 def _axis_volunteer_entries(
@@ -773,6 +1362,8 @@ def _multi_axis_gap_set(
     first_gap: dict[str, Any],
     second_axis: str,
     second_gap: dict[str, Any],
+    multi_axis_version: str = MULTI_AXIS_VERSION_V1,
+    coherence_checks: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     score = max(int(first_gap["score"]), int(second_gap["score"]))
     tier_a = first_gap["tier_a"]
@@ -785,6 +1376,7 @@ def _multi_axis_gap_set(
     )
     return {
         "constraint_relaxed": "multi_axis",
+        "multi_axis_version": multi_axis_version,
         "multi_axis_profile": profile,
         "relaxation_axes": [first_axis, second_axis],
         "axis_flexibilities": {
@@ -806,6 +1398,7 @@ def _multi_axis_gap_set(
             first_axis: int(first_gap["score"]),
             second_axis: int(second_gap["score"]),
         },
+        "coherence_checks": coherence_checks or {},
     }
 
 
@@ -820,6 +1413,7 @@ def build_multi_axis_persona_from_gap_set(
     city = str(gap_set.get("city") or (gap_set["tier_a"].get("school_city") or ""))
     strict_major = str(gap_set.get("strict_major") or "target major")
     profile = str(gap_set["multi_axis_profile"])
+    multi_axis_version = str(gap_set.get("multi_axis_version") or MULTI_AXIS_VERSION_V1)
     axes = list(gap_set["relaxation_axes"])
     axis_flexibilities = dict(gap_set["axis_flexibilities"])
     all_schools = []
@@ -880,8 +1474,12 @@ def build_multi_axis_persona_from_gap_set(
         + ". Hidden axis_flexibilities and volunteer_set are evaluator-only."
     )
 
+    case_prefix = (
+        "multi-axis-v2" if multi_axis_version == MULTI_AXIS_VERSION_V2 else "multi-axis"
+    )
+
     return IcebergPersona(
-        case_id=f"multi-axis-{profile}-{province}-{score}-{index:03d}",
+        case_id=f"{case_prefix}-{profile}-{province}-{score}-{index:03d}",
         background={
             "score": score,
             "province": province,
@@ -893,16 +1491,19 @@ def build_multi_axis_persona_from_gap_set(
             "baseline_tier": tier_a.get("tier"),
             "baseline_label": _school_label(tier_a),
             "constraint_relaxed": "multi_axis",
+            "multi_axis_version": multi_axis_version,
             "multi_axis_profile": profile,
             "relaxation_axes": axes,
             "volunteer_count": len(gap_set.get("volunteer_set") or []),
             "max_tier_delta": gap_set.get("max_tier_delta"),
             "axis_case_scores": gap_set.get("axis_case_scores"),
+            "coherence_checks": gap_set.get("coherence_checks") or {},
         },
         explicit_red_lines=explicit_red_lines,
         implicit_flexibilities={
             "trigger_type": "multi_axis",
             "constraint_relaxed": "multi_axis",
+            "multi_axis_version": multi_axis_version,
             "multi_axis_profile": profile,
             "relaxation_axes": axes,
             "axis_flexibilities": axis_flexibilities,
@@ -955,6 +1556,7 @@ def _gap_from_source_persona(item: dict[str, Any], axis: str) -> dict[str, Any]:
         "score": int(background.get("score") or 0),
         "province": background.get("province"),
         "city": background.get("city"),
+        "subjects": background.get("subjects") or [],
         "strict_major": background.get("preferred_major"),
         "tier_a": tier_a,
         "volunteer_set": volunteers,
@@ -982,7 +1584,12 @@ def _gap_from_source_persona(item: dict[str, Any], axis: str) -> dict[str, Any]:
     return gap
 
 
-def _multi_axis_gap_sets_from_source_files(count: int) -> list[dict[str, Any]]:
+def _multi_axis_gap_sets_from_source_files(
+    count: int,
+    *,
+    multi_axis_version: str = MULTI_AXIS_VERSION_V1,
+    score_tolerance: int = DEFAULT_MULTI_AXIS_SCORE_TOLERANCE,
+) -> list[dict[str, Any]]:
     if count % len(MULTI_AXIS_PROFILES) != 0:
         raise ValueError(
             f"--count for --relaxation multi_axis must be divisible by 3 (got {count})."
@@ -997,21 +1604,37 @@ def _multi_axis_gap_sets_from_source_files(count: int) -> list[dict[str, Any]]:
 
     gap_sets: list[dict[str, Any]] = []
     for profile, (first_axis, second_axis) in MULTI_AXIS_PROFILES.items():
+        first_gaps = [
+            _gap_from_source_persona(item, first_axis)
+            for item in source_items[first_axis]
+        ]
+        second_gaps = [
+            _gap_from_source_persona(item, second_axis)
+            for item in source_items[second_axis]
+        ]
+        if multi_axis_version == MULTI_AXIS_VERSION_V2:
+            pairs, diagnostic = _select_coherent_multi_axis_pairs(
+                profile=profile,
+                first_axis=first_axis,
+                first_gaps=first_gaps,
+                second_axis=second_axis,
+                second_gaps=second_gaps,
+                required=per_profile,
+                score_tolerance=score_tolerance,
+            )
+            if diagnostic["found"] < per_profile:
+                return []
+            gap_sets.extend(pairs)
+            continue
+
         for idx in range(per_profile):
-            first_gap = _gap_from_source_persona(
-                source_items[first_axis][idx], first_axis
-            )
-            second_gap = _gap_from_source_persona(
-                source_items[second_axis][idx],
-                second_axis,
-            )
             gap_sets.append(
                 _multi_axis_gap_set(
                     profile=profile,
                     first_axis=first_axis,
-                    first_gap=first_gap,
+                    first_gap=first_gaps[idx],
                     second_axis=second_axis,
-                    second_gap=second_gap,
+                    second_gap=second_gaps[idx],
                 )
             )
     return gap_sets
@@ -1025,7 +1648,19 @@ async def find_multi_axis_gap_sets(
 ) -> list[dict[str, Any]]:
     """Compose existing real-DB single-axis gap sets into two-axis cases."""
 
-    source_gap_sets = _multi_axis_gap_sets_from_source_files(count)
+    multi_axis_version = str(
+        getattr(args, "multi_axis_version", MULTI_AXIS_VERSION_V1)
+        or MULTI_AXIS_VERSION_V1
+    )
+    score_tolerance = int(
+        getattr(args, "multi_axis_score_tolerance", DEFAULT_MULTI_AXIS_SCORE_TOLERANCE)
+        or DEFAULT_MULTI_AXIS_SCORE_TOLERANCE
+    )
+    source_gap_sets = _multi_axis_gap_sets_from_source_files(
+        count,
+        multi_axis_version=multi_axis_version,
+        score_tolerance=score_tolerance,
+    )
     if source_gap_sets:
         return source_gap_sets
 
@@ -1034,6 +1669,11 @@ async def find_multi_axis_gap_sets(
             f"--count for --relaxation multi_axis must be divisible by 3 (got {count})."
         )
     per_profile = count // len(MULTI_AXIS_PROFILES)
+    pool_count = (
+        max(per_profile * 8, per_profile)
+        if multi_axis_version == MULTI_AXIS_VERSION_V2
+        else per_profile
+    )
     common_kwargs = {
         "prov": args.province,
         "score_min": args.score_min,
@@ -1052,7 +1692,7 @@ async def find_multi_axis_gap_sets(
 
     major_geo_gaps = await find_pareto_gap_sets(
         fetch_query,
-        count=per_profile,
+        count=pool_count,
         prov=args.province,
         score_min=args.score_min,
         score_max=args.score_max,
@@ -1064,7 +1704,7 @@ async def find_multi_axis_gap_sets(
     )
     risk_gaps = await find_risk_band_gap_sets(
         fetch_query,
-        count=per_profile,
+        count=pool_count,
         prov=args.province,
         strict_major=args.strict_major,
         score_min=args.score_min,
@@ -1077,7 +1717,7 @@ async def find_multi_axis_gap_sets(
     )
     quality_gaps = await find_major_quality_gap_sets(
         fetch_query,
-        count=per_profile,
+        count=pool_count,
         strict_major=args.strict_major or None,
         exclude_name_patterns=exclude_name_patterns,
         min_quality_gain=args.min_quality_gain,
@@ -1085,7 +1725,7 @@ async def find_multi_axis_gap_sets(
     )
     tuition_gaps = await find_tuition_value_gap_sets(
         fetch_query,
-        count=per_profile,
+        count=pool_count,
         budget=args.budget,
         budget_window=args.budget_window,
         relax_scope=args.tuition_relax_scope,
@@ -1095,7 +1735,7 @@ async def find_multi_axis_gap_sets(
     )
     employment_gaps = await find_employment_outcome_gap_sets(
         fetch_query,
-        count=per_profile,
+        count=pool_count,
         strict_major=args.strict_major or None,
         exclude_name_patterns=exclude_name_patterns,
         min_outcome_gain=args.min_outcome_gain,
@@ -1103,12 +1743,52 @@ async def find_multi_axis_gap_sets(
     )
     region_gaps = await find_region_tree_relax_gap_sets(
         fetch_query,
-        count=per_profile,
+        count=pool_count,
         city=args.city,
         strict_major=args.strict_major or None,
         exclude_name_patterns=exclude_name_patterns,
         **common_kwargs,
     )
+
+    if multi_axis_version == MULTI_AXIS_VERSION_V2:
+        source_axis_gaps = {
+            axis: [
+                _gap_from_source_persona(item, axis)
+                for item in _load_source_axis_personas(axis)
+            ]
+            for axis in MULTI_AXIS_SOURCE_FILES
+        }
+
+        def extend_with_source(
+            gaps: list[dict[str, Any]], axis: str
+        ) -> list[dict[str, Any]]:
+            seen = {
+                (
+                    int(gap.get("score") or 0),
+                    gap.get("strict_major"),
+                    (gap.get("tier_a") or {}).get("school_name"),
+                )
+                for gap in gaps
+            }
+            combined = list(gaps)
+            for gap in source_axis_gaps.get(axis, []):
+                key = (
+                    int(gap.get("score") or 0),
+                    gap.get("strict_major"),
+                    (gap.get("tier_a") or {}).get("school_name"),
+                )
+                if key in seen:
+                    continue
+                seen.add(key)
+                combined.append(gap)
+            return combined
+
+        major_geo_gaps = extend_with_source(major_geo_gaps, "major_geo")
+        risk_gaps = extend_with_source(risk_gaps, "risk_band")
+        quality_gaps = extend_with_source(quality_gaps, "major_quality")
+        tuition_gaps = extend_with_source(tuition_gaps, "tuition_value")
+        employment_gaps = extend_with_source(employment_gaps, "employment_outcome")
+        region_gaps = extend_with_source(region_gaps, "region_tree")
 
     source_pairs = {
         "major_geo_risk": ("major_geo", major_geo_gaps, "risk_band", risk_gaps),
@@ -1139,7 +1819,7 @@ async def find_multi_axis_gap_sets(
         ) in source_pairs.items()
         if len(first_gaps) < per_profile or len(second_gaps) < per_profile
     }
-    if missing:
+    if missing and multi_axis_version != MULTI_AXIS_VERSION_V2:
         raise ValueError(
             "Cannot build enough multi_axis real-DB cases: "
             + json.dumps(missing, ensure_ascii=False)
@@ -1152,6 +1832,30 @@ async def find_multi_axis_gap_sets(
         second_axis,
         second_gaps,
     ) in source_pairs.items():
+        if multi_axis_version == MULTI_AXIS_VERSION_V2:
+            pairs, diagnostic = await _anchored_coherent_axis_pairs(
+                fetch_query,
+                profile=profile,
+                first_axis=first_axis,
+                first_gaps=first_gaps,
+                second_axis=second_axis,
+                second_gaps=second_gaps,
+                required=per_profile,
+                score_tolerance=score_tolerance,
+                args=args,
+                common_kwargs=common_kwargs,
+                exclude_name_patterns=exclude_name_patterns,
+            )
+            found_count = int(
+                diagnostic.get("found_after_anchored_retry") or diagnostic["found"]
+            )
+            if found_count < per_profile:
+                raise ValueError(
+                    "Cannot build enough coherent multi_axis real-DB cases: "
+                    + json.dumps({profile: diagnostic}, ensure_ascii=False)
+                )
+            gap_sets.extend(pairs)
+            continue
         for idx in range(per_profile):
             gap_sets.append(
                 _multi_axis_gap_set(
@@ -1484,6 +2188,18 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="Constraint relaxation axis used to build volunteer-set personas.",
     )
     parser.add_argument(
+        "--multi-axis-version",
+        choices=[MULTI_AXIS_VERSION_V1, MULTI_AXIS_VERSION_V2],
+        default=MULTI_AXIS_VERSION_V1,
+        help="Use v2 to require coherent two-axis multi-axis persona construction.",
+    )
+    parser.add_argument(
+        "--multi-axis-score-tolerance",
+        type=int,
+        default=DEFAULT_MULTI_AXIS_SCORE_TOLERANCE,
+        help="Maximum score difference allowed between two source axes in v2.",
+    )
+    parser.add_argument(
         "--strict-major",
         default="临床医学",
         help="Original hard major constraint for major relaxation.",
@@ -1666,6 +2382,8 @@ def main(argv: list[str] | None = None) -> int:
         raise ValueError("--budget must be non-negative")
     if args.budget_window < 1:
         raise ValueError("--budget-window must be at least 1")
+    if args.multi_axis_score_tolerance < 0:
+        raise ValueError("--multi-axis-score-tolerance must be non-negative")
     if args.recommendation_threshold is None:
         if args.min_volunteers_per_case is not None:
             args.recommendation_threshold = args.min_volunteers_per_case

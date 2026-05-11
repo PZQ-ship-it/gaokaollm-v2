@@ -34,6 +34,17 @@
 
 注意：`major_geo_v1` 不是 100% 成功，失败样本为 `real-db-set-浙江-569-009`。
 
+## 2.1 Benchmark 压力测试事实表
+
+压力测试不替代七组实验事实表，也不改变主实验 `major_geo_v1 + risk_band_v1` 的定位。它们用于检查 Benchmark 在更复杂隐藏妥协结构下是否仍能区分“单轴命中”和“多轴同时命中”。
+
+| 压力测试 | 定位 | 画像规模 | `app_pareto` | `hard_constraint` | Profile 结果 | Summary | Evidence |
+| --- | --- | ---: | --- | --- | --- | --- | --- |
+| `multi_axis_v1` | 多轴隐藏妥协压力测试历史版 | 30 | `0.533 / 1.133 / 0.029 / 7.67` | `0.000 / 0.000 / 0.000 / 13.00` | `major_geo_risk` 1/10；`quality_tuition` 5/10；`employment_region` 10/10 | `agent_benchmark_multi_axis_v1_summary.md` | `agent_benchmark_multi_axis_v1_evidence.md` |
+| `multi_axis_v2` | 轴一致性修正版压力测试 | 30 | `0.367 / 1.133 / 0.005 / 9.33` | `0.000 / 0.000 / 0.008 / 13.00` | `major_geo_risk` 6/10；`quality_tuition` 5/10；`employment_region` 0/10 | `agent_benchmark_multi_axis_v2_summary.md` | `agent_benchmark_multi_axis_v2_evidence.md` |
+
+`multi_axis_v2` 的目标不是追求更高聚合成功率，而是修复 v1 中部分交叉画像轴不一致的问题。v2 要求两个隐藏放宽轴围绕一致的显性需求或可解释的正交需求构造；因此它更适合用于论文中的压力测试诊断。当前结果显示：专业-地域与风险组合的联合命中从 v1 的 1/10 改善到 6/10；专业质量与学费组合保持 5/10；就业与地域组合暴露出 Agent 能稳定给出就业证据但未能同步给出地域树证据的问题。
+
 ## 3. 文档地图
 
 ### 3.1 正文母版

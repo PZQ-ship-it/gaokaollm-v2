@@ -31,6 +31,7 @@
 | `agent_benchmark_risk_band_v1_evidence.md` | `risk_band_v1` 主实验逐例证据 |
 | `thesis_data_agent_benchmark_extension_evidence.md` | `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` |
 | `agent_benchmark_region_tree_v1_evidence.md` | `region_tree_v1` 地域树扩展实验逐例证据 |
+| `agent_benchmark_multi_axis_v2_evidence.md` | `multi_axis_v2` 多轴 Benchmark 压力测试修正版逐例证据 |
 
 ## 第 1 章 绪论
 
@@ -263,7 +264,18 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 其中，`major_quality_v1` 说明专业级质量证据比粗粒度学校实力更适合解释“同专业更强”的推荐；`employment_outcome_v1` 说明就业结果证据可以转化为 outcome gain；`region_tree_v1` 说明 reviewed 地域树可以进入最小 Agent+Benchmark 闭环，但城市层级不能被直接写成城市收益。
 
-### 6.5 逐例证据与可复现性
+### 6.5 Benchmark 压力测试：多轴隐藏妥协
+
+在七组实验之外，本文保留多轴 Benchmark 压力测试，用于检验用户同时在两个方面存在隐藏妥协时，Agent 是否能同时发现并解释多类 Pareto opportunities。该压力测试不进入七组实验主表，也不替代 `major_geo_v1 + risk_band_v1` 主实验。
+
+| 压力测试 | 定位 | `app_pareto` | `hard_constraint` | profile 成功分布 | 结论 |
+| --- | --- | ---: | ---: | --- | --- |
+| `multi_axis_v1` | 历史压力测试版本 | `0.533 / 1.133 / 0.029 / 7.67` | `0.000 / 0.000 / 0.000 / 13.00` | `major_geo_risk` 1/10；`quality_tuition` 5/10；`employment_region` 10/10 | 暴露单轴实验看不出的多轴证据编排问题，但部分画像存在轴一致性不足 |
+| `multi_axis_v2` | 轴一致性修正版 | `0.367 / 1.133 / 0.005 / 9.33` | `0.000 / 0.000 / 0.008 / 13.00` | `major_geo_risk` 6/10；`quality_tuition` 5/10；`employment_region` 0/10 | 修正两个轴围绕一致显性需求或可解释正交需求构造；`employment_region` 暴露就业证据与地域树证据联合编排瓶颈 |
+
+`multi_axis_v2` 仍只组合已有 relax 能力，不新增业务放宽算法。压力测试中的 `axis_flexibilities` 只作为 simulator / evaluator ground truth，Agent 不读取该字段。
+
+### 6.6 逐例证据与可复现性
 
 本文的聚合结果均有逐例 evidence 支撑。主实验 evidence 分别记录了每个 case 的成功状态、turns、hallucination、pareto_gain 和候选证据。扩展 evidence 记录了专业实力、学费、专业质量、就业结果和地域树候选。论文正文建议展示少量代表 case，完整逐例证据放入附录或答辩备查材料。
 

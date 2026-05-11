@@ -7,7 +7,7 @@
 - 主实验：`major_geo_v1`、`risk_band_v1`。
 - 扩展实验：`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1`。
 - 地域树数据层：`region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json`、HITL review packet 与 coverage report 已接入 `region_tree_v1` 扩展实验。
-- Benchmark 压力测试：`multi_axis_v1` 已完成，用 30 个真实 DB persona 测试两条隐藏放宽轴同时成立时的证据编排能力；它不替代主实验，也不改写当前七组实验事实表。
+- Benchmark 压力测试：`multi_axis_v1` 与轴一致性修正版 `multi_axis_v2` 已完成，用 30 个真实 DB persona 测试两条隐藏放宽轴同时成立时的证据编排能力；它们不替代主实验，也不改写当前七组实验事实表。
 - 后续谨慎推进方向：城市收益指标需可核验证据、真实用户校准、概率化录取风险模型、多省份泛化。
 
 ## 1. 论文贡献结构
@@ -65,7 +65,7 @@
 
 `region_tree_v1` 的 Pareto gain 仍按学校 tier/ranking 改善计算，不把“城市层级更高”本身计入收益。这样可以避免把 `schools.city` 或城市层级包装成未被证据支持的城市收益。
 
-## 3.2 Benchmark 压力测试：`multi_axis_v1`
+## 3.2 Benchmark 压力测试：`multi_axis_v1` 与 `multi_axis_v2`
 
 在七组单轴或单类动态放宽闭环之外，`multi_axis_v1` 用作 Benchmark 压力测试，专门检验用户同时存在两个隐藏妥协轴时，Agent 是否能同时发现、组织并解释多类 Pareto opportunities。它只组合现有 relax 能力，不新增新的业务放宽算法，也不把七组实验主线改写为新的实验主线。
 
@@ -78,6 +78,12 @@
 | `employment_region` | `employment_outcome_relax` + `region_tree_relax` | 10/10 | 就业结果证据与 reviewed 地域树证据组合较稳定 |
 
 聚合指标为：`app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`。该结果说明，多轴 benchmark 能暴露单轴实验看不出的证据编排问题，尤其是 `major_geo_relax + risk_band_relax` 的联合表达难度较高。
+
+`multi_axis_v2` 是对 v1 的轴一致性修正版。它保留 30 个真实 DB persona 和三类 profile，但生成时增加一致性约束：`major_geo_risk` 要求专业-地域放宽轴与风险组合轴围绕同一显性专业或专业树近邻簇；`quality_tuition` 要求专业质量收益与学费放宽围绕同一专业或专业类；`employment_region` 要求就业结果证据与地域树证据围绕同一显性就业/专业方向，地域树只提供地域层级证据，不直接计入城市收益。
+
+`multi_axis_v2` 聚合指标为：`app_pareto 0.367 / 1.133 / 0.005 / 9.33` vs `hard_constraint 0.000 / 0.000 / 0.008 / 13.00`。逐 profile 结果为：`major_geo_risk` 6/10、`quality_tuition` 5/10、`employment_region` 0/10。该结果不表示 v2 “退步”，而是把 v1 中可能混入的画像构造不一致问题剥离出来：专业-地域与风险组合的联合命中明显改善，专业质量与学费组合保持中等难度，就业与地域组合则暴露出 Agent 能给出就业证据但未能同步组织地域树证据的编排瓶颈。
+
+论文中建议把 `multi_axis_v2` 写作“多轴隐藏妥协压力测试修正版”，而不是第八组主线实验或新的业务放宽算法。它的价值在于证明 Benchmark 可以从单轴能力验证推进到组合能力诊断，并指出后续若要优化 Agent，应优先改进多段证据组织与轴间一致性表达。
 
 该压力测试保留严格的 hidden persona 边界：Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`。这些字段只用于 simulator/evaluator，Agent 仍只能使用用户显式话语和 PostgreSQL/标准化证据层查询结果。
 
@@ -136,6 +142,8 @@
 - `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md`
 - `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md`
 - `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_summary.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_evidence.md`
 - `gaokaollm_bench/outputs/thesis_method_experiment_chapters.md`
 - `gaokaollm_bench/outputs/thesis_agent_benchmark_contribution.md`
 - `gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md`

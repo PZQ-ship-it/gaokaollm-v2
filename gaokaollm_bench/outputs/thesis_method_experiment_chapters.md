@@ -16,6 +16,8 @@
 - `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md`
 - `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md`
 - `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_summary.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_evidence.md`
 - `gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md`
 - `gaokaollm_bench/outputs/benchmark_methodology.md`
 - `gaokaollm_bench/outputs/major_tree_methodology.md`
@@ -226,8 +228,12 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md`
 - `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md`
 - `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_summary.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_evidence.md`
 
 这些 evidence 附录把聚合指标落到每个 case 的 transcript 与候选证据上。对于成功样本，附录列出真实候选学校、专业、最低分、最低位次以及对应的放宽证据；对于 baseline，对照说明其不主动产生相应 Pareto opportunities，因此不能触发隐藏妥协。需要特别强调的是，文档可以引用 hidden persona 作为 evaluator ground truth，但 Agent 输入只来自用户显式话语和 PostgreSQL 查询结果，不读取 `implicit_flexibilities` 或 `volunteer_set`。
+
+`multi_axis_v1` 与 `multi_axis_v2` 均作为 Benchmark 压力测试单独报告，不进入七组实验主表，也不替代 `major_geo_v1 + risk_band_v1` 主实验。`multi_axis_v1` 是历史压力测试版本，结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`，三类 profile `major_geo_risk`、`quality_tuition`、`employment_region` 的成功分布分别为 1/10、5/10、10/10。`multi_axis_v2` 是轴一致性修正版，仍使用 `major_geo_risk`、`quality_tuition`、`employment_region` 三类 profile，但要求两个隐藏放宽轴围绕一致显性需求或可解释的正交需求构造；结果为 `app_pareto 0.367 / 1.133 / 0.005 / 9.33` vs `hard_constraint 0.000 / 0.000 / 0.008 / 13.00`，三类 profile 成功分布为 6/10、5/10、0/10。该结果说明修正后的 benchmark 更适合解释多轴妥协失败来源，其中 `employment_region` 暴露出就业证据与地域树证据在同一回复中组织不足的瓶颈。压力测试中的 `axis_flexibilities` 仍只作为 simulator / evaluator ground truth，Agent 不读取该字段。
 
 ## 8. 局限性与后续工作
 

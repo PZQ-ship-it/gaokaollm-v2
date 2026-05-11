@@ -161,7 +161,10 @@
     "benchmark_pressure_tests": [
       "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md",
       "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md",
-      "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1/"
+      "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1/",
+      "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_summary.md",
+      "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_evidence.md",
+      "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2/"
     ]
   },
   "benchmark_pressure_tests": {
@@ -197,6 +200,53 @@
       "summary": "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md",
       "evidence": "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md",
       "note": "A case succeeds only when both required axes are evidenced; single-axis success is reported in axis_successes but does not count as elicitation_success."
+    },
+    "multi_axis_v2": {
+      "role": "benchmark_pressure_test_revision",
+      "relaxation": "multi_axis",
+      "positioning": "Coherent-axis repair of multi_axis_v1; it is a benchmark pressure test, not a main experiment or an eighth item in the seven-experiment thesis table.",
+      "profiles": {
+        "major_geo_risk": [
+          "major_geo",
+          "risk_band"
+        ],
+        "quality_tuition": [
+          "major_quality",
+          "tuition_value"
+        ],
+        "employment_region": [
+          "employment_outcome",
+          "region_tree"
+        ]
+      },
+      "app_pareto": "0.367 / 1.133 / 0.005 / 9.33",
+      "hard_constraint": "0.000 / 0.000 / 0.008 / 13.00",
+      "cases": 30,
+      "app_success_count": 11,
+      "profile_success": {
+        "major_geo_risk": "6/10",
+        "quality_tuition": "5/10",
+        "employment_region": "0/10"
+      },
+      "axis_success_summary": {
+        "major_geo_risk": {
+          "major_geo": "8/10",
+          "risk_band": "7/10"
+        },
+        "quality_tuition": {
+          "major_quality": "10/10",
+          "tuition_value": "5/10"
+        },
+        "employment_region": {
+          "employment_outcome": "10/10",
+          "region_tree": "0/10"
+        }
+      },
+      "persona": "gaokaollm_bench/sample_data/iceberg_personas_multi_axis_coherent_real_db_30.json",
+      "output_dir": "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2/",
+      "summary": "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_summary.md",
+      "evidence": "gaokaollm_bench/outputs/agent_benchmark_multi_axis_v2_evidence.md",
+      "note": "A case succeeds only when both coherent required axes are evidenced. The v2 persona records multi_axis_version=v2 and coherence_checks; employment_region exposes that employment evidence can be surfaced while region-tree evidence remains missing in multi-axis negotiation."
     }
   },
   "terminology": {
