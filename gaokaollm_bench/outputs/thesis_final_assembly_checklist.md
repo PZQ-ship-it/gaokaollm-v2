@@ -34,7 +34,7 @@ gatekeeper -> radar -> negotiator
 | 第 3 章 | 第一版 Agentic RAG 原型系统与问题诊断 | `thesis_v1_prototype_chapter.md`、`thesis_v1_v2_integration_plan.md` | v1 `gaokaollmmodel` 写成工程原型与问题发现，不写成最终主贡献 |
 | 第 4 章 | 高考志愿偏好妥协 Benchmark 与数据层构建 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md` | 写 PostgreSQL 快照、专业树、质量/就业/地域树标准化层、冰山画像和沙盒 |
 | 第 5 章 | 证据驱动 Pareto 谈判 Agent 设计 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md` | 写 `gatekeeper -> radar -> negotiator`、各类 relax 算法和轻量 MAS 边界 |
-| 第 6 章 | 实验结果、逐例证据与分析 | `thesis_method_experiment_chapters.md`、各 summary/evidence | 主实验与扩展实验分层写，保留失败样本和 evidence 引用 |
+| 第 6 章 | 实验结果、逐例证据与分析 | `thesis_method_experiment_chapters.md`、各 summary/evidence | 主实验与扩展实验分层写，补充 `multi_axis_v1` Benchmark 压力测试，保留失败样本和 evidence 引用 |
 | 第 7 章 | 总结与展望 | `thesis_conclusion_future_work_chapter.md`、`dynamic_decision_considerations_roadmap.md` | 总结 v1 到 v2 的演进，保留真实用户校准、城市收益指标、多省份泛化等后续工作 |
 
 ## 3. 图表迁移清单
@@ -49,6 +49,7 @@ gatekeeper -> radar -> negotiator
 | 数据证据层图 | 图 4-3 | `thesis_figures/fig_4_3_data_evidence_relax_mapping.svg` / `.png` | 第 4 章数据层设计 |
 | 七实验结果总表 | 表 6-1 | 主实验 + 五组扩展实验指标 | 第 6 章实验结果 |
 | 算法到实验映射表 | 表 5-1 或表 6-2 | relax 算法、数据证据、实验结果、论文意义 | 第 5 章或第 6 章 |
+| Benchmark 压力测试表 | 表 6-3 | `multi_axis_v1` 指标与三类 profile 成功分布 | 第 6 章补充实验或附录 |
 
 ## 4. 算法与方法迁移清单
 
@@ -82,6 +83,8 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 注意：`major_geo_v1` 不是 100% 成功，失败样本为 `real-db-set-浙江-569-009`。论文中必须保留该失败样本，避免把 `0.900` 写成完全成功。
 
+`multi_axis_v1` 不进入上表的七组实验主线，而是作为 Benchmark 压力测试单独报告。其结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`；三类 profile `major_geo_risk`、`quality_tuition`、`employment_region` 的成功分布分别为 1/10、5/10、10/10。它说明多轴隐藏妥协评测能暴露单轴实验看不出的证据编排瓶颈，尤其 `major_geo_relax + risk_band_relax` 组合较难。
+
 ## 6. 证据附录清单
 
 | 附录材料 | 覆盖范围 | 论文用途 |
@@ -90,6 +93,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 | `agent_benchmark_risk_band_v1_evidence.md` | `risk_band_v1` 10 个 case | 证明风险偏好放宽和 `chong/wen/bao` 组合 |
 | `thesis_data_agent_benchmark_extension_evidence.md` | `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` | 证明数据证据维度可扩展 |
 | `agent_benchmark_region_tree_v1_evidence.md` | `region_tree_v1` 10 个 case | 证明地域树 reviewed v1 能接入 Agent+Benchmark |
+| `agent_benchmark_multi_axis_v1_evidence.md` | `multi_axis_v1` 30 个 case | 证明多轴隐藏妥协压力测试的逐例轴命中与失败原因 |
 
 正文中建议只放聚合表和 1-2 个代表 case，完整逐例证据放附录或答辩备查材料。
 
@@ -109,7 +113,8 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - `major_geo_v1 + risk_band_v1` 是主实验。
 - `school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1 + region_tree_v1` 是扩展实验。
 - `region_tree_v1` 不替代主实验；城市层级只作为 reviewed region-tree 证据，不直接等价于就业机会、生活成本或城市生活质量收益。
-- Agent 不读取 `implicit_flexibilities` 或 `volunteer_set`；这些字段只作为 simulator / evaluator ground truth。
+- `multi_axis_v1` 是 Benchmark 压力测试，不替代主实验，也不改写七组实验主线；它只组合已有 relax 能力，不新增业务放宽算法。
+- Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`；这些字段只作为 simulator / evaluator ground truth。
 - 除非用户明确要求，不主动扩展或重跑 thesis audit。
 
 ## 9. 最终成稿检查

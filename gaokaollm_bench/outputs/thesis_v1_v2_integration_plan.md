@@ -14,6 +14,7 @@
 - 主实验逐例证据：`agent_benchmark_major_geo_v1_evidence.md`、`agent_benchmark_risk_band_v1_evidence.md`
 - 扩展实验逐例证据：`gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md`
 - 地域树扩展实验证据：`gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md`
+- 多轴 Benchmark 压力测试：`gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md`、`gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md`
 
 ## 1. 两个版本的定位
 
@@ -90,7 +91,7 @@ Benchmark 层方面，v2 构建冰山画像、多轮沙盒和事实/过程联合
 | 第 3 章 | 第一版 Agentic RAG 原型系统与问题诊断 | `gaokaollmmodel` 架构、意图识别、画像缓存、混合检索、`1:3:9` 冲稳保、流式响应、一致性校验；指出评测不足 | v1 正文 |
 | 第 4 章 | 高考志愿偏好妥协 Benchmark 与数据层构建 | PostgreSQL 快照、专业树、专业质量与就业结果标准化层、地域树 reviewed v1、冰山画像、真实 DB gap、多轮沙盒、事实/过程联合评价 | v2 主贡献 |
 | 第 5 章 | 证据驱动 Pareto 谈判 Agent 设计 | `gatekeeper -> radar -> negotiator`，`major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` | v2 主贡献 |
-| 第 6 章 | 实验结果、逐例证据与扩展实验 | 主实验 `major_geo_v1 + risk_band_v1`，扩展实验 `school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1 + region_tree_v1`，失败 case 与逐例证据 | v2 实验 |
+| 第 6 章 | 实验结果、逐例证据与扩展实验 | 主实验 `major_geo_v1 + risk_band_v1`，扩展实验 `school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1 + region_tree_v1`，`multi_axis_v1` Benchmark 压力测试，失败 case 与逐例证据 | v2 实验 |
 | 第 7 章 | 总结与展望 | 总结从工程原型到可评测 Agent 的演进，讨论样本规模、真实用户、事实裁判增强和更多放宽类别 | 综合 |
 
 该结构的好处是：v1 不会被浪费，也不会抢走 v2 的主贡献位置；v2 的数据层、benchmark 与 Agent 结果成为最终论文的学术闭环。
@@ -143,6 +144,8 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 `major_geo_v1` 不是 100% 成功。失败样本为 `real-db-set-浙江-569-009`，该样本要求 Agent 进一步退到更远的 `any_major` 候选才能命中 hidden volunteer set，而当前回复停留在医学相关近邻阶段，因此 deterministic judge 未判定成功。论文中应保留该失败样本，以说明系统已经形成闭环但仍存在放宽阶段选择的改进空间。
 
+此外，`multi_axis_v1` 作为 Benchmark 压力测试单独写入第 6 章或附录，不并入上表的七组实验事实口径。它包含 `major_geo_risk`、`quality_tuition`、`employment_region` 三类 profile，各 10 个 case，聚合结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`，逐 profile 成功分布为 1/10、5/10、10/10。该测试说明，多轴隐藏妥协评测能够暴露单轴实验看不出的证据编排瓶颈，尤其 `major_geo_relax + risk_band_relax` 组合较难。七组 `app_pareto` 实验结果和 `multi_axis_v1` 压力测试结果都属于 v2，不混入 v1 成果。
+
 ## 8. 过渡叙事模板
 
 论文中可以使用如下过渡逻辑。
@@ -154,6 +157,8 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 因此，第二阶段将研究重点从“构建可用问答系统”收敛到“构建可评测的数据驱动偏好妥协 Agent”。v2 首先补齐可核验数据证据层，将分数、位次、学费、专业质量、就业结果和地域树节点转化为 Agent 可表达、Benchmark 可核验的字段；其次通过冰山画像 benchmark 显式建模显性红线和隐性妥协条件；最后在 Agent 侧使用 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax` 和 `region_tree_relax` 等能力，验证证据驱动 Pareto 谈判是否优于只迎合显性红线的 baseline。
 
 最终实验表明，在主实验中，`app_pareto` 相比 `hard_constraint` 显著提升隐性妥协触发效果，并保持较低幻觉率；在扩展实验中，同一框架也能够接入学科实力、学费预算、专业质量、就业结果和地域树等更多数据证据维度。这说明 v2 不是对 v1 的否定，而是把 v1 的工程能力推进到可评测、可审计、可逐例追溯的数据驱动研究闭环。
+
+`multi_axis_v1` 则进一步作为压力测试说明：当用户同时在两个方面存在隐藏妥协时，Benchmark 可以检验 Agent 是否具备多证据链组织能力。它只组合已有 relax 能力，不新增业务放宽算法；Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`。
 
 ## 9. hidden persona 边界
 
@@ -173,6 +178,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 | 实验归属混乱 | 把 `app_pareto` 指标写成 v1 系统结果 | 明确七组结果都属于 v2，v1 只提供工程原型与问题来源 |
 | 成功率夸大 | 把 `major_geo_v1` 写成 100% 成功 | 明确 `real-db-set-浙江-569-009` 是失败样本 |
 | 扩展实验喧宾夺主 | 把七组实验都写成同等主贡献 | 主实验写 `major_geo_v1 + risk_band_v1`，扩展实验写数据贡献可扩展性 |
+| 压力测试口径混乱 | 把 `multi_axis_v1` 写成新的主实验或新的业务放宽算法 | 写成 Benchmark 压力测试：组合现有 relax 能力，检验双轴隐藏妥协和证据编排 |
 
 ## 11. 最终贡献表述建议
 

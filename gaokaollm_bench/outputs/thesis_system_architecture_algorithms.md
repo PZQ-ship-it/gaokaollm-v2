@@ -109,6 +109,12 @@ Benchmark 的目标是评估 Agent 是否能在真实招生数据约束下发现
 
 `hard_constraint` 是论文中的关键对照。它只按显性硬约束返回可达志愿，不主动提出 Pareto 妥协。`app_pareto` 则使用数据证据主动提出约束放宽或组合重排方案。二者对照体现“迎合显性红线”和“证据驱动妥协谈判”的差异。
 
+### 4.1 多轴隐藏妥协压力测试
+
+除七组单轴或单类闭环实验外，Benchmark 层还加入 `multi_axis_v1` 压力测试，用于检验用户同时存在两个隐藏妥协轴时，Agent 是否能把多个 opportunity group 同时组织成有效证据链。该测试不新增业务 relax 算法，而是组合现有 `major_geo_relax`、`risk_band_relax`、`major_quality_relax`、`tuition_value_relax`、`employment_outcome_relax` 和 `region_tree_relax`。
+
+`multi_axis_v1` 的 persona 使用 `relaxation_axes` 与 `axis_flexibilities` 描述两个 required axes。Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`；这些字段只作为 simulator/evaluator ground truth。deterministic judge 逐轴检查证据，只有两个轴都命中时才判定 elicitation success，并额外保留 `axis_successes` 与 `axis_pareto_gains` 便于分析证据编排瓶颈。
+
 ## 5. 关键算法设计
 
 ### 5.1 通用 Pareto Opportunity Detection
@@ -188,6 +194,12 @@ budget < tuition <= budget + 10000
 其中 `major_geo_v1 + risk_band_v1` 是当前论文第一版主实验。`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 是扩展实验，用于证明数据贡献和 Agent 框架的可扩展性。
 
 `major_geo_v1` 不是 100% 成功，失败样本为 `real-db-set-浙江-569-009`。论文中应保留该失败样本，避免把 `0.900` 写成完全成功。
+
+`multi_axis_v1` 作为 Benchmark 压力测试单独报告，不并入上表的七组实验事实口径。其三类 profile 为 `major_geo_risk`、`quality_tuition`、`employment_region`，聚合结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`。逐 profile 结果分别为 1/10、5/10、10/10，说明多轴 benchmark 能暴露单轴实验看不出的证据编排瓶颈，尤其 `major_geo_relax + risk_band_relax` 组合较难。
+
+| 压力测试 | 定位 | 组合 profile | `app_pareto` | `hard_constraint` | 论文含义 |
+| --- | --- | --- | --- | --- | --- |
+| `multi_axis_v1` | Benchmark 压力测试 | `major_geo_risk`、`quality_tuition`、`employment_region` | `0.533 / 1.133 / 0.029 / 7.67` | `0.000 / 0.000 / 0.000 / 13.00` | 检验两个隐藏放宽轴同时成立时的证据编排能力 |
 
 ## 7. 论文图表建议
 

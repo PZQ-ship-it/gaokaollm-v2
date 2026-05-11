@@ -7,6 +7,7 @@
 - 主实验：`major_geo_v1`、`risk_band_v1`。
 - 扩展实验：`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1`。
 - 地域树数据层：`region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json`、HITL review packet 与 coverage report 已接入 `region_tree_v1` 扩展实验。
+- Benchmark 压力测试：`multi_axis_v1` 已完成，用 30 个真实 DB persona 测试两条隐藏放宽轴同时成立时的证据编排能力；它不替代主实验，也不改写当前七组实验事实表。
 - 后续谨慎推进方向：城市收益指标需可核验证据、真实用户校准、概率化录取风险模型、多省份泛化。
 
 ## 1. 论文贡献结构
@@ -64,6 +65,22 @@
 
 `region_tree_v1` 的 Pareto gain 仍按学校 tier/ranking 改善计算，不把“城市层级更高”本身计入收益。这样可以避免把 `schools.city` 或城市层级包装成未被证据支持的城市收益。
 
+## 3.2 Benchmark 压力测试：`multi_axis_v1`
+
+在七组单轴或单类动态放宽闭环之外，`multi_axis_v1` 用作 Benchmark 压力测试，专门检验用户同时存在两个隐藏妥协轴时，Agent 是否能同时发现、组织并解释多类 Pareto opportunities。它只组合现有 relax 能力，不新增新的业务放宽算法，也不把七组实验主线改写为新的实验主线。
+
+`multi_axis_v1` 使用 30 个真实 DB persona，分为 3 类 profile，每类 10 个 case：
+
+| profile | 组合轴 | 成功情况 | 解释 |
+|---|---|---:|---|
+| `major_geo_risk` | `major_geo_relax` + `risk_band_relax` | 1/10 | 专业/地域联合放宽与风险组合需要同时命中，暴露出证据编排瓶颈 |
+| `quality_tuition` | `major_quality_relax` + `tuition_value_relax` | 5/10 | 专业质量收益与小幅超预算证据可以部分协同 |
+| `employment_region` | `employment_outcome_relax` + `region_tree_relax` | 10/10 | 就业结果证据与 reviewed 地域树证据组合较稳定 |
+
+聚合指标为：`app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`。该结果说明，多轴 benchmark 能暴露单轴实验看不出的证据编排问题，尤其是 `major_geo_relax + risk_band_relax` 的联合表达难度较高。
+
+该压力测试保留严格的 hidden persona 边界：Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`。这些字段只用于 simulator/evaluator，Agent 仍只能使用用户显式话语和 PostgreSQL/标准化证据层查询结果。
+
 ## 4. 数据贡献现状
 
 当前数据贡献已经超过原始招生表本身，主要体现在五类可复用证据层。
@@ -117,6 +134,8 @@
 - `gaokaollm_bench/outputs/agent_benchmark_employment_outcome_v1_summary.md`
 - `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_summary.md`
 - `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_summary.md`
+- `gaokaollm_bench/outputs/agent_benchmark_multi_axis_v1_evidence.md`
 - `gaokaollm_bench/outputs/thesis_method_experiment_chapters.md`
 - `gaokaollm_bench/outputs/thesis_agent_benchmark_contribution.md`
 - `gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md`

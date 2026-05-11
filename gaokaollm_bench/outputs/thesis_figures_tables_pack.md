@@ -12,6 +12,8 @@
 
 本文图表默认遵守两条边界：第一，`major_geo_v1 + risk_band_v1` 是主实验；第二，`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 是扩展实验，用于支撑数据贡献和框架可扩展性。
 
+此外，`multi_axis_v1` 作为 Benchmark 压力测试单独呈现，用于评估两个隐藏放宽轴同时存在时的证据编排能力。它不进入七组实验结果总表，也不替代主实验。
+
 ## 0. 可用图像资产
 
 当前首选的论文/PPT 图像资产已经由 Diagrams 生成，位置为 `gaokaollm_bench/outputs/thesis_figures/`，作图环境、渲染命令和图号说明见 `gaokaollm_bench/outputs/thesis_diagrams_with_diagrams.md`。这些 SVG/PNG 是正式成稿优先使用的图像素材；本文后续 Mermaid 图继续保留为概念草稿、结构说明和后续重绘参考。
@@ -33,6 +35,7 @@
 | 图 4-3 | 数据证据层与 relax 能力映射图 | 第 4 章数据层设计 | 说明招生事实、学费、专业质量、就业结果、地域树如何支撑各类 Pareto 机会 |
 | 表 6-1 | 七组实验结果总表 | 第 6 章实验结果 | 汇总主实验与扩展实验的核心指标 |
 | 表 5-1 | 算法到实验映射表 | 第 5 章或第 6 章 | 把算法、数据证据、实验结果和论文意义对应起来 |
+| 表 6-3 | `multi_axis_v1` Benchmark 压力测试表 | 第 6 章补充实验或附录 | 展示多轴隐藏妥协的三类 profile、聚合指标和证据编排瓶颈 |
 
 ## 2. 系统总体架构图
 
@@ -424,6 +427,16 @@ Boundary:
 
 论文写法建议：主实验表可以只展示 `major_geo_v1` 与 `risk_band_v1`，扩展实验表展示其余五组。答辩 PPT 可以合并成上表，用颜色区分主实验和扩展实验。
 
+## 9.1 Benchmark 压力测试结果表
+
+`multi_axis_v1` 不改变七组实验事实口径，而是单独作为 Benchmark 压力测试，检验 `app_pareto` 在两个隐藏放宽轴同时成立时能否组织多类证据。斜杠格式仍为 `elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turns`。
+
+| 压力测试 | `app_pareto` | `hard_constraint` | profile 成功分布 | 论文解释 |
+| --- | --- | --- | --- | --- |
+| `multi_axis_v1` | `0.533 / 1.133 / 0.029 / 7.67` | `0.000 / 0.000 / 0.000 / 13.00` | `major_geo_risk` 1/10；`quality_tuition` 5/10；`employment_region` 10/10 | 多轴 benchmark 能暴露单轴实验看不出的证据编排瓶颈，尤其 `major_geo_relax + risk_band_relax` 组合较难 |
+
+该测试只组合已有 relax 能力，不新增新的业务放宽算法。Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`；这些字段只用于 simulator/evaluator。
+
 ## 10. 可直接迁入论文的边界说明
 
 | 边界 | 推荐表述 |
@@ -432,6 +445,7 @@ Boundary:
 | Hidden persona | Agent 不读取 `implicit_flexibilities` 或 `volunteer_set`，这些字段只用于 simulator 和 evaluator。 |
 | 主实验定位 | `major_geo_v1 + risk_band_v1` 是论文第一版主实验，验证核心偏好妥协能力。 |
 | 扩展实验定位 | 五组扩展实验支撑数据贡献和框架可扩展性，不替代主实验。 |
+| 压力测试定位 | `multi_axis_v1` 是 Benchmark 压力测试，用于评估两个隐藏放宽轴同时成立时的证据编排能力，不进入七组实验主线。 |
 | 数据证据边界 | 只有能落到 PostgreSQL 或标准化证据层的因素，才适合进入当前 Benchmark 闭环。 |
 | 未实现方向 | 城市生活质量、家庭距离、校园文化、个人兴趣匹配等暂缺可核验证据，写作后续工作。 |
 
@@ -443,6 +457,6 @@ Boundary:
 | 方法章节 | 第 2、3、4、5 节 Mermaid 图 |
 | 算法章节 | 第 6、7 节伪代码 |
 | 实验章节 | 第 8、9 节结果表 |
-| 答辩 PPT | 系统总体架构图、MAS 工作流图、七组实验结果总表 |
+| 答辩 PPT | 系统总体架构图、MAS 工作流图、七组实验结果总表、`multi_axis_v1` 压力测试补充表 |
 
 如果迁入 LaTeX，优先使用 `thesis_figures/` 下的 Diagrams SVG/PNG；Mermaid 图仅作为可编辑草稿和结构备份，必要时再用 TikZ、draw.io 或 PPT 重画。表格可直接转成三线表。正文中建议优先突出“数据证据驱动”的主线：数据层不是附属材料，而是 Agent 能够安全谈判、Benchmark 能够判定成功的基础。

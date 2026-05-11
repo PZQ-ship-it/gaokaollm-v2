@@ -90,6 +90,8 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 需要注意的是，`major_geo_v1` 并非 100% 成功。唯一失败样本为 `real-db-set-浙江-569-009`，该样本需要 Agent 进一步退到更远的 `any_major` 候选才能命中 hidden volunteer set，而当前 Agent 停留在医学相关近邻阶段，因此 deterministic judge 未判定成功。论文中应保留这个失败样本，避免把 0.900 写成完全成功。
 
+除七组实验外，本文还报告 `multi_axis_v1` 作为 Benchmark 压力测试。它不替代主实验，也不改写七组实验主线，而是用 30 个真实 DB persona 检验两个隐藏放宽轴同时成立时的证据编排能力。三类 profile 为 `major_geo_risk`、`quality_tuition`、`employment_region`，逐 profile 成功分布为 1/10、5/10、10/10；聚合结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`。该压力测试说明，多轴 benchmark 能暴露单轴实验看不出的证据组织瓶颈，尤其 `major_geo_relax + risk_band_relax` 组合较难。
+
 ### 1.6 论文结构
 
 本文后续章节组织如下。
@@ -102,7 +104,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 第 5 章介绍证据驱动 Pareto Agent，包括 `gatekeeper -> radar -> negotiator` 架构，以及 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` 等能力。其中 `region_tree_relax` 包含 `geo_block_relax` 与 `urban_tier_relax` 两个子策略。
 
-第 6 章给出主实验和扩展实验结果，分析逐例证据与典型失败样本，说明 `app_pareto` 与 `hard_constraint` 的对照关系。主实验为 `major_geo_v1 + risk_band_v1`，五组扩展实验包含 `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` 和 `region_tree_v1`。
+第 6 章给出主实验和扩展实验结果，分析逐例证据与典型失败样本，说明 `app_pareto` 与 `hard_constraint` 的对照关系。主实验为 `major_geo_v1 + risk_band_v1`，五组扩展实验包含 `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` 和 `region_tree_v1`。此外，第 6 章可将 `multi_axis_v1` 作为 Benchmark 压力测试单独报告，用于讨论多轴隐藏妥协和证据编排瓶颈。
 
 第 7 章总结全文，并讨论样本规模、真实用户校准、城市收益指标、概率化录取风险模型、多省份泛化等后续工作。
 
@@ -152,6 +154,8 @@ gatekeeper -> radar -> negotiator
 
 这种设计使偏好妥协成为可评价对象。若 Agent 只重复用户显性红线，即使事实正确，也无法触发隐藏妥协；若 Agent 编造不可达候选，则会被事实裁判惩罚；只有在事实正确且能命中隐藏妥协条件时，才会获得较高的 `elicitation_success` 和 `pareto_gain`。
 
+在此基础上，`multi_axis_v1` 将单轴冰山画像扩展为多轴隐藏妥协压力测试。persona 使用 `relaxation_axes` 和 `axis_flexibilities` 表示两个 required axes，例如 `major_geo_risk`、`quality_tuition`、`employment_region`。Agent 不读取 `axis_flexibilities`，deterministic judge 逐轴检查证据，只有两个轴都命中才判定成功。该设计用于诊断 Agent 是否能同时组织多条证据链，而不是新增新的业务放宽算法。
+
 ### 2.5 LLM-as-a-Judge 与事实/过程联合评价
 
 LLM-as-a-Judge 常用于评价开放式文本质量、多轮对话质量和主观偏好匹配程度（可替换引用占位：LLM-as-a-Judge）。但在高考志愿场景中，单纯依赖 LLM judge 存在风险：模型可能忽略分数、位次、学校专业是否真实存在，也可能被流畅的解释性语言误导。
@@ -185,6 +189,8 @@ Pareto 改进通常指在不损害某些条件的前提下，使至少一个目�
 在数据扩展实验中，Pareto 妥协进一步扩展到成本、专业质量、就业结果和地域树维度。`tuition_value_relax` 在 `budget < tuition <= budget + 10000` 的窗口内，用学费增量换取学校层次或排名收益；`major_quality_relax` 在可达约束内寻找 `quality_score` 更高、专业证据更强的学校-专业组合；`employment_outcome_relax` 在同专业或专业树近邻专业中寻找就业排名、行业、岗位或薪资证据更强的方案；`region_tree_relax` 则使用 reviewed 地域树，在不把城市层级直接写成就业机会、生活成本或城市生活质量收益的前提下，呈现地理板块和城市层级放宽证据。`strength_relax` 作为较粗粒度学校/学科实力证据的过渡实验。
 
 需要强调的是，本文不把所有用户偏好都视为可放宽对象。选科要求、真实分数、可达性和部分强约束仍被视为硬约束；城市生活质量、家庭距离、校园文化和个人兴趣匹配等因素，如果缺少可核验数据证据，就不应被写成已实现的 Pareto 放宽。`region_tree_v1` 是扩展实验，不替代 `major_geo_v1 + risk_band_v1` 主实验；其中城市层级只作为 reviewed region-tree 证据，不直接等价于就业机会、生活成本或城市生活质量收益。Agent 的任务不是强行说服用户改变真实偏好，而是在可核验数据中呈现放宽某些初始红线后的收益，由用户模拟器或真实用户根据证据决定是否接受。
+
+`multi_axis_v1` 进一步说明，Pareto 偏好妥协还可以被设计为多轴组合评测。它组合现有 relax 能力，要求两个隐藏轴同时被证据命中；其结果显示 `employment_outcome_relax + region_tree_relax` 组合较稳定，而 `major_geo_relax + risk_band_relax` 的证据编排更困难。论文中应将其作为 Benchmark 压力测试，用来支持“评测框架能够暴露更复杂偏好结构下的 Agent 短板”这一结论。
 
 ### 2.9 本章小结
 
