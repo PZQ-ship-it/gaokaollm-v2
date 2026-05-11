@@ -56,6 +56,41 @@
     "mean_hallucination_rate",
     "avg_turns"
   ],
+  "data_artifacts": {
+    "major_tree_full_coverage_v2": {
+      "role": "data_contribution",
+      "artifact_type": "专业层级本体全量可审计挂载",
+      "summary": "专业层级本体已完成全量覆盖 v2；全覆盖指可审计挂载覆盖，不等于全部语义边界已经人工逐条确认正确。",
+      "source_documents": [
+        "gaokaollm_bench/outputs/major_tree_annotation_summary.md",
+        "gaokaollm_bench/outputs/major_tree_full_coverage_v2_report.md",
+        "gaokaollm_bench/outputs/major_tree_full_coverage_v2_report.json"
+      ],
+      "coverage": {
+        "raw_distinct_major_names": "22,759 / 22,759",
+        "raw_admission_rows": "140,995 / 140,995",
+        "remaining_unassigned": 0,
+        "coverage_definition": "可审计挂载覆盖：每个原始去重专业名都进入专业层级本体的某个叶子簇，并保留规则、probe、DeepSeek-R1 复核或 fallback 来源。"
+      },
+      "assignment_sources": {
+        "rule_assigned": 18587,
+        "probe_auto_assigned": 3238,
+        "deepseek_r1_reviewed": 881,
+        "llm_abstain_probe_fallback": 53
+      },
+      "validation": {
+        "clean_validation_size": 166,
+        "best_strategy": "candidate_top5_threshold_0.20",
+        "best_accuracy": 0.7169,
+        "best_macro_f1": 0.7136,
+        "hit_at_10": 0.9819,
+        "remaining_errors": "47 / 166",
+        "wrong_gold_in_top_3_5_10": "23 / 34 / 44",
+        "interpretation": "验证集候选召回较充分，剩余错误主要来自复合招生名称、叶子边界和跨父类近邻关系。"
+      },
+      "thesis_boundary": "论文中可写作数据贡献证据；不得写成全量人工语义确认正确，也不改变七组 Agent/Benchmark 指标。"
+    }
+  },
   "experiments": {
     "major_geo_v1": {
       "role": "main",
@@ -151,6 +186,7 @@
     "methodology": [
       "gaokaollm_bench/outputs/benchmark_methodology.md",
       "gaokaollm_bench/outputs/major_tree_methodology.md",
+      "gaokaollm_bench/outputs/major_tree_annotation_summary.md",
       "gaokaollm_bench/outputs/thesis_hierarchical_relaxation_methodology.md"
     ],
     "evidence": [

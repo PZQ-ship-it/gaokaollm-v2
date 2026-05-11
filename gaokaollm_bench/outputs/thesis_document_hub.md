@@ -18,6 +18,8 @@
 
 机器可读事实源：`gaokaollm_bench/outputs/thesis_claims_manifest.json`。术语事实源：`gaokaollm_bench/outputs/thesis_term_mapping.json`。
 
+专业树全量覆盖 v2 已同步到机器事实源的 `data_artifacts.major_tree_full_coverage_v2`，详细说明见 `major_tree_annotation_summary.md`。
+
 ### 1.1 当前 MAS 架构事实
 
 当前业务 Agent 的论文主叙述为：`前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`。实现层可追溯为 `semantic_normalizer -> gatekeeper -> llm-guided radar planner -> deterministic probes -> negotiator`。
