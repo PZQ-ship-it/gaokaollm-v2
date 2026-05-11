@@ -1,4 +1,4 @@
-"""Render thesis architecture figures with mingrammer/diagrams.
+"""Render clean thesis box diagrams with mingrammer/diagrams.
 
 This manual artifact generator does not read benchmark hidden fields, connect to
 PostgreSQL, call an LLM, or rerun any experiment. It only turns the current
@@ -19,24 +19,43 @@ FIGURE_FORMATS = ("png", "svg")
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "gaokaollm_bench" / "outputs" / "thesis_figures"
 
+FONT = "Microsoft YaHei"
+DATA_COLOR = "#d9ecff"
+AGENT_COLOR = "#dcf5e5"
+BENCH_COLOR = "#eadfff"
+ARTIFACT_COLOR = "#eeeeee"
+HIDDEN_COLOR = "#fff1cc"
+EDGE_COLOR = "#5f6f7d"
+
 GRAPH_ATTR = {
-    "fontsize": "20",
-    "pad": "0.35",
+    "bgcolor": "white",
+    "fontname": FONT,
+    "fontsize": "18",
+    "label": "",
+    "pad": "0.25",
+    "ranksep": "0.75",
+    "nodesep": "0.5",
     "splines": "ortho",
-    "nodesep": "0.65",
-    "ranksep": "0.9",
 }
 NODE_ATTR = {
+    "fontname": FONT,
     "fontsize": "13",
+    "margin": "0.12,0.08",
     "shape": "box",
-    "style": "rounded",
+    "style": "rounded,filled",
+    "color": "#7a8a99",
+    "penwidth": "1.3",
 }
 EDGE_ATTR = {
+    "color": EDGE_COLOR,
+    "fontname": FONT,
     "fontsize": "11",
+    "arrowsize": "0.7",
+    "penwidth": "1.15",
 }
 
 
-def _load_diagrams() -> tuple[Any, Any, Any, dict[str, Any]]:
+def _load_diagrams() -> tuple[Any, Any, Any, Any]:
     """Import diagrams lazily so py_compile works without optional deps."""
     missing: list[str] = []
     _ensure_dot_on_path()
@@ -44,14 +63,7 @@ def _load_diagrams() -> tuple[Any, Any, Any, dict[str, Any]]:
         missing.append("Graphviz `dot` executable")
 
     try:
-        from diagrams import Cluster, Diagram, Edge
-        from diagrams.generic.blank import Blank
-        from diagrams.generic.database import SQL
-        from diagrams.generic.storage import Storage
-        from diagrams.onprem.client import User
-        from diagrams.onprem.compute import Server
-        from diagrams.onprem.database import PostgreSQL
-        from diagrams.programming.language import Latex, Python
+        from diagrams import Cluster, Diagram, Edge, Node
     except ImportError as exc:
         missing.append("Python package `diagrams`")
         message = _missing_dependency_message(missing)
@@ -60,17 +72,7 @@ def _load_diagrams() -> tuple[Any, Any, Any, dict[str, Any]]:
     if missing:
         raise RuntimeError(_missing_dependency_message(missing))
 
-    nodes = {
-        "Latex": Latex,
-        "Blank": Blank,
-        "PostgreSQL": PostgreSQL,
-        "Python": Python,
-        "Server": Server,
-        "SQL": SQL,
-        "Storage": Storage,
-        "User": User,
-    }
-    return Diagram, Cluster, Edge, nodes
+    return Diagram, Cluster, Edge, Node
 
 
 def _ensure_dot_on_path() -> None:
@@ -124,14 +126,10 @@ def _missing_dependency_message(missing: list[str]) -> str:
     )
 
 
-def _diagram_context(
-    name: str,
-    output_dir: Path,
-    direction: str = "LR",
-):
+def _diagram_context(name: str, output_dir: Path, direction: str = "LR"):
     Diagram, _, _, _ = _load_diagrams()
     return Diagram(
-        name,
+        "",
         filename=str(output_dir / name),
         show=False,
         outformat=list(FIGURE_FORMATS),
@@ -142,152 +140,169 @@ def _diagram_context(
     )
 
 
+def _cluster(label: str, fillcolor: str, direction: str = "LR"):
+    _, Cluster, _, _ = _load_diagrams()
+    return Cluster(
+        label,
+        direction=direction,
+        graph_attr={
+            "color": "#9aa9b5",
+            "fillcolor": fillcolor,
+            "fontname": FONT,
+            "fontsize": "15",
+            "labeljust": "l",
+            "margin": "14",
+            "penwidth": "1.2",
+            "style": "rounded,filled",
+        },
+    )
+
+
+def _node(
+    label: str,
+    fillcolor: str = "white",
+    *,
+    color: str = "#7a8a99",
+    shape: str = "box",
+    width: str = "1.95",
+):
+    _, _, _, Node = _load_diagrams()
+    return Node(
+        label,
+        color=color,
+        fillcolor=fillcolor,
+        fixedsize="false",
+        height="0.72",
+        image="",
+        labelloc="c",
+        margin="0.15,0.10",
+        shape=shape,
+        style="rounded,filled",
+        width=width,
+    )
+
+
+def _data(label: str):
+    return _node(label, DATA_COLOR)
+
+
+def _agent(label: str):
+    return _node(label, AGENT_COLOR, color="#6a9b78")
+
+
+def _benchmark(label: str):
+    return _node(label, BENCH_COLOR, color="#8d7eb3")
+
+
+def _artifact(label: str):
+    return _node(label, ARTIFACT_COLOR, color="#888888")
+
+
+def _hidden(label: str):
+    return _node(label, HIDDEN_COLOR, color="#c28b2c")
+
+
 def render_system_architecture(output_dir: Path) -> None:
-    _, Cluster, Edge, nodes = _load_diagrams()
-    User = nodes["User"]
-    PostgreSQL = nodes["PostgreSQL"]
-    Python = nodes["Python"]
-    Server = nodes["Server"]
-    SQL = nodes["SQL"]
-    Storage = nodes["Storage"]
+    _, _, Edge, _ = _load_diagrams()
     with _diagram_context("fig_4_1_system_architecture", output_dir):
-        user = User("Candidate /\nSimulated user")
+        with _cluster("数据层：可核验证据", DATA_COLOR):
+            data = _data(
+                "PostgreSQL 招生事实\n"
+                "专业树 / 地域树 reviewed v1\n"
+                "学费 / 质量 / 就业标准化层"
+            )
 
-        with Cluster("Data contribution"):
-            admissions = PostgreSQL("PostgreSQL\nadmission facts")
-            profiles = SQL("quality +\nemployment profiles")
-            reviewed_trees = Storage("major + region\ntrees")
-            evidence_layer = Server("evidence layer\nSQL + artifacts")
-            [admissions, profiles, reviewed_trees] >> evidence_layer
-
-        with Cluster("Light MAS Agent"):
-            gatekeeper = Python("gatekeeper\nexplicit constraints")
-            radar = Python("radar\nSQL probes")
-            negotiator = Python("negotiator\nevidence dialogue")
+        with _cluster("Agent 层：轻量 MAS", AGENT_COLOR):
+            gatekeeper = _agent("gatekeeper\n显式约束抽取")
+            radar = _agent("radar\nSQL probe / opportunity")
+            negotiator = _agent("negotiator\n证据组织与谈判")
             gatekeeper >> radar >> negotiator
 
-        with Cluster("Benchmark contribution"):
-            persona = User("Iceberg\npersonas")
-            sandbox = Server("multi-turn sandbox\napp vs baseline")
-            judge = Python("factual +\nprocess judge")
-            persona >> sandbox >> judge
+        with _cluster("Benchmark 层：多轮评测", BENCH_COLOR):
+            bench = _benchmark(
+                "冰山画像 + simulator\n"
+                "app_pareto vs hard_constraint\n"
+                "事实 / 过程联合评价"
+            )
 
-        with Cluster("Thesis artifacts"):
-            artifacts = Storage("summary / reports\ncase evidence")
-            figures = nodes["Latex"]("figures /\ntables")
-            artifacts >> figures
+        with _cluster("论文产物层", ARTIFACT_COLOR):
+            outputs = _artifact("summary / transcripts / evidence\nSVG / PNG 图表素材")
 
-        user >> Edge(label="utterances") >> gatekeeper
-        evidence_layer >> Edge(label="facts + standardized signals") >> radar
-        evidence_layer >> Edge(label="real DB gaps") >> persona
-        negotiator >> Edge(label="auditable reply + state") >> sandbox
-        judge >> Edge(label="metrics + transcripts") >> artifacts
+        data >> Edge(label="事实证据") >> gatekeeper
+        data >> Edge(label="真实 DB gap") >> bench
+        negotiator >> Edge(label="可审计回复") >> bench
+        bench >> Edge(label="指标与逐例证据") >> outputs
 
 
 def render_mas_workflow(output_dir: Path) -> None:
-    _, Cluster, Edge, nodes = _load_diagrams()
-    Python = nodes["Python"]
-    Server = nodes["Server"]
-    Storage = nodes["Storage"]
-    User = nodes["User"]
-    Blank = nodes["Blank"]
+    _, _, Edge, _ = _load_diagrams()
     with _diagram_context("fig_5_1_mas_workflow", output_dir):
-        user = User("Explicit user\nutterances")
-        gatekeeper = Python("gatekeeper\nconstraint extraction")
-        baseline = Storage("hard-constraint\nbaseline")
-        radar = Python("radar\nopportunity probes")
-        opportunity_set = Blank(
-            "Pareto opportunity set\n"
-            "major_geo_relax\n"
-            "risk_band_relax\n"
-            "strength_relax\n"
-            "tuition_value_relax\n"
-            "major_quality_relax\n"
-            "employment_outcome_relax\n"
-            "region_tree_relax"
-        )
-        negotiator = Python("negotiator\nevidence synthesis")
-        reply = Server("Pareto negotiation\nreply")
-        state = Storage("internal_state\nopportunities + recs")
+        user = _node("用户显式话语\n分数 / 专业 / 地域 / 风险等", "#ffffff")
+
+        with _cluster("业务 Agent：gatekeeper -> radar -> negotiator", AGENT_COLOR):
+            gatekeeper = _agent("gatekeeper\n抽取显式约束")
+            baseline = _agent("hard-constraint\nbaseline")
+            radar = _agent("radar\n探测 Pareto 机会")
+            opportunities = _agent(
+                "opportunities\n"
+                "major_geo / risk_band / strength\n"
+                "tuition / quality / employment\n"
+                "region_tree"
+            )
+            negotiator = _agent("negotiator\n组织证据与话术")
+            gatekeeper >> radar >> opportunities >> negotiator
+            gatekeeper >> baseline >> Edge(label="对照") >> negotiator
+
+        reply = _artifact("面向用户的谈判回复")
+        state = _artifact("internal_state\nopportunities / recommended_schools")
 
         user >> gatekeeper
-        gatekeeper >> baseline
-        gatekeeper >> radar
-        baseline >> Edge(label="contrast") >> radar
-        radar >> opportunity_set >> negotiator
-        baseline >> negotiator
         negotiator >> reply
         negotiator >> state
 
 
 def render_benchmark_flow(output_dir: Path) -> None:
-    _, Cluster, Edge, nodes = _load_diagrams()
-    PostgreSQL = nodes["PostgreSQL"]
-    Python = nodes["Python"]
-    Server = nodes["Server"]
-    Storage = nodes["Storage"]
-    User = nodes["User"]
+    _, _, Edge, _ = _load_diagrams()
     with _diagram_context("fig_4_2_benchmark_flow", output_dir):
-        db_gap = PostgreSQL("Real DB gap\nbaseline vs relaxed")
-        generator = Python("Persona\ngenerator")
-        persona = User("Iceberg persona")
-        explicit = Storage("Explicit\nred lines")
-        hidden = Storage("Hidden ground truth\nnot given to target")
-        simulator = Server("Simulator\nmulti-turn user")
-        target = Server("Target agent\napp_pareto / hard_constraint")
-        transcript = Storage("Transcript\nturns + state")
-        factual = Python("Deterministic\nfactual judge")
-        process = Python("Process judge\nelicitation + gain")
-        report = Storage("reports/*.jsonl")
-        summary = Storage("summary +\nevidence docs")
+        db_gap = _data("真实 DB gap\nbaseline vs relaxed")
+        persona = _benchmark("冰山画像 persona")
+        explicit = _benchmark("显式红线\n给 simulator")
+        simulator = _benchmark("simulator\n多轮用户")
+        target = _agent("target agent\napp_pareto / hard_constraint")
+        transcript = _artifact("transcript\nturns + internal_state")
+        judge = _benchmark("deterministic judge\n事实 + 过程")
+        summary = _artifact("summary / report / evidence")
 
-        db_gap >> generator >> persona
-        persona >> explicit >> simulator
-        persona >> hidden >> process
-        simulator >> target >> transcript
-        transcript >> factual >> report
-        transcript >> process >> report
-        report >> summary
+        hidden = _hidden("hidden ground truth\nimplicit_flexibilities\nvolunteer_set")
 
-        explicit >> Edge(label="visible only") >> target
-        hidden >> Edge(label="evaluator only", style="dashed") >> process
+        db_gap >> persona >> explicit >> simulator >> target >> transcript >> judge
+        judge >> summary
+        persona >> Edge(style="dashed", label="仅 evaluator 可见") >> hidden
+        hidden >> Edge(style="dashed", label="判定隐藏妥协") >> judge
 
 
 def render_data_evidence_mapping(output_dir: Path) -> None:
-    _, Cluster, Edge, nodes = _load_diagrams()
-    PostgreSQL = nodes["PostgreSQL"]
-    Python = nodes["Python"]
-    SQL = nodes["SQL"]
-    Storage = nodes["Storage"]
+    _, _, Edge, _ = _load_diagrams()
     with _diagram_context("fig_4_3_data_evidence_relax_mapping", output_dir):
-        with Cluster("Evidence bundles"):
-            admissions = PostgreSQL(
-                "Admission facts\nadmission_scores\nschool scores\nrank / batch"
-            )
-            cost = SQL("Cost facts\nadmission_plans.tuition")
-            quality = SQL("Major quality\nquality profiles")
-            employment = SQL("Employment outcomes\noutcome profiles")
-            hierarchy = Storage(
-                "Hierarchical evidence\nmajor_tree reviewed\nregion trees reviewed v1"
-            )
+        with _cluster("证据族", DATA_COLOR, direction="TB"):
+            admissions = _data("招生事实\n最低分 / 位次 / 批次线")
+            hierarchy = _data("层级本体\n专业树 / 地域树 reviewed v1")
+            cost = _data("成本证据\nadmission_plans.tuition")
+            quality = _data("专业质量证据\nschool_major_quality_profiles")
+            employment = _data("就业结果证据\nmajor_employment_outcome_profiles")
 
-        with Cluster("Relax capability families"):
-            admission_relax = Python(
-                "Admission-backed relax\nmajor_geo_relax\nrisk_band_relax\nstrength_relax"
-            )
-            cost_relax = Python("Cost relax\ntuition_value_relax")
-            quality_relax = Python("Quality relax\nmajor_quality_relax")
-            employment_relax = Python("Outcome relax\nemployment_outcome_relax")
-            region_relax = Python(
-                "Region relax\nregion_tree_relax\ngeo_block / urban_tier"
-            )
+        with _cluster("Relax 能力族", AGENT_COLOR, direction="TB"):
+            admission_relax = _agent("录取与层级放宽\nmajor_geo / risk_band / strength")
+            cost_relax = _agent("预算性价比\n tuition_value_relax")
+            quality_relax = _agent("专业质量\nmajor_quality_relax")
+            employment_relax = _agent("就业导向\nemployment_outcome_relax")
+            region_relax = _agent("地域树\nregion_tree_relax\ngeo_block / urban_tier")
 
         admissions >> Edge(label="score / rank") >> admission_relax
-        cost >> Edge(label="tuition delta") >> cost_relax
-        quality >> Edge(label="quality score") >> quality_relax
-        employment >> Edge(label="outcome score") >> employment_relax
         hierarchy >> Edge(label="staged relaxation") >> admission_relax
-        hierarchy >> Edge(label="nearby majors") >> employment_relax
+        cost >> Edge(label="tuition delta") >> cost_relax
+        quality >> Edge(label="quality gain") >> quality_relax
+        employment >> Edge(label="outcome gain") >> employment_relax
         hierarchy >> Edge(label="reviewed region nodes") >> region_relax
 
 
@@ -312,7 +327,7 @@ def render_all(output_dir: Path) -> list[Path]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Render thesis architecture diagrams as SVG/PNG.",
+        description="Render clean thesis box diagrams as SVG/PNG.",
     )
     parser.add_argument(
         "--output-dir",
