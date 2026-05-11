@@ -12,6 +12,17 @@
 
 本文图表默认遵守两条边界：第一，`major_geo_v1 + risk_band_v1` 是主实验；第二，`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 是扩展实验，用于支撑数据贡献和框架可扩展性。
 
+## 0. 可用图像资产
+
+当前首选的论文/PPT 图像资产已经由 Diagrams 生成，位置为 `gaokaollm_bench/outputs/thesis_figures/`，作图环境、渲染命令和图号说明见 `gaokaollm_bench/outputs/thesis_diagrams_with_diagrams.md`。这些 SVG/PNG 是正式成稿优先使用的图像素材；本文后续 Mermaid 图继续保留为概念草稿、结构说明和后续重绘参考。
+
+| 图号 | 中文图题 | 优先图像资产 |
+| --- | --- | --- |
+| 图 4-1 | 数据 + Agent + Benchmark 总体架构图 | `thesis_figures/fig_4_1_system_architecture.svg` / `.png` |
+| 图 5-1 | 轻量 MAS/多角色 Agent 工作流图 | `thesis_figures/fig_5_1_mas_workflow.svg` / `.png` |
+| 图 4-2 | Benchmark 多轮评测流程图 | `thesis_figures/fig_4_2_benchmark_flow.svg` / `.png` |
+| 图 4-3 | 数据证据层与 relax 能力映射图 | `thesis_figures/fig_4_3_data_evidence_relax_mapping.svg` / `.png` |
+
 ## 1. 图表清单
 
 | 编号 | 图表名称 | 建议放置章节 | 作用 |
@@ -434,4 +445,4 @@ Boundary:
 | 实验章节 | 第 8、9 节结果表 |
 | 答辩 PPT | 系统总体架构图、MAS 工作流图、七组实验结果总表 |
 
-如果迁入 LaTeX，Mermaid 图可以作为绘图草稿，用 TikZ、draw.io 或 PPT 重画；表格可直接转成三线表。正文中建议优先突出“数据证据驱动”的主线：数据层不是附属材料，而是 Agent 能够安全谈判、Benchmark 能够判定成功的基础。
+如果迁入 LaTeX，优先使用 `thesis_figures/` 下的 Diagrams SVG/PNG；Mermaid 图仅作为可编辑草稿和结构备份，必要时再用 TikZ、draw.io 或 PPT 重画。表格可直接转成三线表。正文中建议优先突出“数据证据驱动”的主线：数据层不是附属材料，而是 Agent 能够安全谈判、Benchmark 能够判定成功的基础。

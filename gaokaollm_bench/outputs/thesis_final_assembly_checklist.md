@@ -22,7 +22,8 @@ gatekeeper -> radar -> negotiator
 | 2 | `gaokaollm_bench/outputs/thesis_document_hub.md` | 论文材料总入口与同步清单 |
 | 3 | `gaokaollm_bench/outputs/thesis_claims_manifest.json` | 七实验指标、贡献结构和边界事实源 |
 | 4 | `gaokaollm_bench/outputs/thesis_method_experiment_chapters.md` | 第 4-6 章核心正文母版 |
-| 5 | `gaokaollm_bench/outputs/thesis_figures_tables_pack.md` | 图、表、伪代码和答辩素材 |
+| 5 | `gaokaollm_bench/outputs/thesis_diagrams_with_diagrams.md`、`gaokaollm_bench/outputs/thesis_figures/` | 已生成 SVG/PNG 论文插图 |
+| 6 | `gaokaollm_bench/outputs/thesis_figures_tables_pack.md` | 图、表、伪代码和 Mermaid 草稿 |
 
 ## 2. 最终 7 章装配表
 
@@ -38,14 +39,14 @@ gatekeeper -> radar -> negotiator
 
 ## 3. 图表迁移清单
 
-图表优先从 `thesis_figures_tables_pack.md` 迁入。Mermaid 图建议在正式 LaTeX 中重画为 TikZ、draw.io、PPT 或论文模板支持的图片。
+图像类插图优先使用 `gaokaollm_bench/outputs/thesis_figures/` 下已经生成的 SVG/PNG，作图说明见 `thesis_diagrams_with_diagrams.md`。`thesis_figures_tables_pack.md` 中的 Mermaid 图继续作为概念草稿和结构备份，不再作为最终成稿首选来源。
 
-| 类型 | 建议编号 | 来源 | 迁入位置 |
+| 类型 | 建议编号 | 优先来源 / 图像资产 | 迁入位置 |
 |---|---|---|---|
-| 系统总体架构图 | 图 4-1 | 数据层 -> 轻量 MAS Agent -> Benchmark -> 论文产物 | 第 4 章或第 5 章开头 |
-| MAS 工作流图 | 图 5-1 | `gatekeeper -> radar -> negotiator` | 第 5 章 Agent 方法 |
-| Benchmark 流程图 | 图 4-2 | persona -> simulator -> target agent -> transcript -> evaluator | 第 4 章 Benchmark 方法 |
-| 数据证据层图 | 图 4-3 | 招生事实、学费、专业质量、就业结果、地域树到 relax 能力 | 第 4 章数据层设计 |
+| 系统总体架构图 | 图 4-1 | `thesis_figures/fig_4_1_system_architecture.svg` / `.png` | 第 4 章或第 5 章开头 |
+| MAS 工作流图 | 图 5-1 | `thesis_figures/fig_5_1_mas_workflow.svg` / `.png` | 第 5 章 Agent 方法 |
+| Benchmark 流程图 | 图 4-2 | `thesis_figures/fig_4_2_benchmark_flow.svg` / `.png` | 第 4 章 Benchmark 方法 |
+| 数据证据层图 | 图 4-3 | `thesis_figures/fig_4_3_data_evidence_relax_mapping.svg` / `.png` | 第 4 章数据层设计 |
 | 七实验结果总表 | 表 6-1 | 主实验 + 五组扩展实验指标 | 第 6 章实验结果 |
 | 算法到实验映射表 | 表 5-1 或表 6-2 | relax 算法、数据证据、实验结果、论文意义 | 第 5 章或第 6 章 |
 
@@ -96,7 +97,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 - 将 `thesis_intro_related_work_chapters.md` 中的“可替换引用占位”替换为正式 BibTeX 引用。
 - 将 Markdown 表格转成浙江大学模板适配的三线表。
-- 将 Mermaid 图重画为论文图片，并保留源 Mermaid 作为草稿。
+- 优先迁入 `thesis_figures/` 下的 SVG/PNG；Mermaid 图保留为可编辑草稿，只有当模板不兼容 SVG/PNG 或需要进一步美化时再重画。
 - 统一中文术语：数据贡献、Agent 贡献、Benchmark 贡献、轻量 MAS、多角色 Agent、证据驱动 Pareto 谈判。
 - 统一英文术语：`app_pareto`、`hard_constraint`、`elicitation_success_rate`、`mean_pareto_gain`、`mean_hallucination_rate`、`avg_turns`。
 - 检查每个实验指标是否仍与 `thesis_claims_manifest.json` 一致。
