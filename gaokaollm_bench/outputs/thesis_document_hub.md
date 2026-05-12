@@ -56,6 +56,15 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 
 `multi_axis_v2` 的目标不是追求更高聚合成功率，而是修复 v1 中部分交叉画像轴不一致的问题。v2 要求两个隐藏放宽轴围绕一致的显性需求或可解释的正交需求构造；因此它更适合用于论文中的压力测试诊断。当前结果显示：专业-地域与风险组合的联合命中从 v1 的 1/10 改善到 6/10；专业质量与学费组合保持 5/10；就业与地域组合暴露出 Agent 能稳定给出就业证据但未能同步给出地域树证据的问题。
 
+## 2.2 v1 混合检索基线 Pilot
+
+`v1_hybrid_rag` 是新增的 v1 风格软约束 RAG / 冲稳保推荐系统基线。它使用显式话语查询重写、关系过滤、语义召回、二阶重排和冲稳保分段，当前远程后端为 `Qwen/Qwen3-Embedding-8B` 与 `Qwen/Qwen3-Reranker-8B`。它不产生 `pareto_opportunities`，不执行分阶段放宽或 Pareto 谈判，因此只作为 pilot 对照材料，不进入七组正式实验主表。
+
+| Pilot 集合 | `app_pareto` | `hard_constraint` | `v1_hybrid_rag` | Evidence |
+| --- | --- | --- | --- | --- |
+| `major_geo_v1` | `0.900 / 0.900 / 0.000 / 5.80` | `0.000 / 0.000 / 0.000 / 13.00` | `0.100 / 0.100 / 0.000 / 12.40` | `agent_benchmark_v1_hybrid_rag_pilot_evidence.md` |
+| `risk_band_v1` | `1.000 / 3.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 13.00` | `0.000 / 0.000 / 0.025 / 13.00` | `agent_benchmark_v1_hybrid_rag_pilot_evidence.md` |
+
 ## 3. 文档地图
 
 ### 3.1 正文母版
@@ -108,6 +117,7 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 | `agent_benchmark_risk_band_v1_evidence.md` | `risk_band_v1` 逐例 evidence | 主实验重跑或风险证据变化时同步 |
 | `thesis_data_agent_benchmark_extension_evidence.md` | `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` | 四组数据扩展实验重跑时同步 |
 | `agent_benchmark_region_tree_v1_evidence.md` | `region_tree_v1` 逐例 evidence | 地域树实验重跑或地域树解释变化时同步 |
+| `agent_benchmark_v1_hybrid_rag_pilot_evidence.md` | `v1_hybrid_rag` baseline pilot 逐例 evidence | 只在说明 v1 软约束 RAG pilot 对照时引用，不进入七组正式实验主表 |
 | `agent_benchmark_multi_axis_v1_evidence.md` | `multi_axis_v1` 历史压力测试逐例 evidence | 只在说明历史压力测试时引用 |
 | `agent_benchmark_multi_axis_v2_evidence.md` | `multi_axis_v2` 轴一致性压力测试逐例 evidence | 压力测试修正版重跑或解释变化时同步 |
 

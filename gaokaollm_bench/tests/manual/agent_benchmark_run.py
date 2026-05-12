@@ -25,12 +25,14 @@ from gaokaollm_bench.sandbox.target_agents import (
     HardConstraintBaselineAgent,
     V1SoftRagBaselineAgent,
 )
+from gaokaollm_bench.sandbox.v1_hybrid_rag import V1HybridRagBaselineAgent
 from gaokaollm_bench.schemas import EvalReport, IcebergPersona, Transcript
 
 
 TARGET_APP_PARETO = "app_pareto"
 TARGET_HARD_CONSTRAINT = "hard_constraint"
 TARGET_V1_SOFT_RAG = "v1_soft_rag"
+TARGET_V1_HYBRID_RAG = "v1_hybrid_rag"
 DEFAULT_TARGETS = [TARGET_APP_PARETO, TARGET_HARD_CONSTRAINT]
 DEFAULT_MODEL = "gpt-5.2"
 
@@ -69,11 +71,18 @@ def build_target(name: str, *, case_id: str) -> BaseTargetAgent:
         return HardConstraintBaselineAgent()
     if name == TARGET_V1_SOFT_RAG:
         return V1SoftRagBaselineAgent()
+    if name == TARGET_V1_HYBRID_RAG:
+        return V1HybridRagBaselineAgent()
     raise ValueError(f"unknown target: {name}")
 
 
 def target_requires_db(name: str) -> bool:
-    return name in {TARGET_APP_PARETO, TARGET_HARD_CONSTRAINT, TARGET_V1_SOFT_RAG}
+    return name in {
+        TARGET_APP_PARETO,
+        TARGET_HARD_CONSTRAINT,
+        TARGET_V1_SOFT_RAG,
+        TARGET_V1_HYBRID_RAG,
+    }
 
 
 class DeterministicSimulatorLlm:
@@ -406,7 +415,10 @@ def render_summary_md(summary: dict[str, Any]) -> str:
             "found and evidenced in the same dialogue. `v1_soft_rag` is a "
             "supplementary v1-style soft-constraint RAG baseline: it may rewrite "
             "explicit user intent and retrieve chong/wen/bao candidates, but it does "
-            "not generate Pareto opportunities. "
+            "not generate Pareto opportunities. `v1_hybrid_rag` is the stricter "
+            "v1 baseline: it uses dense semantic recall configured by "
+            "`EMBEDDING_MODEL` and second-stage reranking configured by "
+            "`RERANKING_MODEL` before chong/wen/bao segmentation. "
             "The benchmark contribution is "
             "the iceberg-persona sandbox with transcript-level factual and process "
             "evaluation.",

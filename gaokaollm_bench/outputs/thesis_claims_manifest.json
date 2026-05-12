@@ -193,7 +193,8 @@
       "gaokaollm_bench/outputs/agent_benchmark_major_geo_v1_evidence.md",
       "gaokaollm_bench/outputs/agent_benchmark_risk_band_v1_evidence.md",
       "gaokaollm_bench/outputs/thesis_data_agent_benchmark_extension_evidence.md",
-      "gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md"
+      "gaokaollm_bench/outputs/agent_benchmark_region_tree_v1_evidence.md",
+      "gaokaollm_bench/outputs/agent_benchmark_v1_hybrid_rag_pilot_evidence.md"
     ],
     "historical_or_data_quality_reports": [
       "gaokaollm_bench/outputs/region_tree_coverage_report.md",
@@ -295,5 +296,45 @@
     "mapping": "gaokaollm_bench/outputs/thesis_term_mapping.json",
     "policy": "Use academic thesis terms in main prose. Keep implementation ids only in result-table parentheses, appendices, reproducibility notes, or machine-readable manifests.",
     "latex_mapping": "D:/毕设/latex-for-zju-master/latex-for-zju-master/body/undergraduate/final/term_mapping.json"
+  },
+  "baseline_pilots": {
+    "v1_hybrid_rag": {
+      "role": "pilot_baseline_comparison",
+      "positioning": "真实 v1 混合检索基线 pilot；作为软约束 RAG / 冲稳保推荐系统对照，不进入七组正式实验主表。",
+      "model_backends": {
+        "embedding": "Qwen/Qwen3-Embedding-8B",
+        "reranker": "Qwen/Qwen3-Reranker-8B"
+      },
+      "capability_boundary": "使用显式话语查询重写、关系过滤、语义召回、二阶重排和冲稳保分段；不产生 pareto_opportunities，不执行分阶段放宽或证据驱动 Pareto 谈判。",
+      "hidden_persona_boundary": "不读取 implicit_flexibilities、volunteer_set 或 axis_flexibilities。",
+      "pilot_results": {
+        "major_geo_v1": {
+          "targets": [
+            "app_pareto",
+            "hard_constraint",
+            "v1_hybrid_rag"
+          ],
+          "v1_hybrid_rag": "0.100 / 0.100 / 0.000 / 12.40",
+          "cases": 10,
+          "success_count": 1,
+          "output_dir": "gaokaollm_bench/outputs/agent_benchmark_major_geo_v1_v1_hybrid_rag_pilot/",
+          "summary": "gaokaollm_bench/outputs/agent_benchmark_major_geo_v1_v1_hybrid_rag_pilot_summary.md"
+        },
+        "risk_band_v1": {
+          "targets": [
+            "app_pareto",
+            "hard_constraint",
+            "v1_hybrid_rag"
+          ],
+          "v1_hybrid_rag": "0.000 / 0.000 / 0.025 / 13.00",
+          "cases": 10,
+          "success_count": 0,
+          "output_dir": "gaokaollm_bench/outputs/agent_benchmark_risk_band_v1_v1_hybrid_rag_pilot/",
+          "summary": "gaokaollm_bench/outputs/agent_benchmark_risk_band_v1_v1_hybrid_rag_pilot_summary.md"
+        }
+      },
+      "evidence": "gaokaollm_bench/outputs/agent_benchmark_v1_hybrid_rag_pilot_evidence.md",
+      "thesis_boundary": "可作为 v1 baseline pilot 或附录对照引用；不得替换 hard_constraint 下界，也不得改写当前七组正式实验主表。"
+    }
   }
 }

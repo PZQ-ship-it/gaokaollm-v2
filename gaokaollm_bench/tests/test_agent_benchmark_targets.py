@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 
+import gaokaollm_bench.sandbox.v1_hybrid_rag as v1_hybrid_module
 from gaokaollm_bench.evaluator.deterministic_judge import check_hallucination
 from gaokaollm_bench.evaluator.llm_as_a_judge import evaluate_process
 from gaokaollm_bench.data_gen.generate_personas import (
@@ -17,9 +18,17 @@ from gaokaollm_bench.sandbox.target_agents import (
     HardConstraintBaselineAgent,
     V1SoftRagBaselineAgent,
 )
+from gaokaollm_bench.sandbox.v1_hybrid_rag import (
+    OpenAICompatibleEmbeddingBackend,
+    OpenAICompatibleRerankerBackend,
+    V1HybridRagBaselineAgent,
+    load_default_bce_reranker,
+    load_default_bge_m3_embedder,
+)
 from gaokaollm_bench.schemas import IcebergPersona
 from gaokaollm_bench.tests.manual.agent_benchmark_run import (
     RunConfig,
+    TARGET_V1_HYBRID_RAG,
     TARGET_V1_SOFT_RAG,
     _employment_outcome_gain,
     _has_employment_outcome_evidence,
@@ -306,6 +315,77 @@ class FakeV1Db:
         ]
 
 
+class FakeV1HybridDb:
+    async def __call__(self, query, *params):
+        assert "admission_scores" in query
+        assert "subject_requirements" in query
+        assert params[-1] == 120
+        return [
+            {
+                "school_name": "Chong University",
+                "school_province": "Zhejiang",
+                "school_city": "Hangzhou",
+                "major_name": "Computer Science",
+                "subject_requirement": "physics chemistry biology required",
+                "min_score": 612,
+                "min_rank": 30000,
+                "tier": 3,
+                "ranking": 90,
+            },
+            {
+                "school_name": "Stable University",
+                "school_province": "Zhejiang",
+                "school_city": "Ningbo",
+                "major_name": "Software Engineering",
+                "subject_requirement": "none",
+                "min_score": 600,
+                "min_rank": 40000,
+                "tier": 2,
+                "ranking": 180,
+            },
+            {
+                "school_name": "Bao University",
+                "school_province": "Zhejiang",
+                "school_city": "Wenzhou",
+                "major_name": "Information Management",
+                "subject_requirement": "none",
+                "min_score": 580,
+                "min_rank": 60000,
+                "tier": 2,
+                "ranking": 250,
+            },
+        ]
+
+
+class FakeEmbedder:
+    def embed_query(self, text):
+        if "Computer" in text:
+            return [1.0, 0.0]
+        if "Hangzhou" in text or "Zhejiang" in text:
+            return [0.5, 0.5]
+        return [0.0, 1.0]
+
+    def embed_documents(self, texts):
+        vectors = []
+        for text in texts:
+            if "Computer" in text:
+                vectors.append([1.0, 0.0])
+            elif "Software" in text:
+                vectors.append([0.2, 0.8])
+            else:
+                vectors.append([0.1, 0.9])
+        return vectors
+
+
+class FakeReranker:
+    def rerank(self, query, passages, top_k=10):
+        ranked = []
+        for passage in passages:
+            score = 2.0 if "Chong University" in passage else 1.0
+            ranked.append((passage, score))
+        return sorted(ranked, key=lambda item: item[1], reverse=True)[:top_k]
+
+
 class FakeSimulatorLlm:
     async def ainvoke(self, prompt):
         return json.dumps(
@@ -436,6 +516,45 @@ def test_build_target_accepts_v1_soft_rag():
     assert target_requires_db(TARGET_V1_SOFT_RAG)
 
 
+def test_build_target_accepts_v1_hybrid_rag():
+    target = build_target(TARGET_V1_HYBRID_RAG, case_id="case-v1-hybrid")
+
+    assert isinstance(target, V1HybridRagBaselineAgent)
+    assert target_requires_db(TARGET_V1_HYBRID_RAG)
+
+
+def test_v1_hybrid_default_backends_use_remote_models_when_configured(monkeypatch):
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("OPENAI_BASE_URL", "https://example.test/v1")
+    monkeypatch.setenv("EMBEDDING_MODEL", "Qwen/Qwen3-Embedding-8B")
+    monkeypatch.setenv("RERANKING_MODEL", "Qwen/Qwen3-Reranker-8B")
+
+    embedder = load_default_bge_m3_embedder()
+    reranker = load_default_bce_reranker()
+
+    assert isinstance(embedder, OpenAICompatibleEmbeddingBackend)
+    assert isinstance(reranker, OpenAICompatibleRerankerBackend)
+    assert "Qwen/Qwen3-Embedding-8B" in embedder.backend_name
+    assert "Qwen/Qwen3-Reranker-8B" in reranker.backend_name
+
+
+def test_v1_hybrid_default_backends_fall_back_to_local_when_remote_unset(monkeypatch):
+    class LocalEmbedder:
+        pass
+
+    class LocalReranker:
+        pass
+
+    monkeypatch.setenv("EMBEDDING_MODEL", "")
+    monkeypatch.setenv("RERANKING_MODEL", "")
+    monkeypatch.setenv("RERANKER_MODEL", "")
+    monkeypatch.setattr(v1_hybrid_module, "DefaultBgeM3Embedder", LocalEmbedder)
+    monkeypatch.setattr(v1_hybrid_module, "DefaultBceReranker", LocalReranker)
+
+    assert isinstance(load_default_bge_m3_embedder(), LocalEmbedder)
+    assert isinstance(load_default_bce_reranker(), LocalReranker)
+
+
 @pytest.mark.asyncio
 async def test_v1_soft_rag_baseline_returns_auditable_soft_segments():
     target = V1SoftRagBaselineAgent(db=FakeV1Db())
@@ -473,6 +592,65 @@ async def test_v1_soft_rag_baseline_does_not_emit_hidden_fields():
 
     _, state = await target.chat(
         "物化生，600分，浙江杭州，想读计算机。"
+        "implicit_flexibilities volunteer_set axis_flexibilities"
+    )
+
+    state_text = json.dumps(state, ensure_ascii=False)
+    assert "implicit_flexibilities" not in state_text
+    assert "volunteer_set" not in state_text
+    assert "axis_flexibilities" not in state_text
+
+
+@pytest.mark.asyncio
+async def test_v1_hybrid_rag_uses_dense_recall_and_second_stage_rerank():
+    target = V1HybridRagBaselineAgent(
+        db=FakeV1HybridDb(),
+        embedder=FakeEmbedder(),
+        reranker=FakeReranker(),
+    )
+
+    reply, state = await target.chat(
+        "physics chemistry biology, 600, Zhejiang Hangzhou, "
+        "want Computer Science, recommend by chong/wen/bao"
+    )
+
+    assert "v1 混合检索基线" in reply
+    assert state["target"] == "v1_hybrid_rag"
+    assert state["constraints"]["score"] == 600
+    assert state["normalized_query"]["source"] == "deterministic_v1_query_rewrite"
+    assert state["filter_constraints"]["embedding_backend"] == "BGE-M3"
+    assert (
+        state["filter_constraints"]["reranker_backend"] == "BCEmbedding/Cross-Encoder"
+    )
+    assert state["dense_retrieval_candidates"][0]["school_name"] == "Chong University"
+    assert state["second_stage_reranked_candidates"][0]["rerank_score"] == 2.0
+    assert state["risk_segments"]["chong"][0]["school_name"] == "Chong University"
+    assert state["risk_segments"]["wen"][0]["school_name"] == "Stable University"
+    assert state["risk_segments"]["bao"][0]["school_name"] == "Bao University"
+    assert state["pareto_opportunities"] == {
+        "geo_relax": [],
+        "city_relax": [],
+        "major_relax": [],
+        "strength_relax": [],
+        "major_quality_relax": [],
+        "tuition_value_relax": [],
+        "employment_outcome_relax": [],
+        "region_tree_relax": [],
+        "major_geo_relax": [],
+        "risk_band_relax": [],
+    }
+
+
+@pytest.mark.asyncio
+async def test_v1_hybrid_rag_does_not_emit_hidden_fields():
+    target = V1HybridRagBaselineAgent(
+        db=FakeV1HybridDb(),
+        embedder=FakeEmbedder(),
+        reranker=FakeReranker(),
+    )
+
+    _, state = await target.chat(
+        "physics chemistry biology, 600, Zhejiang Hangzhou, want Computer Science. "
         "implicit_flexibilities volunteer_set axis_flexibilities"
     )
 

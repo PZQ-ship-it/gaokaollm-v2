@@ -15,6 +15,7 @@ For graduation-thesis work, start here:
 - `thesis_latex_final_consistency_report.md`: final LaTeX thesis fact-consistency and compile acceptance report for `zjuthesis.pdf`.
 - `thesis_latex_pdf_visual_acceptance.md`: page-level visual acceptance report for the compiled final PDF.
 - `thesis_mas_architecture_acceptance.md`: acceptance note for the v1 semantic-normalization and v2 LLM-guided planning integration.
+- `agent_benchmark_v1_hybrid_rag_pilot_evidence.md`: pilot evidence for the real v1 hybrid RAG baseline using Qwen embedding/rerank; this is a baseline pilot, not part of the seven-experiment thesis table.
 - `thesis_figures/`: generated SVG/PNG figure assets for dissertation and PPT use.
 - `thesis_latex_pdf_snapshots/`: rendered key pages from the final PDF for visual review.
 - `thesis_figures_pdf_snapshots/`: rendered PDF pages for quick figure-layout review.
@@ -29,6 +30,7 @@ Current thesis framing:
 - Main experiments: `major_geo_v1 + risk_band_v1`.
 - Extension experiments: `school_strength_v1`, `tuition_value_v1`, `major_quality_v1`, `employment_outcome_v1`, `region_tree_v1`.
 - Benchmark pressure tests: `multi_axis_v1` is the historical 30-persona two-axis test; `multi_axis_v2` is the coherent-axis revision. They are not part of the seven-experiment thesis table and do not replace the main experiments.
+- Baseline pilot: `v1_hybrid_rag` uses explicit-query normalization, relational filtering, semantic recall, reranking, and chong/wen/bao segmentation as a v1-style soft-constraint RAG comparison. It is a pilot baseline and does not enter the seven-experiment thesis table.
 
 ## Document Groups
 
@@ -41,6 +43,7 @@ Current thesis framing:
 | Methodology | `benchmark_methodology.md`, `major_tree_methodology.md`, `major_tree_annotation_summary.md`, `thesis_hierarchical_relaxation_methodology.md` | Benchmark, major-tree methodology, major-tree annotation/full-coverage v2 facts, and hierarchical-relaxation methodology. |
 | Summaries | `agent_benchmark_*_summary.md` | Aggregate experiment results, plus `agent_benchmark_multi_axis_v1_summary.md` and `agent_benchmark_multi_axis_v2_summary.md` for multi-axis pressure tests. |
 | Evidence appendices | `agent_benchmark_*_evidence.md`, `thesis_data_agent_benchmark_extension_evidence.md` | Per-case transcript evidence and baseline comparisons, including `agent_benchmark_multi_axis_v1_evidence.md` and `agent_benchmark_multi_axis_v2_evidence.md` for pressure tests. |
+| Baseline pilots | `agent_benchmark_v1_hybrid_rag_pilot_evidence.md`, `agent_benchmark_major_geo_v1_v1_hybrid_rag_pilot_summary.md`, `agent_benchmark_risk_band_v1_v1_hybrid_rag_pilot_summary.md` | v1 hybrid RAG pilot comparison against `app_pareto` and `hard_constraint`; not part of the seven formal experiment table. |
 | Historical/data-quality reports | `region_tree_coverage_report.md`, `region_tree_v1_coverage_report.md`, `thesis_artifact_audit.md` | Traceability and data-quality history, not the current thesis claim source. |
 
 ## Maintenance Rule
