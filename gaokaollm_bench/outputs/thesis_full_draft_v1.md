@@ -31,6 +31,8 @@
 | `agent_benchmark_risk_band_v1_evidence.md` | `risk_band_v1` 主实验逐例证据 |
 | `thesis_data_agent_benchmark_extension_evidence.md` | `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` |
 | `agent_benchmark_region_tree_v1_evidence.md` | `region_tree_v1` 地域层级扩展实验逐例证据 |
+| `region_urban_tier_tree_full_coverage_v2_report.md` | 地域层级画像全量覆盖 v2 事实源 |
+| `agent_benchmark_v1_hybrid_rag_pilot_evidence.md` | `v1_hybrid_rag` 软约束 RAG 基线 pilot 逐例证据 |
 | `agent_benchmark_multi_axis_v2_evidence.md` | `multi_axis_v2` 多轴 Benchmark 压力测试修正版逐例证据 |
 
 ## 第 1 章 绪论
@@ -61,7 +63,9 @@
 
 本文贡献分为三条主线。
 
-数据贡献方面，本文构建并使用 PostgreSQL 招生事实快照，包括分数、位次、批次线、招生计划、学费、学校与专业维表；进一步构建专业层级本体、学校-专业质量画像、专业就业结果画像，以及经人工审校的地域层级画像。这些数据层为 Agent 输出和 Benchmark 裁判提供可核验依据。
+数据贡献方面，本文构建并使用 PostgreSQL 招生事实快照，包括分数、位次、批次线、招生计划、学费、学校与专业维表；进一步构建专业层级本体、学校-专业质量画像、专业就业结果画像，以及经人工审校的地域层级画像和地域层级画像全量覆盖 v2。这些数据层为 Agent 输出和 Benchmark 裁判提供可核验依据。
+
+其中，专业层级本体全量覆盖 v2 已完成 `22,759 / 22,759` 个原始去重专业名和 `140,995 / 140,995` 条录取记录的可审计挂载；地域层级画像全量覆盖 v2 已完成 `414 / 414` 个省市对和 `3,219 / 3,219` 条录取记录的可审计挂载。两者的“全覆盖”都指可审计挂载覆盖，不等于全部语义边界已经人工逐条确认正确。
 
 Agent 贡献方面，本文设计轻量 MAS / 多角色 Agent 工作流：
 
@@ -72,6 +76,8 @@ Agent 贡献方面，本文设计轻量 MAS / 多角色 Agent 工作流：
 前置语义归一层继承 v1 查询重写能力，只处理用户显式话语；约束解析器形成硬约束基线；LLM 引导的机会规划器负责探针计划、机会排序与澄清提示；确定性证据探针是学校、专业、分数、位次等事实候选的唯一来源；证据谈判器负责组织真实证据并生成可审计回复。
 
 Benchmark 贡献方面，本文构建冰山画像、多轮沙盒、事实/过程联合评价和证据谈判 Agent vs 硬约束基线对照。用户画像中的 hidden fields 只用于用户模拟器和评测器，不进入被测 Agent 输入。
+
+补充地，本文保留 `v1_hybrid_rag` 作为补充 baseline pilot，用于说明 v1 风格的软约束 RAG / 冲稳保推荐与 v2 证据谈判 Agent 的差异；它不进入七组正式实验主表。
 
 ### 1.5 实验概述
 
@@ -171,7 +177,7 @@ PostgreSQL 快照承担事实基座作用。录取最低分、最低位次、批
 
 专业层级本体是面向志愿决策的层级放宽本体，而不是普通专业目录。其构建流程包括人工本体骨架、PostgreSQL 原始专业名扫描、规则挂载、模型候选、LLM / 人工审校和最终本体合成。当前全量覆盖 v2 已将 `22,759 / 22,759` 个原始去重专业名和 `140,995 / 140,995` 条录取记录挂载到叶子簇，`remaining_unassigned = 0`，并保留规则、probe、DeepSeek-R1 复核或 fallback 来源。这里的“全量覆盖”是可审计挂载覆盖，不等于全部语义边界已经人工逐条确认正确；详细事实源见 `major_tree_annotation_summary.md`。
 
-地域层级画像由地理邻近层级和城市层级两类证据组成。前者表达全国、大区/地理板块、省份、城市/都市圈等地理邻近关系；后者表达一线、新一线、强省会、普通省会、地级市等城市层级。地域层级画像通过自动挂载、HITL 审校包和覆盖报告形成可审计数据层。
+地域层级画像由地理邻近层级和城市层级两类证据组成。前者表达全国、大区/地理板块、省份、城市/都市圈等地理邻近关系；后者表达一线、新一线、强省会、普通省会、地级市等城市层级。地域层级画像全量覆盖 v2 已将当前招生快照中的 `414 / 414` 个省市对和 `3,219 / 3,219` 条录取记录挂载到可审计节点，并保留 existing seed、packet suggested、audit preview 与 fallback 来源，形成完整的数据层覆盖。这里的“全量覆盖”同样是可审计挂载覆盖，不等于全部城市层级语义边界已经人工逐条确认正确；详细事实源见 `region_urban_tier_tree_full_coverage_v2_report.md`。
 
 ### 4.5 Benchmark 流程
 
@@ -265,7 +271,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 共同说明，本文框架可以把新的标准化数据证据接入同一套 Agent+Benchmark 闭环。扩展实验不替代主实验，而是支撑数据贡献和框架可扩展性。
 
-其中，`major_quality_v1` 说明专业级质量证据比粗粒度学校实力更适合解释“同专业更强”的推荐；`employment_outcome_v1` 说明就业结果证据可以转化为 outcome gain；`region_tree_v1` 说明经人工审校的地域层级画像可以进入最小 Agent+Benchmark 闭环，但城市层级不能被直接写成城市收益。
+其中，`major_quality_v1` 说明专业级质量证据比粗粒度学校实力更适合解释“同专业更强”的推荐；`employment_outcome_v1` 说明就业结果证据可以转化为 outcome gain；`region_tree_v1` 说明经人工审校的地域层级画像可以进入最小 Agent+Benchmark 闭环，而 `region_urban_tier_tree_full_coverage_v2_report.md` 所述的城市层级树全量覆盖 v2 则把这一证据层补全到当前招生快照的全部省市对，但城市层级仍不能被直接写成城市收益。
 
 ### 6.5 Benchmark 压力测试：多轴隐藏妥协
 
@@ -278,7 +284,16 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 `multi_axis_v2` 仍只组合已有放宽能力，不新增业务放宽算法。压力测试中的 `axis_flexibilities` 只作为用户模拟器 / 评测器 ground truth，Agent 不读取该字段。
 
-### 6.6 逐例证据与可复现性
+### 6.6 v1 混合检索基线 pilot 对照
+
+`v1_hybrid_rag` 是补充基线 pilot，用于复现 v1 风格的软约束 RAG / 冲稳保推荐。它保留查询重写、关系过滤、语义召回、二阶重排和冲稳保分段，但不产生 `pareto_opportunities`，也不执行分阶段放宽或 Pareto 谈判，因此不进入七组正式实验主表。
+
+| Pilot 集合 | `app_pareto` | `hard_constraint` | `v1_hybrid_rag` | 结论 |
+| --- | --- | --- | --- | --- |
+| `major_geo_v1` | `0.900 / 0.900 / 0.000 / 5.20` | `0.000 / 0.000 / 0.000 / 7.00` | `0.100 / 0.100 / 0.000 / 12.40` | 软约束召回能形成候选，但难以稳定触发隐藏妥协 |
+| `risk_band_v1` | `1.000 / 3.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 15.00` | `0.000 / 0.000 / 0.025 / 13.00` | 风险冲稳保推荐能保守返回结果，但在妥协触发上仍弱于证据谈判 Agent |
+
+### 6.7 逐例证据与可复现性
 
 本文的聚合结果均有逐例 evidence 支撑。主实验 evidence 分别记录了每个 case 的成功状态、turns、hallucination、pareto_gain 和候选证据。扩展 evidence 记录了专业实力、学费、专业质量、就业结果和地域层级候选。论文正文建议展示少量代表 case，完整逐例证据放入附录或答辩备查材料。
 
@@ -286,7 +301,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 ### 7.1 全文总结
 
-本文从 v1 Agentic RAG 工程原型出发，最终形成了 v2 的数据 + Agent + Benchmark 三贡献闭环。v1 证明了高考志愿咨询可以通过 Agentic RAG、状态机、用户画像、混合检索和流式响应实现工程可用；v2 则进一步将问题收敛为可评测、可审计、可逐例追溯的偏好妥协任务。
+本文从 v1 Agentic RAG 工程原型出发，最终形成了 v2 的数据 + Agent + Benchmark 三贡献闭环。v1 证明了高考志愿咨询可以通过 Agentic RAG、状态机、用户画像、混合检索和流式响应实现工程可用；v2 则进一步将问题收敛为可评测、可审计、可逐例追溯的偏好妥协任务。数据贡献层面，本文不仅完成专业层级本体全量覆盖 v2，也完成地域层级画像全量覆盖 v2。
 
 数据贡献方面，本文不仅使用 PostgreSQL 招生事实，还构建了专业层级本体、学校-专业质量画像、专业就业结果画像和经人工审校的地域层级画像。Agent 贡献方面，本文采用“前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器”轻量 MAS / 多角色 Agent 结构，实现证据驱动 Pareto 谈判。Benchmark 贡献方面，本文通过冰山画像、多轮沙盒、事实/过程联合评价和 Agent-vs-Baseline 对照，使“触发隐藏妥协”成为可复现实验对象。
 
