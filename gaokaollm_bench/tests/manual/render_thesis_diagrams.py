@@ -677,6 +677,293 @@ def render_data_mapping() -> SvgCanvas:
     return c
 
 
+def render_major_tree_partial() -> SvgCanvas:
+    c = SvgCanvas()
+    c.text(
+        "专业层级本体全量覆盖 v2：总体结构与典型分支", 960, 62, size=34, weight="800"
+    )
+    c.text(
+        "局部可视化用于说明分阶段放宽空间；全量覆盖是可审计挂载，不等于全部语义边界人工逐条确认",
+        960,
+        104,
+        size=20,
+        fill=COLORS["muted"],
+    )
+
+    c.panel(
+        70, 165, 500, 745, "8 个 Level-0 大类", COLORS["data"], COLORS["data_stroke"]
+    )
+    roots = [
+        "医学大类",
+        "计算机与电子信息大类",
+        "传统工科大类",
+        "经济管理商科大类",
+        "人文社科教育大类",
+        "理学农学大类",
+        "艺术设计体育大类",
+        "高职与应用技术大类",
+    ]
+    for idx, label in enumerate(roots):
+        y = 230 + idx * 76
+        fill = COLORS["white"] if idx not in {1, 2, 3} else "#f0fdf4"
+        stroke = (
+            COLORS["data_stroke"] if idx not in {1, 2, 3} else COLORS["agent_stroke"]
+        )
+        c.box(115, y, 410, 55, label, fill=fill, stroke=stroke, size=20, radius=14)
+
+    c.panel(
+        650, 165, 560, 745, "典型高频分支展开", COLORS["agent"], COLORS["agent_stroke"]
+    )
+    branches = [
+        (
+            700,
+            235,
+            "计算机与电子信息",
+            ["计算机软件与数据", "计算机科学", "数据与人工智能", "软件与网络工程"],
+        ),
+        (
+            700,
+            455,
+            "传统工科",
+            ["制造能源材料", "机械与车辆", "电气与能源", "材料与化工"],
+        ),
+        (
+            700,
+            675,
+            "经济管理商科",
+            ["经济金融会计", "金融会计财务", "经济与贸易", "工商管理营销"],
+        ),
+    ]
+    for x, y, title, leaves in branches:
+        c.box(
+            x,
+            y,
+            210,
+            62,
+            title,
+            fill=COLORS["white"],
+            stroke=COLORS["agent_stroke"],
+            size=19,
+            radius=16,
+        )
+        c.box(
+            x + 290,
+            y - 38,
+            205,
+            54,
+            leaves[0],
+            fill=COLORS["white"],
+            stroke=COLORS["agent_stroke"],
+            size=18,
+            radius=14,
+        )
+        for i, leaf in enumerate(leaves[1:]):
+            ly = y + 35 + i * 58
+            c.box(
+                x + 290,
+                ly,
+                205,
+                48,
+                leaf,
+                fill="#ffffff",
+                stroke=COLORS["agent_stroke"],
+                size=17,
+                radius=14,
+            )
+            c.arrow(x + 210, y + 31, x + 290, ly + 24)
+        c.arrow(x + 210, y + 31, x + 290, y - 11)
+
+    c.panel(
+        1290,
+        165,
+        560,
+        745,
+        "论文使用方式",
+        COLORS["artifact"],
+        COLORS["artifact_stroke"],
+    )
+    c.box(
+        1340,
+        250,
+        460,
+        95,
+        ["专业-地域联合放宽", "同叶子簇 -> 同父类 -> 相关大类 -> 任意专业"],
+        fill=COLORS["white"],
+        stroke=COLORS["artifact_stroke"],
+        size=20,
+    )
+    c.box(
+        1340,
+        405,
+        460,
+        95,
+        ["全量覆盖 v2", "22,759 / 22,759 专业名", "140,995 / 140,995 录取记录"],
+        fill=COLORS["white"],
+        stroke=COLORS["artifact_stroke"],
+        size=20,
+    )
+    c.box(
+        1340,
+        585,
+        460,
+        115,
+        ["错分聚类提示", "复合大类、跨父类近邻、", "高职/本科同名方向需持续维护"],
+        fill=COLORS["white"],
+        stroke=COLORS["artifact_stroke"],
+        size=20,
+    )
+    c.box(
+        1340,
+        760,
+        460,
+        90,
+        ["HITL 边界", "可审计挂载覆盖，不宣称全量人工语义正确"],
+        fill=COLORS["white"],
+        stroke=COLORS["artifact_stroke"],
+        size=19,
+    )
+
+    c.arrow(525, 306, 650, 266, label="局部展开")
+    c.arrow(525, 382, 650, 486)
+    c.arrow(525, 458, 650, 706)
+    c.badge(
+        1210,
+        525,
+        "支撑右侧三类论文论证",
+        fill="#ffffff",
+        stroke=COLORS["artifact_stroke"],
+    )
+    return c
+
+
+def render_region_hierarchy_partial() -> SvgCanvas:
+    c = SvgCanvas()
+    c.text(
+        "经人工审校的地域层级画像：地理邻近与城市层级", 960, 62, size=34, weight="800"
+    )
+    c.text(
+        "地域层级用于引导偏好显性化；城市层级不直接等价于就业、生活成本或生活质量收益",
+        960,
+        104,
+        size=20,
+        fill=COLORS["muted"],
+    )
+
+    c.panel(80, 170, 820, 720, "地理邻近层级", COLORS["data"], COLORS["data_stroke"])
+    c.box(
+        385,
+        235,
+        210,
+        64,
+        "全国",
+        fill=COLORS["white"],
+        stroke=COLORS["data_stroke"],
+        size=21,
+    )
+    geo_blocks = [
+        (160, 365, "华东", ["浙江", "江苏", "上海", "安徽"]),
+        (385, 365, "华北", ["北京", "天津", "河北"]),
+        (610, 365, "华南 / 华中", ["广东", "湖北", "湖南"]),
+    ]
+    for x, y, block, cities in geo_blocks:
+        c.box(
+            x,
+            y,
+            175,
+            58,
+            block,
+            fill=COLORS["white"],
+            stroke=COLORS["data_stroke"],
+            size=19,
+        )
+        c.arrow(490, 299, x + 88, y)
+        for idx, city in enumerate(cities):
+            cy = y + 92 + idx * 58
+            c.box(
+                x,
+                cy,
+                175,
+                45,
+                city,
+                fill="#ffffff",
+                stroke=COLORS["data_stroke"],
+                size=17,
+                radius=13,
+            )
+            c.arrow(x + 88, y + 58, x + 88, cy)
+    c.badge(
+        245,
+        820,
+        "用于表达：别太远 / 江浙沪 / 华东",
+        fill="#ffffff",
+        stroke=COLORS["data_stroke"],
+    )
+
+    c.panel(
+        1020, 170, 820, 720, "城市层级画像", COLORS["agent"], COLORS["agent_stroke"]
+    )
+    c.box(
+        1325,
+        235,
+        230,
+        64,
+        "城市发展层级",
+        fill=COLORS["white"],
+        stroke=COLORS["agent_stroke"],
+        size=21,
+    )
+    tiers = [
+        (1085, 365, "一线城市", ["北京", "上海", "广州", "深圳"]),
+        (1315, 365, "新一线城市", ["杭州", "成都", "南京", "武汉"]),
+        (1545, 365, "区域中心", ["苏州", "宁波", "合肥", "温州"]),
+    ]
+    for x, y, tier, cities in tiers:
+        c.box(
+            x,
+            y,
+            190,
+            58,
+            tier,
+            fill=COLORS["white"],
+            stroke=COLORS["agent_stroke"],
+            size=19,
+        )
+        c.arrow(1440, 299, x + 95, y)
+        for idx, city in enumerate(cities):
+            cy = y + 92 + idx * 58
+            c.box(
+                x,
+                cy,
+                190,
+                45,
+                city,
+                fill="#ffffff",
+                stroke=COLORS["agent_stroke"],
+                size=17,
+                radius=13,
+            )
+            c.arrow(x + 95, y + 58, x + 95, cy)
+    c.badge(
+        1185,
+        820,
+        "用于表达：好城市 / 城市资源 / 发展机会",
+        fill="#ffffff",
+        stroke=COLORS["agent_stroke"],
+    )
+
+    c.box(
+        705,
+        690,
+        510,
+        96,
+        ["证据边界", "只触发地域偏好显性化", "不直接计入客观 Pareto 收益"],
+        fill=COLORS["hidden"],
+        stroke=COLORS["hidden_stroke"],
+        size=20,
+    )
+    return c
+
+
 def _write_svg(path: Path, canvas: SvgCanvas) -> None:
     path.write_text(canvas.render(), encoding="utf-8")
 
@@ -734,6 +1021,8 @@ def render_all(output_dir: Path) -> list[Path]:
         "fig_5_1_mas_workflow": render_mas_workflow(),
         "fig_4_2_benchmark_flow": render_benchmark_flow(),
         "fig_4_3_data_evidence_relax_mapping": render_data_mapping(),
+        "fig_4_4_major_tree_partial": render_major_tree_partial(),
+        "fig_4_5_region_hierarchy_partial": render_region_hierarchy_partial(),
     }
     rendered: list[Path] = []
     for stem, canvas in figures.items():

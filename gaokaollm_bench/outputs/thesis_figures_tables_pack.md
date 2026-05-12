@@ -8,12 +8,14 @@
 
 这些 SVG/PNG 是正式成稿优先使用的图像素材；本文档后续 Mermaid 只作为概念草稿和结构备份。
 
-| 图号 | 中文图题 | 优先图像资产 | 建议章节 |
+| LaTeX 实际图号 / 资产 stem | 中文图题 | 优先图像资产 | 建议章节 |
 | --- | --- | --- | --- |
 | 图 4-1 | 数据 + Agent + Benchmark 总体架构图 | `thesis_figures/fig_4_1_system_architecture.svg` / `.png` | 第 4 或第 5 章开头 |
+| 图 4-2 / `fig_4_4` | 专业层级本体总体结构与典型分支 | `thesis_figures/fig_4_4_major_tree_partial.svg` / `.png` | 第 4 章 |
+| 图 4-3 / `fig_4_5` | 地域层级画像局部可视化 | `thesis_figures/fig_4_5_region_hierarchy_partial.svg` / `.png` | 第 4 章 |
+| 图 4-4 / `fig_4_2` | Benchmark 多轮评测流程图 | `thesis_figures/fig_4_2_benchmark_flow.svg` / `.png` | 第 4 章 |
+| 图 4-5 / `fig_4_3` | 数据证据层与放宽能力映射图 | `thesis_figures/fig_4_3_data_evidence_relax_mapping.svg` / `.png` | 第 4 章 |
 | 图 5-1 | 轻量 MAS 工作流图 | `thesis_figures/fig_5_1_mas_workflow.svg` / `.png` | 第 5 章 |
-| 图 4-2 | Benchmark 多轮评测流程图 | `thesis_figures/fig_4_2_benchmark_flow.svg` / `.png` | 第 4 章 |
-| 图 4-3 | 数据证据层与放宽能力映射图 | `thesis_figures/fig_4_3_data_evidence_relax_mapping.svg` / `.png` | 第 4 章 |
 
 新版图的 Agent 主路径为“前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器”。实现层名称 `gatekeeper`、`radar`、`negotiator` 可在括注、附录或代码说明中保留，但不作为正文和图题的主叙述。
 
@@ -33,8 +35,10 @@
 | --- | --- | --- | --- |
 | 图 4-1 | 数据 + Agent + Benchmark 总体架构图 | 第 4 或第 5 章开头 | 展示数据层、业务 Agent、Benchmark 和论文产物之间的闭环关系 |
 | 图 5-1 | 轻量 MAS 工作流图 | 第 5 章 Agent 方法 | 解释语义归一、约束解析、LLM 规划、确定性探针与证据谈判的分工 |
-| 图 4-2 | Benchmark 多轮评测流程图 | 第 4 章 Benchmark 方法 | 说明显式用户话语和评测端隐藏偏好的隔离方式 |
-| 图 4-3 | 数据证据层与放宽能力映射图 | 第 4 章数据层设计 | 说明不同证据族如何支撑可谈判偏好轴 |
+| 图 4-2 / `fig_4_4` | 专业层级本体总体结构与典型分支 | 第 4 章专业层级本体 | 说明专业树全量覆盖 v2 的总体结构和局部放宽路径 |
+| 图 4-3 / `fig_4_5` | 地域层级画像局部可视化 | 第 4 章地域层级画像 | 说明地理邻近层级与城市层级画像如何服务偏好显性化 |
+| 图 4-4 / `fig_4_2` | Benchmark 多轮评测流程图 | 第 4 章 Benchmark 方法 | 说明显式用户话语和评测端隐藏偏好的隔离方式 |
+| 图 4-5 / `fig_4_3` | 数据证据层与放宽能力映射图 | 第 4 章数据层设计 | 说明不同证据族如何支撑可谈判偏好轴 |
 | 表 5-1 | 算法到实验映射表 | 第 5 或第 6 章 | 把算法、证据、实验结果和论文意义对应起来 |
 | 表 6-1 | 七组实验结果总表 | 第 6 章 | 汇总主实验与扩展实验的核心指标 |
 | 表 6-2 | 多轴压力测试对照表 | 第 6 章补充实验 | 展示多维隐藏妥协下的异质证据编排瓶颈 |

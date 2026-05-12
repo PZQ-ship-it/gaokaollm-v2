@@ -49,9 +49,11 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | 类型 | 建议编号 | 优先来源 / 图像资产 | 迁入位置 |
 |---|---|---|---|
 | 系统总体架构图 | 图 4-1 | `thesis_figures/fig_4_1_system_architecture.svg` / `.png` | 第 4 章或第 5 章开头 |
+| 专业层级本体局部图 | 图 4-2 / `fig_4_4` | `thesis_figures/fig_4_4_major_tree_partial.svg` / `.png` | 第 4 章专业层级本体 |
+| 地域层级画像局部图 | 图 4-3 / `fig_4_5` | `thesis_figures/fig_4_5_region_hierarchy_partial.svg` / `.png` | 第 4 章地域层级画像 |
+| Benchmark 流程图 | 图 4-4 / `fig_4_2` | `thesis_figures/fig_4_2_benchmark_flow.svg` / `.png` | 第 4 章 Benchmark 方法 |
+| 数据证据层图 | 图 4-5 / `fig_4_3` | `thesis_figures/fig_4_3_data_evidence_relax_mapping.svg` / `.png` | 第 4 章数据层设计 |
 | MAS 工作流图 | 图 5-1 | `thesis_figures/fig_5_1_mas_workflow.svg` / `.png` | 第 5 章 Agent 方法 |
-| Benchmark 流程图 | 图 4-2 | `thesis_figures/fig_4_2_benchmark_flow.svg` / `.png` | 第 4 章 Benchmark 方法 |
-| 数据证据层图 | 图 4-3 | `thesis_figures/fig_4_3_data_evidence_relax_mapping.svg` / `.png` | 第 4 章数据层设计 |
 | 七实验结果总表 | 表 6-1 | 主实验 + 五组扩展实验指标 | 第 6 章实验结果 |
 | 算法到实验映射表 | 表 5-1 或表 6-2 | relax 算法、数据证据、实验结果、论文意义 | 第 5 章或第 6 章 |
 | Benchmark 压力测试表 | 表 6-3 | `multi_axis_v1` / `multi_axis_v2` 指标对照与三类 profile 成功分布 | 第 6 章补充实验或附录 |

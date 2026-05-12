@@ -58,12 +58,14 @@ C:\ProgramData\Anaconda3\envs\gaokao_pg\python.exe -m gaokaollm_bench.tests.manu
 
 ## 3. 输出文件与章节位置
 
-| 图号 | 输出文件 stem | 格式 | 建议章节 | 图内主问题 |
+| LaTeX 实际图号 / 资产 stem | 输出文件 stem | 格式 | 建议章节 | 图内主问题 |
 | --- | --- | --- | --- | --- |
 | 图 4-1 | `fig_4_1_system_architecture` | `.svg` / `.png` | 第 4 章或第 5 章开头 | 数据层、业务 Agent、Benchmark 层和论文产物如何闭环 |
+| 图 4-2 / `fig_4_4` | `fig_4_4_major_tree_partial` | `.svg` / `.png` | 第 4 章专业层级本体 | 展示专业层级本体全量覆盖 v2 的 8 个大类和典型高频分支 |
+| 图 4-3 / `fig_4_5` | `fig_4_5_region_hierarchy_partial` | `.svg` / `.png` | 第 4 章地域层级画像 | 并排展示地理邻近层级与城市层级画像的局部结构 |
+| 图 4-4 / `fig_4_2` | `fig_4_2_benchmark_flow` | `.svg` / `.png` | 第 4 章 Benchmark 方法 | 显式用户话语与评测端隐藏偏好如何隔离 |
+| 图 4-5 / `fig_4_3` | `fig_4_3_data_evidence_relax_mapping` | `.svg` / `.png` | 第 4 章数据层设计 | 数据证据族如何支撑各类可谈判偏好轴 |
 | 图 5-1 | `fig_5_1_mas_workflow` | `.svg` / `.png` | 第 5 章 Agent/MAS 方法 | 前置语义归一、LLM 机会规划、确定性探针与证据谈判如何协作 |
-| 图 4-2 | `fig_4_2_benchmark_flow` | `.svg` / `.png` | 第 4 章 Benchmark 方法 | 显式用户话语与评测端隐藏偏好如何隔离 |
-| 图 4-3 | `fig_4_3_data_evidence_relax_mapping` | `.svg` / `.png` | 第 4 章数据层设计 | 数据证据族如何支撑各类可谈判偏好轴 |
 
 ## 4. 视觉规范
 

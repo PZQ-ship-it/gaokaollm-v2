@@ -22,9 +22,11 @@
 | 图号 | 论文图题 | 图像资产 | LaTeX 位置 | PDF 快照 |
 | --- | --- | --- | --- | --- |
 | 图 4.1 | 数据 + Agent + Benchmark 总体架构图 | `thesis_figures/fig_4_1_system_architecture.svg` / `.png` | 第 4 章 4.1 节 | `thesis_figures_pdf_snapshots/zjuthesis_figures_page-29.png` |
-| 图 4.2 | Benchmark 多轮评测流程图 | `thesis_figures/fig_4_2_benchmark_flow.svg` / `.png` | 第 4 章 4.6 节 | `thesis_figures_pdf_snapshots/zjuthesis_figures_page-34.png` |
-| 图 4.3 | 数据证据层与放宽能力映射图 | `thesis_figures/fig_4_3_data_evidence_relax_mapping.svg` / `.png` | 第 4 章 4.7 节 | `thesis_figures_pdf_snapshots/zjuthesis_figures_page-35.png` |
-| 图 5.1 | 轻量 MAS / 多角色 Agent 工作流图 | `thesis_figures/fig_5_1_mas_workflow.svg` / `.png` | 第 5 章 5.1 节 | `thesis_figures_pdf_snapshots/zjuthesis_figures_page-37.png` |
+| 图 4.2 | 专业层级本体全量覆盖 v2 的总体结构与典型分支 | `thesis_figures/fig_4_4_major_tree_partial.svg` / `.png` | 第 4 章 4.4 节 | `thesis_latex_pdf_snapshots/page-33.png` |
+| 图 4.3 | 经人工审校的地域层级画像局部可视化 | `thesis_figures/fig_4_5_region_hierarchy_partial.svg` / `.png` | 第 4 章 4.5 节 | `thesis_latex_pdf_snapshots/page-34.png` |
+| 图 4.4 | Benchmark 多轮评测流程图 | `thesis_figures/fig_4_2_benchmark_flow.svg` / `.png` | 第 4 章 4.6 节 | `thesis_latex_pdf_snapshots/page-35.png` |
+| 图 4.5 | 数据证据层与放宽能力映射图 | `thesis_figures/fig_4_3_data_evidence_relax_mapping.svg` / `.png` | 第 4 章 4.7 节 | `thesis_latex_pdf_snapshots/page-36.png` |
+| 图 5.1 | 轻量 MAS / 多角色 Agent 工作流图 | `thesis_figures/fig_5_1_mas_workflow.svg` / `.png` | 第 5 章 5.1 节 | `thesis_latex_pdf_snapshots/page-38.png` |
 
 补充快照：`thesis_figures_pdf_snapshots/` 中还保留第 30-33、36 页渲染结果，用于检查图前后正文和浮动体位置。
 
@@ -35,8 +37,10 @@
 | 图号 | 视觉检查 | 术语检查 | 验收结论 |
 | --- | --- | --- | --- |
 | 图 4.1 | 无裁切，节点和箭头可读，整体居中；A4 页面中图较小但仍可辨识。 | 包含前置语义归一、LLM 规划、确定性证据探针和证据谈判；未把 LLM 写成事实候选来源。 | 通过 |
-| 图 4.2 | 无裁切，hidden/evaluator-only 虚线边界清楚；页面留白较多但不影响阅读。 | 明确 hidden fields 只进入模拟器/评测器，业务 Agent 不可见。 | 通过 |
-| 图 4.3 | 无裁切，证据族和放宽动作分组清楚；图在页面中偏小但主关系可读。 | 明确 LLM 只规划，确定性探针返回事实候选；地域层级只作偏好显性化证据。 | 通过 |
+| 图 4.2 | 无裁切，8 个 Level-0 大类、典型高频分支和论文使用方式均可读。 | 明确全覆盖是可审计挂载覆盖，不宣称全部语义边界人工逐条确认。 | 通过 |
+| 图 4.3 | 无裁切，地理邻近层级与城市层级画像并排清晰。 | 明确地域层级只用于偏好显性化，不直接计入客观收益。 | 通过 |
+| 图 4.4 | 无裁切，hidden/evaluator-only 虚线边界清楚；页面留白较多但不影响阅读。 | 明确 hidden fields 只进入模拟器/评测器，业务 Agent 不可见。 | 通过 |
+| 图 4.5 | 无裁切，证据族和放宽动作分组清楚；图在页面中偏小但主关系可读。 | 明确 LLM 只规划，确定性探针返回事实候选；地域层级只作偏好显性化证据。 | 通过 |
 | 图 5.1 | 无裁切，主路径完整；新 MAS 节点命名与当前论文口径一致。 | 采用“前置语义归一层 -> 约束解析器 -> LLM 引导机会规划器 -> 确定性证据探针 -> 证据谈判器”。 | 通过 |
 
 ## 4. 周边一致性提醒

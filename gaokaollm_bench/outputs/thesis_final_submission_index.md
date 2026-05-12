@@ -7,8 +7,8 @@
 | 项目 | 路径 / 状态 |
 | --- | --- |
 | 最终 PDF | `D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf` |
-| PDF 大小 | `3,164,963` bytes |
-| PDF 最近写入时间 | `2026-05-12 08:12:14` |
+| PDF 大小 | `3,565,808` bytes |
+| PDF 最近写入时间 | `2026-05-12 09:18:53` |
 | LaTeX 主入口 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\zjuthesis.tex` |
 | 正文入口 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\body\undergraduate\final\content.tex` |
 | 正文章节目录 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\body\undergraduate\final\chapters\` |
@@ -87,7 +87,7 @@
 | 导师署名与学生信息 | 与学院系统和模板要求逐项核对。 |
 | 致谢 | 当前模板中致谢页较短，提交前建议补齐正式致谢文本。 |
 | 参考文献格式 | 检查引用是否满足学院要求，确认 BibTeX 条目完整。 |
-| 图片清晰度 | PDF 已通过页面级验收；答辩 PPT 建议使用 `thesis_figures/` 中的原始 SVG/PNG。 |
+| 图片清晰度 | PDF 已通过页面级验收；答辩 PPT 建议使用 `thesis_figures/` 中的原始 SVG/PNG，尤其是架构图、Benchmark 图、专业层级本体局部图和地域层级画像局部图。当前新增树形局部图已进入第 4 章。 |
 | 表格与图题 | 确认图表编号、正文引用和目录一致。 |
 | 学校模板要求 | 复查 `Degree = undergraduate`、`Type = design`、`Period = final`。 |
 | 隐藏字段边界 | 确认正文和附录仍写明 Agent 不读取 `implicit_flexibilities`、`volunteer_set`、`axis_flexibilities`。 |

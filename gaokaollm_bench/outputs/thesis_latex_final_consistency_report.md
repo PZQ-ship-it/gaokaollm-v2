@@ -73,8 +73,8 @@ latexmk -xelatex -outdir=out zjuthesis
 
 - 编译成功，无 LaTeX fatal error。
 - PDF 输出：`D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf`
-- PDF 大小：`3,164,963` bytes
-- 最近写入时间：`2026-05-12 08:12:14`
+- PDF 大小：`3,565,808` bytes
+- 最近写入时间：`2026-05-12 09:18:53`
 - `latexmk` 报告：`All targets (out/zjuthesis.xdv out/zjuthesis.pdf) are up-to-date`
 
 本轮版式收敛处理：
@@ -92,7 +92,7 @@ latexmk -xelatex -outdir=out zjuthesis
 | Package Warning | 1 | `xeCJK` 字体族重定义提示 |
 | Overfull `\hbox` | 0 | 明显水平溢出已清零 |
 | Underfull `\hbox` | 15 | 主要是窄表格列或短中文短语断行松散 |
-| Underfull `\vbox` | 4 | 页面垂直排版松散 |
+| Underfull `\vbox` | 3 | 页面垂直排版松散 |
 | undefined reference / undefined citation | 0 | 未发现未定义引用或未定义文献 |
 
 ## 5. 剩余风险
