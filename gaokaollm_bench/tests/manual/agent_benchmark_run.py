@@ -23,12 +23,14 @@ from gaokaollm_bench.sandbox.base_target import BaseTargetAgent
 from gaokaollm_bench.sandbox.target_agents import (
     AppGraphTargetAgent,
     HardConstraintBaselineAgent,
+    V1SoftRagBaselineAgent,
 )
 from gaokaollm_bench.schemas import EvalReport, IcebergPersona, Transcript
 
 
 TARGET_APP_PARETO = "app_pareto"
 TARGET_HARD_CONSTRAINT = "hard_constraint"
+TARGET_V1_SOFT_RAG = "v1_soft_rag"
 DEFAULT_TARGETS = [TARGET_APP_PARETO, TARGET_HARD_CONSTRAINT]
 DEFAULT_MODEL = "gpt-5.2"
 
@@ -65,11 +67,13 @@ def build_target(name: str, *, case_id: str) -> BaseTargetAgent:
         return AppGraphTargetAgent(thread_id=f"bench-{case_id}")
     if name == TARGET_HARD_CONSTRAINT:
         return HardConstraintBaselineAgent()
+    if name == TARGET_V1_SOFT_RAG:
+        return V1SoftRagBaselineAgent()
     raise ValueError(f"unknown target: {name}")
 
 
 def target_requires_db(name: str) -> bool:
-    return name in {TARGET_APP_PARETO, TARGET_HARD_CONSTRAINT}
+    return name in {TARGET_APP_PARETO, TARGET_HARD_CONSTRAINT, TARGET_V1_SOFT_RAG}
 
 
 class DeterministicSimulatorLlm:
@@ -399,7 +403,10 @@ def render_summary_md(summary: dict[str, Any]) -> str:
             "`region_tree_relax` is used when the persona targets reviewed region-tree "
             "geo-block or urban-tier evidence; "
             "`multi_axis` pressure tests require two existing opportunity axes to be "
-            "found and evidenced in the same dialogue. "
+            "found and evidenced in the same dialogue. `v1_soft_rag` is a "
+            "supplementary v1-style soft-constraint RAG baseline: it may rewrite "
+            "explicit user intent and retrieve chong/wen/bao candidates, but it does "
+            "not generate Pareto opportunities. "
             "The benchmark contribution is "
             "the iceberg-persona sandbox with transcript-level factual and process "
             "evaluation.",

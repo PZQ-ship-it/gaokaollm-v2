@@ -6,6 +6,7 @@ import re
 from typing import Any
 
 from app.flows.probers import run_baseline
+from app.core import db_pg
 from gaokaollm_bench.sandbox.base_target import BaseTargetAgent
 
 
@@ -94,6 +95,44 @@ class HardConstraintBaselineAgent(BaseTargetAgent):
             "missing_constraints": [],
             "recommended_schools": _recommended_schools(baseline),
         }
+
+
+class V1SoftRagBaselineAgent(BaseTargetAgent):
+    """A v1-style soft-constraint RAG baseline over the current DB snapshot."""
+
+    def __init__(self, *, db: Any = None, limit: int = 9) -> None:
+        self.db = db
+        self.limit = limit
+        self.constraints: dict[str, Any] = {}
+
+    async def chat(self, user_input: str) -> tuple[str, dict[str, Any]]:
+        normalized = _normalize_v1_query(user_input)
+        extracted = _fallback_extract_constraints(normalized["rewritten_query"])
+        self.constraints = _merge_constraints(self.constraints, extracted)
+        missing = _missing_required_constraints(self.constraints)
+        if missing:
+            reply = _missing_constraints_reply(missing)
+            return reply, _v1_state(
+                constraints=self.constraints,
+                normalized_query=normalized,
+                soft_candidates=[],
+                missing_constraints=missing,
+            )
+
+        soft_candidates = await _run_v1_soft_retrieval(
+            self.constraints,
+            db=self.db,
+            limit=self.limit,
+        )
+        segmented = _segment_v1_candidates(self.constraints, soft_candidates)
+        reply = _v1_soft_rag_reply(segmented, soft_candidates)
+        return reply, _v1_state(
+            constraints=self.constraints,
+            normalized_query=normalized,
+            soft_candidates=soft_candidates,
+            segmented_candidates=segmented,
+            missing_constraints=[],
+        )
 
 
 class _HumanMessageFallback:
@@ -228,6 +267,21 @@ def _score_waste(
         return 0
 
 
+def _empty_opportunities() -> dict[str, list[Any]]:
+    return {
+        "geo_relax": [],
+        "city_relax": [],
+        "major_relax": [],
+        "strength_relax": [],
+        "major_quality_relax": [],
+        "tuition_value_relax": [],
+        "employment_outcome_relax": [],
+        "region_tree_relax": [],
+        "major_geo_relax": [],
+        "risk_band_relax": [],
+    }
+
+
 def _fallback_extract_constraints(text: str) -> dict[str, Any]:
     extracted: dict[str, Any] = {}
     score_match = re.search(r"(\d{3})", text)
@@ -353,6 +407,245 @@ def _fallback_extract_constraints(text: str) -> dict[str, Any]:
         extracted["employment_preference"] = "employment_outcome"
 
     return extracted
+
+
+def _normalize_v1_query(text: str) -> dict[str, Any]:
+    compact = re.sub(r"\s+", " ", text).strip()
+    for hidden_name in (
+        "implicit_flexibilities",
+        "volunteer_set",
+        "axis_flexibilities",
+    ):
+        compact = compact.replace(hidden_name, "")
+    compact = re.sub(r"\s+", " ", compact).strip()
+    return {
+        "rewritten_query": compact,
+        "preference_summary": _v1_preference_summary(compact),
+        "source": "deterministic_v1_rewrite",
+    }
+
+
+def _v1_preference_summary(text: str) -> list[str]:
+    summary: list[str] = []
+    for label, tokens in {
+        "专业偏好": ("专业", "想读", "想学", "计算机", "临床", "法学"),
+        "地域偏好": ("省内", "浙江", "杭州", "别太远", "城市", "外省"),
+        "风险偏好": ("稳", "保守", "冲", "风险"),
+        "费用偏好": ("预算", "学费", "费用"),
+        "就业偏好": ("就业", "薪资", "岗位", "行业"),
+    }.items():
+        if any(token in text for token in tokens):
+            summary.append(label)
+    return summary
+
+
+async def _fetch_v1_rows(
+    db: Any,
+    query: str,
+    params: list[Any],
+) -> list[dict[str, Any]]:
+    if db is None:
+        return await db_pg.fetch_query(query, *params)
+    if hasattr(db, "fetch_query"):
+        return await db.fetch_query(query, *params)
+    return await db(query, *params)
+
+
+async def _run_v1_soft_retrieval(
+    constraints: dict[str, Any],
+    *,
+    db: Any = None,
+    limit: int = 9,
+) -> list[dict[str, Any]]:
+    score = int(constraints["score"])
+    where = [
+        "a.min_score IS NOT NULL",
+        "a.min_score >= %s",
+        "a.min_score <= %s",
+    ]
+    where_params: list[Any] = [score - 25, score + 15]
+    select_params: list[Any] = []
+
+    selected_subjects = constraints.get("selected_subjects")
+    if selected_subjects:
+        where.append(
+            """
+            (
+                COALESCE(sr.requirement_type, 'unknown') = 'none'
+                OR COALESCE(cardinality(sr.normalized_subjects), 0) = 0
+                OR (
+                    sr.requirement_type = 'all_required'
+                    AND sr.normalized_subjects <@ %s::text[]
+                )
+                OR (
+                    sr.requirement_type = 'any_required'
+                    AND sr.normalized_subjects && %s::text[]
+                )
+            )
+            """
+        )
+        where_params.extend([selected_subjects, selected_subjects])
+
+    province = constraints.get("province")
+    if province:
+        where.append("(s.province = %s OR s.province IS NOT NULL)")
+        where_params.append(province)
+
+    major = constraints.get("major")
+    major_score = "0"
+    if major:
+        major_score = "CASE WHEN a.major_name_raw LIKE %s THEN 4 ELSE 0 END"
+        select_params.append(f"%{major}%")
+
+    city = constraints.get("city")
+    city_score = "0"
+    if city:
+        city_score = "CASE WHEN s.city LIKE %s THEN 2 ELSE 0 END"
+        select_params.append(f"%{city}%")
+
+    province_score = "0"
+    if province:
+        province_score = "CASE WHEN s.province = %s THEN 2 ELSE 0 END"
+        select_params.append(province)
+    query = f"""
+    SELECT
+        a.id AS admission_score_id,
+        a.year,
+        a.school_id,
+        s.name AS school_name,
+        s.province AS school_province,
+        s.city AS school_city,
+        s.is_985,
+        s.is_211,
+        s.is_double_first_class,
+        s.education_level,
+        s.ranking,
+        a.major_id,
+        a.major_name_raw AS major_name,
+        a.subject_requirement,
+        COALESCE(sr.requirement_type, 'unknown') AS requirement_type,
+        a.min_score,
+        a.min_rank,
+        plan.min_tuition AS tuition,
+        CASE
+            WHEN s.is_985 THEN 4
+            WHEN s.is_211 OR s.is_double_first_class THEN 3
+            WHEN s.education_level = '本科' THEN 2
+            ELSE 1
+        END AS tier,
+        ({major_score}) + ({city_score}) + ({province_score}) AS soft_match_score
+    FROM admission_scores a
+    JOIN schools s ON s.id = a.school_id
+    LEFT JOIN subject_requirements sr ON sr.raw_requirement = a.subject_requirement
+    LEFT JOIN LATERAL (
+        SELECT min(p.tuition) AS min_tuition
+        FROM admission_plans p
+        WHERE p.school_id = a.school_id
+          AND p.year = a.year
+          AND (
+              p.major_id = a.major_id
+              OR p.major_code = a.major_code
+              OR p.major_name_raw = a.major_name_raw
+          )
+    ) plan ON true
+    WHERE {" AND ".join(where)}
+    ORDER BY
+        soft_match_score DESC,
+        CASE
+            WHEN a.min_score > %s THEN 0
+            WHEN a.min_score >= %s THEN 1
+            ELSE 2
+        END ASC,
+        tier DESC,
+        s.ranking ASC NULLS LAST,
+        abs(a.min_score - %s) ASC,
+        a.year DESC,
+        s.name ASC,
+        a.major_name_raw ASC
+    LIMIT %s
+    """
+    params = [*select_params, *where_params, score, score - 5, score, limit]
+    return await _fetch_v1_rows(db, query, params)
+
+
+def _segment_v1_candidates(
+    constraints: dict[str, Any],
+    rows: list[dict[str, Any]],
+) -> dict[str, list[dict[str, Any]]]:
+    score = int(constraints.get("score") or 0)
+    segmented: dict[str, list[dict[str, Any]]] = {
+        "chong": [],
+        "wen": [],
+        "bao": [],
+    }
+    for row in rows:
+        min_score = row.get("min_score")
+        if min_score is None:
+            continue
+        delta = int(float(min_score)) - score
+        item = dict(row)
+        item["score_delta"] = delta
+        if 0 < delta <= 15:
+            segmented["chong"].append(item)
+        elif -5 <= delta <= 0:
+            segmented["wen"].append(item)
+        elif -25 <= delta < -5:
+            segmented["bao"].append(item)
+    return segmented
+
+
+def _v1_soft_rag_reply(
+    segmented: dict[str, list[dict[str, Any]]],
+    rows: list[dict[str, Any]],
+) -> str:
+    if not rows:
+        return "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+
+    labels = {
+        "chong": "可冲击",
+        "wen": "较稳妥",
+        "bao": "可保底",
+    }
+    lines = ["按 v1 软约束召回方式，我先给出冲稳保候选："]
+    for band in ("chong", "wen", "bao"):
+        candidates = segmented.get(band) or []
+        if not candidates:
+            continue
+        lines.append(f"{labels[band]}：")
+        for row in candidates[:2]:
+            lines.append(
+                f"- {row.get('school_name')}｜{row.get('school_province')}｜"
+                f"{row.get('major_name')}｜最低分 {row.get('min_score')}"
+            )
+    if len(lines) == 1:
+        for row in rows[:3]:
+            lines.append(
+                f"- {row.get('school_name')}｜{row.get('school_province')}｜"
+                f"{row.get('major_name')}｜最低分 {row.get('min_score')}"
+            )
+    return "\n".join(lines)
+
+
+def _v1_state(
+    *,
+    constraints: dict[str, Any],
+    normalized_query: dict[str, Any],
+    soft_candidates: list[dict[str, Any]],
+    missing_constraints: list[str],
+    segmented_candidates: dict[str, list[dict[str, Any]]] | None = None,
+) -> dict[str, Any]:
+    return {
+        "target": "v1_soft_rag",
+        "constraints": dict(constraints),
+        "normalized_query": dict(normalized_query),
+        "soft_retrieval_candidates": list(soft_candidates),
+        "risk_segments": segmented_candidates or {"chong": [], "wen": [], "bao": []},
+        "baseline_results": list(soft_candidates[:3]),
+        "pareto_opportunities": _empty_opportunities(),
+        "score_waste": _score_waste(constraints, soft_candidates),
+        "missing_constraints": list(missing_constraints),
+        "recommended_schools": _recommended_schools(soft_candidates),
+    }
 
 
 def _extract_subjects(text: str) -> list[str]:

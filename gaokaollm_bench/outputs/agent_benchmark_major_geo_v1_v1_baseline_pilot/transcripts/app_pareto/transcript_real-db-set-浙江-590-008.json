@@ -1,0 +1,436 @@
+{
+  "persona": {
+    "case_id": "real-db-set-浙江-590-008",
+    "background": {
+      "score": 590,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+      "baseline_school": "宁波大学",
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "volunteer_count": 1,
+      "max_gap_tier": 4,
+      "max_tier_delta": 1
+    },
+    "explicit_red_lines": {
+      "geo": "坚决不出浙江",
+      "reason": "认为留在浙江更安全，只愿意先看本省的双一流选择",
+      "current_anchor_school": "宁波大学"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "volunteer_set",
+      "trigger_condition": "只有看到一个由多所浙江外真实可达跃迁志愿组成的集合，且每个志愿都有学校名、专业名、最低分不高于590分的证据，才会动摇",
+      "volunteer_set": [
+        {
+          "school_id": 118,
+          "school_name": "海军军医大学",
+          "school_province": "上海",
+          "school_city": "杨浦区",
+          "major_id": null,
+          "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+          "year": 2021,
+          "min_score": 589,
+          "score_margin": 1,
+          "min_rank": 54060,
+          "tier": 4,
+          "tier_label": "985/211/双一流",
+          "is_985": true,
+          "is_211": true,
+          "is_double_first_class": true
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "海军军医大学"
+      ],
+      "tier_labels": [
+        "985/211/双一流"
+      ],
+      "compromise": "可以为了从双一流跃迁到更高层次志愿集合而考虑出省"
+    },
+    "initial_utterance": "我590分，只想留在浙江，外省学校先别推荐。",
+    "process_milestones": {
+      "reject_single_school_bait": true,
+      "reject_generic_advice": true,
+      "require_complete_volunteer_set": true,
+      "require_each_option_score_evidence": true,
+      "accept_after_verified_volunteer_set": [
+        "海军军医大学"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我590分，只想留在浙江，外省学校先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我还需要补充：3门选考科目（政治、历史、地理、物理、化学、生物、技术中任选3门）。",
+      "internal_state": {
+        "target": "app_pareto",
+        "constraints": {
+          "score": 590,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": null,
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [
+          "selected_subjects"
+        ],
+        "rewritten_query": "我590分，只想留在浙江，外省学校先别推荐。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [],
+        "opportunity_rankings": [],
+        "clarification_hint": null,
+        "recommended_schools": []
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "我的选考是物理、化学、生物。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "系统在补齐必要约束，继续提供选科。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "I will not decide for you; I will only expose auditable Pareto evidence.\n选项A: major_geo_relax: 海军军医大学 (上海/杨浦区) 护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线) min_score=589 min_rank=54060 tier=4 ranking=76；南京师范大学中北学院 (江苏/南京) 法学 min_score=584 min_rank=71515 tier=4 ranking=718；南京师范大学中北学院 (江苏/南京) 法学 min_score=580 min_rank=75599 tier=4 ranking=718；南京师范大学中北学院 (江苏/南京) 汉语言文学 min_score=579 min_rank=77002 tier=4 ranking=718；南京师范大学中北学院 (江苏/南京) 汉语言文学 min_score=573 min_rank=84100 tier=4 ranking=718\nThis is a joint major/region Pareto opportunity with real min_score evidence.\n\nAgent input is limited to explicit user constraints and verified DB evidence.",
+      "internal_state": {
+        "target": "app_pareto",
+        "constraints": {
+          "score": 590,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 124850,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "587",
+            "min_rank": 56283,
+            "tuition": "28800",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 125008,
+            "year": 2021,
+            "school_id": 140,
+            "school_name": "浙江工业大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 89,
+            "major_id": null,
+            "major_name": "土木工程(中外合作办学)(要求高考外语成绩不低于100分)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 52965,
+            "tuition": "28000",
+            "tier": 2
+          },
+          {
+            "admission_score_id": 120,
+            "year": 2025,
+            "school_id": 144,
+            "school_name": "浙江师范大学",
+            "school_province": "浙江",
+            "school_city": "金华市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 92,
+            "major_id": 55,
+            "major_name": "科学教育",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 63346,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 124083,
+              "year": 2021,
+              "school_id": 118,
+              "school_name": "海军军医大学",
+              "school_province": "上海",
+              "school_city": "杨浦区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 76,
+              "major_id": null,
+              "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "589",
+              "min_rank": 54060,
+              "tuition": "5000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 36483,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "584",
+              "min_rank": 71515,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8007,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "580",
+              "min_rank": 75599,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 37044,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "579",
+              "min_rank": 77002,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8006,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "573",
+              "min_rank": 84100,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 3,
+        "missing_constraints": [],
+        "rewritten_query": "我的选考是物理、化学、生物。",
+        "intent_axes": [],
+        "probe_plan": [
+          {
+            "probe": "geo_relax",
+            "priority": 1,
+            "reason": "default geographic relaxation probe"
+          },
+          {
+            "probe": "major_relax",
+            "priority": 2,
+            "reason": "default major relaxation probe"
+          }
+        ],
+        "opportunity_rankings": [
+          "geo_relax",
+          "major_relax"
+        ],
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "min_score": "587",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 56283,
+            "tuition": "28800"
+          },
+          {
+            "school": "浙江工业大学",
+            "province": "浙江",
+            "major": "土木工程(中外合作办学)(要求高考外语成绩不低于100分)",
+            "min_score": "590",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 52965,
+            "tuition": "28000"
+          },
+          {
+            "school": "浙江师范大学",
+            "province": "浙江",
+            "major": "科学教育",
+            "min_score": "590",
+            "tier": 2,
+            "city": "金华市",
+            "min_rank": 63346
+          },
+          {
+            "school": "海军军医大学",
+            "province": "上海",
+            "major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+            "min_score": "589",
+            "tier": 4,
+            "city": "杨浦区",
+            "min_rank": 54060,
+            "tuition": "5000"
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "法学",
+            "min_score": "584",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 71515,
+            "tuition": "18000"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "这些学校和分数证据比较具体，我愿意把这个方向纳入考虑。",
+      "internal_state": {
+        "is_persuaded": true,
+        "turn_count": 2,
+        "last_thought": "回复包含隐藏妥协条件中的学校和分数证据。"
+      }
+    }
+  ]
+}

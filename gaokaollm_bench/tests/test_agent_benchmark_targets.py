@@ -15,10 +15,12 @@ from gaokaollm_bench.data_gen.generate_personas import (
 from gaokaollm_bench.sandbox.target_agents import (
     AppGraphTargetAgent,
     HardConstraintBaselineAgent,
+    V1SoftRagBaselineAgent,
 )
 from gaokaollm_bench.schemas import IcebergPersona
 from gaokaollm_bench.tests.manual.agent_benchmark_run import (
     RunConfig,
+    TARGET_V1_SOFT_RAG,
     _employment_outcome_gain,
     _has_employment_outcome_evidence,
     _has_major_quality_evidence,
@@ -33,6 +35,8 @@ from gaokaollm_bench.tests.manual.agent_benchmark_run import (
     load_personas,
     run_target_cases,
     write_summary_files,
+    build_target,
+    target_requires_db,
 )
 from app.graphs.nodes.negotiator import _fallback_reply_v2
 
@@ -264,6 +268,44 @@ class EmptyDb:
         return []
 
 
+class FakeV1Db:
+    async def __call__(self, query, *params):
+        assert "admission_scores" in query
+        assert "soft_match_score" in query
+        return [
+            {
+                "school_name": "冲刺大学",
+                "school_province": "浙江",
+                "school_city": "杭州",
+                "major_name": "计算机科学与技术",
+                "min_score": 612,
+                "min_rank": 30000,
+                "tier": 3,
+                "soft_match_score": 8,
+            },
+            {
+                "school_name": "稳妥大学",
+                "school_province": "浙江",
+                "school_city": "宁波",
+                "major_name": "软件工程",
+                "min_score": 600,
+                "min_rank": 40000,
+                "tier": 2,
+                "soft_match_score": 4,
+            },
+            {
+                "school_name": "保底大学",
+                "school_province": "浙江",
+                "school_city": "温州",
+                "major_name": "信息管理与信息系统",
+                "min_score": 580,
+                "min_rank": 60000,
+                "tier": 2,
+                "soft_match_score": 2,
+            },
+        ]
+
+
 class FakeSimulatorLlm:
     async def ainvoke(self, prompt):
         return json.dumps(
@@ -385,6 +427,59 @@ def build_region_persona():
         ),
         process_milestones={"require_region_tree_evidence": True},
     )
+
+
+def test_build_target_accepts_v1_soft_rag():
+    target = build_target(TARGET_V1_SOFT_RAG, case_id="case-v1")
+
+    assert isinstance(target, V1SoftRagBaselineAgent)
+    assert target_requires_db(TARGET_V1_SOFT_RAG)
+
+
+@pytest.mark.asyncio
+async def test_v1_soft_rag_baseline_returns_auditable_soft_segments():
+    target = V1SoftRagBaselineAgent(db=FakeV1Db())
+
+    reply, state = await target.chat(
+        "物化生，600分，浙江杭州，想读计算机，帮我按冲稳保推荐"
+    )
+
+    assert "v1 软约束召回" in reply
+    assert state["target"] == "v1_soft_rag"
+    assert state["constraints"]["score"] == 600
+    assert state["normalized_query"]["source"] == "deterministic_v1_rewrite"
+    assert state["soft_retrieval_candidates"]
+    assert state["risk_segments"]["chong"][0]["school_name"] == "冲刺大学"
+    assert state["risk_segments"]["wen"][0]["school_name"] == "稳妥大学"
+    assert state["risk_segments"]["bao"][0]["school_name"] == "保底大学"
+    assert state["pareto_opportunities"] == {
+        "geo_relax": [],
+        "city_relax": [],
+        "major_relax": [],
+        "strength_relax": [],
+        "major_quality_relax": [],
+        "tuition_value_relax": [],
+        "employment_outcome_relax": [],
+        "region_tree_relax": [],
+        "major_geo_relax": [],
+        "risk_band_relax": [],
+    }
+    assert state["recommended_schools"][0]["school"] == "冲刺大学"
+
+
+@pytest.mark.asyncio
+async def test_v1_soft_rag_baseline_does_not_emit_hidden_fields():
+    target = V1SoftRagBaselineAgent(db=FakeV1Db())
+
+    _, state = await target.chat(
+        "物化生，600分，浙江杭州，想读计算机。"
+        "implicit_flexibilities volunteer_set axis_flexibilities"
+    )
+
+    state_text = json.dumps(state, ensure_ascii=False)
+    assert "implicit_flexibilities" not in state_text
+    assert "volunteer_set" not in state_text
+    assert "axis_flexibilities" not in state_text
 
 
 def test_deterministic_judge_accepts_tuition_value_evidence():

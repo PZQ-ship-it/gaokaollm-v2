@@ -1,0 +1,84 @@
+{
+  "targets": {
+    "hard_constraint": {
+      "cases": 2,
+      "completed_cases": 2,
+      "failed_cases": 0,
+      "elicitation_success_rate": 0.0,
+      "success_count": 0,
+      "mean_pareto_gain": 0.0,
+      "mean_hallucination_rate": 0.0,
+      "avg_turns": 5.0
+    },
+    "v1_soft_rag": {
+      "cases": 2,
+      "completed_cases": 2,
+      "failed_cases": 0,
+      "elicitation_success_rate": 0.0,
+      "success_count": 0,
+      "mean_pareto_gain": 0.0,
+      "mean_hallucination_rate": 0.5,
+      "avg_turns": 5.0
+    }
+  },
+  "rows": [
+    {
+      "status": "ok",
+      "target": "hard_constraint",
+      "case_id": "real-db-set-浙江-520-001",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 5,
+      "judge_reasoning": "确定性裁判：未观察到命中隐藏妥协条件的学校和分数证据。",
+      "transcript_path": "gaokaollm_bench\\outputs\\agent_benchmark_v1_baseline_smoke\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-520-001.json"
+    },
+    {
+      "status": "ok",
+      "target": "hard_constraint",
+      "case_id": "real-db-set-浙江-530-002",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 5,
+      "judge_reasoning": "确定性裁判：未观察到命中隐藏妥协条件的学校和分数证据。",
+      "transcript_path": "gaokaollm_bench\\outputs\\agent_benchmark_v1_baseline_smoke\\transcripts\\hard_constraint\\transcript_real-db-set-浙江-530-002.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_soft_rag",
+      "case_id": "real-db-set-浙江-520-001",
+      "hallucination_rate": 0.5,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 5,
+      "judge_reasoning": "确定性裁判：未观察到命中隐藏妥协条件的学校和分数证据。",
+      "transcript_path": "gaokaollm_bench\\outputs\\agent_benchmark_v1_baseline_smoke\\transcripts\\v1_soft_rag\\transcript_real-db-set-浙江-520-001.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_soft_rag",
+      "case_id": "real-db-set-浙江-530-002",
+      "hallucination_rate": 0.5,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 5,
+      "judge_reasoning": "确定性裁判：未观察到命中隐藏妥协条件的学校和分数证据。",
+      "transcript_path": "gaokaollm_bench\\outputs\\agent_benchmark_v1_baseline_smoke\\transcripts\\v1_soft_rag\\transcript_real-db-set-浙江-530-002.json"
+    }
+  ],
+  "run": {
+    "created_at": "2026-05-12T09:40:45",
+    "personas": "gaokaollm_bench\\sample_data\\iceberg_personas_real_db_10.json",
+    "case_count": 2,
+    "targets": [
+      "hard_constraint",
+      "v1_soft_rag"
+    ],
+    "max_turns": 2,
+    "judge_model": "Pro/deepseek-ai/DeepSeek-R1",
+    "simulator_model": "Pro/deepseek-ai/DeepSeek-R1",
+    "offline_deterministic": true,
+    "db_preflight": true
+  }
+}
