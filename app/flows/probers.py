@@ -966,6 +966,25 @@ async def run_baseline(
     return await _fetch(db, query, params)
 
 
+async def probe_global_baseline(
+    user_state: dict[str, Any],
+    db: Any = None,
+    limit: int = 5,
+    pool_size: int = 100,
+) -> list[dict[str, Any]]:
+    """Search the hard-feasible domain, then rank globally by implicit utility."""
+
+    constraints = _state_constraints(user_state)
+    where, params = _where_common(constraints)
+    _add_major_filter(where, params, constraints)
+    _add_undergraduate_quality_filters(where, params)
+    params.append(max(pool_size, limit * 10))
+
+    query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
+    candidates = await _fetch(db, query, params)
+    return rank_by_implicit_utility(candidates, user_state)[:limit]
+
+
 async def _student_rank_for_score(
     constraints: dict[str, Any],
     *,

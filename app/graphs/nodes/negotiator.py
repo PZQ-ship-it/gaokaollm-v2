@@ -57,6 +57,7 @@ COMPACT_FIELDS = (
 NEGOTIATION_VARIANCE_THRESHOLD = 1.5
 MAX_NEGOTIATION_TURNS = 3
 OPPORTUNITY_KEYS = (
+    "global_baseline",
     "major_geo_relax",
     "tuition_value_relax",
     "major_quality_relax",
@@ -68,6 +69,9 @@ OPPORTUNITY_KEYS = (
     "city_relax",
     "major_relax",
 )
+
+GLOBAL_BASELINE_PROBE = "probe_global_baseline"
+PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
 
 MAJOR_NOTE_PATTERN = re.compile(
     r"[\(（][^()（）]*(?:学院|校区|班|方向)[^()（）]*[\)）]"
@@ -159,6 +163,174 @@ def _utility_sort_key(row: dict[str, Any]) -> tuple[float, int, str]:
         tier,
         str(row.get("school_name") or row.get("school") or ""),
     )
+
+
+def _current_probe_name(state: AgentState) -> str:
+    probe_plan = state.get("probe_plan") or []
+    if not probe_plan or not isinstance(probe_plan[0], dict):
+        return ""
+    first = probe_plan[0]
+    probe_name = str(first.get("probe_name") or "").strip()
+    if probe_name:
+        return probe_name
+    probe = str(first.get("probe") or "").strip()
+    return f"probe_{probe}" if probe else ""
+
+
+def _candidate_rows(state: AgentState) -> list[dict[str, Any]]:
+    explicit = state.get("candidates") or []
+    if explicit:
+        return [dict(row) for row in explicit if isinstance(row, dict)]
+    return sorted(
+        _all_opportunity_rows(state.get("pareto_opportunities", {}) or {}),
+        key=_utility_sort_key,
+        reverse=True,
+    )
+
+
+def _phi_diff(a: dict[str, Any], b: dict[str, Any]) -> dict[str, float]:
+    a_features = (
+        a.get("_phi_features") if isinstance(a.get("_phi_features"), dict) else {}
+    )
+    b_features = (
+        b.get("_phi_features") if isinstance(b.get("_phi_features"), dict) else {}
+    )
+    if not isinstance(a_features, dict):
+        a_features = {}
+    if not isinstance(b_features, dict):
+        b_features = {}
+    diff: dict[str, float] = {}
+    for key in PREFERENCE_KEYS:
+        try:
+            diff[key] = float(a_features.get(key, 0.0)) - float(
+                b_features.get(key, 0.0)
+            )
+        except (TypeError, ValueError):
+            diff[key] = 0.0
+    return diff
+
+
+def _pareto_prompt_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    option_a = rows[0] if rows else {}
+    option_b = rows[1] if len(rows) > 1 else {}
+    return {
+        "option_a": _compact([option_a])[0] if option_a else {},
+        "option_b": _compact([option_b])[0] if option_b else {},
+        "phi_diff_a_minus_b": _phi_diff(option_a, option_b),
+    }
+
+
+def _fallback_pareto_question(rows: list[dict[str, Any]]) -> str:
+    payload = _pareto_prompt_payload(rows)
+    diff = payload.get("phi_diff_a_minus_b") or {}
+    positive = [
+        (key, value)
+        for key, value in diff.items()
+        if isinstance(value, (int, float)) and value > 0.05
+    ]
+    negative = [
+        (key, value)
+        for key, value in diff.items()
+        if isinstance(value, (int, float)) and value < -0.05
+    ]
+    benefit = max(positive, key=lambda item: item[1])[0] if positive else "school"
+    cost = min(negative, key=lambda item: item[1])[0] if negative else "geo"
+    school_a = (payload.get("option_a") or {}).get("school") or "方案A"
+    school_b = (payload.get("option_b") or {}).get("school") or "方案B"
+    return (
+        f"在 {school_a} 和 {school_b} 之间，"
+        f"你愿意牺牲/放宽 {cost} 来换取 {benefit} 跃迁吗？"
+    )
+
+
+def _xai_fallback_text(
+    weights: dict[str, Any],
+    candidates: list[dict[str, Any]],
+) -> str:
+    sorted_weights = sorted(
+        ((key, float(weights.get(key, 0.0))) for key in PREFERENCE_KEYS),
+        key=lambda item: item[1],
+        reverse=True,
+    )
+    weight_text = "，".join(f"{key}={value:.2f}" for key, value in sorted_weights)
+    lines = [
+        f"偏好解释：系统根据多轮反馈推断出的权重为 {weight_text}。这意味着最终推荐会优先尊重权重更高的维度，同时避免已识别的硬性底线。",
+        "最终推荐名单：",
+    ]
+    for index, row in enumerate(candidates[:5], start=1):
+        lines.append(f"{index}. {_score_text(row)}")
+    return "\n".join(lines)
+
+
+async def _generate_pareto_question(state: AgentState) -> str:
+    rows = _candidate_rows(state)[:2]
+    fallback = _fallback_pareto_question(rows)
+    instruction = (
+        "你是一个谈判专家。请基于方案A和B的特征差异，向用户发起一个简短的"
+        "‘二选一帕累托权衡提问’。必须明确使用‘牺牲/放宽 [代价维度] 换取 "
+        "[收益维度] 跃迁’这种边际替代率（MRS）句式！直接提问，绝不要寒暄或做最终推荐！"
+    )
+    if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
+        return fallback
+    llm = get_chat_model()
+    prompt = [
+        SystemMessage(content=instruction),
+        SystemMessage(
+            content=json.dumps(
+                _pareto_prompt_payload(rows),
+                ensure_ascii=False,
+                default=str,
+            )
+        ),
+    ]
+    try:
+        response = await llm.ainvoke(prompt)
+        question = str(response.content).strip()
+        return question or fallback
+    except Exception as exc:
+        print(
+            "[negotiator] pareto_question_failed="
+            f"{type(exc).__name__}; using fallback question"
+        )
+        return fallback
+
+
+async def _generate_xai_recommendation(state: AgentState) -> str:
+    weights = state.get("implicit_weights") or {}
+    candidates = _candidate_rows(state)[:5]
+    fallback = _xai_fallback_text(weights, candidates)
+    instruction = (
+        "探测已收敛，请输出最终志愿表。你必须在报告的第一段进行‘显示性偏好解释’："
+        "用极具专业感和体贴的自然语言，向用户解释系统推断出的真实偏好权重"
+        "（如：系统发现您极度看重核心专业，但对地域具有较高的妥协弹性）。"
+        "然后再基于此模型展示最终推荐名单。"
+    )
+    if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
+        return fallback
+    llm = get_chat_model()
+    prompt = [
+        SystemMessage(content=instruction),
+        SystemMessage(
+            content=json.dumps(
+                {
+                    "implicit_weights": weights,
+                    "final_candidates": _compact(candidates),
+                },
+                ensure_ascii=False,
+                default=str,
+            )
+        ),
+    ]
+    try:
+        response = await llm.ainvoke(prompt)
+        content = str(response.content).strip()
+        return content or fallback
+    except Exception as exc:
+        print(
+            "[negotiator] xai_recommendation_failed="
+            f"{type(exc).__name__}; using fallback recommendation"
+        )
+        return fallback
 
 
 def _final_recommendation_text(opportunities: dict[str, Any]) -> str:
@@ -485,17 +657,17 @@ def _fallback_reply_v2(evidence: dict[str, Any]) -> str:
 
 async def negotiator_node(state: AgentState) -> dict[str, Any]:
     print("[negotiator] generating options")
-    opportunities = state.get("pareto_opportunities", {})
-    total_var = _total_variance(state)
+    current_probe = _current_probe_name(state)
     turns = int(state.get("negotiation_turns") or 0)
-    if total_var < NEGOTIATION_VARIANCE_THRESHOLD or turns >= MAX_NEGOTIATION_TURNS:
+    if current_probe == GLOBAL_BASELINE_PROBE:
+        content = await _generate_xai_recommendation(state)
         return {
-            "messages": [AIMessage(content=_final_recommendation_text(opportunities))],
+            "messages": [AIMessage(content=content)],
             "latest_human_feedback": None,
             "latest_agent_probe_question": None,
         }
 
-    question_text = _question_for_axis(state)
+    question_text = await _generate_pareto_question(state)
     user_reply = interrupt(question_text)
     return {
         "latest_human_feedback": str(user_reply),

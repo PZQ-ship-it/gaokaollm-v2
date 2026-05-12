@@ -26,6 +26,7 @@ class AgentState(TypedDict, total=False):
     baseline_results: list
     score_waste: int
     pareto_opportunities: dict
+    candidates: list[dict[str, Any]]
     missing_constraints: list[str]
     rewritten_query: str
     intent_axes: list[str]

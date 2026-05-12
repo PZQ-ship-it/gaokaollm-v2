@@ -49,31 +49,23 @@ async def test_graph_invocation_outputs_final_recommendations_when_converged(
     async def fake_run_baseline(constraints):
         return [{"school_name": "基准大学", "min_score": 590, "tier": 2}]
 
-    async def fake_run_all_probes(constraints, db=None, user_state=None):
-        return {
-            "geo_relax": [],
-            "city_relax": [],
-            "major_relax": [],
-            "strength_relax": [],
-            "major_quality_relax": [],
-            "tuition_value_relax": [],
-            "employment_outcome_relax": [],
-            "region_tree_relax": [],
-            "major_geo_relax": [
-                {
-                    "school_name": "收敛大学",
-                    "school_province": "江苏",
-                    "major_name": "计算机科学与技术",
-                    "min_score": 598,
-                    "tier": 3,
-                    "_implicit_utility": 1.1,
-                }
-            ],
-            "risk_band_relax": [],
-        }
+    async def fake_probe_global_baseline(user_state, db=None, limit=5):
+        return [
+            {
+                "school_name": "收敛大学",
+                "school_province": "江苏",
+                "major_name": "计算机科学与技术",
+                "min_score": 598,
+                "tier": 3,
+                "_implicit_utility": 1.1,
+            }
+        ]
 
     monkeypatch.setattr("app.graphs.nodes.gatekeeper.run_baseline", fake_run_baseline)
-    monkeypatch.setattr("app.graphs.nodes.radar.run_all_probes", fake_run_all_probes)
+    monkeypatch.setattr(
+        "app.graphs.nodes.radar.probe_global_baseline",
+        fake_probe_global_baseline,
+    )
 
     graph = build_graph()
 
@@ -111,5 +103,5 @@ async def test_graph_invocation_outputs_final_recommendations_when_converged(
     )
 
     final_message = result["messages"][-1].content
-    assert "Top-3" in final_message
+    assert "偏好解释" in final_message
     assert "收敛大学" in final_message

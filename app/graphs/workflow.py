@@ -27,6 +27,15 @@ async def report_node(state: AgentState) -> dict:
 
 def route_after_radar(state: AgentState) -> str:
     opportunities = state.get("pareto_opportunities", {})
+    probe_plan = state.get("probe_plan") or []
+    first_probe = (
+        probe_plan[0] if probe_plan and isinstance(probe_plan[0], dict) else {}
+    )
+    if (
+        state.get("candidates")
+        or first_probe.get("probe_name") == "probe_global_baseline"
+    ):
+        return "negotiator"
     if (
         state.get("clarification_hint")
         or opportunities.get("geo_relax")

@@ -7,7 +7,7 @@ from typing import Any
 from langchain_core.messages import SystemMessage
 
 from app.core.llm_client import get_chat_model
-from app.flows.probers import run_all_probes
+from app.flows.probers import probe_global_baseline, run_all_probes
 from app.schemas.state import (
     DEFAULT_IMPLICIT_WEIGHTS,
     DEFAULT_WEIGHT_VARIANCE,
@@ -30,6 +30,9 @@ PROBE_KEYS = [
 
 PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
 UCB_EXPLORATION_COEF = 1.5
+HALTING_VARIANCE_THRESHOLD = 1.0
+MAX_NEGOTIATION_TURNS = 3
+GLOBAL_BASELINE_PROBE = "probe_global_baseline"
 PROBE_MAPPING: dict[str, str] = {
     "school": "strength_relax",
     "major": "major_geo_relax",
@@ -51,6 +54,13 @@ EMPTY_OPPORTUNITIES: dict[str, list[dict[str, Any]]] = {
     "risk_band_relax": [],
 }
 
+GLOBAL_BASELINE_PLAN = {
+    "probe_plan": [{"probe_name": GLOBAL_BASELINE_PROBE, "args": {}}],
+    "opportunity_rankings": ["global_baseline"],
+    "clarification_hint": None,
+    "planner_source": "halting",
+}
+
 
 def _json_from_text(text: str) -> dict[str, Any]:
     match = re.search(r"\{.*\}", text, flags=re.S)
@@ -65,6 +75,62 @@ def _json_from_text(text: str) -> dict[str, Any]:
 
 def should_apply_ucb_override(state: AgentState) -> bool:
     return bool(state.get("implicit_weights") or state.get("weight_variance"))
+
+
+def total_weight_variance(state: AgentState) -> float:
+    raw_variance = state.get("weight_variance") or {}
+    if not isinstance(raw_variance, dict):
+        raw_variance = {}
+    total = 0.0
+    for key in PREFERENCE_KEYS:
+        try:
+            total += float(raw_variance.get(key, DEFAULT_WEIGHT_VARIANCE[key]))
+        except (TypeError, ValueError):
+            total += DEFAULT_WEIGHT_VARIANCE[key]
+    return total
+
+
+def should_halt_for_global_baseline(state: AgentState) -> bool:
+    turns = int(state.get("negotiation_turns") or 0)
+    return total_weight_variance(state) < HALTING_VARIANCE_THRESHOLD or (
+        turns >= MAX_NEGOTIATION_TURNS
+    )
+
+
+def _is_global_baseline_plan(plan: dict[str, Any]) -> bool:
+    probe_plan = plan.get("probe_plan") or []
+    if not probe_plan or not isinstance(probe_plan[0], dict):
+        return False
+    first = probe_plan[0]
+    return str(first.get("probe_name") or "") == GLOBAL_BASELINE_PROBE
+
+
+def _flatten_candidates(
+    opportunities: dict[str, list[dict[str, Any]]],
+    rankings: list[str],
+) -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = []
+    seen: set[tuple[Any, Any, Any]] = set()
+    ordered_keys = [
+        *[key for key in rankings if key in opportunities],
+        *[key for key in EMPTY_OPPORTUNITIES if key in opportunities],
+    ]
+    for key in ordered_keys:
+        for row in opportunities.get(key) or []:
+            if not isinstance(row, dict):
+                continue
+            item = dict(row)
+            item.setdefault("_opportunity_key", key)
+            option_key = (
+                item.get("school_id") or item.get("school_name"),
+                item.get("major_id") or item.get("major_name"),
+                item.get("admission_score_id"),
+            )
+            if option_key in seen:
+                continue
+            seen.add(option_key)
+            candidates.append(item)
+    return candidates
 
 
 def calculate_ucb_scores(state: AgentState) -> dict[str, float]:
@@ -259,6 +325,9 @@ def _sanitize_plan(
 
 
 async def _build_probe_plan(state: AgentState) -> dict[str, Any]:
+    if should_halt_for_global_baseline(state):
+        return dict(GLOBAL_BASELINE_PLAN)
+
     fallback = _deterministic_probe_plan(state)
     required_context = _required_probe_context(state)
     required_probe = required_context["probe"]
@@ -342,10 +411,27 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
 
     print(f"[radar] baseline={len(baseline)} score_waste={score_waste}")
     plan = await _build_probe_plan(state)
+
+    if _is_global_baseline_plan(plan):
+        candidates = await probe_global_baseline(dict(state))
+        opportunities = {"global_baseline": candidates}
+        print(f"[radar] global_baseline={len(candidates)}")
+        return {
+            "pareto_opportunities": opportunities,
+            "candidates": candidates,
+            "probe_plan": plan["probe_plan"],
+            "opportunity_rankings": plan["opportunity_rankings"],
+            "clarification_hint": plan.get("clarification_hint"),
+        }
+
     if score_waste > 15 or not baseline or has_negotiable_constraint:
         opportunities = await run_all_probes(constraints, user_state=dict(state))
     else:
         opportunities = dict(EMPTY_OPPORTUNITIES)
+    candidates = _flatten_candidates(
+        opportunities,
+        [str(item) for item in plan.get("opportunity_rankings", [])],
+    )
 
     print(
         "[radar] opportunities="
@@ -362,6 +448,7 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
     )
     return {
         "pareto_opportunities": opportunities,
+        "candidates": candidates,
         "probe_plan": plan["probe_plan"],
         "opportunity_rankings": plan["opportunity_rankings"],
         "clarification_hint": plan.get("clarification_hint"),

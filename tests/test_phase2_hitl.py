@@ -89,7 +89,7 @@ async def test_hitl_interrupt_resume_updates_preference_state(monkeypatch):
     snapshot = app.get_state(config)
     question = snapshot.tasks[0].interrupts[0].value
     print(f"[interrupt] {question}")
-    assert "能接受" in question
+    assert "换取" in question
     assert "外省跃迁大学" in question
 
     resume_text = "行，我可以接受出省"
