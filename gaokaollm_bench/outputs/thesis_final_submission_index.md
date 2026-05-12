@@ -36,7 +36,7 @@
 | 验收材料 | 结论 |
 | --- | --- |
 | `thesis_latex_final_consistency_report.md` | `zjuthesis.pdf` 已生成；无 LaTeX fatal error；无 undefined references / citations；无 overfull `\hbox`。 |
-| `thesis_latex_pdf_visual_acceptance.md` | 封面、摘要、目录、核心图、专业树表、七组实验表、`v1_hybrid_rag` pilot 表、多轴压力测试表和附录边界页面通过页面级视觉验收。 |
+| `thesis_latex_pdf_visual_acceptance.md` | 封面、致谢、摘要、目录、核心图、专业树表、七组实验表、`v1_hybrid_rag` pilot 表、多轴压力测试表、附录边界和作者简历页面通过最新 PDF 页面级视觉验收。 |
 | `thesis_final_human_review_check.md` | 记录最新 PDF 下递交日期、英文题名、致谢和作者简历已补齐，并保留提交前人工核对建议。 |
 | `thesis_latex_pdf_snapshots/` | 关键 PDF 页面快照，可用于快速复查真实版式效果。 |
 | `thesis_figure_visual_acceptance.md` | 核心图像资产在论文 PDF 中的视觉验收记录。 |
