@@ -62,6 +62,8 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 
 | 文档 | 角色 | 维护建议 |
 | --- | --- | --- |
+| `thesis_final_submission_index.md` | 最终提交包清单与导师审阅索引 | 提交前集中复查 PDF、LaTeX 源码、事实源、验收报告、证据入口和人工待办 |
+| `thesis_final_assembly_checklist.md` | 最终成稿装配清单 | 修改最终章节组织、图表迁移或提交前检查项时同步 |
 | `thesis_full_draft_v1.md` | 第 1-7 章连续正文总稿 | 修改章节装配、图表占位或最终成稿主线时优先同步 |
 | `thesis_term_mapping.json` | 正文术语与工程标识映射 | 修改术语、实验 id 展示方式或去工程化规则时优先同步 |
 | `thesis_intro_related_work_chapters.md` | 第 1-2 章绪论与相关技术正文母版 | 修改贡献结构或实验总览时同步 |
@@ -137,6 +139,6 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 3. 查逐例证据时，按主实验 evidence、扩展 evidence、region evidence 三类入口进入。
 4. 做全局口径变更时，先更新 `thesis_claims_manifest.json`、`thesis_term_mapping.json` 与本 hub，再按第 4 节同步相关母版。
 5. coverage report、artifact audit 等历史报告只用于追溯，不建议为了当前论文口径反复改写。
-6. 提交正式论文或同步 LaTeX 终稿后，查看 `thesis_latex_final_consistency_report.md` 和 `thesis_latex_pdf_visual_acceptance.md`；若重编译、改图、改表或改实验口径，应重新生成对应报告和页面快照。
+6. 提交正式论文或同步 LaTeX 终稿后，先查看 `thesis_final_submission_index.md`，再查看 `thesis_latex_final_consistency_report.md` 和 `thesis_latex_pdf_visual_acceptance.md`；若重编译、改图、改表或改实验口径，应重新生成对应报告和页面快照。
 
 - `thesis_mas_architecture_acceptance.md`：新 MAS 架构接入、LLM 参与边界和 smoke/regression 验收说明。

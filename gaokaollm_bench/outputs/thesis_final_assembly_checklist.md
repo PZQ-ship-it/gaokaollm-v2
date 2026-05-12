@@ -23,11 +23,12 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | 1 | `CODEX.md` | 项目协作和论文维护约定 |
 | 2 | `gaokaollm_bench/outputs/thesis_document_hub.md` | 论文材料总入口与同步清单 |
 | 3 | `gaokaollm_bench/outputs/thesis_claims_manifest.json` | 七实验指标、贡献结构和边界事实源 |
-| 4 | `gaokaollm_bench/outputs/thesis_method_experiment_chapters.md` | 第 4-6 章核心正文母版 |
-| 5 | `gaokaollm_bench/outputs/thesis_diagrams_with_diagrams.md`、`gaokaollm_bench/outputs/thesis_figures/` | 已生成 SVG/PNG 论文插图 |
-| 6 | `gaokaollm_bench/outputs/thesis_figures_tables_pack.md` | 图、表、伪代码和 Mermaid 草稿 |
-| 7 | `gaokaollm_bench/outputs/thesis_latex_final_consistency_report.md` | LaTeX 终稿事实一致性、`zjuthesis.pdf` 编译状态和剩余版式 warning |
-| 8 | `gaokaollm_bench/outputs/thesis_latex_pdf_visual_acceptance.md` | LaTeX 终稿 PDF 页面级视觉验收、关键页面快照和剩余视觉风险 |
+| 4 | `gaokaollm_bench/outputs/thesis_final_submission_index.md` | 最终提交包清单、导师审阅索引、PDF/源码/证据入口 |
+| 5 | `gaokaollm_bench/outputs/thesis_method_experiment_chapters.md` | 第 4-6 章核心正文母版 |
+| 6 | `gaokaollm_bench/outputs/thesis_diagrams_with_diagrams.md`、`gaokaollm_bench/outputs/thesis_figures/` | 已生成 SVG/PNG 论文插图 |
+| 7 | `gaokaollm_bench/outputs/thesis_figures_tables_pack.md` | 图、表、伪代码和 Mermaid 草稿 |
+| 8 | `gaokaollm_bench/outputs/thesis_latex_final_consistency_report.md` | LaTeX 终稿事实一致性、`zjuthesis.pdf` 编译状态和剩余版式 warning |
+| 9 | `gaokaollm_bench/outputs/thesis_latex_pdf_visual_acceptance.md` | LaTeX 终稿 PDF 页面级视觉验收、关键页面快照和剩余视觉风险 |
 
 ## 2. 最终 7 章装配表
 
@@ -145,5 +146,6 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - 第 6 章主实验和扩展实验分层清楚。
 - 逐例 evidence 能支撑所有聚合 claim。
 - 图表编号、表格编号、附录编号与正文引用一致。
+- 查看 `thesis_final_submission_index.md`，确认最终 PDF、LaTeX 源码、事实源、验收报告、证据入口和导师审阅待办集中可查。
 - 查看 `thesis_latex_final_consistency_report.md`，确认 `zjuthesis.pdf` 已生成、无 LaTeX fatal error，且七组实验、新 MAS、专业树全量覆盖 v2、`multi_axis_v2` 和 hidden persona 边界均通过一致性检查。
 - 查看 `thesis_latex_pdf_visual_acceptance.md`，确认封面、摘要、目录、核心图、专业树表、七组实验表、多轴压力测试表和附录边界页面无明显裁切、重叠、乱码或旧口径回退。
