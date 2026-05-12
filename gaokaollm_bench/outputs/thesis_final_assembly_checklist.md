@@ -40,7 +40,7 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | 第 3 章 | 第一版 Agentic RAG 原型系统与问题诊断 | `thesis_v1_prototype_chapter.md`、`thesis_v1_v2_integration_plan.md` | v1 `gaokaollmmodel` 写成工程原型与问题发现，不写成最终主贡献 |
 | 第 4 章 | 高考志愿偏好妥协 Benchmark 与数据层构建 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md`、`major_tree_annotation_summary.md` | 写 PostgreSQL 快照、专业层级本体全量覆盖 v2、质量/就业/经人工审校的地域层级画像、冰山画像和沙盒 |
 | 第 5 章 | 证据驱动 Pareto 谈判 Agent 设计 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md` | 写 `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`、各类 relax 算法和轻量 MAS 边界 |
-| 第 6 章 | 实验结果、逐例证据与分析 | `thesis_method_experiment_chapters.md`、各 summary/evidence | 主实验与扩展实验分层写，补充 `multi_axis_v1` / `multi_axis_v2` Benchmark 压力测试对照，保留失败样本和 evidence 引用 |
+| 第 6 章 | 实验结果、逐例证据与分析 | `thesis_method_experiment_chapters.md`、各 summary/evidence | 主实验与扩展实验分层写，补充 `multi_axis_v1` / `multi_axis_v2` Benchmark 压力测试对照和 `v1_hybrid_rag` 软约束 RAG 基线 pilot，保留失败样本和 evidence 引用 |
 | 第 7 章 | 总结与展望 | `thesis_conclusion_future_work_chapter.md`、`dynamic_decision_considerations_roadmap.md` | 总结 v1 到 v2 的演进，保留真实用户校准、城市收益指标、多省份泛化等后续工作 |
 
 ## 3. 图表迁移清单
@@ -58,6 +58,7 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | 七实验结果总表 | 表 6-1 | 主实验 + 五组扩展实验指标 | 第 6 章实验结果 |
 | 算法到实验映射表 | 表 5-1 或表 6-2 | relax 算法、数据证据、实验结果、论文意义 | 第 5 章或第 6 章 |
 | Benchmark 压力测试表 | 表 6-3 | `multi_axis_v1` / `multi_axis_v2` 指标对照与三类 profile 成功分布 | 第 6 章补充实验或附录 |
+| v1 混合检索基线 pilot 表 | 表 6-4 | `v1_hybrid_rag` 与 `app_pareto` / `hard_constraint` 的主实验 pilot 对照 | 第 6 章补充实验或附录 |
 
 ## 4. 算法与方法迁移清单
 
@@ -103,6 +104,8 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 `multi_axis_v1` 与 `multi_axis_v2` 不进入上表的七组实验主线，而是作为 Benchmark 压力测试单独报告。`multi_axis_v1` 是历史压力测试版本，结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`；三类 profile `major_geo_risk`、`quality_tuition`、`employment_region` 的成功分布分别为 1/10、5/10、10/10。`multi_axis_v2` 是轴一致性修正版，结果为 `app_pareto 0.367 / 1.133 / 0.005 / 9.33` vs `hard_constraint 0.000 / 0.000 / 0.008 / 13.00`；三类 profile 成功分布为 6/10、5/10、0/10。第 6 章建议写成“七实验结果表 + 多轴压力测试对照分析”：v2 修正了无关轴拼接问题，但 `employment_region` 仍暴露就业证据与地域树证据在同一轮谈判中编排不足的瓶颈。
 
+`v1_hybrid_rag` 是补充基线 pilot，不进入七组正式实验主表，也不进入正式实验编号。它复现 v1 风格软约束 RAG / 冲稳保推荐路径，用查询归一、关系过滤、语义召回、二阶重排和冲稳保分段形成推荐，但不产生 `pareto_opportunities`，不做分阶段放宽或 Pareto 谈判。当前 pilot 结果为：`major_geo_v1` 上 `v1_hybrid_rag 0.100 / 0.100 / 0.000 / 12.40`，`risk_band_v1` 上 `v1_hybrid_rag 0.000 / 0.000 / 0.025 / 13.00`。事实源为 `agent_benchmark_v1_hybrid_rag_pilot_evidence.md` 和 `thesis_claims_manifest.json` 的 `baseline_pilots.v1_hybrid_rag`。
+
 ## 6. 证据附录清单
 
 | 附录材料 | 覆盖范围 | 论文用途 |
@@ -113,6 +116,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 | `agent_benchmark_region_tree_v1_evidence.md` | `region_tree_v1` 10 个 case | 证明经人工审校的地域层级画像能接入 Agent+Benchmark |
 | `agent_benchmark_multi_axis_v1_evidence.md` | `multi_axis_v1` 30 个 case | 证明多轴隐藏妥协压力测试的逐例轴命中与失败原因 |
 | `agent_benchmark_multi_axis_v2_evidence.md` | `multi_axis_v2` 30 个 case | 证明轴一致性修正版压力测试的逐例轴命中与失败原因 |
+| `agent_benchmark_v1_hybrid_rag_pilot_evidence.md` | `v1_hybrid_rag` 在 `major_geo_v1` 与 `risk_band_v1` 上的 20 个 pilot case | 证明 v1 风格软约束 RAG / 冲稳保推荐基线的逐例表现；只作补充对照，不进入七组正式实验主表 |
 
 正文中建议只放聚合表和 1-2 个代表 case，完整逐例证据放附录或答辩备查材料。
 
@@ -134,6 +138,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - `region_tree_v1` 不替代主实验；城市层级只作为经人工审校的地域层级证据，不直接等价于就业机会、生活成本或城市生活质量收益。
 - `multi_axis_v1` 与 `multi_axis_v2` 是 Benchmark 压力测试，不替代主实验，也不改写七组实验主线；它们只组合已有 relax 能力，不新增业务放宽算法。
 - `multi_axis_v2` 是轴一致性修正版，不进入七组实验主表；三类 profile 仍为 `major_geo_risk`、`quality_tuition`、`employment_region`。
+- `v1_hybrid_rag` 是补充基线 pilot，不替代 `hard_constraint` 下界，也不进入七组正式实验主表；它只用于说明 v1 风格软约束 RAG 与 v2 证据谈判 Agent 的差异。
 - Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`；这些字段只作为 simulator / evaluator ground truth。
 - 除非用户明确要求，不主动扩展或重跑 thesis audit。
 
@@ -147,6 +152,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - 第 4 章包含 PostgreSQL、专业层级本体全量覆盖 v2、专业质量、就业结果和经人工审校的地域层级画像。
 - 第 5 章包含轻量 MAS / 多角色 Agent 和各类 relax 算法。
 - 第 6 章主实验和扩展实验分层清楚。
+- 第 6 章如果引用 `v1_hybrid_rag`，必须写成补充 pilot 基线，不得写入正式实验编号或七组正式实验主表。
 - 逐例 evidence 能支撑所有聚合 claim。
 - 图表编号、表格编号、附录编号与正文引用一致。
 - 查看 `thesis_final_submission_index.md`，确认最终 PDF、LaTeX 源码、事实源、验收报告、证据入口和导师审阅待办集中可查。

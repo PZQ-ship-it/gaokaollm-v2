@@ -57,6 +57,12 @@ Benchmark 压力测试：
 
 压力测试不进入七组实验主表，也不改变主实验定位。
 
+补充基线 pilot：
+
+- `v1_hybrid_rag`：v1 风格软约束 RAG / 冲稳保推荐基线 pilot，用于补充说明证据谈判 Agent 相比软约束召回系统的差异。
+
+`v1_hybrid_rag` 不进入七组正式实验主表，也不进入正式实验编号。它的事实源是 `thesis_claims_manifest.json` 中的 `baseline_pilots.v1_hybrid_rag` 和 `gaokaollm_bench/outputs/agent_benchmark_v1_hybrid_rag_pilot_evidence.md`。当前 pilot 指标为：`major_geo_v1 0.100 / 0.100 / 0.000 / 12.40`，`risk_band_v1 0.000 / 0.000 / 0.025 / 13.00`。
+
 ## Agent / MAS 口径
 
 论文正文中使用“轻量 MAS / 多角色 Agent”描述业务 Agent。当前正文主叙述应采用：

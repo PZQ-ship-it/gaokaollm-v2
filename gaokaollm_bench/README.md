@@ -42,6 +42,7 @@ Start from:
 - `outputs/thesis_claims_manifest.json`: machine-readable thesis claim facts.
 - `outputs/thesis_term_mapping.json`: terminology mapping for de-engineering thesis prose.
 - `outputs/major_tree_annotation_summary.md`: major-tree annotation, DeepSeek-R1 low-confidence review, and full-coverage v2 data-contribution facts.
+- `outputs/agent_benchmark_v1_hybrid_rag_pilot_evidence.md`: pilot evidence for the v1-style hybrid RAG baseline; it is a supplementary soft-constraint RAG comparison, not part of the seven-experiment thesis table.
 - `outputs/thesis_method_experiment_chapters.md`: method and experiment chapter draft.
 - `outputs/thesis_system_architecture_algorithms.md`: system architecture and algorithm draft.
 - `outputs/thesis_figures_tables_pack.md`: figures, tables, and pseudocode pack.
@@ -55,6 +56,7 @@ Current thesis experiments:
 - Main experiments: `major_geo_v1 + risk_band_v1`.
 - Extension experiments: `school_strength_v1`, `tuition_value_v1`, `major_quality_v1`, `employment_outcome_v1`, `region_tree_v1`.
 - Benchmark pressure tests: `multi_axis_v1` is the historical version, and `multi_axis_v2` is the coherent-axis revision. They are not part of the seven-experiment thesis table.
+- Supplementary baseline pilot: `v1_hybrid_rag` uses query normalization, relational filtering, semantic recall, reranking, and chong/wen/bao segmentation as a v1-style soft-constraint RAG comparison. It does not enter the seven-experiment thesis table.
 
 Major-tree data contribution: full-coverage v2 auditable mounting covers `22,759 / 22,759` raw distinct major names and `140,995 / 140,995` admission rows, with `remaining_unassigned = 0`. This is a traceable coverage claim, not a claim that every semantic boundary has been manually confirmed.
 
