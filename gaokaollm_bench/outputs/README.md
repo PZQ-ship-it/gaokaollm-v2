@@ -13,7 +13,8 @@ For graduation-thesis work, start here:
 - `thesis_diagrams_with_diagrams.md`: hand-authored SVG/PNG figure rendering guide; Diagrams is historical context only.
 - `thesis_figure_visual_acceptance.md`: PDF-page visual acceptance report for the current thesis figures.
 - `thesis_latex_final_consistency_report.md`: final LaTeX thesis fact-consistency and compile acceptance report for `zjuthesis.pdf`.
-- `thesis_latex_pdf_visual_acceptance.md`: page-level visual acceptance report for the compiled final PDF.
+- `thesis_latex_pdf_visual_acceptance.md`: page-level visual acceptance report for the compiled final PDF, including cover, acknowledgements, abstracts, contents, core figures/tables, appendix boundary notes, and author CV.
+- `thesis_final_human_review_check.md`: final manual-field check for submission date, English title, acknowledgements, author CV, template fields, placeholders, and references.
 - `thesis_mas_architecture_acceptance.md`: acceptance note for the v1 semantic-normalization and v2 LLM-guided planning integration.
 - `agent_benchmark_v1_hybrid_rag_pilot_evidence.md`: pilot evidence for the real v1 hybrid RAG baseline using Qwen embedding/rerank; this is a baseline pilot, not part of the seven-experiment thesis table.
 - `thesis_figures/`: generated SVG/PNG figure assets for dissertation and PPT use.
@@ -38,7 +39,7 @@ Current thesis framing:
 | --- | --- | --- |
 | Thesis body drafts | `thesis_full_draft_v1.md`, `thesis_intro_related_work_chapters.md`, `thesis_method_experiment_chapters.md`, `thesis_conclusion_future_work_chapter.md` | Continuous draft and chapter-level text that can be migrated into the dissertation. |
 | Contribution and roadmap | `thesis_agent_benchmark_contribution.md`, `dynamic_decision_considerations_roadmap.md`, `thesis_v1_v2_integration_plan.md` | High-level positioning and maintenance of the data + Agent + Benchmark storyline. |
-| Final submission | `thesis_final_submission_index.md`, `thesis_final_assembly_checklist.md`, `thesis_latex_final_consistency_report.md`, `thesis_latex_pdf_visual_acceptance.md` | Final PDF path, source package, advisor review checklist, compile acceptance, and page-level visual acceptance. |
+| Final submission | `thesis_final_submission_index.md`, `thesis_final_assembly_checklist.md`, `thesis_latex_final_consistency_report.md`, `thesis_latex_pdf_visual_acceptance.md`, `thesis_final_human_review_check.md` | Final PDF path, source package, advisor review checklist, compile acceptance, page-level visual acceptance, and manual submission-field review. |
 | Architecture and figures | `thesis_system_architecture_algorithms.md`, `thesis_figures_tables_pack.md`, `thesis_diagrams_with_diagrams.md`, `thesis_figure_visual_acceptance.md`, `thesis_latex_final_consistency_report.md`, `thesis_latex_pdf_visual_acceptance.md`, `thesis_figures/`, `thesis_latex_pdf_snapshots/`, `thesis_figures_pdf_snapshots/` | MAS architecture, algorithms, generated SVG/PNG figures, PDF visual acceptance snapshots, LaTeX final fact/compile acceptance, Mermaid drafts, tables, and pseudocode. |
 | Methodology | `benchmark_methodology.md`, `major_tree_methodology.md`, `major_tree_annotation_summary.md`, `thesis_hierarchical_relaxation_methodology.md` | Benchmark, major-tree methodology, major-tree annotation/full-coverage v2 facts, and hierarchical-relaxation methodology. |
 | Summaries | `agent_benchmark_*_summary.md` | Aggregate experiment results, plus `agent_benchmark_multi_axis_v1_summary.md` and `agent_benchmark_multi_axis_v2_summary.md` for multi-axis pressure tests. |

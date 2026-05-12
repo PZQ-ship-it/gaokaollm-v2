@@ -157,5 +157,5 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - 图表编号、表格编号、附录编号与正文引用一致。
 - 查看 `thesis_final_submission_index.md`，确认最终 PDF、LaTeX 源码、事实源、验收报告、证据入口和导师审阅待办集中可查。
 - 查看 `thesis_latex_final_consistency_report.md`，确认 `zjuthesis.pdf` 已生成、无 LaTeX fatal error，且七组实验、新 MAS、专业树全量覆盖 v2、`multi_axis_v2` 和 hidden persona 边界均通过一致性检查。
-- 查看 `thesis_latex_pdf_visual_acceptance.md`，确认封面、摘要、目录、核心图、专业树表、七组实验表、多轴压力测试表和附录边界页面无明显裁切、重叠、乱码或旧口径回退。
-- 查看 `thesis_final_human_review_check.md`，确认递交日期、英文题名、致谢、作者简历和模板人工字段已经处理。
+- 查看 `thesis_latex_pdf_visual_acceptance.md`，确认封面、致谢、摘要、目录、核心图、专业树表、七组实验表、`v1_hybrid_rag` pilot 表、`multi_axis_v2` 表、附录边界和作者简历页面无明显裁切、重叠、乱码或旧口径回退。
+- 查看 `thesis_final_human_review_check.md`，确认递交日期、英文题名、致谢、作者简历和模板人工字段已经处理；提交前仍建议人工核对学院实际提交日期要求、英文题名译法、致谢措辞和作者简历格式。

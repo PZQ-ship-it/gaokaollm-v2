@@ -91,9 +91,10 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 | `thesis_diagrams_with_diagrams.md` | 手工 SVG/PNG 论文框图生成说明与渲染命令 | 修改论文图像生成方式或图号时同步 |
 | `thesis_figure_visual_acceptance.md` | 当前论文插图在 PDF 中的视觉验收报告 | 重绘插图、替换图号或调整 LaTeX 图位置后同步 |
 | `thesis_latex_final_consistency_report.md` | 正式 LaTeX 终稿事实一致性与编译验收记录 | 提交前复查 `zjuthesis.pdf`、事实口径、编译结果和剩余版式 warning |
-| `thesis_latex_pdf_visual_acceptance.md` | 正式 LaTeX 终稿 PDF 页面级视觉验收记录 | 提交前复查封面、摘要、目录、核心图表和附录边界是否裁切、重叠或口径回退 |
+| `thesis_latex_pdf_visual_acceptance.md` | 正式 LaTeX 终稿 PDF 页面级视觉验收记录 | 提交前复查封面、致谢、摘要、目录、核心图表、附录边界和作者简历是否裁切、重叠或口径回退 |
+| `thesis_final_human_review_check.md` | 正式提交前人工字段与占位符检查记录 | 提交前复查递交日期、英文题名、致谢、作者简历、模板字段、占位符和参考文献状态 |
 | `thesis_figures/` | 当前可迁入论文/PPT 的 SVG/PNG 图像资产 | 重新渲染图像或替换正式插图时同步 |
-| `thesis_latex_pdf_snapshots/` | 终稿 PDF 关键页面快照 | 检查封面、摘要、核心图表、专业树表和压力测试表的真实页面效果 |
+| `thesis_latex_pdf_snapshots/` | 终稿 PDF 关键页面快照 | 检查封面、致谢、摘要、目录、核心图表、专业树表、`v1_hybrid_rag` pilot 表、压力测试表、附录边界和作者简历的真实页面效果 |
 | `thesis_figures_pdf_snapshots/` | LaTeX PDF 页面快照 | 检查图像是否裁切、重叠或与正文口径不一致 |
 | `dynamic_decision_considerations_roadmap.md` | 动态决策路线图 | 修改后续开发优先级和能力矩阵时同步 |
 | `gaokaollm_bench/放宽与跃迁.md` | 动态放宽与 Pareto 跃迁总览 | 修改放宽能力清单和实验总览时同步 |
