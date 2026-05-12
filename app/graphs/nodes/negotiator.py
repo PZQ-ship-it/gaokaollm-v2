@@ -492,12 +492,14 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         return {
             "messages": [AIMessage(content=_final_recommendation_text(opportunities))],
             "latest_human_feedback": None,
+            "latest_agent_probe_question": None,
         }
 
     question_text = _question_for_axis(state)
     user_reply = interrupt(question_text)
     return {
         "latest_human_feedback": str(user_reply),
+        "latest_agent_probe_question": question_text,
         "negotiation_turns": turns + 1,
     }
 

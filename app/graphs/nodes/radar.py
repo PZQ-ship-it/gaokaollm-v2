@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import re
 from typing import Any
@@ -7,7 +8,11 @@ from langchain_core.messages import SystemMessage
 
 from app.core.llm_client import get_chat_model
 from app.flows.probers import run_all_probes
-from app.schemas.state import AgentState
+from app.schemas.state import (
+    DEFAULT_IMPLICIT_WEIGHTS,
+    DEFAULT_WEIGHT_VARIANCE,
+    AgentState,
+)
 
 
 PROBE_KEYS = [
@@ -22,6 +27,16 @@ PROBE_KEYS = [
     "city_relax",
     "major_relax",
 ]
+
+PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
+UCB_EXPLORATION_COEF = 1.5
+PROBE_MAPPING: dict[str, str] = {
+    "school": "strength_relax",
+    "major": "major_geo_relax",
+    "tuition": "tuition_value_relax",
+    "quality": "major_quality_relax",
+    "geo": "major_geo_relax",
+}
 
 EMPTY_OPPORTUNITIES: dict[str, list[dict[str, Any]]] = {
     "geo_relax": [],
@@ -46,6 +61,90 @@ def _json_from_text(text: str) -> dict[str, Any]:
     except json.JSONDecodeError:
         return {}
     return data if isinstance(data, dict) else {}
+
+
+def should_apply_ucb_override(state: AgentState) -> bool:
+    return bool(state.get("implicit_weights") or state.get("weight_variance"))
+
+
+def calculate_ucb_scores(state: AgentState) -> dict[str, float]:
+    raw_weights = state.get("implicit_weights") or {}
+    raw_variance = state.get("weight_variance") or {}
+    scores: dict[str, float] = {}
+    for key in PREFERENCE_KEYS:
+        try:
+            weight = float(raw_weights.get(key, DEFAULT_IMPLICIT_WEIGHTS[key]))
+        except (TypeError, ValueError):
+            weight = DEFAULT_IMPLICIT_WEIGHTS[key]
+        try:
+            variance = float(raw_variance.get(key, DEFAULT_WEIGHT_VARIANCE[key]))
+        except (TypeError, ValueError):
+            variance = DEFAULT_WEIGHT_VARIANCE[key]
+        scores[key] = weight + UCB_EXPLORATION_COEF * math.sqrt(max(0.0, variance))
+    return scores
+
+
+def select_ucb_dimension(state: AgentState) -> tuple[str, float]:
+    scores = calculate_ucb_scores(state)
+    if not scores:
+        return "geo", 0.0
+    dimension = max(scores, key=lambda key: scores[key])
+    return dimension, scores[dimension]
+
+
+def target_probe_for_dimension(dimension: str) -> str:
+    return PROBE_MAPPING.get(dimension, "major_geo_relax")
+
+
+def probe_function_name(probe_key: str) -> str:
+    return f"probe_{probe_key}"
+
+
+def _enforce_required_probe(
+    plan: list[dict[str, Any]],
+    required_probe: str | None,
+    reason: str,
+) -> list[dict[str, Any]]:
+    if not required_probe or required_probe not in PROBE_KEYS:
+        return [
+            {**item, "priority": index + 1}
+            for index, item in enumerate(plan)
+            if item.get("probe") in PROBE_KEYS
+        ]
+
+    rest = [dict(item) for item in plan if item.get("probe") != required_probe]
+    enforced = {
+        "probe": required_probe,
+        "priority": 1,
+        "reason": reason,
+    }
+    return [
+        {**item, "priority": index + 1}
+        for index, item in enumerate([enforced, *rest])
+        if item.get("probe") in PROBE_KEYS
+    ]
+
+
+def _required_probe_context(state: AgentState) -> dict[str, str | None]:
+    if not should_apply_ucb_override(state):
+        return {"dimension": None, "probe": None, "reason": None, "instruction": None}
+    dimension, score = select_ucb_dimension(state)
+    probe = target_probe_for_dimension(dimension)
+    function_name = probe_function_name(probe)
+    reason = f"UCB active learning target: {dimension} uncertainty score={score:.3f}"
+    instruction = (
+        "🚨 [系统级主动学习指令]: "
+        f"基于运筹学方差测算，当前对用户的【{dimension}】偏好底线存在极大不确定性。"
+        "为了最大化信息增益，你本次规划的探针计划(probe_plan)中，"
+        f"必须优先且强制包含调用探针：【{function_name}】"
+        f"（内部 probe key: {probe}）！绝对不允许偏离该目标！"
+    )
+    return {
+        "dimension": dimension,
+        "probe": probe,
+        "reason": reason,
+        "instruction": instruction,
+    }
 
 
 def _deterministic_probe_plan(state: AgentState) -> dict[str, Any]:
@@ -97,7 +196,13 @@ def _deterministic_probe_plan(state: AgentState) -> dict[str, Any]:
     }
 
 
-def _sanitize_plan(data: dict[str, Any], fallback: dict[str, Any]) -> dict[str, Any]:
+def _sanitize_plan(
+    data: dict[str, Any],
+    fallback: dict[str, Any],
+    *,
+    required_probe: str | None = None,
+    required_reason: str = "",
+) -> dict[str, Any]:
     raw_plan = data.get("probe_plan") or []
     plan: list[dict[str, Any]] = []
     if isinstance(raw_plan, list):
@@ -123,11 +228,17 @@ def _sanitize_plan(data: dict[str, Any], fallback: dict[str, Any]) -> dict[str, 
             )
     if not plan:
         plan = list(fallback["probe_plan"])
+    plan = _enforce_required_probe(plan, required_probe, required_reason)
 
     rankings = data.get("opportunity_rankings")
     if not isinstance(rankings, list):
         rankings = [item["probe"] for item in plan]
     rankings = [str(item) for item in rankings if str(item) in PROBE_KEYS]
+    if required_probe and required_probe in PROBE_KEYS:
+        rankings = [
+            required_probe,
+            *[item for item in rankings if item != required_probe],
+        ]
     if not rankings:
         rankings = [item["probe"] for item in plan]
 
@@ -135,16 +246,29 @@ def _sanitize_plan(data: dict[str, Any], fallback: dict[str, Any]) -> dict[str, 
     if hint is not None:
         hint = str(hint).strip() or None
 
+    planner_source = data.get("planner_source")
+    if not planner_source:
+        planner_source = "llm" if data else fallback.get("planner_source") or "llm"
+
     return {
         "probe_plan": plan,
         "opportunity_rankings": rankings,
         "clarification_hint": hint,
-        "planner_source": data.get("planner_source") or "llm",
+        "planner_source": planner_source,
     }
 
 
 async def _build_probe_plan(state: AgentState) -> dict[str, Any]:
     fallback = _deterministic_probe_plan(state)
+    required_context = _required_probe_context(state)
+    required_probe = required_context["probe"]
+    required_reason = str(required_context["reason"] or "")
+    fallback = _sanitize_plan(
+        {},
+        fallback,
+        required_probe=required_probe,
+        required_reason=required_reason,
+    )
     if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
         return fallback
 
@@ -162,6 +286,11 @@ async def _build_probe_plan(state: AgentState) -> dict[str, Any]:
                 + ", ".join(PROBE_KEYS)
                 + "。如果需要澄清，只给短 clarification_hint；事实候选必须由 SQL probes 产生。"
                 "禁止输出 implicit_flexibilities, volunteer_set, axis_flexibilities。"
+                + (
+                    str(required_context["instruction"])
+                    if required_context["instruction"]
+                    else ""
+                )
             )
         ),
         SystemMessage(
@@ -172,6 +301,9 @@ async def _build_probe_plan(state: AgentState) -> dict[str, Any]:
                     "score_waste": state.get("score_waste", 0),
                     "baseline_count": len(state.get("baseline_results", [])),
                     "fallback_plan": fallback,
+                    "ucb_scores": calculate_ucb_scores(state),
+                    "ucb_target_dimension": required_context["dimension"],
+                    "ucb_required_probe": required_probe,
                 },
                 ensure_ascii=False,
                 default=str,
@@ -181,7 +313,12 @@ async def _build_probe_plan(state: AgentState) -> dict[str, Any]:
     try:
         response = await llm.ainvoke(prompt)
         parsed = _json_from_text(str(response.content))
-        return _sanitize_plan(parsed, fallback)
+        return _sanitize_plan(
+            parsed,
+            fallback,
+            required_probe=required_probe,
+            required_reason=required_reason,
+        )
     except Exception as exc:
         print(
             f"[radar] llm_planner_failed={type(exc).__name__}; using deterministic plan"

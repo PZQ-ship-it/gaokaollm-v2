@@ -36,4 +36,5 @@ class AgentState(TypedDict, total=False):
     weight_variance: dict[str, float]
     negotiation_turns: int
     latest_human_feedback: str | None
+    latest_agent_probe_question: str | None
     clarification_hint: NotRequired[str | None]

@@ -2,6 +2,7 @@ import pytest
 from langchain_core.messages import HumanMessage
 from langgraph.types import Command
 
+from app.graphs.nodes.preference_tracker import FeedbackAnalysis
 from app.graphs.workflow import build_graph
 
 
@@ -40,8 +41,15 @@ async def test_hitl_interrupt_resume_updates_preference_state(monkeypatch):
     async def fake_run_all_probes(constraints, db=None, user_state=None):
         return _opportunities()
 
+    async def fake_analyze_feedback(state):
+        return FeedbackAnalysis(intent="accept", target_dimension="school")
+
     monkeypatch.setattr("app.graphs.nodes.gatekeeper.run_baseline", fake_run_baseline)
     monkeypatch.setattr("app.graphs.nodes.radar.run_all_probes", fake_run_all_probes)
+    monkeypatch.setattr(
+        "app.graphs.nodes.preference_tracker.analyze_feedback_with_llm",
+        fake_analyze_feedback,
+    )
 
     app = build_graph()
     config = {"configurable": {"thread_id": "test_thread_001"}}

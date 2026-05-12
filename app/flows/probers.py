@@ -510,14 +510,14 @@ def _score(constraints: dict[str, Any]) -> int:
     score = constraints.get("score")
     if score is None:
         raise ValueError("constraints['score'] is required")
-    return int(score)
+    return int(str(score))
 
 
 def _budget(constraints: dict[str, Any]) -> int | None:
     budget = constraints.get("budget")
     if budget in (None, ""):
         return None
-    return int(budget)
+    return int(str(budget))
 
 
 def _max_tier(rows: list[dict[str, Any]]) -> int:
