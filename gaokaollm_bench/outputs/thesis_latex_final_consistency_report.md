@@ -1,4 +1,4 @@
-﻿# LaTeX 终稿事实一致性验收报告
+# LaTeX 终稿事实一致性验收报告
 
 本文档记录对浙江大学 LaTeX 模板终稿的事实一致性验收。验收对象为：
 
@@ -75,14 +75,14 @@ latexmk -xelatex -outdir=out zjuthesis
 
 - 编译成功，无 LaTeX fatal error。
 - PDF 输出：`D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf`
-- PDF 大小：`3,572,241` bytes
-- 最近写入时间：`2026-05-12 11:09:17`
+- PDF 大小：`3,578,565` bytes
+- 最近写入时间：`2026-05-12 12:01:56`
 - `latexmk` 报告：`All targets (out/zjuthesis.xdv out/zjuthesis.pdf) are up-to-date`；本轮新增 `v1_hybrid_rag` pilot 小节后已完成三轮 xelatex 与一次 xdvipdfmx。
 
 本轮同步处理：
 
 - 新增第 6 章 v1 混合检索基线 pilot 对照表，作为软约束 RAG / 冲稳保推荐补充基线，不进入七组正式实验主表。
-- 附录实验材料说明新增 gent_benchmark_v1_hybrid_rag_pilot_evidence.md 与两个 pilot summary 的索引。
+- 附录实验材料说明新增 `agent_benchmark_v1_hybrid_rag_pilot_evidence.md` 与两个 pilot summary 的索引。
 - 提交索引新增 v1 混合检索基线 pilot evidence，并明确不得写入七组正式主表。
 
 本轮版式收敛处理：

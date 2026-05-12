@@ -1,4 +1,4 @@
-﻿# 毕业论文最终提交包清单与导师审阅索引
+# 毕业论文最终提交包清单与导师审阅索引
 
 本文档是提交前总入口，用于把正式 PDF、LaTeX 源码、论文事实源、验收报告和可复查 evidence 集中到一处。它不替代 `thesis_document_hub.md`、`thesis_claims_manifest.json` 或 LaTeX 正文，只用于提交前快速核对。
 
@@ -7,8 +7,8 @@
 | 项目 | 路径 / 状态 |
 | --- | --- |
 | 最终 PDF | `D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf` |
-| PDF 大小 | `3,572,241` bytes |
-| PDF 最近写入时间 | `2026-05-12 11:09:17` |
+| PDF 大小 | `3,578,565` bytes |
+| PDF 最近写入时间 | `2026-05-12 12:01:56` |
 | LaTeX 主入口 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\zjuthesis.tex` |
 | 正文入口 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\body\undergraduate\final\content.tex` |
 | 正文章节目录 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\body\undergraduate\final\chapters\` |
@@ -37,7 +37,7 @@
 | --- | --- |
 | `thesis_latex_final_consistency_report.md` | `zjuthesis.pdf` 已生成；无 LaTeX fatal error；无 undefined references / citations；无 overfull `\hbox`。 |
 | `thesis_latex_pdf_visual_acceptance.md` | 封面、摘要、目录、核心图、专业树表、七组实验表、`v1_hybrid_rag` pilot 表、多轴压力测试表和附录边界页面通过页面级视觉验收。 |
-| `thesis_final_human_review_check.md` | 记录最新 PDF 下的递交日期、英文题名、致谢、作者简历、`v1_hybrid_rag` pilot 入口和模板字段等提交前人工待办。 |
+| `thesis_final_human_review_check.md` | 记录最新 PDF 下递交日期、英文题名、致谢和作者简历已补齐，并保留提交前人工核对建议。 |
 | `thesis_latex_pdf_snapshots/` | 关键 PDF 页面快照，可用于快速复查真实版式效果。 |
 | `thesis_figure_visual_acceptance.md` | 核心图像资产在论文 PDF 中的视觉验收记录。 |
 
@@ -85,10 +85,10 @@
 
 | 检查项 | 建议处理 |
 | --- | --- |
-| 封面提交日期 | 按学校最终要求填写，不要保留占位文本。 |
+| 封面提交日期 | 已填 `2026年5月12日`；提交前按学校最终要求核对。 |
 | 导师署名与学生信息 | 与学院系统和模板要求逐项核对。 |
-| 致谢 | 当前模板中致谢页较短，提交前建议补齐正式致谢文本。 |
-| 作者简历 | 当前作者简历页较短，按学院要求确认是否需要补充。 |
+| 致谢 | 已补正式致谢文本；提交前可按个人真实情况微调。 |
+| 作者简历 | 已补简短作者简历；提交前按学院要求确认。 |
 | 参考文献格式 | 检查引用是否满足学院要求，确认 BibTeX 条目完整。 |
 | 图片清晰度 | PDF 已通过页面级验收；答辩 PPT 建议使用 `thesis_figures/` 中的原始 SVG/PNG，尤其是架构图、Benchmark 图、专业层级本体局部图和地域层级画像局部图。当前新增树形局部图已进入第 4 章。 |
 | 表格与图题 | 确认图表编号、正文引用和目录一致。 |
@@ -111,6 +111,6 @@
 1. 打开 `zjuthesis.pdf` 做人工通读。
 2. 对照 `thesis_latex_final_consistency_report.md` 确认编译状态。
 3. 对照 `thesis_latex_pdf_visual_acceptance.md` 查看关键页面快照。
-4. 对照 `thesis_final_human_review_check.md` 确认递交日期、英文题名、致谢、作者简历和 `v1_hybrid_rag` pilot 入口等人工信息。
+4. 对照 `thesis_final_human_review_check.md` 确认递交日期、英文题名、致谢、作者简历和 `v1_hybrid_rag` pilot 入口等提交信息。
 5. 对照本文档第 4-6 节确认贡献、证据和人工待办。
 6. 只在确有必要时修改 LaTeX；修改后重新编译并更新验收报告。

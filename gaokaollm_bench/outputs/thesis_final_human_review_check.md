@@ -10,28 +10,28 @@
 | 主入口 | `zjuthesis.tex` |
 | 正文入口 | `body/undergraduate/final/content.tex` |
 | PDF 路径 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf` |
-| PDF 大小 | `3,572,241` bytes |
-| PDF 最近写入时间 | `2026-05-12 11:09:17` |
+| PDF 大小 | `3,578,565` bytes |
+| PDF 最近写入时间 | `2026-05-12 12:01:56` |
 | 检查时间 | `2026-05-12` |
 
 当前 `content.tex` 实际编译第 1-7 章、参考文献、实验材料附录和作者简历。`body/undergraduate/final/1-introduction.tex`、`body/undergraduate/final/2-body.tex` 是旧结构遗留文件，未被当前正文入口引用。
 
-## 2. 必须人工确认
+## 2. 已补齐但提交前仍建议人工核对
 
 | 项目 | 位置 | 当前状态 | 建议 |
 | --- | --- | --- | --- |
-| 递交日期 | `zjuthesis.tex:25` | `SubmitDate = 递交日期` | 提交前按学院最终要求改成正式日期。 |
-| 英文题名 | `zjuthesis.tex:36` | `TitleEng = {{Graduation Thesis Title}}` | 若模板或学院要求英文封面/英文题名，应替换为正式英文题名；若本科设计封面不使用该字段，也建议清理占位值，避免后续模板切换时泄漏。 |
-| 致谢正文 | `body/undergraduate/final/thanksto.tex` | 目前只有“致谢”标题，无正文 | 提交前补正式致谢文本；如果学院允许空致谢，也建议明确确认。 |
-| 作者简历 | `body/undergraduate/final/4-cv.tex` | 目前只有“作者简历”标题，无正文 | 按学院模板要求确认是否必须填写；若需要，应补教育经历、项目经历或获奖情况。 |
+| 递交日期 | `zjuthesis.tex:25` | 已设为 `SubmitDate = 2026年5月12日` | 若学院要求实际提交日或系统填报日期，提交前只需替换该字段并重编译。 |
+| 英文题名 | `zjuthesis.tex:36` | 已设为 `Design of a Data-Driven Preference Compromise Agent and Benchmark for Gaokao College Application Decisions` | 若学院要求英文题名或英文封面，建议导师确认该译名；若模板不使用该字段，也已清理原占位。 |
+| 致谢正文 | `body/undergraduate/final/thanksto.tex` | 已补正式致谢正文 | 提交前可按个人真实情况微调致谢对象和措辞。 |
+| 作者简历 | `body/undergraduate/final/4-cv.tex` | 已补简短作者简历 | 当前简历只使用已知公开事实，不虚构奖项、论文或实习经历；提交前按学院要求确认是否需要增删。 |
 
 ## 3. 建议修改或注意
 
 | 项目 | 位置 | 说明 |
 | --- | --- | --- |
-| 研究生字段占位 | `zjuthesis.tex:34-35` | `Topic = 研究方向`、`ColaboratorName = 合作导师` 是 graduate-only 字段；当前 `Degree = undergraduate`，不影响本科终稿，但建议提交前清理或确认不会进入封面。 |
-| 旧正文文件留空注释 | `body/undergraduate/final/2-body.tex` | 该文件未被 `content.tex` 引用，含多处“留空：此处可插入……”历史注释。它不影响当前 PDF，但后续不要再把该旧文件作为最终正文来源。 |
-| 开题/中期材料中的“示例”字样 | `body/undergraduate/proposal/...` | 当前本科设计 final 模板仍附带开题/中期材料；其中“示例”多为中期报告正文内容，不是最终 7 章正文占位。提交前应按学院要求确认是否需要一并提交。 |
+| 研究生字段占位 | `zjuthesis.tex:34-35` | `Topic = 研究方向`、`ColaboratorName = 合作导师` 是 graduate-only 字段；当前 `Degree = undergraduate`，不影响本科终稿，但提交前可确认不会进入封面。 |
+| 旧正文文件留空注释 | `body/undergraduate/final/2-body.tex` | 该文件未被 `content.tex` 引用，含历史留空注释；不影响当前 PDF，后续不要再把该旧文件作为最终正文来源。 |
+| 开题/中期材料中的“示例”字样 | `body/undergraduate/proposal/...` | 当前本科设计 final 模板仍附带开题/中期材料；其中“示例”多为中期报告正文内容，不是最终 7 章正文占位。提交前按学院要求确认是否需要一并提交。 |
 
 ## 4. 已通过检查
 
@@ -61,4 +61,4 @@
 
 ## 6. 结论
 
-当前终稿的实验事实、正文结构、引用编译和页面级视觉验收已经基本稳定。最新 PDF 已包含 `v1_hybrid_rag` pilot 补充基线并通过页面级视觉验收。提交前最需要人工处理的是：正式递交日期、英文题名占位、致谢正文和作者简历。处理完这些人工信息后，建议重新编译 PDF，并同步更新 `thesis_latex_final_consistency_report.md`、`thesis_latex_pdf_visual_acceptance.md` 与 `thesis_final_submission_index.md` 中的 PDF 时间和检查结论。
+当前终稿的人工占位字段已补齐，实验事实、正文结构、引用编译和页面级视觉验收保持稳定。最新 PDF 已包含 `v1_hybrid_rag` pilot 补充基线、正式递交日期、英文题名、致谢正文和作者简历，并通过重新编译。提交前最后建议人工核对学院实际日期要求、英文题名译法、致谢措辞和作者简历是否符合学院模板。

@@ -11,8 +11,8 @@
 | LaTeX 根目录 | `D:\毕设\latex-for-zju-master\latex-for-zju-master` |
 | PDF 路径 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf` |
 | PDF 页数 | 78 |
-| PDF 大小 | `3,572,241` bytes |
-| PDF 最近写入时间 | `2026-05-12 11:09:17` |
+| PDF 大小 | `3,578,565` bytes |
+| PDF 最近写入时间 | `2026-05-12 12:01:56` |
 | 快照目录 | `gaokaollm_bench/outputs/thesis_latex_pdf_snapshots/` |
 | 渲染工具 | `pdftoppm` |
 | 渲染分辨率 | 144 dpi |
