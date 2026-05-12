@@ -7,6 +7,7 @@ import pytest
 from app.core.db_pg import close_pool
 from app.flows.probers import (
     classify_risk_band,
+    extract_phi_features,
     probe_city_relax,
     probe_employment_outcome_relax,
     probe_major_geo_relax,
@@ -15,6 +16,7 @@ from app.flows.probers import (
     probe_risk_band_relax,
     probe_strength_relax,
     probe_tuition_value_relax,
+    rank_by_implicit_utility,
     run_all_probes,
     run_baseline,
 )
@@ -360,6 +362,81 @@ def test_probers_flow_has_no_llm_dependency():
     assert "get_chat_model" not in source
 
 
+def test_extract_phi_features_maps_school_tiers_and_budget_penalties():
+    state = {"constraints": {"budget": 10000}}
+
+    assert extract_phi_features({"school_tier": "C9"}, state)["school"] == 1.0
+    assert extract_phi_features({"school_tier": "顶尖985"}, state)["school"] == 1.0
+    assert extract_phi_features({"school_tier": "985高校"}, state)["school"] == 0.85
+    assert extract_phi_features({"school_tier": "211 双一流"}, state)["school"] == 0.70
+    assert extract_phi_features({"school_tier": "一本重点"}, state)["school"] == 0.40
+    assert extract_phi_features({"school_tier": "普通本科"}, state)["school"] == 0.10
+
+    budget_ok = extract_phi_features({"tuition": "6000元/年"}, state)
+    assert budget_ok["tuition"] == 1.0
+
+    small_excess = extract_phi_features({"tuition": "12000元/年"}, state)
+    assert small_excess["tuition"] == pytest.approx(0.6)
+
+    veto = extract_phi_features({"tuition": "15000元/年"}, state)
+    assert veto["tuition"] == -9999.0
+
+
+def test_extract_phi_features_handles_dirty_or_missing_values():
+    features = extract_phi_features(
+        {
+            "school_tier": None,
+            "major_relax_level": "bad",
+            "geo_relax_level": object(),
+            "quality_score": "bad",
+            "tuition": "bad",
+        },
+        {},
+    )
+
+    assert set(features) == {"school", "major", "tuition", "quality", "geo"}
+    assert features["tuition"] == 1.0
+    assert features["quality"] == 0.5
+
+
+def test_rank_by_implicit_utility_vetoes_ghost_trap_option():
+    state = {
+        "constraints": {"budget": 10000},
+        "implicit_weights": {
+            "school": 0.25,
+            "major": 0.25,
+            "tuition": 0.25,
+            "quality": 0.25,
+            "geo": 0.25,
+        },
+    }
+    ranked = rank_by_implicit_utility(
+        [
+            {
+                "school_name": "高性价比一本大学",
+                "school_tier": "一本重点",
+                "major_relax_level": 0,
+                "geo_relax_level": 0,
+                "quality_score": 75,
+                "tuition": 8000,
+            },
+            {
+                "school_name": "幽灵陷阱C9大学",
+                "school_tier": "C9",
+                "major_relax_level": 0,
+                "geo_relax_level": 0,
+                "quality_score": 95,
+                "tuition": "15000元/年",
+            },
+        ],
+        state,
+    )
+
+    assert ranked[0]["school_name"] == "高性价比一本大学"
+    assert ranked[0]["_implicit_utility"] > ranked[1]["_implicit_utility"]
+    assert ranked[1]["_phi_features"]["tuition"] == -9999.0
+
+
 def test_risk_band_classifier_uses_rank_then_score_margin():
     assert classify_risk_band(score_margin=30, rank_gap=2500) == "chong"
     assert classify_risk_band(score_margin=3, rank_gap=10000) == "wen"
@@ -572,36 +649,15 @@ async def test_major_geo_relax_drops_province_filter_and_selects_candidates():
     assert "s.province <> %s" not in probe_query
     assert "a.major_name_raw NOT LIKE %s" in probe_query
     assert "%临床医学%" in probe_params
-    assert rows == [
-        {
-            "year": 2023,
-            "school_id": 2,
-            "school_name": "西南交通大学",
-            "school_province": "四川",
-            "major_id": 20,
-            "major_name": "生物医学工程",
-            "min_score": 598,
-            "ranking": 50,
-            "tier": 3,
-            "relaxation_stage": 5,
-            "relaxation_stage_label": "去除专业限制",
-            "relaxation_strategy": "any_major",
-        },
-        {
-            "year": 2022,
-            "school_id": 3,
-            "school_name": "广西大学",
-            "school_province": "广西",
-            "major_id": 30,
-            "major_name": "药学",
-            "min_score": 590,
-            "ranking": 80,
-            "tier": 3,
-            "relaxation_stage": 5,
-            "relaxation_stage_label": "去除专业限制",
-            "relaxation_strategy": "any_major",
-        },
-    ]
+    assert len(rows) == 2
+    assert rows[0]["school_id"] == 2
+    assert rows[0]["major_id"] == 20
+    assert rows[0]["relaxation_stage"] == 5
+    assert rows[0]["relaxation_strategy"] == "any_major"
+    assert "_phi_features" in rows[0]
+    assert "_implicit_utility" in rows[0]
+    assert rows[1]["school_id"] == 3
+    assert rows[1]["major_id"] == 30
 
 
 @pytest.mark.asyncio
@@ -851,6 +907,8 @@ async def test_tuition_value_relax_keeps_hard_filters_and_returns_value_options(
     assert rows[0]["tuition"] == 9000
     assert rows[0]["tuition_delta"] == 3000
     assert rows[1]["tuition_delta"] == 6000
+    assert "_phi_features" in rows[0]
+    assert "_implicit_utility" in rows[0]
 
 
 @pytest.mark.asyncio

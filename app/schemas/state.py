@@ -3,6 +3,23 @@ from typing import Annotated, Any, NotRequired, TypedDict
 from langgraph.graph.message import add_messages
 
 
+DEFAULT_IMPLICIT_WEIGHTS: dict[str, float] = {
+    "school": 0.25,
+    "major": 0.25,
+    "tuition": 0.25,
+    "quality": 0.25,
+    "geo": 0.25,
+}
+
+DEFAULT_WEIGHT_VARIANCE: dict[str, float] = {
+    "school": 1.0,
+    "major": 1.0,
+    "tuition": 1.0,
+    "quality": 1.0,
+    "geo": 1.0,
+}
+
+
 class AgentState(TypedDict, total=False):
     messages: Annotated[list, add_messages]
     constraints: dict
@@ -15,4 +32,6 @@ class AgentState(TypedDict, total=False):
     normalized_intent: dict[str, Any]
     probe_plan: list[dict[str, Any]]
     opportunity_rankings: list[str]
+    implicit_weights: dict[str, float]
+    weight_variance: dict[str, float]
     clarification_hint: NotRequired[str | None]

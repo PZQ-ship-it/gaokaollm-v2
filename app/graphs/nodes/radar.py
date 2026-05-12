@@ -206,7 +206,7 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
     print(f"[radar] baseline={len(baseline)} score_waste={score_waste}")
     plan = await _build_probe_plan(state)
     if score_waste > 15 or not baseline or has_negotiable_constraint:
-        opportunities = await run_all_probes(constraints)
+        opportunities = await run_all_probes(constraints, user_state=state)
     else:
         opportunities = dict(EMPTY_OPPORTUNITIES)
 

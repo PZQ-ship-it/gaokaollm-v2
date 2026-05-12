@@ -1,8 +1,14 @@
 import asyncio
+import re
+import sys
 from pathlib import Path
 from typing import Any
 
+if __name__ == "__main__" and __package__ is None:
+    sys.path.append(str(Path(__file__).resolve().parents[2]))
+
 from app.core import db_pg
+from app.schemas.state import DEFAULT_IMPLICIT_WEIGHTS
 from gaokaollm_bench.data_gen.major_tree import build_relaxation_stages
 from gaokaollm_bench.data_gen.region_tree_relax import (
     annotate_region_row,
@@ -19,6 +25,7 @@ DEFAULT_REGION_GEO_TREE_PATH = Path(
 DEFAULT_REGION_URBAN_TREE_PATH = Path(
     "gaokaollm_bench/outputs/region_urban_tier_tree_reviewed_v1.json"
 )
+UTILITY_FEATURE_KEYS = ("school", "major", "tuition", "quality", "geo")
 SPECIAL_MAJOR_TERMS = (
     "中外合作",
     "合作办学",
@@ -30,6 +37,188 @@ SPECIAL_MAJOR_TERMS = (
     "留学",
     "双文凭",
 )
+
+
+def _coerce_float(value: Any) -> float | None:
+    if value in (None, ""):
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        pass
+    if not isinstance(value, str):
+        return None
+    text = str(value)
+    match = re.search(r"-?\d+(?:\.\d+)?", text.replace(",", ""))
+    if not match:
+        return None
+    try:
+        return float(match.group(0))
+    except ValueError:
+        return None
+
+
+def _clamp_unit(value: float) -> float:
+    return max(0.0, min(1.0, value))
+
+
+def _state_constraints(user_state: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(user_state, dict):
+        return {}
+    constraints = user_state.get("constraints")
+    if isinstance(constraints, dict):
+        return constraints
+    return user_state
+
+
+def _utility_weights(user_state: dict[str, Any] | None) -> dict[str, float]:
+    weights = dict(DEFAULT_IMPLICIT_WEIGHTS)
+    raw_weights = (
+        user_state.get("implicit_weights") if isinstance(user_state, dict) else None
+    )
+    if not isinstance(raw_weights, dict):
+        return weights
+    for key in UTILITY_FEATURE_KEYS:
+        coerced = _coerce_float(raw_weights.get(key))
+        if coerced is not None:
+            weights[key] = coerced
+    return weights
+
+
+def _school_phi(candidate_dict: dict[str, Any]) -> float:
+    tier_text = " ".join(
+        str(candidate_dict.get(key) or "")
+        for key in (
+            "school_tier",
+            "school_level",
+            "tier_label",
+            "education_tier",
+            "school_type",
+            "education_level",
+        )
+    )
+    if "C9" in tier_text or "顶尖985" in tier_text:
+        return 1.0
+    if "985" in tier_text:
+        return 0.85
+    if "211" in tier_text or "双一流" in tier_text:
+        return 0.70
+    if "一本" in tier_text or "重点" in tier_text:
+        return 0.40
+
+    if bool(candidate_dict.get("is_985")):
+        return 0.85
+    if bool(candidate_dict.get("is_211")) or bool(
+        candidate_dict.get("is_double_first_class")
+    ):
+        return 0.70
+
+    tier = _coerce_float(candidate_dict.get("tier"))
+    if tier is not None:
+        if tier >= 4:
+            return 0.85
+        if tier >= 3:
+            return 0.70
+        if tier >= 2:
+            return 0.40
+    return 0.10
+
+
+def extract_phi_features(
+    candidate_dict: dict[str, Any],
+    user_state: dict[str, Any] | None,
+) -> dict[str, float]:
+    """Map a physical SQL row to dimensionless MAUT feature values."""
+
+    candidate = candidate_dict if isinstance(candidate_dict, dict) else {}
+    constraints = _state_constraints(user_state)
+    features = {
+        "school": 0.10,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0,
+    }
+
+    try:
+        features["school"] = _school_phi(candidate)
+    except Exception:
+        features["school"] = 0.10
+
+    try:
+        major_level = _coerce_float(candidate.get("major_relax_level"))
+        if major_level is None:
+            major_level = 0.0
+        features["major"] = max(0.0, 1.0 - 0.35 * major_level)
+    except Exception:
+        features["major"] = 1.0
+
+    try:
+        geo_level = _coerce_float(candidate.get("geo_relax_level"))
+        if geo_level is None:
+            geo_level = 0.0
+        features["geo"] = max(0.0, 1.0 - 0.30 * geo_level)
+    except Exception:
+        features["geo"] = 1.0
+
+    try:
+        quality_score = _coerce_float(candidate.get("quality_score"))
+        features["quality"] = (
+            _clamp_unit(quality_score / 100.0) if quality_score is not None else 0.5
+        )
+    except Exception:
+        features["quality"] = 0.5
+
+    try:
+        tuition = _coerce_float(candidate.get("tuition"))
+        budget = _coerce_float(constraints.get("budget"))
+        if tuition is None or budget is None or budget <= 0 or tuition <= budget:
+            features["tuition"] = 1.0
+        else:
+            excess_ratio = (tuition - budget) / budget
+            # 防止“线性补偿陷阱”：当学费严重超预算时，不能让名校光环
+            # 或质量分通过线性加权把该方案重新抬到前排，因此触发非补偿性否决。
+            if excess_ratio >= 0.30:
+                features["tuition"] = -9999.0
+            else:
+                features["tuition"] = max(0.0, 1.0 - 2.0 * excess_ratio)
+    except Exception:
+        features["tuition"] = 1.0
+
+    return features
+
+
+def rank_by_implicit_utility(
+    candidates: list[dict[str, Any]],
+    user_state: dict[str, Any] | None,
+) -> list[dict[str, Any]]:
+    weights = _utility_weights(user_state)
+    ranked: list[dict[str, Any]] = []
+    for candidate in candidates or []:
+        row = dict(candidate) if isinstance(candidate, dict) else {}
+        try:
+            features = extract_phi_features(row, user_state)
+            utility = sum(
+                weights.get(key, 0.0) * features.get(key, 0.0)
+                for key in UTILITY_FEATURE_KEYS
+            )
+        except Exception:
+            features = {
+                "school": 0.10,
+                "major": 0.0,
+                "tuition": -9999.0,
+                "quality": 0.5,
+                "geo": 0.0,
+            }
+            utility = -9999.0
+        row["_phi_features"] = features
+        row["_implicit_utility"] = float(utility)
+        ranked.append(row)
+    return sorted(
+        ranked,
+        key=lambda row: float(row.get("_implicit_utility") or -999999.0),
+        reverse=True,
+    )
 
 
 BASE_SELECT = """
@@ -1096,6 +1285,7 @@ async def probe_tuition_value_relax(
     constraints: dict[str, Any],
     db: Any = None,
     baseline_results: list[dict[str, Any]] | None = None,
+    user_state: dict[str, Any] | None = None,
     limit: int = 5,
     budget_window: int = 10000,
 ) -> list[dict[str, Any]]:
@@ -1188,7 +1378,7 @@ async def probe_tuition_value_relax(
         selected.append(candidate)
         if len(selected) >= limit:
             break
-    return selected
+    return rank_by_implicit_utility(selected, user_state or constraints)[:limit]
 
 
 async def probe_employment_outcome_relax(
@@ -1335,6 +1525,7 @@ async def probe_major_geo_relax(
     constraints: dict[str, Any],
     db: Any = None,
     baseline_results: list[dict[str, Any]] | None = None,
+    user_state: dict[str, Any] | None = None,
     limit: int = 5,
     recommendation_threshold: int = 10,
     max_per_school: int = 2,
@@ -1386,7 +1577,7 @@ async def probe_major_geo_relax(
                 row["relaxation_strategy"] = stage.get("strategy")
             break
 
-    return selected[:limit]
+    return rank_by_implicit_utility(selected, user_state or constraints)[:limit]
 
 
 async def probe_risk_band_relax(
@@ -1425,6 +1616,7 @@ async def probe_risk_band_relax(
 async def run_all_probes(
     constraints: dict[str, Any],
     db: Any = None,
+    user_state: dict[str, Any] | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     baseline = await run_baseline(constraints, db=db)
     (
@@ -1444,14 +1636,24 @@ async def run_all_probes(
         probe_major_relax(constraints, db=db, baseline_results=baseline),
         probe_strength_relax(constraints, db=db, baseline_results=baseline),
         probe_major_quality_relax(constraints, db=db, baseline_results=baseline),
-        probe_tuition_value_relax(constraints, db=db, baseline_results=baseline),
+        probe_tuition_value_relax(
+            constraints,
+            db=db,
+            baseline_results=baseline,
+            user_state=user_state or constraints,
+        ),
         probe_employment_outcome_relax(
             constraints,
             db=db,
             baseline_results=baseline,
         ),
         probe_region_tree_relax(constraints, db=db, baseline_results=baseline),
-        probe_major_geo_relax(constraints, db=db, baseline_results=baseline),
+        probe_major_geo_relax(
+            constraints,
+            db=db,
+            baseline_results=baseline,
+            user_state=user_state or constraints,
+        ),
         probe_risk_band_relax(constraints, db=db),
     )
     return {
@@ -1466,3 +1668,38 @@ async def run_all_probes(
         "major_geo_relax": major_geo_relax,
         "risk_band_relax": risk_band_relax,
     }
+
+
+if __name__ == "__main__":
+    mock_user_state = {
+        "constraints": {"budget": 10000},
+        "implicit_weights": DEFAULT_IMPLICIT_WEIGHTS,
+    }
+    mock_candidates = [
+        {
+            "school_name": "高性价比一本大学",
+            "school_tier": "一本重点",
+            "major_name": "计算机科学与技术",
+            "major_relax_level": 0,
+            "geo_relax_level": 0,
+            "quality_score": 75,
+            "tuition": "8000元/年",
+        },
+        {
+            "school_name": "幽灵陷阱C9大学",
+            "school_tier": "C9",
+            "major_name": "计算机科学与技术",
+            "major_relax_level": 0,
+            "geo_relax_level": 0,
+            "quality_score": 95,
+            "tuition": "15000元/年",
+        },
+    ]
+    for row in rank_by_implicit_utility(mock_candidates, mock_user_state):
+        print(
+            row.get("school_name"),
+            "utility=",
+            round(row.get("_implicit_utility", 0.0), 4),
+            "tuition_phi=",
+            row.get("_phi_features", {}).get("tuition"),
+        )

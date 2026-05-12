@@ -7,7 +7,11 @@ from langchain_core.messages import AIMessage, SystemMessage
 
 from app.core.llm_client import get_chat_model
 from app.flows.probers import run_baseline
-from app.schemas.state import AgentState
+from app.schemas.state import (
+    DEFAULT_IMPLICIT_WEIGHTS,
+    DEFAULT_WEIGHT_VARIANCE,
+    AgentState,
+)
 
 
 DEFAULT_CONSTRAINTS = {
@@ -324,6 +328,10 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
 
 async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
     print("[gatekeeper] extracting constraints")
+    implicit_weights = dict(DEFAULT_IMPLICIT_WEIGHTS)
+    implicit_weights.update(state.get("implicit_weights") or {})
+    weight_variance = dict(DEFAULT_WEIGHT_VARIANCE)
+    weight_variance.update(state.get("weight_variance") or {})
     original_text = _latest_user_text(state)
     rewritten_text = str(state.get("rewritten_query") or "").strip()
     if rewritten_text and rewritten_text != original_text:
@@ -355,6 +363,8 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
             "score_waste": 0,
             "pareto_opportunities": {},
             "missing_constraints": missing,
+            "implicit_weights": implicit_weights,
+            "weight_variance": weight_variance,
         }
 
     baseline = await run_baseline(constraints)
@@ -370,4 +380,6 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
         "score_waste": score_waste,
         "pareto_opportunities": {},
         "missing_constraints": [],
+        "implicit_weights": implicit_weights,
+        "weight_variance": weight_variance,
     }

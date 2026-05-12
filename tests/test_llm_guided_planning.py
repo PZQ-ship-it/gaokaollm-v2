@@ -37,8 +37,9 @@ async def test_semantic_normalizer_does_not_emit_hidden_fields(monkeypatch):
 async def test_radar_outputs_structured_probe_plan_without_llm(monkeypatch):
     monkeypatch.setenv("GAOKAOLLM_OFFLINE_DETERMINISTIC", "1")
 
-    async def fake_run_all_probes(constraints):
+    async def fake_run_all_probes(constraints, db=None, user_state=None):
         assert constraints["score"] == 600
+        assert user_state["constraints"]["score"] == 600
         return {
             "geo_relax": [],
             "city_relax": [],
