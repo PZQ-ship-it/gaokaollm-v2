@@ -10,7 +10,8 @@
 | 主入口 | `zjuthesis.tex` |
 | 正文入口 | `body/undergraduate/final/content.tex` |
 | PDF 路径 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf` |
-| PDF 最近写入时间 | `2026-05-12 09:18:53` |
+| PDF 大小 | `3,572,241` bytes |
+| PDF 最近写入时间 | `2026-05-12 11:09:17` |
 | 检查时间 | `2026-05-12` |
 
 当前 `content.tex` 实际编译第 1-7 章、参考文献、实验材料附录和作者简历。`body/undergraduate/final/1-introduction.tex`、`body/undergraduate/final/2-body.tex` 是旧结构遗留文件，未被当前正文入口引用。
@@ -39,6 +40,9 @@
 | 正文第 1-7 章 | 未发现 `TODO`、`FIXME`、`待补`、`占位`、`??`、`citation needed`、`TBD` 等明显占位符。 |
 | 摘要与关键词 | 中英文摘要和关键词均存在。 |
 | 附录边界说明 | 已写明 `implicit_flexibilities`、`volunteer_set`、`axis_flexibilities` 只用于模拟器/评测器，不进入被测 Agent。 |
+| `v1_hybrid_rag` pilot | 已进入第 6 章和附录索引；它是软约束 RAG / 冲稳保推荐 pilot 基线，不进入七组正式实验主表。 |
+| 专业树全量覆盖 v2 | 正文保留 `22,759 / 22,759`、`140,995 / 140,995` 与 `remaining_unassigned = 0` 的可审计挂载覆盖口径。 |
+| 多轴压力测试 | `multi_axis_v2` 仍写作压力测试修正版，不进入七组正式实验主表。 |
 | 参考文献编译 | 编译日志未发现 undefined citations。 |
 | 交叉引用 | 编译日志未发现 undefined references。 |
 | PDF 编译 | `zjuthesis.pdf` 已生成，无 LaTeX fatal error。 |
@@ -51,10 +55,10 @@
 | LaTeX Warning | 1 | 模板类加载提示。 |
 | Package Warning | 1 | `xeCJK` 字体族重定义提示。 |
 | Overfull `\hbox` | 0 | 未发现明显水平溢出。 |
-| Underfull `\hbox` | 15 | 主要来自窄表格列或短中文短语断行松散。 |
+| Underfull `\hbox` | 17 | 主要来自窄表格列、附录路径和短中文短语断行松散。 |
 | Underfull `\vbox` | 3 | 页面垂直排版松散。 |
 | undefined reference / citation | 0 | 未发现未定义引用或文献。 |
 
 ## 6. 结论
 
-当前终稿的实验事实、正文结构、引用编译和页面级视觉验收已经基本稳定。提交前最需要人工处理的是：正式递交日期、英文题名占位、致谢正文和作者简历。处理完这些人工信息后，建议重新编译 PDF，并同步更新 `thesis_latex_final_consistency_report.md`、`thesis_latex_pdf_visual_acceptance.md` 与 `thesis_final_submission_index.md` 中的 PDF 时间和检查结论。
+当前终稿的实验事实、正文结构、引用编译和页面级视觉验收已经基本稳定。最新 PDF 已包含 `v1_hybrid_rag` pilot 补充基线并通过页面级视觉验收。提交前最需要人工处理的是：正式递交日期、英文题名占位、致谢正文和作者简历。处理完这些人工信息后，建议重新编译 PDF，并同步更新 `thesis_latex_final_consistency_report.md`、`thesis_latex_pdf_visual_acceptance.md` 与 `thesis_final_submission_index.md` 中的 PDF 时间和检查结论。

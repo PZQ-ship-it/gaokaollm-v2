@@ -37,7 +37,7 @@
 | --- | --- |
 | `thesis_latex_final_consistency_report.md` | `zjuthesis.pdf` 已生成；无 LaTeX fatal error；无 undefined references / citations；无 overfull `\hbox`。 |
 | `thesis_latex_pdf_visual_acceptance.md` | 封面、摘要、目录、核心图、专业树表、七组实验表、`v1_hybrid_rag` pilot 表、多轴压力测试表和附录边界页面通过页面级视觉验收。 |
-| `thesis_final_human_review_check.md` | 记录递交日期、英文题名、致谢、作者简历和模板字段等提交前人工待办。 |
+| `thesis_final_human_review_check.md` | 记录最新 PDF 下的递交日期、英文题名、致谢、作者简历、`v1_hybrid_rag` pilot 入口和模板字段等提交前人工待办。 |
 | `thesis_latex_pdf_snapshots/` | 关键 PDF 页面快照，可用于快速复查真实版式效果。 |
 | `thesis_figure_visual_acceptance.md` | 核心图像资产在论文 PDF 中的视觉验收记录。 |
 
@@ -111,6 +111,6 @@
 1. 打开 `zjuthesis.pdf` 做人工通读。
 2. 对照 `thesis_latex_final_consistency_report.md` 确认编译状态。
 3. 对照 `thesis_latex_pdf_visual_acceptance.md` 查看关键页面快照。
-4. 对照 `thesis_final_human_review_check.md` 确认递交日期、英文题名、致谢、作者简历等人工信息。
+4. 对照 `thesis_final_human_review_check.md` 确认递交日期、英文题名、致谢、作者简历和 `v1_hybrid_rag` pilot 入口等人工信息。
 5. 对照本文档第 4-6 节确认贡献、证据和人工待办。
 6. 只在确有必要时修改 LaTeX；修改后重新编译并更新验收报告。
