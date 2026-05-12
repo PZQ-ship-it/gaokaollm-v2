@@ -7,7 +7,7 @@
 - 正文入口：`body/undergraduate/final/content.tex`
 - 事实源：`thesis_claims_manifest.json`、`thesis_document_hub.md`、`major_tree_annotation_summary.md`、`thesis_final_assembly_checklist.md`
 
-本轮只做验收与报告，不新增实验、不改 benchmark、不改专业树 artifact、不更新 thesis audit。
+本轮只做验收、局部版式收敛与报告更新，不新增实验、不改 benchmark、不改专业树 artifact、不更新 thesis audit。
 
 ## 1. 模板与章节结构
 
@@ -73,9 +73,16 @@ latexmk -xelatex -outdir=out zjuthesis
 
 - 编译成功，无 LaTeX fatal error。
 - PDF 输出：`D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf`
-- PDF 大小：`3,165,004` bytes
-- 最近写入时间：`2026-05-12 06:22:11`
+- PDF 大小：`3,164,963` bytes
+- 最近写入时间：`2026-05-12 08:12:14`
 - `latexmk` 报告：`All targets (out/zjuthesis.xdv out/zjuthesis.pdf) are up-to-date`
+
+本轮版式收敛处理：
+
+- 将最终封面长题名改为三行下划线题名，消除封面 `271pt` 级别的明显 overfull。
+- 缩短英文摘要中一处长句，消除摘要页的英文行溢出。
+- 收紧第 6 章“专业层级本体标注方法对比与最终效果”表格列距和列宽，消除实验表格 overfull。
+- 将开题/中期材料中一处长英文括注改为中文短标签，避免旧材料在合并编译时产生正文外溢。
 
 日志 warning 摘要：
 
@@ -83,13 +90,13 @@ latexmk -xelatex -outdir=out zjuthesis
 | --- | ---: | --- |
 | LaTeX Warning | 1 | 模板类加载提示 |
 | Package Warning | 1 | `xeCJK` 字体族重定义提示 |
-| Overfull `\hbox` | 5 | 主要是表格或长行版式问题 |
-| Underfull `\hbox` | 15 | 主要是段落/表格断行松散 |
+| Overfull `\hbox` | 0 | 明显水平溢出已清零 |
+| Underfull `\hbox` | 15 | 主要是窄表格列或短中文短语断行松散 |
 | Underfull `\vbox` | 4 | 页面垂直排版松散 |
 | undefined reference / undefined citation | 0 | 未发现未定义引用或未定义文献 |
 
 ## 5. 剩余风险
 
-- 仍有少量 overfull / underfull 版式 warning，后续可在最终排版阶段集中处理。
+- 仍有少量 underfull 版式 warning，主要来自窄表格列、附录表格和页面垂直排版松散；这些不影响事实一致性和 PDF 生成。
 - 本报告只验证事实口径和编译状态，不替代导师对正文论证、参考文献完整性和格式细节的审阅。
 - 若后续重跑实验、调整专业树或修改 `multi_axis_v2` 解释，应先更新 `thesis_claims_manifest.json`、`thesis_document_hub.md` 和 `major_tree_annotation_summary.md`，再重新执行本报告对应的检查。
