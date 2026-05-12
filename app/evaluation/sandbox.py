@@ -56,9 +56,10 @@ async def arun_sandbox_evaluation(
     simulator: UserSimulator,
     thread_id: str,
     *,
+    configurable: dict[str, Any] | None = None,
     max_turns: int = 8,
 ) -> dict[str, Any]:
-    config = {"configurable": {"thread_id": thread_id}}
+    config = {"configurable": {"thread_id": thread_id, **(configurable or {})}}
     payload: Any = {"messages": [HumanMessage(content=profile.explicit_query)]}
 
     for _ in range(max_turns):
@@ -90,6 +91,7 @@ def run_sandbox_evaluation(
     simulator: UserSimulator,
     thread_id: str,
     *,
+    configurable: dict[str, Any] | None = None,
     max_turns: int = 8,
 ) -> dict[str, Any]:
     try:
@@ -101,6 +103,7 @@ def run_sandbox_evaluation(
                 profile,
                 simulator,
                 thread_id,
+                configurable=configurable,
                 max_turns=max_turns,
             )
         )

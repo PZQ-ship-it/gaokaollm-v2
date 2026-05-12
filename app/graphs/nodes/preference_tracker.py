@@ -3,9 +3,11 @@ import math
 from typing import Any, Literal
 
 from langchain_core.messages import SystemMessage
+from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel
 
 from app.core.llm_client import get_chat_model
+from app.evaluation.ablation import get_ablation_mode
 from app.schemas.state import (
     DEFAULT_IMPLICIT_WEIGHTS,
     DEFAULT_WEIGHT_VARIANCE,
@@ -197,8 +199,20 @@ async def analyze_feedback_with_llm(state: AgentState) -> FeedbackAnalysis:
         return FeedbackAnalysis(intent="hesitate", target_dimension="unknown")
 
 
-async def preference_tracker_node(state: AgentState) -> dict[str, Any]:
+async def preference_tracker_node(
+    state: AgentState,
+    config: RunnableConfig | None = None,
+) -> dict[str, Any]:
     print("[preference_tracker] updated implicit preference state")
+    if get_ablation_mode(config) == "no_tracker":
+        return {
+            "implicit_weights": dict(state.get("implicit_weights") or {}),
+            "weight_variance": dict(state.get("weight_variance") or {}),
+            "latest_human_feedback": None,
+            "latest_agent_probe_question": None,
+            "latest_pareto_diff": None,
+        }
+
     analysis = await analyze_feedback_with_llm(state)
     weights, variance = apply_feedback_update(
         state.get("implicit_weights"),

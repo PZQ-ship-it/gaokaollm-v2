@@ -1,12 +1,15 @@
 import json
 import math
 import os
+import random
 import re
 from typing import Any
 
 from langchain_core.messages import SystemMessage
+from langchain_core.runnables import RunnableConfig
 
 from app.core.llm_client import get_chat_model
+from app.evaluation.ablation import get_ablation_mode
 from app.flows.probers import probe_global_baseline, run_all_probes
 from app.schemas.state import (
     DEFAULT_IMPLICIT_WEIGHTS,
@@ -279,6 +282,22 @@ def _deterministic_probe_plan(state: AgentState) -> dict[str, Any]:
     }
 
 
+def _random_probe_plan() -> dict[str, Any]:
+    probe = random.choice(PROBE_KEYS)
+    return {
+        "probe_plan": [
+            {
+                "probe": probe,
+                "priority": 1,
+                "reason": "ablation no_ucb random probe",
+            }
+        ],
+        "opportunity_rankings": [probe],
+        "clarification_hint": None,
+        "planner_source": "ablation:no_ucb",
+    }
+
+
 def _sanitize_plan(
     data: dict[str, Any],
     fallback: dict[str, Any],
@@ -341,12 +360,25 @@ def _sanitize_plan(
     }
 
 
-async def _build_probe_plan(state: AgentState) -> dict[str, Any]:
+async def _build_probe_plan(
+    state: AgentState,
+    config: RunnableConfig | None = None,
+) -> dict[str, Any]:
     if should_halt_for_global_baseline(state):
         return dict(GLOBAL_BASELINE_PLAN)
 
-    fallback = _deterministic_probe_plan(state)
-    required_context = _required_probe_context(state)
+    ablation_mode = get_ablation_mode(config)
+    if ablation_mode == "no_ucb":
+        fallback = _random_probe_plan()
+        required_context: dict[str, str | None] = {
+            "dimension": None,
+            "probe": None,
+            "reason": None,
+            "instruction": None,
+        }
+    else:
+        fallback = _deterministic_probe_plan(state)
+        required_context = _required_probe_context(state)
     required_probe = required_context["probe"]
     required_reason = str(required_context["reason"] or "")
     fallback = _sanitize_plan(
@@ -387,9 +419,15 @@ async def _build_probe_plan(state: AgentState) -> dict[str, Any]:
                     "score_waste": state.get("score_waste", 0),
                     "baseline_count": len(state.get("baseline_results", [])),
                     "fallback_plan": fallback,
-                    "ucb_scores": calculate_ucb_scores(state),
-                    "ucb_target_dimension": required_context["dimension"],
-                    "ucb_required_probe": required_probe,
+                    **(
+                        {}
+                        if ablation_mode == "no_ucb"
+                        else {
+                            "ucb_scores": calculate_ucb_scores(state),
+                            "ucb_target_dimension": required_context["dimension"],
+                            "ucb_required_probe": required_probe,
+                        }
+                    ),
                 },
                 ensure_ascii=False,
                 default=str,
@@ -412,7 +450,10 @@ async def _build_probe_plan(state: AgentState) -> dict[str, Any]:
         return fallback
 
 
-async def radar_node(state: AgentState) -> dict[str, Any]:
+async def radar_node(
+    state: AgentState,
+    config: RunnableConfig | None = None,
+) -> dict[str, Any]:
     baseline = state.get("baseline_results", [])
     score_waste = int(state.get("score_waste") or 0)
     constraints = state.get("constraints", {})
@@ -427,7 +468,7 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
     )
 
     print(f"[radar] baseline={len(baseline)} score_waste={score_waste}")
-    plan = await _build_probe_plan(state)
+    plan = await _build_probe_plan(state, config)
 
     if _is_global_baseline_plan(plan):
         global_result: Any = await probe_global_baseline(dict(state))
