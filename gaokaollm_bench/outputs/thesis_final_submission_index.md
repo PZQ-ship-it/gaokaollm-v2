@@ -26,6 +26,7 @@
 | 机器事实源 | `thesis_claims_manifest.json` | 七组实验、压力测试、数据 artifact 的机器可读事实 |
 | 术语事实源 | `thesis_term_mapping.json` | 正文术语与工程标识边界 |
 | 专业树事实源 | `major_tree_annotation_summary.md` | 专业树标注实验、DeepSeek-R1 低置信复核、全量覆盖 v2 |
+| 地域层级树事实源 | `region_urban_tier_tree_full_coverage_v2_report.md` | 地域层级画像全量覆盖 v2、414 个省市对的可审计挂载 |
 | 最终装配清单 | `thesis_final_assembly_checklist.md` | 从 Markdown 母版到正式论文的装配核对 |
 | 连续正文母版 | `thesis_full_draft_v1.md` | Markdown 连续草稿，供后续大修参考 |
 
@@ -49,7 +50,7 @@
 
 - PostgreSQL 招生事实快照支撑分数、位次、选科、招生计划、学费和录取记录查询。
 - 专业层级本体完成全量覆盖 v2：`22,759 / 22,759` 个原始去重专业名、`140,995 / 140,995` 条录取记录完成可审计挂载，`remaining_unassigned = 0`。
-- 学校-专业质量画像、专业就业结果画像和经人工审校的地域层级画像为扩展偏好轴提供标准化证据。
+- 学校-专业质量/实力证据层、专业就业结果画像和经人工审校的地域层级画像为扩展偏好轴提供标准化证据；其中 `school_strength_v1` 与 `major_quality_v1` 属于同一学校-专业证据扩展的两种粒度。
 - “全覆盖”表示所有原始专业名进入可追溯叶子簇，不等于全部语义边界已由人工逐条确认正确。
 
 ### Agent 贡献
@@ -63,7 +64,7 @@
 
 - Benchmark 使用冰山用户画像、多轮沙盒、事实/过程联合评价和证据谈判 Agent 对硬约束基线的对照。
 - 主实验为 `major_geo_v1 + risk_band_v1`。
-- 五组扩展实验为 `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1`。
+- 五组扩展实验为 `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1`；其中学校-专业证据扩展包含 `school_strength_v1` 的窄口径排名探针与 `major_quality_v1` 的综合质量画像探针。
 - `multi_axis_v1` 与 `multi_axis_v2` 是 Benchmark 压力测试；`multi_axis_v2` 是轴一致性修正版，不进入七组实验主表。
 
 ## 5. 证据与结果入口
@@ -77,6 +78,7 @@
 | 多轴压力测试历史版逐例证据 | `agent_benchmark_multi_axis_v1_evidence.md` |
 | 多轴压力测试修正版逐例证据 | `agent_benchmark_multi_axis_v2_evidence.md` |
 | 专业树标注与全量覆盖事实 | `major_tree_annotation_summary.md` |
+| 地域层级树全量覆盖事实 | `region_urban_tier_tree_full_coverage_v2_report.md` |
 | v1 混合检索基线 pilot 逐例证据 | `agent_benchmark_v1_hybrid_rag_pilot_evidence.md` |
 
 `major_geo_v1` 不是 100% 成功，唯一失败样本为 `real-db-set-浙江-569-009`。论文中应保留这一失败样本，避免把主实验包装成完全成功。

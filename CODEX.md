@@ -14,7 +14,7 @@
 
 其中：
 
-- 数据贡献：PostgreSQL 招生快照、分数/位次/批次线/招生计划/学费事实、专业层级本体、学校-专业质量画像、专业就业结果画像、经人工审校的地域层级画像。
+- 数据贡献：PostgreSQL 招生快照、分数/位次/批次线/招生计划/学费事实、专业层级本体、学校-专业质量画像、专业就业结果画像、经人工审校的地域层级画像、地域层级画像全量覆盖 v2。
 - Agent 贡献：面向高风险志愿决策的证据驱动 Pareto 谈判 Agent。
 - Benchmark 贡献：冰山画像、多轮沙盒、事实/过程联合评价、证据谈判 Agent vs 硬约束基线。
 
@@ -28,10 +28,11 @@
 - `gaokaollm_bench/outputs/thesis_claims_manifest.json`
 - `gaokaollm_bench/outputs/thesis_term_mapping.json`
 - `gaokaollm_bench/outputs/major_tree_annotation_summary.md`
+- `gaokaollm_bench/outputs/region_urban_tier_tree_full_coverage_v2_report.md`
 
 若论文口径、实验指标、MAS 表述、术语映射或地域树边界需要调整，应先更新这些入口，再按 hub 的同步清单更新相关正文母版、贡献母版、路线图、图表包和 evidence。
 
-其中，`major_tree_annotation_summary.md` 是专业树标注实验、DeepSeek-R1 低置信复核、错分聚类分析和全量覆盖 v2 的数据贡献事实源；机器可读事实同步在 `thesis_claims_manifest.json` 中。
+其中，`major_tree_annotation_summary.md` 是专业树标注实验、DeepSeek-R1 低置信复核、错分聚类分析和全量覆盖 v2 的数据贡献事实源；`region_urban_tier_tree_full_coverage_v2_report.md` 是地域层级画像全量覆盖 v2 的数据贡献事实源；机器可读事实同步在 `thesis_claims_manifest.json` 中。
 
 ## 当前实验口径
 

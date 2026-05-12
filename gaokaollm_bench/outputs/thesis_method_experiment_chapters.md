@@ -37,11 +37,11 @@
 
 | 贡献层次 | 核心内容 | 论文作用 |
 |---|---|---|
-| 数据贡献 | PostgreSQL 招生快照、分数/位次、批次线、学费字段、专业层级本体、专业质量标准化层、就业结果标准化层、经人工审校的地域层级画像 | 为 Agent 和 benchmark 提供可核验事实基础 |
+| 数据贡献 | PostgreSQL 招生快照、分数/位次、批次线、学费字段、专业层级本体、学校-专业质量/实力证据层、就业结果标准化层、经人工审校的地域层级画像 | 为 Agent 和 benchmark 提供可核验事实基础 |
 | Agent 贡献 | 前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器，支持 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` 等证据驱动 Pareto 谈判 | 证明业务 Agent 能主动提出有事实依据的偏好妥协方案 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` 对照 | 证明改进不是主观叙事，而是可复现实验结果 |
 
-本文第一版主实验仍为 `major_geo_v1 + risk_band_v1`。其中，`major_geo_v1` 验证专业与地域联合放宽，`risk_band_v1` 验证从“只求稳”到 `chong/wen/bao` 冲稳保组合的风险偏好放宽。`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 作为扩展实验，用于证明同一框架可以接入新的数据证据维度，支撑论文的数据贡献和方法可扩展性。
+本文第一版主实验仍为 `major_geo_v1 + risk_band_v1`。其中，`major_geo_v1` 验证专业与地域联合放宽，`risk_band_v1` 验证从“只求稳”到 `chong/wen/bao` 冲稳保组合的风险偏好放宽。`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 作为扩展实验，用于证明同一框架可以接入新的数据证据维度，支撑论文的数据贡献和方法可扩展性。其中 `school_strength_v1` 与 `major_quality_v1` 同属学校-专业证据扩展：前者是窄口径排名型验证，后者是综合质量画像验证，不在论文中作为两个完全正交的偏好轴处理。
 
 建议绘图 1：系统总体架构图。图中展示 PostgreSQL 数据层、数据生成器、冰山画像、被测 Agent、多轮沙盒、事实裁判、过程裁判和结果产物之间的数据流。
 
@@ -65,7 +65,7 @@
 | `major_employment_profiles` | 专业就业排名、就业地区、行业、岗位和薪资分布等原始画像 | 支撑就业导向放宽的数据来源 |
 | 地理邻近层级画像 / 城市层级画像 | 学校所在省市到地理板块与城市层级节点的人工审校映射 | 支撑 `region_tree_relax` 的 `geo_block_relax` 与 `urban_tier_relax` 证据 |
 
-这些表共同约束 Agent 的事实边界。例如，风险偏好放宽必须保留省份、专业、选科和预算等硬约束，只改变风险组合；学费放宽必须保留分数、专业和选科等可达性约束，只在 `budget < tuition <= budget + 10000` 的窗口内寻找候选；专业质量放宽必须同时给出最低分/位次和质量证据，不能只说“这个学校更好”。
+这些表共同约束 Agent 的事实边界。例如，风险偏好放宽必须保留省份、专业、选科和预算等硬约束，只改变风险组合；学费放宽必须保留分数、专业和选科等可达性约束，只在 `budget < tuition <= budget + 10000` 的窗口内寻找候选；学校-专业质量/实力证据放宽必须同时给出最低分/位次和排名、评级或质量画像证据，不能只说“这个学校更好”。
 
 ### 2.2 层级放宽本体：专业树与专业放宽
 
@@ -101,9 +101,9 @@
 
 `major_geo_v1` 中唯一失败样本 `real-db-set-浙江-569-009` 正说明了放宽阶段选择的重要性：该样本需要退到更远的 `any_major` 才能命中隐藏志愿，而当前 Agent 停在较近的医学相关大类候选，因此没有被 deterministic judge 判为成功。
 
-### 2.3 专业质量标准化层
+### 2.3 学校-专业质量/实力证据层
 
-为支持专业级质量证据，项目新增了不破坏原有 `school_major_strengths` 的标准化层。
+为支持专业级质量证据，项目新增了不破坏原有 `school_major_strengths` 的标准化层。论文中将 `strength_relax` 与 `major_quality_relax` 归入同一类学校-专业证据扩展：`strength_relax` 使用 `major_strength_rank` / rating 作为窄口径排名型信号，`major_quality_relax` 使用 `school_major_quality_profiles` 将排名、学科评估、特色/重点专业和满意度聚合为更完整的 `quality_score`。
 
 | 表或视图 | 作用 | 论文意义 |
 |---|---|---|
@@ -111,7 +111,7 @@
 | `school_major_quality_signals` | 统一接入专业排名、第四轮学科评估、特色专业、重点专业、满意度等学校-专业质量信号 | 把不同来源的质量证据转成同一层事实记录 |
 | `school_major_quality_profiles` | 按 `school_id + major_id` 聚合 `quality_score`、`quality_tier`、`best_major_rank`、`best_rating`、`has_key_major`、`has_featured_major`、`satisfaction_score`、`evidence_sources` | 支撑 `major_quality_relax` 的专业质量跃迁证据 |
 
-专业质量标准化层使 Agent 可以说清楚“同样是软件工程，这所学校有什么专业质量证据”，而不仅是泛泛地说学校排名更高。当前 `major_quality_v1` 的结果表明，这一数据层可以被 Agent 和 benchmark 同时使用，从而把数据补充转化为可评测能力。
+学校-专业质量/实力证据层使 Agent 可以说清楚“同样是软件工程，这所学校有什么排名、评级或综合质量证据”，而不仅是泛泛地说学校排名更高。当前 `school_strength_v1` 表明窄口径排名信号可以接入谈判闭环；`major_quality_v1` 进一步表明，综合学校-专业质量画像可以被 Agent 和 benchmark 同时使用，从而把数据补充转化为更完整的可评测能力。若论文篇幅需要精简，应优先保留 `major_quality_v1` 作为正文主叙述，把 `school_strength_v1` 作为窄口径对照或附录结果。
 
 ### 2.4 就业结果标准化层
 
@@ -169,31 +169,33 @@
 |---|---|---|---|
 | `major_geo_relax` | 专业 + 地域联合放宽 | 分数、选科、预算等事实约束 | 学校、专业、省份、最低分、tier/ranking、专业树阶段 |
 | `risk_band_relax` | “只求稳/不要冲”的风险偏好 | 省份、专业、选科、预算等硬约束 | `score_margin`、`rank_gap`、`chong/wen/bao` 风险层级、最低分/位次 |
-| `strength_relax` | 学校/学科实力偏好 | 分数、专业或相近专业、预算等约束 | 排名、评级、最低分、最低位次 |
+| `strength_relax` | 学校-专业证据轴的窄口径排名型实力偏好 | 分数、专业或相近专业、预算等约束 | `major_strength_rank`、评级、最低分、最低位次 |
 | `tuition_value_relax` | 学费预算上限的小幅放宽 | 分数、专业、选科等硬约束 | 学费、学费增量、最低分、学校 tier/ranking 改善 |
-| `major_quality_relax` | 专业质量证据增强 | 分数、专业、选科、预算等硬约束 | `quality_score`、`quality_gain`、专业排名/学科评估/特色/重点/满意度证据 |
+| `major_quality_relax` | 学校-专业证据轴的综合质量画像增强 | 分数、专业、选科、预算等硬约束 | `quality_score`、`quality_gain`、专业排名/学科评估/特色/重点/满意度证据 |
 | `employment_outcome_relax` | 就业导向与相近专业就业结果 | 分数、选科、预算等硬约束 | `employment_rank`、`top_city`、`top_industry`、`job_distribution`、`salary_distribution`、`outcome_score`、`outcome_gain` |
 | `region_tree_relax` | 地理板块或城市层级偏好 | 分数、专业、选科、预算等硬约束 | `geo_block_relax` / `urban_tier_relax`、源地域节点、目标地域节点、树置信度、最低分/位次、学校 tier/ranking |
 
 与之对照，`hard_constraint` baseline 只报告当前显性硬约束下的可达志愿，不主动产生 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax` 或 `region_tree_relax`。因此，baseline 代表“只迎合用户显性红线”的保守系统；`app_pareto` 代表“在事实约束内寻找可谈判收益”的证据驱动系统。
 
+需要说明的是，`strength_relax` 与 `major_quality_relax` 并非两个完全正交的偏好轴。前者是基于学校/学科排名信号的窄口径探针，用于验证排名型实力证据能否进入 Pareto 谈判闭环；后者是在此基础上的综合学校-专业质量画像，将专业排名、学科评估、特色/重点专业和满意度等信号统一为 `quality_score`。因此，本文将二者归入同一类学校-专业证据扩展，其中 `major_quality_relax` 是更完整的主叙述对象，`strength_relax` 作为窄口径对照和可扩展性验证保留。
+
 其中，`major_geo_relax` 的算法重点在于 staged relaxation，而不是简单去掉专业和地域条件。它保留分数、选科、预算等硬约束，在专业树上按“同叶子/近邻专业 -> 同父类 -> 相关大类/probe 邻居 -> `any_major`”逐级扩大搜索空间，同时允许跨省搜索更高层次或更有证据的候选。`real-db-set-浙江-569-009` 的失败说明，放宽阶段选择本身也是可评估对象：如果 Agent 停在较近阶段，而 hidden volunteer set 需要更远的 `any_major` 阶段，则该 case 不应被写成成功。
 
 ## 5. 实验设置
 
-本文第一版主实验是 `major_geo_v1` 与 `risk_band_v1`。五组扩展实验 `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 用于证明数据层可以继续接入新的证据维度，并通过同一数据 + Agent + Benchmark 管线完成闭环。
+本文第一版主实验是 `major_geo_v1` 与 `risk_band_v1`。五组扩展实验 `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1`、`region_tree_v1` 用于证明数据层可以继续接入新的证据维度，并通过同一数据 + Agent + Benchmark 管线完成闭环。其中 `school_strength_v1` 和 `major_quality_v1` 合并解释为学校-专业证据扩展的两种粒度，而不是两个互相独立的业务主线。
 
 | 实验 | 类型 | Persona 数据 | 输出目录 | 主要验证点 |
 |---|---|---|---|---|
 | `major_geo_v1` | 主实验 | `gaokaollm_bench/sample_data/iceberg_personas_major_hierarchy_real_db_10.json` | `gaokaollm_bench/outputs/agent_benchmark_major_geo_v1/` | 专业 + 地域联合放宽 |
 | `risk_band_v1` | 主实验 | `gaokaollm_bench/sample_data/iceberg_personas_risk_band_real_db_10.json` | `gaokaollm_bench/outputs/agent_benchmark_risk_band_v1/` | 从“只求稳”到冲稳保组合 |
-| `school_strength_v1` | 扩展实验 | `gaokaollm_bench/sample_data/iceberg_personas_school_strength_real_db_10.json` | `gaokaollm_bench/outputs/agent_benchmark_school_strength_v1/` | 学校/学科实力证据 |
+| `school_strength_v1` | 扩展实验 | `gaokaollm_bench/sample_data/iceberg_personas_school_strength_real_db_10.json` | `gaokaollm_bench/outputs/agent_benchmark_school_strength_v1/` | 学校-专业证据轴的窄口径排名型验证 |
 | `tuition_value_v1` | 扩展实验 | `gaokaollm_bench/sample_data/iceberg_personas_tuition_value_real_db_10.json` | `gaokaollm_bench/outputs/agent_benchmark_tuition_value_v1/` | 学费/预算性价比放宽 |
-| `major_quality_v1` | 扩展实验 | `gaokaollm_bench/sample_data/iceberg_personas_major_quality_real_db_10.json` | `gaokaollm_bench/outputs/agent_benchmark_major_quality_v1/` | 专业质量标准化证据 |
+| `major_quality_v1` | 扩展实验 | `gaokaollm_bench/sample_data/iceberg_personas_major_quality_real_db_10.json` | `gaokaollm_bench/outputs/agent_benchmark_major_quality_v1/` | 学校-专业证据轴的综合质量画像验证 |
 | `employment_outcome_v1` | 扩展实验 | `gaokaollm_bench/sample_data/iceberg_personas_employment_outcome_real_db_10.json` | `gaokaollm_bench/outputs/agent_benchmark_employment_outcome_v1/` | 就业排名、行业、岗位和薪资证据 |
 | `region_tree_v1` | 扩展实验 | `gaokaollm_bench/sample_data/iceberg_personas_region_tree_real_db_10.json` | `gaokaollm_bench/outputs/agent_benchmark_region_tree_v1/` | 经人工审校的地域层级画像提供地理板块与城市层级证据 |
 
-所有实验均使用 `app_pareto` 与 `hard_constraint` 两个 target。结果产物包含 transcripts、逐例 reports、`summary.json` 和 Markdown summary。主实验另有单独逐例 evidence 附录；五组扩展实验的逐例证据中，`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` 统一整理在 `thesis_data_agent_benchmark_extension_evidence.md`，`region_tree_v1` 单独整理在 `agent_benchmark_region_tree_v1_evidence.md`。
+所有实验均使用 `app_pareto` 与 `hard_constraint` 两个 target。结果产物包含 transcripts、逐例 reports、`summary.json` 和 Markdown summary。主实验另有单独逐例 evidence 附录；五组扩展实验的逐例证据中，`school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` 统一整理在 `thesis_data_agent_benchmark_extension_evidence.md`，`region_tree_v1` 单独整理在 `agent_benchmark_region_tree_v1_evidence.md`。写作时应把 `school_strength_v1` 作为学校-专业证据扩展的窄口径对照，把 `major_quality_v1` 作为综合画像主叙述对象。
 
 ## 6. 实验结果与分析
 
@@ -207,9 +209,9 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 |---|---:|---:|---|
 | `major_geo_v1` | `0.900 / 0.900 / 0.000 / 5.20` | `0.000 / 0.000 / 0.000 / 7.00` | Agent 能用联合放宽证据触发 9/10 个隐性妥协 |
 | `risk_band_v1` | `1.000 / 3.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 15.00` | Agent 能把单一保守偏好扩展为冲稳保组合 |
-| `school_strength_v1` | `1.000 / 15.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | 学校/学科实力证据可接入同一谈判闭环 |
+| `school_strength_v1` | `1.000 / 15.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | 窄口径学校/学科排名型证据可接入同一谈判闭环 |
 | `tuition_value_v1` | `1.000 / 1.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | `admission_plans.tuition` 可支撑小幅超预算换收益的谈判 |
-| `major_quality_v1` | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | `school_major_quality_profiles` 可支撑专业质量跃迁证据 |
+| `major_quality_v1` | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | `school_major_quality_profiles` 可支撑综合学校-专业质量跃迁证据 |
 | `employment_outcome_v1` | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | `major_employment_outcome_profiles` 可支撑就业排名、行业、岗位和薪资证据谈判 |
 | `region_tree_v1` | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 经人工审校的地域层级画像可支撑地理板块和城市层级证据谈判 |
 
@@ -219,7 +221,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 `risk_band_v1` 的结果说明 Pareto gain 不必只来自学校 tier 提升，也可以来自组合结构改进。用户显性表达“只求稳”时，`app_pareto` 能在保留硬约束的前提下给出 `chong/wen/bao` 风险组合，并用最低分、最低位次、分差和位次差说明为什么适度冲刺是可谈判的。
 
-五组扩展实验进一步说明，本文框架可以随着数据层扩展而扩展。`tuition_value_v1` 把 `admission_plans.tuition` 转化为预算谈判证据；`major_quality_v1` 把专业排名、学科评估、特色专业、重点专业和满意度等数据聚合到学校-专业质量画像，使 Agent 能输出专业质量证据；`employment_outcome_v1` 把原始就业画像清洗为专业就业结果画像，使就业排名、行业、岗位和薪资证据能够进入 Pareto 谈判；`region_tree_v1` 把经人工审校的地域层级画像接入 `region_tree_relax`，使地理板块和城市层级证据能够进入轻量 MAS 与沙盒评测；`school_strength_v1` 则作为较粗粒度实力证据的过渡实验。扩展实验不替代主实验，而是支撑“数据贡献可扩展”的论文论点。
+五组扩展实验进一步说明，本文框架可以随着数据层扩展而扩展。学校-专业证据扩展包含两个粒度：`school_strength_v1` 作为较粗粒度、排名型实力证据的过渡实验，验证单一排名/评级信号可以进入谈判闭环；`major_quality_v1` 则把专业排名、学科评估、特色专业、重点专业和满意度等数据聚合到学校-专业质量画像，使 Agent 能输出更完整的专业质量证据。`tuition_value_v1` 把 `admission_plans.tuition` 转化为预算谈判证据；`employment_outcome_v1` 把原始就业画像清洗为专业就业结果画像，使就业排名、行业、岗位和薪资证据能够进入 Pareto 谈判；`region_tree_v1` 把经人工审校的地域层级画像接入 `region_tree_relax`，使地理板块和城市层级证据能够进入轻量 MAS 与沙盒评测。扩展实验不替代主实验，而是支撑“数据贡献可扩展”的论文论点。
 
 ## 7. 逐例证据与可复现材料
 
@@ -264,4 +266,4 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 | 第 6 章 | 实验设置、结果分析与逐例证据 | 第 5、6、7 节 |
 | 第 7 章 | 总结与展望 | 第 8 节 |
 
-论文正文中建议把 `major_geo_v1 + risk_band_v1` 写作主实验，把 `school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1 + region_tree_v1` 写作扩展实验。这样既能保持主贡献清晰，也能说明数据层的持续扩展能力。
+论文正文中建议把 `major_geo_v1 + risk_band_v1` 写作主实验，把 `school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1 + region_tree_v1` 写作扩展实验。扩展实验内部应明确 `school_strength_v1` 与 `major_quality_v1` 属于同一学校-专业证据扩展轴：正文优先讲 `major_quality_v1` 的综合画像，`school_strength_v1` 作为窄口径排名型对照或附录结果。这样既能保持主贡献清晰，也能说明数据层的持续扩展能力。

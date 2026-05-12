@@ -8,6 +8,7 @@ For graduation-thesis work, start here:
 - `thesis_claims_manifest.json`: machine-readable source of high-frequency thesis claims.
 - `thesis_term_mapping.json`: terminology source for replacing implementation names with thesis terms.
 - `major_tree_annotation_summary.md`: professional-tree annotation experiment, DeepSeek-R1 low-confidence review, and full-coverage v2 data-contribution facts.
+- `region_urban_tier_tree_full_coverage_v2_report.md`: regional urban-tier tree full-coverage v2 fact source for all 414 province-city pairs.
 - `thesis_final_submission_index.md`: final submission package checklist and advisor review index.
 - `thesis_full_draft_v1.md`: continuous dissertation draft assembled from chapter masters, figures, metrics, and evidence.
 - `thesis_diagrams_with_diagrams.md`: hand-authored SVG/PNG figure rendering guide; Diagrams is historical context only.
@@ -25,6 +26,7 @@ Current thesis framing:
 
 - Contribution structure: 数据贡献 + Agent 贡献 + Benchmark 贡献, abbreviated as 数据 + Agent + Benchmark.
 - Professional-tree data contribution: full-coverage v2 auditable mounting covers `22,759 / 22,759` raw distinct major names and `140,995 / 140,995` admission rows, with `remaining_unassigned = 0`; this does not mean every semantic boundary has been manually confirmed.
+- Regional urban-tier data contribution: full-coverage v2 auditable mounting covers all `414 / 414` province-city pairs and `3,219 / 3,219` admission rows, with `remaining_unassigned = 0`; this does not mean every city-tier semantic boundary has been manually confirmed.
 - Agent architecture: lightweight MAS / multi-role Agent, `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`.
 - Implementation trace: `semantic_normalizer -> gatekeeper -> llm-guided radar planner -> deterministic probes -> negotiator`.
 - LLM boundary: the LLM normalizes intent, plans probes, ranks opportunities, and suggests clarification; deterministic probes are the only factual candidate source.
@@ -41,7 +43,7 @@ Current thesis framing:
 | Contribution and roadmap | `thesis_agent_benchmark_contribution.md`, `dynamic_decision_considerations_roadmap.md`, `thesis_v1_v2_integration_plan.md` | High-level positioning and maintenance of the data + Agent + Benchmark storyline. |
 | Final submission | `thesis_final_submission_index.md`, `thesis_final_assembly_checklist.md`, `thesis_latex_final_consistency_report.md`, `thesis_latex_pdf_visual_acceptance.md`, `thesis_final_human_review_check.md` | Final PDF path, source package, advisor review checklist, compile acceptance, page-level visual acceptance, and manual submission-field review. |
 | Architecture and figures | `thesis_system_architecture_algorithms.md`, `thesis_figures_tables_pack.md`, `thesis_diagrams_with_diagrams.md`, `thesis_figure_visual_acceptance.md`, `thesis_latex_final_consistency_report.md`, `thesis_latex_pdf_visual_acceptance.md`, `thesis_figures/`, `thesis_latex_pdf_snapshots/`, `thesis_figures_pdf_snapshots/` | MAS architecture, algorithms, generated SVG/PNG figures, PDF visual acceptance snapshots, LaTeX final fact/compile acceptance, Mermaid drafts, tables, and pseudocode. |
-| Methodology | `benchmark_methodology.md`, `major_tree_methodology.md`, `major_tree_annotation_summary.md`, `thesis_hierarchical_relaxation_methodology.md` | Benchmark, major-tree methodology, major-tree annotation/full-coverage v2 facts, and hierarchical-relaxation methodology. |
+| Methodology | `benchmark_methodology.md`, `major_tree_methodology.md`, `major_tree_annotation_summary.md`, `region_urban_tier_tree_full_coverage_v2_report.md`, `thesis_hierarchical_relaxation_methodology.md` | Benchmark, major-tree methodology, major-tree annotation/full-coverage v2 facts, regional urban-tier full-coverage v2 facts, and hierarchical-relaxation methodology. |
 | Summaries | `agent_benchmark_*_summary.md` | Aggregate experiment results, plus `agent_benchmark_multi_axis_v1_summary.md` and `agent_benchmark_multi_axis_v2_summary.md` for multi-axis pressure tests. |
 | Evidence appendices | `agent_benchmark_*_evidence.md`, `thesis_data_agent_benchmark_extension_evidence.md` | Per-case transcript evidence and baseline comparisons, including `agent_benchmark_multi_axis_v1_evidence.md` and `agent_benchmark_multi_axis_v2_evidence.md` for pressure tests. |
 | Baseline pilots | `agent_benchmark_v1_hybrid_rag_pilot_evidence.md`, `agent_benchmark_major_geo_v1_v1_hybrid_rag_pilot_summary.md`, `agent_benchmark_risk_band_v1_v1_hybrid_rag_pilot_summary.md` | v1 hybrid RAG pilot comparison against `app_pareto` and `hard_constraint`; not part of the seven formal experiment table. |

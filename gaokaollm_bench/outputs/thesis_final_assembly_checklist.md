@@ -38,7 +38,7 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | 第 1 章 | 绪论 | `thesis_intro_related_work_chapters.md`、`thesis_agent_benchmark_contribution.md` | 写清高风险志愿咨询、显性红线/隐性妥协、数据 + Agent + Benchmark 三贡献 |
 | 第 2 章 | 相关技术 | `thesis_intro_related_work_chapters.md`、`thesis_hierarchical_relaxation_methodology.md` | 组织 RAG、Agent、轻量 MAS、Benchmark、LLM-as-a-Judge、专业层级本体、经人工审校的地域层级画像和 Pareto 妥协 |
 | 第 3 章 | 第一版 Agentic RAG 原型系统与问题诊断 | `thesis_v1_prototype_chapter.md`、`thesis_v1_v2_integration_plan.md` | v1 `gaokaollmmodel` 写成工程原型与问题发现，不写成最终主贡献 |
-| 第 4 章 | 高考志愿偏好妥协 Benchmark 与数据层构建 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md`、`major_tree_annotation_summary.md` | 写 PostgreSQL 快照、专业层级本体全量覆盖 v2、质量/就业/经人工审校的地域层级画像、冰山画像和沙盒 |
+| 第 4 章 | 高考志愿偏好妥协 Benchmark 与数据层构建 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md`、`major_tree_annotation_summary.md`、`region_urban_tier_tree_full_coverage_v2_report.md` | 写 PostgreSQL 快照、专业层级本体全量覆盖 v2、地域层级画像全量覆盖 v2、质量/就业/经人工审校的地域层级画像、冰山画像和沙盒 |
 | 第 5 章 | 证据驱动 Pareto 谈判 Agent 设计 | `thesis_method_experiment_chapters.md`、`thesis_system_architecture_algorithms.md` | 写 `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器`、各类 relax 算法和轻量 MAS 边界 |
 | 第 6 章 | 实验结果、逐例证据与分析 | `thesis_method_experiment_chapters.md`、各 summary/evidence | 主实验与扩展实验分层写，补充 `multi_axis_v1` / `multi_axis_v2` Benchmark 压力测试对照和 `v1_hybrid_rag` 软约束 RAG 基线 pilot，保留失败样本和 evidence 引用 |
 | 第 7 章 | 总结与展望 | `thesis_conclusion_future_work_chapter.md`、`dynamic_decision_considerations_roadmap.md` | 总结 v1 到 v2 的演进，保留真实用户校准、城市收益指标、多省份泛化等后续工作 |
@@ -55,7 +55,7 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | Benchmark 流程图 | 图 4-4 / `fig_4_2` | `thesis_figures/fig_4_2_benchmark_flow.svg` / `.png` | 第 4 章 Benchmark 方法 |
 | 数据证据层图 | 图 4-5 / `fig_4_3` | `thesis_figures/fig_4_3_data_evidence_relax_mapping.svg` / `.png` | 第 4 章数据层设计 |
 | MAS 工作流图 | 图 5-1 | `thesis_figures/fig_5_1_mas_workflow.svg` / `.png` | 第 5 章 Agent 方法 |
-| 七实验结果总表 | 表 6-1 | 主实验 + 五组扩展实验指标 | 第 6 章实验结果 |
+| 七实验结果总表 | 表 6-1 | 主实验 + 五组扩展实验指标；学校-专业证据扩展包含窄口径排名探针与综合质量画像探针 | 第 6 章实验结果 |
 | 算法到实验映射表 | 表 5-1 或表 6-2 | relax 算法、数据证据、实验结果、论文意义 | 第 5 章或第 6 章 |
 | Benchmark 压力测试表 | 表 6-3 | `multi_axis_v1` / `multi_axis_v2` 指标对照与三类 profile 成功分布 | 第 6 章补充实验或附录 |
 | v1 混合检索基线 pilot 表 | 表 6-4 | `v1_hybrid_rag` 与 `app_pareto` / `hard_constraint` 的主实验 pilot 对照 | 第 6 章补充实验或附录 |
@@ -68,7 +68,7 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | `major_geo_relax` | `thesis_method_experiment_chapters.md`、`thesis_hierarchical_relaxation_methodology.md` | 第 5 章 | 结合专业树 staged relaxation，不写成简单去掉专业限制 |
 | `risk_band_relax` | `thesis_method_experiment_chapters.md` | 第 5 章 | 说明 `score_margin` / `rank_gap` 与 `chong/wen/bao` |
 | `tuition_value_relax` | `thesis_method_experiment_chapters.md` | 第 5 章或扩展实验 | 保留 `budget < tuition <= budget + 10000` 窗口 |
-| `major_quality_relax` | `thesis_method_experiment_chapters.md` | 第 5 章或扩展实验 | 引用学校-专业质量画像 |
+| `strength_relax` / `major_quality_relax` | `thesis_method_experiment_chapters.md` | 第 5 章或扩展实验 | 同属学校-专业证据轴；前者是窄口径排名探针，后者是综合质量画像 |
 | `employment_outcome_relax` | `thesis_method_experiment_chapters.md` | 第 5 章或扩展实验 | 引用专业就业结果画像 |
 | `region_tree_relax` | `thesis_method_experiment_chapters.md`、`thesis_hierarchical_relaxation_methodology.md` | 第 5 章或扩展实验 | 写清 `geo_block_relax` / `urban_tier_relax`，城市层级不直接等价于城市收益 |
 
@@ -78,7 +78,7 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 
 | 成稿位置 | 必写内容 | 边界 |
 |---|---|---|
-| 第 4 章数据层 | 全量覆盖 v2 已完成 `22,759 / 22,759` 个原始去重专业名和 `140,995 / 140,995` 条录取记录的可审计挂载，`remaining_unassigned = 0` | “全覆盖”是可审计挂载覆盖，不等于全部语义边界已经人工逐条确认正确 |
+| 第 4 章数据层 | 专业层级本体全量覆盖 v2 已完成 `22,759 / 22,759` 个原始去重专业名和 `140,995 / 140,995` 条录取记录的可审计挂载，`remaining_unassigned = 0`；地域层级画像全量覆盖 v2 已完成 `414 / 414` 个省市对和 `3,219 / 3,219` 条录取记录的可审计挂载，`remaining_unassigned = 0` | “全覆盖”是可审计挂载覆盖，不等于全部语义边界已经人工逐条确认正确 |
 | 第 6 章专业树实验 | 保留 clean validation set 方法对比、DeepSeek-R1 低置信复核、Top-k 候选池上限和错分聚类分析 | validation 有效输出覆盖与全库挂载覆盖是两个不同口径 |
 | 第 7 章总结 | 将专业层级本体总结为数据贡献之一，并把后续工作写成复合大类优先级、跨父类近邻边和高职/本科层级标记维护 | 不再把覆盖补齐写成未来任务 |
 
@@ -94,9 +94,9 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 |---|---|---:|---:|---|
 | `major_geo_v1` | 主实验 | `0.900 / 0.900 / 0.000 / 5.20` | `0.000 / 0.000 / 0.000 / 7.00` | `agent_benchmark_major_geo_v1_evidence.md` |
 | `risk_band_v1` | 主实验 | `1.000 / 3.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 15.00` | `agent_benchmark_risk_band_v1_evidence.md` |
-| `school_strength_v1` | 扩展实验 | `1.000 / 15.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | `thesis_data_agent_benchmark_extension_evidence.md` |
+| `school_strength_v1` | 扩展实验：学校-专业证据轴窄口径排名探针 | `1.000 / 15.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | `thesis_data_agent_benchmark_extension_evidence.md` |
 | `tuition_value_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | `thesis_data_agent_benchmark_extension_evidence.md` |
-| `major_quality_v1` | 扩展实验 | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | `thesis_data_agent_benchmark_extension_evidence.md` |
+| `major_quality_v1` | 扩展实验：学校-专业证据轴综合质量画像 | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | `thesis_data_agent_benchmark_extension_evidence.md` |
 | `employment_outcome_v1` | 扩展实验 | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | `thesis_data_agent_benchmark_extension_evidence.md` |
 | `region_tree_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | `agent_benchmark_region_tree_v1_evidence.md` |
 
@@ -112,7 +112,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 |---|---|---|
 | `agent_benchmark_major_geo_v1_evidence.md` | `major_geo_v1` 10 个 case | 证明主实验 9/10 成功和失败样本 |
 | `agent_benchmark_risk_band_v1_evidence.md` | `risk_band_v1` 10 个 case | 证明风险偏好放宽和 `chong/wen/bao` 组合 |
-| `thesis_data_agent_benchmark_extension_evidence.md` | `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` | 证明数据证据维度可扩展 |
+| `thesis_data_agent_benchmark_extension_evidence.md` | `school_strength_v1`、`tuition_value_v1`、`major_quality_v1`、`employment_outcome_v1` | 证明数据证据维度可扩展；其中 `school_strength_v1` 与 `major_quality_v1` 是学校-专业证据扩展的两种粒度 |
 | `agent_benchmark_region_tree_v1_evidence.md` | `region_tree_v1` 10 个 case | 证明经人工审校的地域层级画像能接入 Agent+Benchmark |
 | `agent_benchmark_multi_axis_v1_evidence.md` | `multi_axis_v1` 30 个 case | 证明多轴隐藏妥协压力测试的逐例轴命中与失败原因 |
 | `agent_benchmark_multi_axis_v2_evidence.md` | `multi_axis_v2` 30 个 case | 证明轴一致性修正版压力测试的逐例轴命中与失败原因 |
@@ -134,7 +134,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - v1 `gaokaollmmodel` 是工程原型与问题发现，不是最终主贡献。
 - v2 是最终主贡献，由数据贡献、Agent 贡献和 Benchmark 贡献组成。
 - `major_geo_v1 + risk_band_v1` 是主实验。
-- `school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1 + region_tree_v1` 是扩展实验。
+- `school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1 + region_tree_v1` 是扩展实验；其中 `school_strength_v1` 与 `major_quality_v1` 同属学校-专业证据扩展，分别对应窄口径排名探针和综合质量画像探针。
 - `region_tree_v1` 不替代主实验；城市层级只作为经人工审校的地域层级证据，不直接等价于就业机会、生活成本或城市生活质量收益。
 - `multi_axis_v1` 与 `multi_axis_v2` 是 Benchmark 压力测试，不替代主实验，也不改写七组实验主线；它们只组合已有 relax 能力，不新增业务放宽算法。
 - `multi_axis_v2` 是轴一致性修正版，不进入七组实验主表；三类 profile 仍为 `major_geo_risk`、`quality_tuition`、`employment_region`。

@@ -1,0 +1,1601 @@
+{
+  "definition": "Full coverage means auditable assignment coverage, not full manual semantic verification.",
+  "input_files": {
+    "base_tree": "gaokaollm_bench\\outputs\\region_urban_tier_tree_reviewed_v1.json",
+    "coverage_report": "gaokaollm_bench\\outputs\\region_tree_coverage_report.json",
+    "review_packet": "gaokaollm_bench\\outputs\\region_tree_review_packet.jsonl"
+  },
+  "summary": {
+    "total_city_pairs": 414,
+    "total_schools": 3219,
+    "province_count": 35,
+    "province_mapped_count": 35,
+    "urban_city_pair_mapped_count": 414,
+    "urban_city_pair_high_confidence_count": 62,
+    "review_queue_count": 0,
+    "remaining_unassigned": 0
+  },
+  "assignment_stats": {
+    "source_counts": {
+      "existing_seed": 67,
+      "packet_suggested": 347
+    },
+    "added_nodes": 347,
+    "existing_nodes": 70,
+    "final_nodes": 417
+  },
+  "final_coverage": {
+    "assigned_distinct_names": 414,
+    "assigned_row_count": 3219,
+    "remaining_unassigned_distinct_names": 0,
+    "remaining_unassigned_row_count": 0
+  },
+  "audit_preview": [
+    {
+      "province": "上海",
+      "city": "嘉定区",
+      "school_count": 4,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:dedf797843",
+      "assigned_node_name": "嘉定区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:dedf797843",
+      "packet_suggested_name": "嘉定区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "奉贤区",
+      "school_count": 6,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:d349dfa0c7",
+      "assigned_node_name": "奉贤区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:d349dfa0c7",
+      "packet_suggested_name": "奉贤区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "宝山区",
+      "school_count": 6,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:e39590fe43",
+      "assigned_node_name": "宝山区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:e39590fe43",
+      "packet_suggested_name": "宝山区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "徐汇区",
+      "school_count": 9,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:1e844257cc",
+      "assigned_node_name": "徐汇区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:1e844257cc",
+      "packet_suggested_name": "徐汇区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "普陀区",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:3b90e93741",
+      "assigned_node_name": "普陀区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:3b90e93741",
+      "packet_suggested_name": "普陀区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "杨浦区",
+      "school_count": 11,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:9e373e8ebe",
+      "assigned_node_name": "杨浦区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:9e373e8ebe",
+      "packet_suggested_name": "杨浦区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "松江区",
+      "school_count": 7,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:6d32abbcdd",
+      "assigned_node_name": "松江区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:6d32abbcdd",
+      "packet_suggested_name": "松江区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "浦东新区",
+      "school_count": 21,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:94c33fc3a2",
+      "assigned_node_name": "浦东新区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:94c33fc3a2",
+      "packet_suggested_name": "浦东新区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "虹口区",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:5549502242",
+      "assigned_node_name": "虹口区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:5549502242",
+      "packet_suggested_name": "虹口区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "金山区",
+      "school_count": 2,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:1ede8c6336",
+      "assigned_node_name": "金山区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:1ede8c6336",
+      "packet_suggested_name": "金山区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "长宁区",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:a0ac379871",
+      "assigned_node_name": "长宁区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:a0ac379871",
+      "packet_suggested_name": "长宁区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "闵行区",
+      "school_count": 2,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:4282262e8e",
+      "assigned_node_name": "闵行区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:4282262e8e",
+      "packet_suggested_name": "闵行区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "青浦区",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:ec447d72a6",
+      "assigned_node_name": "青浦区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:ec447d72a6",
+      "packet_suggested_name": "青浦区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "静安区",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:fa8668ff38",
+      "assigned_node_name": "静安区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:fa8668ff38",
+      "packet_suggested_name": "静安区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "上海",
+      "city": "黄浦区",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:afe416e63c",
+      "assigned_node_name": "黄浦区",
+      "assigned_parent_id": "urban:city:shanghai",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:shanghai",
+      "packet_suggested_node_id": "urban:reviewed:afe416e63c",
+      "packet_suggested_name": "黄浦区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "临沧市",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:ae4aa18510",
+      "assigned_node_name": "临沧市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:ae4aa18510",
+      "packet_suggested_name": "临沧市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "丽江市",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:369a897cb5",
+      "assigned_node_name": "丽江市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:369a897cb5",
+      "packet_suggested_name": "丽江市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "保山市",
+      "school_count": 2,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:b9625f4a02",
+      "assigned_node_name": "保山市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:b9625f4a02",
+      "packet_suggested_name": "保山市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "大理白族自治州",
+      "school_count": 4,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:e57975e6c1",
+      "assigned_node_name": "大理白族自治州",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:e57975e6c1",
+      "packet_suggested_name": "大理白族自治州",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "德宏傣族景颇族自治州",
+      "school_count": 2,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:b480822cd2",
+      "assigned_node_name": "德宏傣族景颇族自治州",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:b480822cd2",
+      "packet_suggested_name": "德宏傣族景颇族自治州",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "文山壮族苗族自治州",
+      "school_count": 2,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:32dbf06963",
+      "assigned_node_name": "文山壮族苗族自治州",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:32dbf06963",
+      "packet_suggested_name": "文山壮族苗族自治州",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "昆明市",
+      "school_count": 57,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:6750913c8f",
+      "assigned_node_name": "昆明市",
+      "assigned_parent_id": "urban:tier:strong_capital",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:6750913c8f",
+      "packet_suggested_parent_id": "urban:tier:strong_capital",
+      "packet_suggested_node_id": "urban:reviewed:6750913c8f",
+      "packet_suggested_name": "昆明市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "昭通市",
+      "school_count": 2,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:33db0f0d14",
+      "assigned_node_name": "昭通市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:33db0f0d14",
+      "packet_suggested_name": "昭通市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "普洱市",
+      "school_count": 2,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:eb4bbcf7a8",
+      "assigned_node_name": "普洱市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:eb4bbcf7a8",
+      "packet_suggested_name": "普洱市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "曲靖市",
+      "school_count": 4,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:66a99604c0",
+      "assigned_node_name": "曲靖市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:66a99604c0",
+      "packet_suggested_name": "曲靖市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "楚雄彝族自治州",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:ce44895567",
+      "assigned_node_name": "楚雄彝族自治州",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:ce44895567",
+      "packet_suggested_name": "楚雄彝族自治州",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "玉溪市",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:3b8a0edac3",
+      "assigned_node_name": "玉溪市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:3b8a0edac3",
+      "packet_suggested_name": "玉溪市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "红河哈尼族彝族自治州",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:347575f1c7",
+      "assigned_node_name": "红河哈尼族彝族自治州",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:347575f1c7",
+      "packet_suggested_name": "红河哈尼族彝族自治州",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "红河州蒙自市",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:01de338294",
+      "assigned_node_name": "红河州蒙自市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:01de338294",
+      "packet_suggested_name": "红河州蒙自市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "云南",
+      "city": "西双版纳傣族自治州",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:42ae7c43f4",
+      "assigned_node_name": "西双版纳傣族自治州",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:42ae7c43f4",
+      "packet_suggested_name": "西双版纳傣族自治州",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "乌兰察布市",
+      "school_count": 3,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:3221229f27",
+      "assigned_node_name": "乌兰察布市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:3221229f27",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:3221229f27",
+      "packet_suggested_name": "乌兰察布市",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "乌海市",
+      "school_count": 1,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:c93ddeefda",
+      "assigned_node_name": "乌海市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:c93ddeefda",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:c93ddeefda",
+      "packet_suggested_name": "乌海市",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "兴安盟",
+      "school_count": 1,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:8fc20f343e",
+      "assigned_node_name": "兴安盟",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:8fc20f343e",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:8fc20f343e",
+      "packet_suggested_name": "兴安盟",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "包头市",
+      "school_count": 7,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:9c966c75e2",
+      "assigned_node_name": "包头市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:9c966c75e2",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:9c966c75e2",
+      "packet_suggested_name": "包头市",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "呼伦贝尔市",
+      "school_count": 4,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:56f4d806db",
+      "assigned_node_name": "呼伦贝尔市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:56f4d806db",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:56f4d806db",
+      "packet_suggested_name": "呼伦贝尔市",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "呼伦贝尔市满洲里市",
+      "school_count": 1,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:f319f82a9a",
+      "assigned_node_name": "呼伦贝尔市满洲里市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:f319f82a9a",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:f319f82a9a",
+      "packet_suggested_name": "呼伦贝尔市满洲里市",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "呼和浩特市",
+      "school_count": 25,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:86bc47e76d",
+      "assigned_node_name": "呼和浩特市",
+      "assigned_parent_id": "urban:tier:strong_capital",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:86bc47e76d",
+      "packet_suggested_parent_id": "urban:tier:strong_capital",
+      "packet_suggested_node_id": "urban:reviewed:86bc47e76d",
+      "packet_suggested_name": "呼和浩特市",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "巴彦淖尔市",
+      "school_count": 2,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:ce994ad981",
+      "assigned_node_name": "巴彦淖尔市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:ce994ad981",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:ce994ad981",
+      "packet_suggested_name": "巴彦淖尔市",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "赤峰市",
+      "school_count": 5,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:9d45d654f4",
+      "assigned_node_name": "赤峰市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:9d45d654f4",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:9d45d654f4",
+      "packet_suggested_name": "赤峰市",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "通辽市",
+      "school_count": 3,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:686f6852d9",
+      "assigned_node_name": "通辽市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:686f6852d9",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:686f6852d9",
+      "packet_suggested_name": "通辽市",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "鄂尔多斯市",
+      "school_count": 5,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:9a7a59dfe7",
+      "assigned_node_name": "鄂尔多斯市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:9a7a59dfe7",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:9a7a59dfe7",
+      "packet_suggested_name": "鄂尔多斯市",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "锡林郭勒盟",
+      "school_count": 1,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:f30b835886",
+      "assigned_node_name": "锡林郭勒盟",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:f30b835886",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:f30b835886",
+      "packet_suggested_name": "锡林郭勒盟",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "内蒙古",
+      "city": "阿拉善盟",
+      "school_count": 1,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:d049236f9c",
+      "assigned_node_name": "阿拉善盟",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:d049236f9c",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:d049236f9c",
+      "packet_suggested_name": "阿拉善盟",
+      "review_reasons": [
+        "geo_province_or_city_unmatched",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "东城区",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:cb54452bfe",
+      "assigned_node_name": "东城区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:cb54452bfe",
+      "packet_suggested_name": "东城区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "丰台区",
+      "school_count": 8,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:6de2c0066c",
+      "assigned_node_name": "丰台区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:6de2c0066c",
+      "packet_suggested_name": "丰台区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "大兴区",
+      "school_count": 8,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:ce99b57431",
+      "assigned_node_name": "大兴区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:ce99b57431",
+      "packet_suggested_name": "大兴区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "密云区",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:e7e7c1027a",
+      "assigned_node_name": "密云区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:e7e7c1027a",
+      "packet_suggested_name": "密云区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "延庆区",
+      "school_count": 2,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:478e0fa623",
+      "assigned_node_name": "延庆区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:478e0fa623",
+      "packet_suggested_name": "延庆区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "怀柔区",
+      "school_count": 4,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:81cd6610e2",
+      "assigned_node_name": "怀柔区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:81cd6610e2",
+      "packet_suggested_name": "怀柔区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "房山区",
+      "school_count": 5,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:2869220f96",
+      "assigned_node_name": "房山区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:2869220f96",
+      "packet_suggested_name": "房山区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "昌平区",
+      "school_count": 14,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:551b6b5265",
+      "assigned_node_name": "昌平区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:551b6b5265",
+      "packet_suggested_name": "昌平区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "朝阳区",
+      "school_count": 19,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:b841df84ef",
+      "assigned_node_name": "朝阳区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:b841df84ef",
+      "packet_suggested_name": "朝阳区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "海淀区",
+      "school_count": 39,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:f54f93fe8d",
+      "assigned_node_name": "海淀区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:f54f93fe8d",
+      "packet_suggested_name": "海淀区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "石景山区",
+      "school_count": 4,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:03236efaec",
+      "assigned_node_name": "石景山区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:03236efaec",
+      "packet_suggested_name": "石景山区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "西城区",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:39520068e7",
+      "assigned_node_name": "西城区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:39520068e7",
+      "packet_suggested_name": "西城区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "通州区",
+      "school_count": 10,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:54d7a08b58",
+      "assigned_node_name": "通州区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:54d7a08b58",
+      "packet_suggested_name": "通州区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "北京",
+      "city": "顺义区",
+      "school_count": 2,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:f4d5ccf91b",
+      "assigned_node_name": "顺义区",
+      "assigned_parent_id": "urban:city:beijing",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:city:beijing",
+      "packet_suggested_node_id": "urban:reviewed:f4d5ccf91b",
+      "packet_suggested_name": "顺义区",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping"
+      ]
+    },
+    {
+      "province": "吉林",
+      "city": "吉林市",
+      "school_count": 9,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:892eb529cc",
+      "assigned_node_name": "吉林市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:892eb529cc",
+      "packet_suggested_name": "吉林市",
+      "review_reasons": [
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "吉林",
+      "city": "四平市",
+      "school_count": 4,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:12b597e221",
+      "assigned_node_name": "四平市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:12b597e221",
+      "packet_suggested_name": "四平市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "吉林",
+      "city": "延边朝鲜族自治州",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:ef701eae67",
+      "assigned_node_name": "延边朝鲜族自治州",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:ef701eae67",
+      "packet_suggested_name": "延边朝鲜族自治州",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "吉林",
+      "city": "松原市",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:c5b229f029",
+      "assigned_node_name": "松原市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:c5b229f029",
+      "packet_suggested_name": "松原市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "吉林",
+      "city": "梅河口市",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:e7c7eabc86",
+      "assigned_node_name": "梅河口市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:e7c7eabc86",
+      "packet_suggested_name": "梅河口市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "吉林",
+      "city": "白城市",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:7b97d4a9c1",
+      "assigned_node_name": "白城市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:7b97d4a9c1",
+      "packet_suggested_name": "白城市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "吉林",
+      "city": "白山市",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:7195347e2a",
+      "assigned_node_name": "白山市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:7195347e2a",
+      "packet_suggested_name": "白山市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "吉林",
+      "city": "辽源市",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:7c1f55c049",
+      "assigned_node_name": "辽源市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:7c1f55c049",
+      "packet_suggested_name": "辽源市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "吉林",
+      "city": "通化市",
+      "school_count": 2,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:de87d99fe4",
+      "assigned_node_name": "通化市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:de87d99fe4",
+      "packet_suggested_name": "通化市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "吉林",
+      "city": "长春市",
+      "school_count": 49,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:reviewed:06d8747910",
+      "assigned_node_name": "长春市",
+      "assigned_parent_id": "urban:tier:strong_capital",
+      "assigned_confidence": 0.82,
+      "existing_seed_node_id": "urban:reviewed:06d8747910",
+      "packet_suggested_parent_id": "urban:tier:strong_capital",
+      "packet_suggested_node_id": "urban:reviewed:06d8747910",
+      "packet_suggested_name": "长春市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "乐山市",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:ec8d2cef51",
+      "assigned_node_name": "乐山市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:ec8d2cef51",
+      "packet_suggested_name": "乐山市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "内江市",
+      "school_count": 4,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:7d45d7e3a6",
+      "assigned_node_name": "内江市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:7d45d7e3a6",
+      "packet_suggested_name": "内江市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "凉山彝族自治州",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:2654ae3371",
+      "assigned_node_name": "凉山彝族自治州",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:2654ae3371",
+      "packet_suggested_name": "凉山彝族自治州",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "南充市",
+      "school_count": 5,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:f69c6ff90c",
+      "assigned_node_name": "南充市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:f69c6ff90c",
+      "packet_suggested_name": "南充市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "宜宾",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:ceaa87d65f",
+      "assigned_node_name": "宜宾",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:ceaa87d65f",
+      "packet_suggested_name": "宜宾",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "宜宾市",
+      "school_count": 4,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:full:ceaa87d65f",
+      "assigned_node_name": "宜宾",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "urban:full:ceaa87d65f",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:ceaa87d65f",
+      "packet_suggested_name": "宜宾",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "巴中市",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:780c8c4501",
+      "assigned_node_name": "巴中市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:780c8c4501",
+      "packet_suggested_name": "巴中市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "广元市",
+      "school_count": 3,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:c39d97d944",
+      "assigned_node_name": "广元市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:c39d97d944",
+      "packet_suggested_name": "广元市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "广安市",
+      "school_count": 1,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:b95ff9e122",
+      "assigned_node_name": "广安市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:b95ff9e122",
+      "packet_suggested_name": "广安市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "德阳市",
+      "school_count": 10,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:ca9f53b825",
+      "assigned_node_name": "德阳市",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:ca9f53b825",
+      "packet_suggested_name": "德阳市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "成都市",
+      "school_count": 67,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:city:chengdu",
+      "assigned_node_name": "成都",
+      "assigned_parent_id": "urban:tier:new_first",
+      "assigned_confidence": 0.9,
+      "existing_seed_node_id": "urban:city:chengdu",
+      "packet_suggested_parent_id": "",
+      "packet_suggested_node_id": "",
+      "packet_suggested_name": "",
+      "review_reasons": []
+    },
+    {
+      "province": "四川",
+      "city": "攀枝花",
+      "school_count": 2,
+      "assignment_source": "packet_suggested",
+      "needs_manual_review": true,
+      "assigned_node_id": "urban:full:58166f388e",
+      "assigned_node_name": "攀枝花",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:57d6bc6890",
+      "packet_suggested_name": "攀枝花市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    },
+    {
+      "province": "四川",
+      "city": "攀枝花市",
+      "school_count": 1,
+      "assignment_source": "existing_seed",
+      "needs_manual_review": false,
+      "assigned_node_id": "urban:full:58166f388e",
+      "assigned_node_name": "攀枝花",
+      "assigned_parent_id": "urban:tier:prefecture",
+      "assigned_confidence": 0.72,
+      "existing_seed_node_id": "urban:full:58166f388e",
+      "packet_suggested_parent_id": "urban:tier:prefecture",
+      "packet_suggested_node_id": "urban:reviewed:57d6bc6890",
+      "packet_suggested_name": "攀枝花市",
+      "review_reasons": [
+        "geo_city_not_explicitly_mapped",
+        "low_confidence_or_missing_mapping",
+        "urban_tier_unmatched"
+      ]
+    }
+  ]
+}

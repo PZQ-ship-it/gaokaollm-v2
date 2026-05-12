@@ -42,6 +42,7 @@ Start from:
 - `outputs/thesis_claims_manifest.json`: machine-readable thesis claim facts.
 - `outputs/thesis_term_mapping.json`: terminology mapping for de-engineering thesis prose.
 - `outputs/major_tree_annotation_summary.md`: major-tree annotation, DeepSeek-R1 low-confidence review, and full-coverage v2 data-contribution facts.
+- `outputs/region_urban_tier_tree_full_coverage_v2_report.md`: regional urban-tier full-coverage v2 data-contribution facts for all 414 province-city pairs.
 - `outputs/agent_benchmark_v1_hybrid_rag_pilot_evidence.md`: pilot evidence for the v1-style hybrid RAG baseline; it is a supplementary soft-constraint RAG comparison, not part of the seven-experiment thesis table.
 - `outputs/thesis_method_experiment_chapters.md`: method and experiment chapter draft.
 - `outputs/thesis_system_architecture_algorithms.md`: system architecture and algorithm draft.

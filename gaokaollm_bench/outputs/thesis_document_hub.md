@@ -7,7 +7,7 @@
 | 项目 | 当前口径 |
 | --- | --- |
 | 论文贡献结构 | 数据贡献 + Agent 贡献 + Benchmark 贡献 |
-| 数据贡献 | PostgreSQL 招生快照、专业树、学费字段、专业质量标准化层、就业结果标准化层、经人工审校的地域层级画像 |
+| 数据贡献 | PostgreSQL 招生快照、专业树、学费字段、专业质量标准化层、就业结果标准化层、经人工审校的地域层级画像、地域层级画像全量覆盖 v2 |
 | Agent 贡献 | 前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器组成的轻量 MAS/多角色 Agent，执行证据驱动 Pareto 谈判 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` |
 | 主实验 | `major_geo_v1 + risk_band_v1` |
@@ -18,7 +18,7 @@
 
 机器可读事实源：`gaokaollm_bench/outputs/thesis_claims_manifest.json`。术语事实源：`gaokaollm_bench/outputs/thesis_term_mapping.json`。
 
-专业树全量覆盖 v2 已同步到机器事实源的 `data_artifacts.major_tree_full_coverage_v2`，详细说明见 `major_tree_annotation_summary.md`。
+专业树全量覆盖 v2 已同步到机器事实源的 `data_artifacts.major_tree_full_coverage_v2`，详细说明见 `major_tree_annotation_summary.md`。地域层级画像全量覆盖 v2 已同步到机器事实源的 `data_artifacts.region_urban_tier_tree_full_coverage_v2`，详细说明见 `region_urban_tier_tree_full_coverage_v2_report.md`。
 
 ### 1.1 当前 MAS 架构事实
 
@@ -108,6 +108,7 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 | `benchmark_methodology.md` | Benchmark 方法学说明 | Benchmark schema 或评测原则变化时同步 |
 | `major_tree_methodology.md` | 专业树构建方法说明 | 专业树统计或审校流程变化时同步 |
 | `major_tree_annotation_summary.md` | 专业树标注实验与全量覆盖 v2 汇总 | 专业树覆盖、模型候选、LLM 复核或错分聚类变化时同步 |
+| `region_urban_tier_tree_full_coverage_v2_report.md` | 地域层级画像全量覆盖 v2 汇总 | 城市层级画像覆盖、别名映射或审校来源变化时同步 |
 | `thesis_hierarchical_relaxation_methodology.md` | 专业树与地域树层级放宽方法论 | 层级放宽、HITL、地域树边界变化时同步 |
 
 ### 3.4 逐例证据与实验产物
@@ -128,6 +129,7 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 | --- | --- | --- |
 | `region_tree_coverage_report.md` | 地域树 v0 覆盖报告 | 历史/数据质量报告，不作为当前论文主口径事实源 |
 | `region_tree_v1_coverage_report.md` | 地域树 v1 覆盖报告 | 历史/数据质量报告，不作为当前七实验主结果表 |
+| `region_urban_tier_tree_full_coverage_v2_report.md` | 地域层级画像全量覆盖 v2 报告 | 当前城市层级全量挂载覆盖事实源，不等价于全部语义人工确认正确 |
 | `thesis_artifact_audit.md` | 早期论文产物审计报告 | 当前用户已暂停审计；不要为了普通正文维护而更新 |
 
 ## 4. 常见修改场景同步清单

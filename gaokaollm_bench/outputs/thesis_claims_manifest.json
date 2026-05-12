@@ -11,7 +11,7 @@
       "学校-专业质量画像",
       "专业就业结果画像",
       "地理邻近层级画像",
-      "城市层级画像"
+      "城市层级画像（全量覆盖 v2）"
     ],
     "agent_contribution": {
       "mas_positioning": "基于角色分工的轻量 MAS/多角色 Agent 工作流；业务 Agent 由前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器协作完成，不夸大为完全自治多智能体系统。",
@@ -89,6 +89,34 @@
         "interpretation": "验证集候选召回较充分，剩余错误主要来自复合招生名称、叶子边界和跨父类近邻关系。"
       },
       "thesis_boundary": "论文中可写作数据贡献证据；不得写成全量人工语义确认正确，也不改变七组 Agent/Benchmark 指标。"
+    },
+    "region_urban_tier_tree_full_coverage_v2": {
+      "role": "data_contribution",
+      "artifact_type": "地域层级画像全量可审计挂载",
+      "summary": "地域层级画像已完成全量覆盖 v2；全覆盖指可审计挂载覆盖，不等于全部城市层级语义边界已经人工逐条确认正确。",
+      "source_documents": [
+        "gaokaollm_bench/outputs/region_urban_tier_tree_full_coverage_v2_report.md",
+        "gaokaollm_bench/outputs/region_urban_tier_tree_full_coverage_v2_report.json"
+      ],
+      "historical_seed_documents": [
+        "gaokaollm_bench/outputs/region_urban_tier_tree_reviewed_v1.json"
+      ],
+      "coverage": {
+        "total_city_pairs": 414,
+        "total_schools": 3219,
+        "province_count": 35,
+        "province_mapped_count": 35,
+        "urban_city_pair_mapped_count": 414,
+        "urban_city_pair_high_confidence_count": 62,
+        "review_queue_count": 0,
+        "remaining_unassigned": 0,
+        "coverage_definition": "可审计挂载覆盖：每个省-市对都进入城市层级本体的某个节点或别名命中，并保留 existing_seed、packet_suggested 或 fallback 来源。"
+      },
+      "assignment_sources": {
+        "existing_seed": 67,
+        "packet_suggested": 347
+      },
+      "thesis_boundary": "论文中可写作地域层级数据贡献证据；不得写成城市收益或 Pareto gain，也不改变七组 Agent/Benchmark 指标。"
     }
   },
   "experiments": {
@@ -187,6 +215,7 @@
       "gaokaollm_bench/outputs/benchmark_methodology.md",
       "gaokaollm_bench/outputs/major_tree_methodology.md",
       "gaokaollm_bench/outputs/major_tree_annotation_summary.md",
+      "gaokaollm_bench/outputs/region_urban_tier_tree_full_coverage_v2_report.md",
       "gaokaollm_bench/outputs/thesis_hierarchical_relaxation_methodology.md"
     ],
     "evidence": [
