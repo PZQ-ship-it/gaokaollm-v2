@@ -7,8 +7,8 @@
 | 项目 | 路径 / 状态 |
 | --- | --- |
 | 最终 PDF | `D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf` |
-| PDF 大小 | `3,565,808` bytes |
-| PDF 最近写入时间 | `2026-05-12 09:18:53` |
+| PDF 大小 | `3,572,241` bytes |
+| PDF 最近写入时间 | `2026-05-12 11:09:17` |
 | LaTeX 主入口 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\zjuthesis.tex` |
 | 正文入口 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\body\undergraduate\final\content.tex` |
 | 正文章节目录 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\body\undergraduate\final\chapters\` |
@@ -36,7 +36,7 @@
 | 验收材料 | 结论 |
 | --- | --- |
 | `thesis_latex_final_consistency_report.md` | `zjuthesis.pdf` 已生成；无 LaTeX fatal error；无 undefined references / citations；无 overfull `\hbox`。 |
-| `thesis_latex_pdf_visual_acceptance.md` | 封面、摘要、目录、核心图、专业树表、七组实验表、多轴压力测试表和附录边界页面通过页面级视觉验收。 |
+| `thesis_latex_pdf_visual_acceptance.md` | 封面、摘要、目录、核心图、专业树表、七组实验表、`v1_hybrid_rag` pilot 表、多轴压力测试表和附录边界页面通过页面级视觉验收。 |
 | `thesis_final_human_review_check.md` | 记录递交日期、英文题名、致谢、作者简历和模板字段等提交前人工待办。 |
 | `thesis_latex_pdf_snapshots/` | 关键 PDF 页面快照，可用于快速复查真实版式效果。 |
 | `thesis_figure_visual_acceptance.md` | 核心图像资产在论文 PDF 中的视觉验收记录。 |
