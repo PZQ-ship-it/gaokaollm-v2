@@ -332,6 +332,7 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
     implicit_weights.update(state.get("implicit_weights") or {})
     weight_variance = dict(DEFAULT_WEIGHT_VARIANCE)
     weight_variance.update(state.get("weight_variance") or {})
+    negotiation_turns = int(state.get("negotiation_turns") or 0)
     original_text = _latest_user_text(state)
     rewritten_text = str(state.get("rewritten_query") or "").strip()
     if rewritten_text and rewritten_text != original_text:
@@ -365,6 +366,8 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
             "missing_constraints": missing,
             "implicit_weights": implicit_weights,
             "weight_variance": weight_variance,
+            "negotiation_turns": negotiation_turns,
+            "latest_human_feedback": None,
         }
 
     baseline = await run_baseline(constraints)
@@ -382,4 +385,6 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
         "missing_constraints": [],
         "implicit_weights": implicit_weights,
         "weight_variance": weight_variance,
+        "negotiation_turns": negotiation_turns,
+        "latest_human_feedback": None,
     }

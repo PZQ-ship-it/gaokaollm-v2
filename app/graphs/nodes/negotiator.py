@@ -4,9 +4,10 @@ import re
 from typing import Any
 
 from langchain_core.messages import AIMessage, SystemMessage
+from langgraph.types import interrupt
 
 from app.core.llm_client import get_chat_model
-from app.schemas.state import AgentState
+from app.schemas.state import DEFAULT_WEIGHT_VARIANCE, AgentState
 
 
 COMPACT_FIELDS = (
@@ -52,6 +53,20 @@ COMPACT_FIELDS = (
     "target_region_name",
     "region_tree_confidence",
     "region_tree_evidence",
+)
+NEGOTIATION_VARIANCE_THRESHOLD = 1.5
+MAX_NEGOTIATION_TURNS = 3
+OPPORTUNITY_KEYS = (
+    "major_geo_relax",
+    "tuition_value_relax",
+    "major_quality_relax",
+    "employment_outcome_relax",
+    "region_tree_relax",
+    "risk_band_relax",
+    "strength_relax",
+    "geo_relax",
+    "city_relax",
+    "major_relax",
 )
 
 MAJOR_NOTE_PATTERN = re.compile(
@@ -102,6 +117,122 @@ def _join(rows: list[dict[str, Any]], *, limit: int = 3) -> str:
     if not rows:
         return "no verified option"
     return "；".join(_score_text(row) for row in rows[:limit])
+
+
+def _total_variance(state: AgentState) -> float:
+    variance = dict(DEFAULT_WEIGHT_VARIANCE)
+    raw_variance = state.get("weight_variance") or {}
+    if isinstance(raw_variance, dict):
+        variance.update(raw_variance)
+    total = 0.0
+    for value in variance.values():
+        try:
+            total += float(value)
+        except (TypeError, ValueError):
+            total += 1.0
+    return total
+
+
+def _all_opportunity_rows(opportunities: dict[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for key in OPPORTUNITY_KEYS:
+        for row in opportunities.get(key) or []:
+            if isinstance(row, dict):
+                enriched = dict(row)
+                enriched.setdefault("_opportunity_key", key)
+                rows.append(enriched)
+    return rows
+
+
+def _utility_sort_key(row: dict[str, Any]) -> tuple[float, int, str]:
+    utility = row.get("_implicit_utility")
+    try:
+        utility_value = float(utility if utility is not None else -999999.0)
+    except (TypeError, ValueError):
+        utility_value = -999999.0
+    try:
+        tier = int(row.get("tier") or 0)
+    except (TypeError, ValueError):
+        tier = 0
+    return (
+        utility_value,
+        tier,
+        str(row.get("school_name") or row.get("school") or ""),
+    )
+
+
+def _final_recommendation_text(opportunities: dict[str, Any]) -> str:
+    rows = sorted(
+        _all_opportunity_rows(opportunities),
+        key=_utility_sort_key,
+        reverse=True,
+    )[:3]
+    if not rows:
+        return "当前没有足够的可核验证据形成最终推荐表。"
+
+    lines = ["偏好已经基本收敛，以下是按当前隐性效用排序的 Top-3 可核验候选："]
+    for index, row in enumerate(rows, start=1):
+        utility = row.get("_implicit_utility")
+        utility_text = ""
+        if utility is not None:
+            try:
+                utility_text = f" utility={float(utility):.3f}"
+            except (TypeError, ValueError):
+                utility_text = f" utility={utility}"
+        lines.append(f"{index}. {_score_text(row)}{utility_text}")
+    return "\n".join(lines)
+
+
+def _first_available_axis(state: AgentState) -> tuple[str, list[dict[str, Any]]]:
+    opportunities = state.get("pareto_opportunities", {}) or {}
+    rankings = [
+        str(item)
+        for item in state.get("opportunity_rankings", [])
+        if isinstance(item, str)
+    ]
+    for key in [*rankings, *OPPORTUNITY_KEYS]:
+        rows = opportunities.get(key) or []
+        if rows:
+            return key, rows
+    return "", []
+
+
+def _question_for_axis(state: AgentState) -> str:
+    key, rows = _first_available_axis(state)
+    top = rows[0] if rows and isinstance(rows[0], dict) else {}
+    school = top.get("school_name") or top.get("school") or "更高收益方案"
+    province = top.get("school_province") or top.get("province") or ""
+    tier = top.get("tier")
+    tuition = top.get("tuition")
+    tuition_delta = top.get("tuition_delta")
+
+    if key in {"major_geo_relax", "geo_relax", "city_relax", "major_relax"}:
+        place = f"{province}" if province else "外省/新地域"
+        tier_text = f" tier={tier}" if tier is not None else ""
+        return (
+            f"我发现如果放宽地域或专业边界，可以看到 {school}（{place}{tier_text}）。"
+            "你能接受这类跨地域/相近专业的妥协吗？"
+        )
+    if key == "tuition_value_relax":
+        delta_text = (
+            f"学费增加约 {tuition_delta}"
+            if tuition_delta is not None
+            else f"学费约 {tuition}"
+        )
+        return (
+            f"我发现小幅放宽预算后会出现 {school}，{delta_text}。你能接受小幅超预算吗？"
+        )
+    if key == "risk_band_relax":
+        return "我可以把方案从单一求稳扩展成冲稳保组合。你能接受保留少量冲刺志愿吗？"
+    if key in {"major_quality_relax", "strength_relax"}:
+        return f"我发现 {school} 的专业/学校质量证据更强。你愿意优先考虑质量提升吗？"
+    if key == "employment_outcome_relax":
+        return f"我发现 {school} 的就业结果证据更强。你愿意把就业表现作为更高优先级吗？"
+    if key == "region_tree_relax":
+        return "我可以按地域树放宽到相近城市圈或城市层级。你能接受这种地域替代吗？"
+    return (
+        "我还不确定你更愿意牺牲哪一项约束。你能接受小幅放宽地域来换取更高学校层次吗？"
+    )
 
 
 def _fallback_reply(evidence: dict[str, Any]) -> str:
@@ -353,6 +484,25 @@ def _fallback_reply_v2(evidence: dict[str, Any]) -> str:
 
 
 async def negotiator_node(state: AgentState) -> dict[str, Any]:
+    print("[negotiator] generating options")
+    opportunities = state.get("pareto_opportunities", {})
+    total_var = _total_variance(state)
+    turns = int(state.get("negotiation_turns") or 0)
+    if total_var < NEGOTIATION_VARIANCE_THRESHOLD or turns >= MAX_NEGOTIATION_TURNS:
+        return {
+            "messages": [AIMessage(content=_final_recommendation_text(opportunities))],
+            "latest_human_feedback": None,
+        }
+
+    question_text = _question_for_axis(state)
+    user_reply = interrupt(question_text)
+    return {
+        "latest_human_feedback": str(user_reply),
+        "negotiation_turns": turns + 1,
+    }
+
+
+async def legacy_negotiator_node(state: AgentState) -> dict[str, Any]:
     print("[negotiator] generating options")
     opportunities = state.get("pareto_opportunities", {})
     evidence = {

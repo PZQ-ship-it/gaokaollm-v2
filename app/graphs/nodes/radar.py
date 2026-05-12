@@ -23,7 +23,7 @@ PROBE_KEYS = [
     "major_relax",
 ]
 
-EMPTY_OPPORTUNITIES = {
+EMPTY_OPPORTUNITIES: dict[str, list[dict[str, Any]]] = {
     "geo_relax": [],
     "city_relax": [],
     "major_relax": [],
@@ -206,7 +206,7 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
     print(f"[radar] baseline={len(baseline)} score_waste={score_waste}")
     plan = await _build_probe_plan(state)
     if score_waste > 15 or not baseline or has_negotiable_constraint:
-        opportunities = await run_all_probes(constraints, user_state=state)
+        opportunities = await run_all_probes(constraints, user_state=dict(state))
     else:
         opportunities = dict(EMPTY_OPPORTUNITIES)
 

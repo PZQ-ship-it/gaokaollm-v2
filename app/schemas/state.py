@@ -34,4 +34,6 @@ class AgentState(TypedDict, total=False):
     opportunity_rankings: list[str]
     implicit_weights: dict[str, float]
     weight_variance: dict[str, float]
+    negotiation_turns: int
+    latest_human_feedback: str | None
     clarification_hint: NotRequired[str | None]

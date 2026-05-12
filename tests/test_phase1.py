@@ -27,12 +27,16 @@ def test_agent_state_and_user_constraints_contract():
         "pareto_opportunities": {},
         "implicit_weights": dict(DEFAULT_IMPLICIT_WEIGHTS),
         "weight_variance": dict(DEFAULT_WEIGHT_VARIANCE),
+        "negotiation_turns": 0,
+        "latest_human_feedback": None,
     }
 
     assert state["constraints"]["score"] == 600
     assert state["messages"][0].content == "600分必须在北京读临床"
     assert state["implicit_weights"]["school"] == 0.25
     assert state["weight_variance"]["tuition"] == 1.0
+    assert state["negotiation_turns"] == 0
+    assert state["latest_human_feedback"] is None
 
 
 @pytest.mark.asyncio
