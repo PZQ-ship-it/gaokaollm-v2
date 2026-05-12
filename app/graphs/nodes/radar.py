@@ -105,8 +105,25 @@ def _is_global_baseline_plan(plan: dict[str, Any]) -> bool:
     return str(first.get("probe_name") or "") == GLOBAL_BASELINE_PROBE
 
 
+def _iter_rows(value: Any) -> list[dict[str, Any]]:
+    if isinstance(value, list):
+        return [dict(row) for row in value if isinstance(row, dict)]
+    if isinstance(value, dict):
+        rows: list[dict[str, Any]] = []
+        for bucket, bucket_rows in value.items():
+            if not isinstance(bucket_rows, list):
+                continue
+            for row in bucket_rows:
+                if isinstance(row, dict):
+                    item = dict(row)
+                    item.setdefault("risk_bucket", str(bucket))
+                    rows.append(item)
+        return rows
+    return []
+
+
 def _flatten_candidates(
-    opportunities: dict[str, list[dict[str, Any]]],
+    opportunities: dict[str, Any],
     rankings: list[str],
 ) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
@@ -116,7 +133,7 @@ def _flatten_candidates(
         *[key for key in EMPTY_OPPORTUNITIES if key in opportunities],
     ]
     for key in ordered_keys:
-        for row in opportunities.get(key) or []:
+        for row in _iter_rows(opportunities.get(key)):
             if not isinstance(row, dict):
                 continue
             item = dict(row)
@@ -413,8 +430,9 @@ async def radar_node(state: AgentState) -> dict[str, Any]:
     plan = await _build_probe_plan(state)
 
     if _is_global_baseline_plan(plan):
-        candidates = await probe_global_baseline(dict(state))
-        opportunities = {"global_baseline": candidates}
+        global_result: Any = await probe_global_baseline(dict(state))
+        opportunities: dict[str, Any] = {"global_baseline": global_result}
+        candidates = _iter_rows(global_result)
         print(f"[radar] global_baseline={len(candidates)}")
         return {
             "pareto_opportunities": opportunities,

@@ -38,4 +38,5 @@ class AgentState(TypedDict, total=False):
     negotiation_turns: int
     latest_human_feedback: str | None
     latest_agent_probe_question: str | None
+    latest_pareto_diff: dict[str, float] | None
     clarification_hint: NotRequired[str | None]

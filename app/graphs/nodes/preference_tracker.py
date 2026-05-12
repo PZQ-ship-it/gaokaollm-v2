@@ -1,4 +1,5 @@
 from copy import deepcopy
+import math
 from typing import Any, Literal
 
 from langchain_core.messages import SystemMessage
@@ -23,6 +24,8 @@ PREFERENCE_KEYS: tuple[PreferenceKey, ...] = (
     "quality",
     "geo",
 )
+BT_TAU = 3.0
+BT_LEARNING_RATE = 0.3
 
 
 class FeedbackAnalysis(BaseModel):
@@ -66,26 +69,74 @@ def _safe_variance(raw_variance: dict[str, Any] | None) -> dict[str, float]:
     return variance
 
 
+def _safe_delta_phi(
+    delta_phi: dict[str, Any] | None,
+    analysis: FeedbackAnalysis,
+) -> dict[str, float]:
+    delta: dict[str, float] = {key: 0.0 for key in PREFERENCE_KEYS}
+    if isinstance(delta_phi, dict):
+        for key in PREFERENCE_KEYS:
+            try:
+                delta[key] = float(delta_phi.get(key, 0.0))
+            except (TypeError, ValueError):
+                delta[key] = 0.0
+    if any(abs(value) > 1e-9 for value in delta.values()):
+        return delta
+
+    target = analysis.target_dimension
+    if target in PREFERENCE_KEYS:
+        # Compatibility fallback for old tests/threads without a stored Pareto diff.
+        delta[target] = 1.0 if analysis.intent == "accept" else -1.0
+    else:
+        delta["school"] = 1.0
+        delta["geo"] = -1.0
+    return delta
+
+
 def apply_feedback_update(
     weights: dict[str, Any] | None,
     variance: dict[str, Any] | None,
     analysis: FeedbackAnalysis,
+    delta_phi: dict[str, Any] | None = None,
 ) -> tuple[dict[str, float], dict[str, float]]:
-    new_weights = _safe_weights(deepcopy(weights))
+    old_weights = _normalized(_safe_weights(deepcopy(weights)))
+    new_weights = dict(old_weights)
     new_variance = _safe_variance(deepcopy(variance))
     target = analysis.target_dimension
 
-    # 这是基于用户反馈的隐性偏好信念状态（Belief State）后验更新：
-    # 接受/拒绝反馈会更新对应维度的均值与方差；模糊反馈采用 D-S 理论的
-    # ignorance 处理，只提高不确定性，绝不擅自改变权重均值。
-    if analysis.intent == "accept" and target in PREFERENCE_KEYS:
-        new_weights[target] = float(new_weights.get(target, 0.0)) + 0.15
-        new_variance[target] = float(new_variance.get(target, 1.0)) * 0.5
-    elif analysis.intent == "reject" and target in PREFERENCE_KEYS:
-        new_weights[target] = float(new_weights.get(target, 0.0)) + 0.20
-        new_variance[target] = float(new_variance.get(target, 1.0)) * 0.1
-    elif analysis.intent == "hesitate" and target in PREFERENCE_KEYS:
-        new_variance[target] = min(1.0, float(new_variance.get(target, 1.0)) * 1.2)
+    if analysis.intent == "hesitate":
+        # 应对模糊意图的 D-S 理论更新：均值绝对不动，只把不确定性推高。
+        if target in PREFERENCE_KEYS:
+            new_variance[target] = min(
+                1.0,
+                float(new_variance.get(target, 1.0)) * 1.2,
+            )
+        else:
+            for key in PREFERENCE_KEYS:
+                new_variance[key] = min(
+                    1.0,
+                    float(new_variance.get(key, 1.0)) * 1.2,
+                )
+    elif analysis.intent in {"accept", "reject"}:
+        delta = _safe_delta_phi(delta_phi, analysis)
+        delta_u = sum(old_weights[key] * delta.get(key, 0.0) for key in PREFERENCE_KEYS)
+        delta_u = max(-10.0, min(10.0, float(delta_u)))
+        p_choose_b = 1.0 / (1.0 + math.exp(-BT_TAU * delta_u))
+        label = 1.0 if analysis.intent == "accept" else 0.0
+
+        # Logistic Regression Gradient Ascent based on Bradley-Terry Choice Model
+        # (基于随机效用的离散梯度近似)：把用户对 A/B 的选择反馈转化为
+        # delta_phi 方向上的对数似然梯度，而不是固定步长的启发式调整。
+        for key in PREFERENCE_KEYS:
+            new_weights[key] = old_weights[key] + (
+                BT_LEARNING_RATE * (label - p_choose_b) * delta.get(key, 0.0)
+            )
+            new_variance[key] = float(new_variance.get(key, 1.0)) * 0.5
+    elif target in PREFERENCE_KEYS:
+        new_variance[target] = min(
+            1.0,
+            float(new_variance.get(target, 1.0)) * 1.2,
+        )
     else:
         for key in PREFERENCE_KEYS:
             new_variance[key] = min(1.0, float(new_variance.get(key, 1.0)) * 1.2)
@@ -153,6 +204,7 @@ async def preference_tracker_node(state: AgentState) -> dict[str, Any]:
         state.get("implicit_weights"),
         state.get("weight_variance"),
         analysis,
+        state.get("latest_pareto_diff"),
     )
 
     return {
@@ -160,4 +212,5 @@ async def preference_tracker_node(state: AgentState) -> dict[str, Any]:
         "weight_variance": variance,
         "latest_human_feedback": None,
         "latest_agent_probe_question": None,
+        "latest_pareto_diff": None,
     }

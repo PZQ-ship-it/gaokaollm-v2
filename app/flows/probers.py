@@ -26,6 +26,7 @@ DEFAULT_REGION_URBAN_TREE_PATH = Path(
     "gaokaollm_bench/outputs/region_urban_tier_tree_reviewed_v1.json"
 )
 UTILITY_FEATURE_KEYS = ("school", "major", "tuition", "quality", "geo")
+GLOBAL_BASELINE_BUCKETS = ("reach", "match", "safety")
 SPECIAL_MAJOR_TERMS = (
     "中外合作",
     "合作办学",
@@ -85,6 +86,19 @@ def _utility_weights(user_state: dict[str, Any] | None) -> dict[str, float]:
     return weights
 
 
+def _quality_bounds(candidates: list[dict[str, Any]]) -> tuple[float, float] | None:
+    scores: list[float] = []
+    for candidate in candidates or []:
+        if not isinstance(candidate, dict):
+            continue
+        score = _coerce_float(candidate.get("quality_score"))
+        if score is not None:
+            scores.append(score)
+    if not scores:
+        return None
+    return min(scores), max(scores)
+
+
 def _school_phi(candidate_dict: dict[str, Any]) -> float:
     tier_text = " ".join(
         str(candidate_dict.get(key) or "")
@@ -127,6 +141,7 @@ def _school_phi(candidate_dict: dict[str, Any]) -> float:
 def extract_phi_features(
     candidate_dict: dict[str, Any],
     user_state: dict[str, Any] | None,
+    quality_bounds: tuple[float, float] | None = None,
 ) -> dict[str, float]:
     """Map a physical SQL row to dimensionless MAUT feature values."""
 
@@ -163,9 +178,20 @@ def extract_phi_features(
 
     try:
         quality_score = _coerce_float(candidate.get("quality_score"))
-        features["quality"] = (
-            _clamp_unit(quality_score / 100.0) if quality_score is not None else 0.5
-        )
+        if quality_score is None:
+            features["quality"] = 0.5
+        elif quality_bounds is not None:
+            q_min, q_max = quality_bounds
+            if q_max <= q_min:
+                features["quality"] = 0.5
+            else:
+                # 候选池局部 Min-Max 归一化：把本轮探测池内的质量差距拉开，
+                # 避免固定除以 100 后高低质量方案在效用空间里过度同质化。
+                features["quality"] = _clamp_unit(
+                    (quality_score - q_min) / (q_max - q_min)
+                )
+        else:
+            features["quality"] = _clamp_unit(quality_score / 100.0)
     except Exception:
         features["quality"] = 0.5
 
@@ -193,11 +219,15 @@ def rank_by_implicit_utility(
     user_state: dict[str, Any] | None,
 ) -> list[dict[str, Any]]:
     weights = _utility_weights(user_state)
+    rows = [
+        dict(candidate) if isinstance(candidate, dict) else {}
+        for candidate in candidates or []
+    ]
+    quality_bounds = _quality_bounds(rows)
     ranked: list[dict[str, Any]] = []
-    for candidate in candidates or []:
-        row = dict(candidate) if isinstance(candidate, dict) else {}
+    for row in rows:
         try:
-            features = extract_phi_features(row, user_state)
+            features = extract_phi_features(row, user_state, quality_bounds)
             utility = sum(
                 weights.get(key, 0.0) * features.get(key, 0.0)
                 for key in UTILITY_FEATURE_KEYS
@@ -966,12 +996,88 @@ async def run_baseline(
     return await _fetch(db, query, params)
 
 
+def _score_margin_for_bucket(
+    row: dict[str, Any],
+    constraints: dict[str, Any],
+    *,
+    index: int,
+    total: int,
+) -> float | None:
+    explicit_margin = _coerce_float(row.get("score_margin"))
+    if explicit_margin is not None:
+        return explicit_margin
+
+    score = _coerce_float(constraints.get("score"))
+    min_score = _coerce_float(row.get("min_score"))
+    if score is not None and min_score is not None:
+        return score - min_score
+
+    if total <= 0:
+        return None
+    ratio = index / max(total - 1, 1)
+    if ratio < 1 / 3:
+        return -5.0 + ratio * 30.0
+    if ratio < 2 / 3:
+        return 6.0 + (ratio - 1 / 3) * 27.0
+    return 16.0 + (ratio - 2 / 3) * 60.0
+
+
+def _global_bucket(score_margin: float | None) -> str | None:
+    if score_margin is None:
+        return None
+    if -5.0 <= score_margin <= 5.0:
+        return "reach"
+    if 5.0 < score_margin <= 15.0:
+        return "match"
+    if score_margin > 15.0:
+        return "safety"
+    return None
+
+
+def build_recommendation_matrix(
+    ranked_candidates: list[dict[str, Any]],
+    user_state: dict[str, Any] | None,
+    *,
+    limit_per_bucket: int = 3,
+) -> dict[str, list[dict[str, Any]]]:
+    constraints = _state_constraints(user_state)
+    matrix: dict[str, list[dict[str, Any]]] = {
+        key: [] for key in GLOBAL_BASELINE_BUCKETS
+    }
+    total = len(ranked_candidates or [])
+    for index, candidate in enumerate(ranked_candidates or []):
+        if not isinstance(candidate, dict):
+            continue
+        row = dict(candidate)
+        margin = _score_margin_for_bucket(
+            row,
+            constraints,
+            index=index,
+            total=total,
+        )
+        bucket = _global_bucket(margin)
+        if bucket is None:
+            continue
+        margin_value = 0.0 if margin is None else float(margin)
+        row["score_margin"] = round(margin_value, 3)
+        row["risk_bucket"] = bucket
+        matrix[bucket].append(row)
+
+    for bucket in GLOBAL_BASELINE_BUCKETS:
+        matrix[bucket] = sorted(
+            matrix[bucket],
+            key=lambda row: float(row.get("_implicit_utility") or -999999.0),
+            reverse=True,
+        )[:limit_per_bucket]
+    return matrix
+
+
 async def probe_global_baseline(
     user_state: dict[str, Any],
     db: Any = None,
     limit: int = 5,
     pool_size: int = 100,
-) -> list[dict[str, Any]]:
+) -> dict[str, list[dict[str, Any]]]:
     """Search the hard-feasible domain, then rank globally by implicit utility."""
 
     constraints = _state_constraints(user_state)
@@ -982,7 +1088,12 @@ async def probe_global_baseline(
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
     candidates = await _fetch(db, query, params)
-    return rank_by_implicit_utility(candidates, user_state)[:limit]
+    ranked = rank_by_implicit_utility(candidates, user_state)
+    return build_recommendation_matrix(
+        ranked,
+        user_state,
+        limit_per_bucket=max(1, min(3, limit)),
+    )
 
 
 async def _student_rank_for_score(

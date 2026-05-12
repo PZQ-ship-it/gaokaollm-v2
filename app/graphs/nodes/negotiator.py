@@ -72,6 +72,7 @@ OPPORTUNITY_KEYS = (
 
 GLOBAL_BASELINE_PROBE = "probe_global_baseline"
 PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
+GLOBAL_BASELINE_BUCKETS = ("reach", "match", "safety")
 
 MAJOR_NOTE_PATTERN = re.compile(
     r"[\(（][^()（）]*(?:学院|校区|班|方向)[^()（）]*[\)）]"
@@ -137,10 +138,27 @@ def _total_variance(state: AgentState) -> float:
     return total
 
 
+def _iter_rows(value: Any) -> list[dict[str, Any]]:
+    if isinstance(value, list):
+        return [dict(row) for row in value if isinstance(row, dict)]
+    if isinstance(value, dict):
+        rows: list[dict[str, Any]] = []
+        for bucket, bucket_rows in value.items():
+            if not isinstance(bucket_rows, list):
+                continue
+            for row in bucket_rows:
+                if isinstance(row, dict):
+                    item = dict(row)
+                    item.setdefault("risk_bucket", str(bucket))
+                    rows.append(item)
+        return rows
+    return []
+
+
 def _all_opportunity_rows(opportunities: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for key in OPPORTUNITY_KEYS:
-        for row in opportunities.get(key) or []:
+        for row in _iter_rows(opportunities.get(key)):
             if isinstance(row, dict):
                 enriched = dict(row)
                 enriched.setdefault("_opportunity_key", key)
@@ -180,7 +198,7 @@ def _current_probe_name(state: AgentState) -> str:
 def _candidate_rows(state: AgentState) -> list[dict[str, Any]]:
     explicit = state.get("candidates") or []
     if explicit:
-        return [dict(row) for row in explicit if isinstance(row, dict)]
+        return _iter_rows(explicit)
     return sorted(
         _all_opportunity_rows(state.get("pareto_opportunities", {}) or {}),
         key=_utility_sort_key,
@@ -210,19 +228,70 @@ def _phi_diff(a: dict[str, Any], b: dict[str, Any]) -> dict[str, float]:
     return diff
 
 
-def _pareto_prompt_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    option_a = rows[0] if rows else {}
-    option_b = rows[1] if len(rows) > 1 else {}
+def _phi_delta_b_minus_a(a: dict[str, Any], b: dict[str, Any]) -> dict[str, float]:
+    raw_a_features = a.get("_phi_features")
+    raw_b_features = b.get("_phi_features")
+    a_features = raw_a_features if isinstance(raw_a_features, dict) else {}
+    b_features = raw_b_features if isinstance(raw_b_features, dict) else {}
+    diff: dict[str, float] = {}
+    for key in PREFERENCE_KEYS:
+        try:
+            diff[key] = float(b_features.get(key, 0.0)) - float(
+                a_features.get(key, 0.0)
+            )
+        except (TypeError, ValueError):
+            diff[key] = 0.0
+    return diff
+
+
+def select_max_divergence_pair(
+    candidates: list[dict[str, Any]],
+    *,
+    top_k: int = 10,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, float]]:
+    rows = sorted(
+        [dict(row) for row in candidates if isinstance(row, dict)],
+        key=_utility_sort_key,
+        reverse=True,
+    )
+    if not rows:
+        return {}, {}, {key: 0.0 for key in PREFERENCE_KEYS}
+    option_a = rows[0]
+    if len(rows) == 1:
+        return option_a, {}, {key: 0.0 for key in PREFERENCE_KEYS}
+
+    best_b = rows[1]
+    best_delta = _phi_delta_b_minus_a(option_a, best_b)
+    best_distance = sum(abs(value) for value in best_delta.values())
+    for candidate in rows[1:top_k]:
+        delta = _phi_delta_b_minus_a(option_a, candidate)
+        distance = sum(abs(value) for value in delta.values())
+        if distance > best_distance:
+            best_b = candidate
+            best_delta = delta
+            best_distance = distance
+    return option_a, best_b, best_delta
+
+
+def _pareto_prompt_payload(
+    option_a: dict[str, Any],
+    option_b: dict[str, Any],
+    delta_phi: dict[str, float],
+) -> dict[str, Any]:
     return {
         "option_a": _compact([option_a])[0] if option_a else {},
         "option_b": _compact([option_b])[0] if option_b else {},
-        "phi_diff_a_minus_b": _phi_diff(option_a, option_b),
+        "delta_phi_b_minus_a": delta_phi,
     }
 
 
-def _fallback_pareto_question(rows: list[dict[str, Any]]) -> str:
-    payload = _pareto_prompt_payload(rows)
-    diff = payload.get("phi_diff_a_minus_b") or {}
+def _fallback_pareto_question(
+    option_a: dict[str, Any],
+    option_b: dict[str, Any],
+    delta_phi: dict[str, float],
+) -> str:
+    payload = _pareto_prompt_payload(option_a, option_b, delta_phi)
+    diff = payload.get("delta_phi_b_minus_a") or {}
     positive = [
         (key, value)
         for key, value in diff.items()
@@ -246,6 +315,7 @@ def _fallback_pareto_question(rows: list[dict[str, Any]]) -> str:
 def _xai_fallback_text(
     weights: dict[str, Any],
     candidates: list[dict[str, Any]],
+    recommendation_matrix: dict[str, list[dict[str, Any]]] | None = None,
 ) -> str:
     sorted_weights = sorted(
         ((key, float(weights.get(key, 0.0))) for key in PREFERENCE_KEYS),
@@ -257,27 +327,62 @@ def _xai_fallback_text(
         f"偏好解释：系统根据多轮反馈推断出的权重为 {weight_text}。这意味着最终推荐会优先尊重权重更高的维度，同时避免已识别的硬性底线。",
         "最终推荐名单：",
     ]
-    for index, row in enumerate(candidates[:5], start=1):
-        lines.append(f"{index}. {_score_text(row)}")
+    matrix = recommendation_matrix or {}
+    if any(matrix.get(bucket) for bucket in GLOBAL_BASELINE_BUCKETS):
+        labels = {"reach": "Reach", "match": "Match", "safety": "Safety"}
+        for bucket in GLOBAL_BASELINE_BUCKETS:
+            bucket_rows = matrix.get(bucket) or []
+            if not bucket_rows:
+                continue
+            lines.append(f"{labels[bucket]}:")
+            for index, row in enumerate(bucket_rows[:3], start=1):
+                lines.append(f"{index}. {_score_text(row)}")
+    else:
+        for index, row in enumerate(candidates[:5], start=1):
+            lines.append(f"{index}. {_score_text(row)}")
     return "\n".join(lines)
 
 
-async def _generate_pareto_question(state: AgentState) -> str:
-    rows = _candidate_rows(state)[:2]
-    fallback = _fallback_pareto_question(rows)
+def _global_recommendation_matrix(state: AgentState) -> dict[str, list[dict[str, Any]]]:
+    opportunities = state.get("pareto_opportunities", {}) or {}
+    global_result = (
+        opportunities.get("global_baseline")
+        if isinstance(opportunities, dict)
+        else None
+    )
+    if isinstance(global_result, dict):
+        return {
+            key: _iter_rows(global_result.get(key)) for key in GLOBAL_BASELINE_BUCKETS
+        }
+    rows = _candidate_rows(state)
+    matrix: dict[str, list[dict[str, Any]]] = {
+        key: [] for key in GLOBAL_BASELINE_BUCKETS
+    }
+    for row in rows:
+        bucket = str(row.get("risk_bucket") or row.get("risk_level") or "")
+        if bucket in matrix:
+            matrix[bucket].append(row)
+    return matrix
+
+
+async def _generate_pareto_question(
+    state: AgentState,
+) -> tuple[str, dict[str, float]]:
+    option_a, option_b, delta_phi = select_max_divergence_pair(_candidate_rows(state))
+    fallback = _fallback_pareto_question(option_a, option_b, delta_phi)
     instruction = (
         "你是一个谈判专家。请基于方案A和B的特征差异，向用户发起一个简短的"
         "‘二选一帕累托权衡提问’。必须明确使用‘牺牲/放宽 [代价维度] 换取 "
         "[收益维度] 跃迁’这种边际替代率（MRS）句式！直接提问，绝不要寒暄或做最终推荐！"
     )
     if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
-        return fallback
+        return fallback, delta_phi
     llm = get_chat_model()
     prompt = [
         SystemMessage(content=instruction),
         SystemMessage(
             content=json.dumps(
-                _pareto_prompt_payload(rows),
+                _pareto_prompt_payload(option_a, option_b, delta_phi),
                 ensure_ascii=False,
                 default=str,
             )
@@ -286,24 +391,31 @@ async def _generate_pareto_question(state: AgentState) -> str:
     try:
         response = await llm.ainvoke(prompt)
         question = str(response.content).strip()
-        return question or fallback
+        return question or fallback, delta_phi
     except Exception as exc:
         print(
             "[negotiator] pareto_question_failed="
             f"{type(exc).__name__}; using fallback question"
         )
-        return fallback
+        return fallback, delta_phi
 
 
 async def _generate_xai_recommendation(state: AgentState) -> str:
     weights = state.get("implicit_weights") or {}
-    candidates = _candidate_rows(state)[:5]
-    fallback = _xai_fallback_text(weights, candidates)
+    recommendation_matrix = _global_recommendation_matrix(state)
+    matrix_candidates = _iter_rows(recommendation_matrix)
+    candidates = (matrix_candidates or _candidate_rows(state))[:9]
+    fallback = _xai_fallback_text(weights, candidates, recommendation_matrix)
     instruction = (
         "探测已收敛，请输出最终志愿表。你必须在报告的第一段进行‘显示性偏好解释’："
         "用极具专业感和体贴的自然语言，向用户解释系统推断出的真实偏好权重"
         "（如：系统发现您极度看重核心专业，但对地域具有较高的妥协弹性）。"
         "然后再基于此模型展示最终推荐名单。"
+    )
+    instruction = (
+        instruction
+        + "\nEndgame matrix requirement: when reach/match/safety buckets are present, "
+        "write the final report in three clear layers: Reach, Match, and Safety."
     )
     if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
         return fallback
@@ -314,6 +426,10 @@ async def _generate_xai_recommendation(state: AgentState) -> str:
             content=json.dumps(
                 {
                     "implicit_weights": weights,
+                    "recommendation_matrix": {
+                        key: _compact(value)
+                        for key, value in recommendation_matrix.items()
+                    },
                     "final_candidates": _compact(candidates),
                 },
                 ensure_ascii=False,
@@ -667,11 +783,12 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
             "latest_agent_probe_question": None,
         }
 
-    question_text = await _generate_pareto_question(state)
+    question_text, latest_pareto_diff = await _generate_pareto_question(state)
     user_reply = interrupt(question_text)
     return {
         "latest_human_feedback": str(user_reply),
         "latest_agent_probe_question": question_text,
+        "latest_pareto_diff": latest_pareto_diff,
         "negotiation_turns": turns + 1,
     }
 

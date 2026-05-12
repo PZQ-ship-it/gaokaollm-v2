@@ -369,6 +369,7 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
             "negotiation_turns": negotiation_turns,
             "latest_human_feedback": None,
             "latest_agent_probe_question": None,
+            "latest_pareto_diff": None,
         }
 
     baseline = await run_baseline(constraints)
@@ -389,4 +390,5 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
         "negotiation_turns": negotiation_turns,
         "latest_human_feedback": None,
         "latest_agent_probe_question": None,
+        "latest_pareto_diff": None,
     }
