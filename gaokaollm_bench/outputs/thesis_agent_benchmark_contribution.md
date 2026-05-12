@@ -12,7 +12,7 @@
 
 | 贡献层次 | 核心内容 | 论文作用 |
 |---|---|---|
-| 数据贡献 | PostgreSQL 招生快照、分数/位次、学费字段、专业树、`school_major_quality_profiles`、`major_employment_outcome_profiles`、`region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json` | 为推荐、放宽和评测提供可核验事实基础 |
+| 数据贡献 | PostgreSQL 招生快照、分数/位次、学费字段、专业层级本体全量覆盖 v2、学校-专业质量画像、专业就业结果画像、经人工审校的地域层级画像 | 为推荐、放宽和评测提供可核验事实基础 |
 | Agent 贡献 | LangGraph 轻量 MAS：前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器，支持多类证据驱动 Pareto 谈判 | 证明业务 Agent 能主动提出有事实依据的偏好妥协方案 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` 对照 | 证明改进不是主观叙事，而是可复现实验结果 |
 
@@ -27,11 +27,12 @@
 | 招生事实快照 | `admission_scores`、`school_admission_scores`、`score_rank_segments`、`batch_lines` | 最低分、最低位次、批次、分数可达性 |
 | 招生计划学费 | `admission_plans.tuition` | `tuition_value_relax` 的学费增量和预算性价比证据 |
 | 学校与专业维表 | `schools`、`majors`、专业树 artifact | 地域、学校 tier/ranking、专业层级放宽 |
-| 专业质量标准化层 | `discipline_major_mappings`、`school_major_quality_signals`、`school_major_quality_profiles` | `major_quality_relax` 的质量评分、专业排名、学科评估、特色/重点/满意度证据 |
-| 就业结果标准化层 | `major_employment_profiles` -> `major_employment_outcome_profiles` | `employment_outcome_relax` 的就业排名、行业、岗位、薪资和 `outcome_score` 证据 |
-| 地域树 reviewed v1 标准化层 | `region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json`、HITL review packet、coverage report | `region_tree_relax` 的 `geo_block_relax`、`urban_tier_relax`、源/目标地域节点和树置信度证据 |
+| 专业层级本体全量覆盖 v2 | 规则挂载、probe 候选、DeepSeek-R1 低置信复核和 fallback 可审计挂载 | `22,759 / 22,759` 个原始去重专业名、`140,995 / 140,995` 条录取记录完成可审计挂载，`remaining_unassigned = 0`；不等于全部语义边界人工确认正确 |
+| 学校-专业质量画像 | 学科评估、专业排名、特色/重点/满意度等质量信号 | `major_quality_relax` 的质量评分、专业排名、学科评估、特色/重点/满意度证据 |
+| 专业就业结果画像 | 就业排名、行业、岗位、薪资和结果评分 | `employment_outcome_relax` 的就业排名、行业、岗位、薪资和结果评分证据 |
+| 经人工审校的地域层级画像 | 地理邻近层级画像、城市层级画像、HITL review packet、coverage report | `region_tree_relax` 的 `geo_block_relax`、`urban_tier_relax`、源/目标地域节点和树置信度证据 |
 
-数据贡献的重点不是把所有表简单堆进数据库，而是把招生事实、专业质量、就业画像和地域树 reviewed 节点转化为 Agent 可表达、Benchmark 可核验、Transcript 可追溯的证据字段。
+数据贡献的重点不是把所有表简单堆进数据库，而是把招生事实、专业质量、就业画像和经人工审校的地域层级节点转化为 Agent 可表达、Benchmark 可核验、Transcript 可追溯的证据字段。
 
 ## Benchmark 贡献
 
@@ -47,7 +48,7 @@
 | `tuition_value_v1` | 扩展实验 | 学费预算保守 | 看到学费增量、最低分和学校收益证据后，可接受小幅超预算方案 | 预算性价比谈判 |
 | `major_quality_v1` | 扩展实验 | 优先保持目标专业 | 看到专业质量证据后，可接受跨省或替代学校中的更强学校-专业方案 | 专业质量证据跃迁 |
 | `employment_outcome_v1` | 扩展实验 | 希望就业和薪资稳定，但对省外或相近专业保守 | 看到就业排名、行业、岗位、薪资和最低分证据后，可接受就业结果更强的近邻方案 | 就业导向放宽 |
-| `region_tree_v1` | 扩展实验 | 坚持杭州/浙江/别太远/想去好城市等地域偏好 | 看到真实最低分/位次和 reviewed 地域树阶段证据后，可接受相邻地理板块或城市层级候选 | 地域树层级放宽 |
+| `region_tree_v1` | 扩展实验 | 坚持杭州/浙江/别太远/想去好城市等地域偏好 | 看到真实最低分/位次和经人工审校的地域层级阶段证据后，可接受相邻地理板块或城市层级候选 | 地域层级放宽 |
 
 Benchmark 的关键设计包括：
 
@@ -85,7 +86,7 @@ Benchmark 的关键设计包括：
 | `employment_outcome_relax` | 扩展能力 | 就业导向与相近专业就业结果 | `employment_rank`、`top_city`、`top_industry`、`job_distribution`、`salary_distribution`、`outcome_score`、`outcome_gain` |
 | `region_tree_relax` | 扩展能力 | 地理板块或城市层级偏好 | `geo_block_relax` / `urban_tier_relax`、源地域节点、目标地域节点、树置信度、最低分/位次、学校 tier/ranking |
 
-对照系统为 `hard_constraint`。它只复用约束抽取和 baseline 查询，报告当前硬约束下的可达志愿，不主动谈判，也不产生上述 Pareto opportunities。这个对照用于衡量“只迎合显性红线”和“证据驱动 Pareto 谈判”之间的差异。`region_tree_v1` 中的城市层级只作为 reviewed region-tree 证据，不直接等价于就业机会、生活成本或城市生活质量；其 Pareto gain 仍按学校 tier/ranking 改善计算。
+对照系统为 `hard_constraint`。它只复用约束抽取和 baseline 查询，报告当前硬约束下的可达志愿，不主动谈判，也不产生上述 Pareto opportunities。这个对照用于衡量“只迎合显性红线”和“证据驱动 Pareto 谈判”之间的差异。`region_tree_v1` 中的城市层级只作为经人工审校的地域层级证据，不直接等价于就业机会、生活成本或城市生活质量；其 Pareto gain 仍按学校 tier/ranking 改善计算。
 
 ## 实验设置
 
@@ -118,7 +119,7 @@ Benchmark 的关键设计包括：
 
 ## Benchmark 压力测试
 
-除七组实验事实表外，论文可单独报告多轴 Benchmark 压力测试。该压力测试不替代主实验 `major_geo_v1 + risk_band_v1`，也不把当前七实验口径改写为第八组主实验；它只组合已有 relax 能力，检查两个隐藏放宽轴同时成立时的证据编排能力。
+除七组实验事实表外，论文可单独报告多轴 Benchmark 压力测试。该压力测试不替代主实验 `major_geo_v1 + risk_band_v1`，也不进入七组正式实验主表；它只组合已有 relax 能力，检查两个隐藏放宽轴同时成立时的证据编排能力。
 
 | 压力测试 | 定位 | 三类 profile | `app_pareto` | `hard_constraint` | profile 成功分布 |
 |---|---|---|---:|---:|---|
@@ -141,15 +142,15 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 | `risk_band_v1` | 主实验 | `1.000 / 3.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 15.00` | Agent 能把单一保守偏好扩展为冲稳保组合 |
 | `school_strength_v1` | 扩展实验 | `1.000 / 15.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | 学校/学科实力证据可接入同一谈判闭环 |
 | `tuition_value_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | `admission_plans.tuition` 可支撑小幅超预算换收益的谈判 |
-| `major_quality_v1` | 扩展实验 | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | `school_major_quality_profiles` 可支撑专业质量跃迁证据 |
-| `employment_outcome_v1` | 扩展实验 | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | `major_employment_outcome_profiles` 可支撑就业排名、行业、岗位和薪资证据谈判 |
-| `region_tree_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | reviewed 地域树可支撑地理板块和城市层级证据谈判 |
+| `major_quality_v1` | 扩展实验 | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | 学校-专业质量画像可支撑专业质量跃迁证据 |
+| `employment_outcome_v1` | 扩展实验 | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 专业就业结果画像可支撑就业排名、行业、岗位和薪资证据谈判 |
+| `region_tree_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 经人工审校的地域层级画像可支撑地理板块和城市层级证据谈判 |
 
 从主实验看，`app_pareto` 在 `major_geo_v1` 中达到 0.900 成功率，在 `risk_band_v1` 中达到 1.000 成功率，而 `hard_constraint` 在两组主实验中均为 0.000。由于两组实验的 `mean_hallucination_rate` 均为 0.000，说明 Agent 的收益并非来自编造学校或分数，而是来自对真实 DB gap 的有效利用。
 
 `major_geo_v1` 不是 100% 成功。失败样本为 `real-db-set-浙江-569-009`，该样本要求 Agent 进一步退到更远的 `any_major` 候选才能命中 hidden volunteer set，而当前回复停留在医学相关近邻阶段，因此 deterministic judge 未判定成功。这一点在 `agent_benchmark_major_geo_v1_evidence.md` 中已记录，避免把 0.900 写成 100% 成功。
 
-五组扩展实验说明，本文框架可以随着数据层扩展而扩展。`tuition_value_v1` 把学费字段转化为预算谈判证据；`major_quality_v1` 把专业排名、学科评估、特色专业、重点专业和满意度聚合为专业质量证据；`employment_outcome_v1` 把专业就业画像转化为就业结果证据；`region_tree_v1` 把 reviewed 地域树接入 `region_tree_relax`，使地理板块和城市层级证据能够进入轻量 MAS 与沙盒评测；`school_strength_v1` 则作为较粗粒度实力证据的过渡实验。扩展实验不替代主实验，而是支撑“数据贡献可扩展”的论文论点。
+五组扩展实验说明，本文框架可以随着数据层扩展而扩展。`tuition_value_v1` 把学费字段转化为预算谈判证据；`major_quality_v1` 把专业排名、学科评估、特色专业、重点专业和满意度聚合为专业质量证据；`employment_outcome_v1` 把专业就业画像转化为就业结果证据；`region_tree_v1` 把经人工审校的地域层级画像接入 `region_tree_relax`，使地理板块和城市层级证据能够进入轻量 MAS 与沙盒评测；`school_strength_v1` 则作为较粗粒度实力证据的过渡实验。扩展实验不替代主实验，而是支撑“数据贡献可扩展”的论文论点。
 
 ## 典型 Case 分析
 
@@ -159,7 +160,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 `employment_outcome_v1` 中，`real-db-set-浙江-520-001` 的用户希望就业和薪资稳定，但对省外或相近专业较保守。`app_pareto` 给出广西师范大学工业设计，最低分 513、最低位次 156857、`outcome_score=100.0`、`outcome_gain=49.0`、`employment_rank=4`、`top_industry=互联网/电子商务` 和薪资分布证据。用户模拟器在看到学校、分数和就业结果证据后接受就业导向的相近专业方案。
 
-`region_tree_v1` 中，`real-db-set-浙江-610-001` 的用户坚持杭州或较近地域偏好。`app_pareto` 通过 `region_tree_relax` 给出宁波大学临床医学，最低分 610、最低位次 40934，并说明该候选来自 `geo_block_relax`：杭州 (`geo:city:hangzhou`) -> 宁波 (`geo:city:ningbo`)，树置信度为 0.95。用户模拟器在看到学校、分数和 reviewed 地域树节点证据后接受相邻地理板块候选。
+`region_tree_v1` 中，`real-db-set-浙江-610-001` 的用户坚持杭州或较近地域偏好。`app_pareto` 通过 `region_tree_relax` 给出宁波大学临床医学，最低分 610、最低位次 40934，并说明该候选来自 `geo_block_relax`：杭州 (`geo:city:hangzhou`) -> 宁波 (`geo:city:ningbo`)，树置信度为 0.95。用户模拟器在看到学校、分数和经人工审校的地域层级节点证据后接受相邻地理板块候选。
 
 ## 局限性
 
@@ -169,7 +170,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - 本次运行使用 offline deterministic judge，适合稳定验收；真实 LLM judge 结果可作为补充实验。
 - 数据来自当前浙江 PostgreSQL 快照，跨省份、跨年份和跨批次泛化仍需扩展。
 - 当前事实裁判主要验证学校、分数和过程证据，对专业、年份、省份、批次、选科等联合条件的 SQL 核验还可加强。
-- `pareto_gain` 仍是确定性指标，未来可引入真实录取概率、用户偏好权重和多目标效用建模；`region_tree_v1` 中城市层级只作为 reviewed 地域树证据，不直接计入城市收益。
+- `pareto_gain` 仍是确定性指标，未来可引入真实录取概率、用户偏好权重和多目标效用建模；`region_tree_v1` 中城市层级只作为经人工审校的地域层级证据，不直接计入城市收益。
 - 用户模拟器是受控沙盒用户，尚未用真实咨询日志校准信任、犹豫、反问等细粒度行为。
 
 ## 复现命令

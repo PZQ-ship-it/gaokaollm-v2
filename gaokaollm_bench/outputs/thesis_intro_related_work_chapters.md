@@ -60,7 +60,7 @@
 
 本文贡献分为数据贡献、Agent 贡献、Benchmark 贡献和 v1 工程原型支撑四部分。
 
-第一，本文构建了面向高考志愿动态决策的结构化数据证据层。基础数据来自本地 PostgreSQL 招生快照，覆盖录取分数、最低位次、批次线、学校信息、专业信息和招生计划学费等字段。在此基础上，项目进一步构建专业树、`school_major_quality_profiles` 专业质量标准化层、`major_employment_outcome_profiles` 就业结果标准化层，以及 `region_geo_tree_reviewed_v1.json` / `region_urban_tier_tree_reviewed_v1.json` 地域树 reviewed v1，使专业质量、就业排名、行业分布、岗位分布、薪资分布和地域树节点等信息可以作为 Agent 输出和 benchmark 裁判的可核验证据。
+第一，本文构建了面向高考志愿动态决策的结构化数据证据层。基础数据来自本地 PostgreSQL 招生快照，覆盖录取分数、最低位次、批次线、学校信息、专业信息和招生计划学费等字段。在此基础上，项目进一步构建专业层级本体全量覆盖 v2、学校-专业质量画像、专业就业结果画像，以及经人工审校的地域层级画像，使专业质量、就业排名、行业分布、岗位分布、薪资分布、地理邻近层级和城市层级等信息可以作为 Agent 输出和 benchmark 裁判的可核验证据。其中，专业层级本体全量覆盖 v2 已完成 `22,759 / 22,759` 个原始去重专业名和 `140,995 / 140,995` 条录取记录的可审计挂载，`remaining_unassigned = 0`；该覆盖表示所有原始名称均进入可追溯叶子簇，不等于全部语义边界都已人工逐条确认正确。
 
 第二，本文设计了证据驱动的 Pareto 谈判 Agent。业务 Agent 使用 LangGraph 组织为“前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器”的五阶段轻量 MAS：前置语义归一层继承 v1 查询重写能力，只处理用户显式话语；约束解析器锁定硬约束；LLM 引导的机会规划器只输出探针计划、机会排序和澄清提示；确定性证据探针从数据库和标准化证据层返回事实候选；证据谈判器将真实候选组织为面向用户的证据化回复。当前 Agent 核心能力包括 `major_geo_relax` 专业+地域联合放宽、`risk_band_relax` 风险偏好放宽，以及扩展能力 `tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax`。同时，`strength_relax` 作为较粗粒度的学校/学科实力过渡实验，帮助说明数据证据维度可以逐步扩展。
 
@@ -84,23 +84,23 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 | `risk_band_v1` | 主实验 | `1.000 / 3.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 15.00` | 从只求稳扩展到冲稳保组合，Agent 触发 10/10 个隐性妥协 |
 | `school_strength_v1` | 扩展实验 | `1.000 / 15.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | 学校/学科实力证据可接入谈判闭环 |
 | `tuition_value_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | `admission_plans.tuition` 支撑预算性价比放宽 |
-| `major_quality_v1` | 扩展实验 | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | `school_major_quality_profiles` 支撑专业质量证据跃迁 |
-| `employment_outcome_v1` | 扩展实验 | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | `major_employment_outcome_profiles` 支撑就业排名、行业、岗位和薪资证据谈判 |
-| `region_tree_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | reviewed 地域树支撑地理板块和城市层级证据谈判 |
+| `major_quality_v1` | 扩展实验 | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | 学校-专业质量画像支撑专业质量证据跃迁 |
+| `employment_outcome_v1` | 扩展实验 | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 专业就业结果画像支撑就业排名、行业、岗位和薪资证据谈判 |
+| `region_tree_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 经人工审校的地域层级画像支撑地理邻近层级和城市层级证据谈判 |
 
 需要注意的是，`major_geo_v1` 并非 100% 成功。唯一失败样本为 `real-db-set-浙江-569-009`，该样本需要 Agent 进一步退到更远的 `any_major` 候选才能命中 hidden volunteer set，而当前 Agent 停留在医学相关近邻阶段，因此 deterministic judge 未判定成功。论文中应保留这个失败样本，避免把 0.900 写成完全成功。
 
-除七组实验外，本文还报告 `multi_axis_v1` 与 `multi_axis_v2` 作为 Benchmark 压力测试。它们不替代主实验，也不改写七组实验主线，而是用 30 个真实 DB persona 检验两个隐藏放宽轴同时成立时的证据编排能力。`multi_axis_v1` 是历史压力测试版本，三类 profile `major_geo_risk`、`quality_tuition`、`employment_region` 的成功分布为 1/10、5/10、10/10，聚合结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`。`multi_axis_v2` 是轴一致性修正版，要求两个隐藏放宽轴围绕一致显性需求或可解释正交需求构造，成功分布为 6/10、5/10、0/10，聚合结果为 `app_pareto 0.367 / 1.133 / 0.005 / 9.33` vs `hard_constraint 0.000 / 0.000 / 0.008 / 13.00`。该压力测试说明，多轴 benchmark 能暴露单轴实验看不出的证据组织瓶颈，尤其 `employment_region` 暴露出就业证据与地域树证据的联合编排不足。
+除七组实验外，本文还报告 `multi_axis_v1` 与 `multi_axis_v2` 作为 Benchmark 压力测试。它们不替代主实验，也不改写七组实验主线，而是用 30 个真实 DB persona 检验两个隐藏放宽轴同时成立时的证据编排能力。`multi_axis_v1` 是历史压力测试版本，三类 profile `major_geo_risk`、`quality_tuition`、`employment_region` 的成功分布为 1/10、5/10、10/10，聚合结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`。`multi_axis_v2` 是轴一致性修正版，要求两个隐藏放宽轴围绕一致显性需求或可解释正交需求构造，成功分布为 6/10、5/10、0/10，聚合结果为 `app_pareto 0.367 / 1.133 / 0.005 / 9.33` vs `hard_constraint 0.000 / 0.000 / 0.008 / 13.00`。该压力测试说明，多轴 benchmark 能暴露单轴实验看不出的证据组织瓶颈，尤其 `employment_region` 暴露出就业证据与地域层级证据的联合编排不足。
 
 ### 1.6 论文结构
 
 本文后续章节组织如下。
 
-第 2 章介绍相关技术，包括 RAG、Agent、LangGraph、多轮用户模拟、LLM-as-a-Judge、数据证据标准化、专业树与地域树层级放宽、风险分层和 Pareto 偏好妥协等内容。
+第 2 章介绍相关技术，包括 RAG、Agent、LangGraph、多轮用户模拟、LLM-as-a-Judge、数据证据标准化、专业层级本体与地域层级画像、风险分层和 Pareto 偏好妥协等内容。
 
 第 3 章介绍第一版 `gaokaollmmodel` Agentic RAG 原型系统，说明其状态机编排、混合检索、用户画像、`1:3:9` 冲稳保推荐和一致性校验能力，并分析为什么仅有工程原型不足以证明偏好妥协效果。
 
-第 4 章介绍 Benchmark 与数据生成方法，包括 PostgreSQL 数据快照、专业树、专业质量与就业结果标准化层、`region_geo_tree_reviewed_v1.json` / `region_urban_tier_tree_reviewed_v1.json` 地域树 reviewed v1、冰山画像、真实 DB gap、多轮沙盒和事实/过程联合评价。
+第 4 章介绍 Benchmark 与数据生成方法，包括 PostgreSQL 数据快照、专业层级本体全量覆盖 v2、学校-专业质量画像、专业就业结果画像、经人工审校的地域层级画像、冰山画像、真实 DB gap、多轮沙盒和事实/过程联合评价。
 
 第 5 章介绍证据驱动 Pareto Agent，包括 前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器架构，以及 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` 等能力。其中 `region_tree_relax` 包含 `geo_block_relax` 与 `urban_tier_relax` 两个子策略。
 
@@ -124,11 +124,11 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 在基础招生事实之外，本文进一步引入三类标准化证据层。
 
-第一类是专业质量标准化层。`discipline_major_mappings` 将学科评估一级学科或专业类映射到本科专业，`school_major_quality_signals` 统一接入专业排名、第四轮学科评估、特色专业、重点专业和满意度等信号，`school_major_quality_profiles` 按 `school_id + major_id` 聚合出 `quality_score`、`quality_gain`、专业排名、评级和证据来源。这样，Agent 可以说清楚“同样是某专业，为什么这所学校的专业质量证据更强”，而不是只泛泛地说学校更好。
+第一类是学校-专业质量画像。该画像将学科评估一级学科或专业类映射到本科专业，统一接入专业排名、第四轮学科评估、特色专业、重点专业和满意度等信号，并按学校-专业组合聚合出质量评分、质量增益、专业排名、评级和证据来源。这样，Agent 可以说清楚“同样是某专业，为什么这所学校的专业质量证据更强”，而不是只泛泛地说学校更好。
 
-第二类是就业结果标准化层。`major_employment_profiles` 保存原始就业画像，`major_employment_outcome_profiles` 将其中的就业排名、就业最多地区、行业分布、岗位分布、薪资分布和 `outcome_score` 清洗为可比较字段。这样，`employment_outcome_relax` 可以把“好就业”这一模糊偏好转化为 transcript 中可核验的就业排名、行业、岗位和薪资证据。
+第二类是专业就业结果画像。该画像将原始就业信息中的就业排名、就业最多地区、行业分布、岗位分布、薪资分布和结果评分清洗为可比较字段。这样，`employment_outcome_relax` 可以把“好就业”这一模糊偏好转化为 transcript 中可核验的就业排名、行业、岗位和薪资证据。
 
-第三类是地域树 reviewed v1。`region_geo_tree_reviewed_v1.json` 将省份、城市和地理板块组织为可审校的层级节点，支撑 `geo_block_relax`；`region_urban_tier_tree_reviewed_v1.json` 将城市层级和资源密度表达组织为可审校节点，支撑 `urban_tier_relax`。这两棵树共同服务 `region_tree_relax`，使“别太远”“江浙沪可以”“想去好城市”等地域表达能够转化为 transcript 中可核验的源地域节点、目标地域节点和树置信度证据。
+第三类是经人工审校的地域层级画像。地理邻近层级画像将省份、城市和地理板块组织为可审校的层级节点，支撑 `geo_block_relax`；城市层级画像将城市层级和资源密度表达组织为可审校节点，支撑 `urban_tier_relax`。二者共同服务 `region_tree_relax`，使“别太远”“江浙沪可以”“想去好城市”等地域表达能够转化为 transcript 中可核验的源地域节点、目标地域节点和树置信度证据。这里的城市层级只作为引导偏好显性化的证据工具，不直接等价于就业机会、生活成本或生活质量收益。
 
 数据证据标准化的意义在于，它把“用户可能关心的因素”区分为“当前系统可核验的证据维度”和“暂时只能写入后续工作的偏好维度”。只有能够落到 PostgreSQL 或标准化证据表中的因素，才适合进入当前 benchmark 闭环。
 
@@ -144,7 +144,7 @@ LangGraph 提供图式状态机编排能力，适合表达多步骤、多状态�
 
 其中，`gatekeeper` 面向显式约束抽取和 baseline 查询；`radar` 面向 Pareto 机会探测；`negotiator` 面向证据化对话回复。这种划分使 Agent 的核心行为可以被 benchmark 审计：系统是否正确抽取用户约束，是否在数据库中发现了可谈判候选，是否把候选以事实证据而非泛化说服话术的形式呈现给用户。
 
-当前 Agent 能力覆盖两类主实验放宽和五类扩展实验放宽。主能力包括 `major_geo_relax` 与 `risk_band_relax`；扩展能力包括 `strength_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax` 和 `region_tree_relax`。其中，`tuition_value_relax` 依赖学费字段，`major_quality_relax` 依赖 `school_major_quality_profiles`，`employment_outcome_relax` 依赖 `major_employment_outcome_profiles`，`region_tree_relax` 依赖 reviewed 地域树，并通过 `geo_block_relax` 与 `urban_tier_relax` 组织地理板块和城市层级证据。
+当前 Agent 能力覆盖两类主实验放宽和五类扩展实验放宽。主能力包括 `major_geo_relax` 与 `risk_band_relax`；扩展能力包括 `strength_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax` 和 `region_tree_relax`。其中，`tuition_value_relax` 依赖学费字段，`major_quality_relax` 依赖学校-专业质量画像，`employment_outcome_relax` 依赖专业就业结果画像，`region_tree_relax` 依赖经人工审校的地域层级画像，并通过 `geo_block_relax` 与 `urban_tier_relax` 组织地理板块和城市层级证据。
 
 ### 2.4 多轮用户模拟与 Benchmark 评测
 
@@ -186,14 +186,14 @@ Pareto 改进通常指在不损害某些条件的前提下，使至少一个目�
 
 本文的 `major_geo_relax` 与 `risk_band_relax` 分别对应两类主实验 Pareto 妥协。`major_geo_relax` 保留分数、选科和预算等硬约束，同时放宽专业与地域，寻找更高质量的可达候选；`risk_band_relax` 保留专业、地域、选科和预算等硬约束，只将“只求稳”的风险偏好扩展为冲稳保组合。
 
-在数据扩展实验中，Pareto 妥协进一步扩展到成本、专业质量、就业结果和地域树维度。`tuition_value_relax` 在 `budget < tuition <= budget + 10000` 的窗口内，用学费增量换取学校层次或排名收益；`major_quality_relax` 在可达约束内寻找 `quality_score` 更高、专业证据更强的学校-专业组合；`employment_outcome_relax` 在同专业或专业树近邻专业中寻找就业排名、行业、岗位或薪资证据更强的方案；`region_tree_relax` 则使用 reviewed 地域树，在不把城市层级直接写成就业机会、生活成本或城市生活质量收益的前提下，呈现地理板块和城市层级放宽证据。`strength_relax` 作为较粗粒度学校/学科实力证据的过渡实验。
+在数据扩展实验中，Pareto 妥协进一步扩展到成本、专业质量、就业结果和地域层级维度。`tuition_value_relax` 在 `budget < tuition <= budget + 10000` 的窗口内，用学费增量换取学校层次或排名收益；`major_quality_relax` 在可达约束内寻找质量评分更高、专业证据更强的学校-专业组合；`employment_outcome_relax` 在同专业或专业树近邻专业中寻找就业排名、行业、岗位或薪资证据更强的方案；`region_tree_relax` 则使用经人工审校的地域层级画像，在不把城市层级直接写成就业机会、生活成本或城市生活质量收益的前提下，呈现地理板块和城市层级放宽证据。`strength_relax` 作为较粗粒度学校/学科实力证据的过渡实验。
 
-需要强调的是，本文不把所有用户偏好都视为可放宽对象。选科要求、真实分数、可达性和部分强约束仍被视为硬约束；城市生活质量、家庭距离、校园文化和个人兴趣匹配等因素，如果缺少可核验数据证据，就不应被写成已实现的 Pareto 放宽。`region_tree_v1` 是扩展实验，不替代 `major_geo_v1 + risk_band_v1` 主实验；其中城市层级只作为 reviewed region-tree 证据，不直接等价于就业机会、生活成本或城市生活质量收益。Agent 的任务不是强行说服用户改变真实偏好，而是在可核验数据中呈现放宽某些初始红线后的收益，由用户模拟器或真实用户根据证据决定是否接受。
+需要强调的是，本文不把所有用户偏好都视为可放宽对象。选科要求、真实分数、可达性和部分强约束仍被视为硬约束；城市生活质量、家庭距离、校园文化和个人兴趣匹配等因素，如果缺少可核验数据证据，就不应被写成已实现的 Pareto 放宽。`region_tree_v1` 是扩展实验，不替代 `major_geo_v1 + risk_band_v1` 主实验；其中城市层级只作为经人工审校的地域层级证据，不直接等价于就业机会、生活成本或城市生活质量收益。Agent 的任务不是强行说服用户改变真实偏好，而是在可核验数据中呈现放宽某些初始红线后的收益，由用户模拟器或真实用户根据证据决定是否接受。
 
-`multi_axis_v2` 进一步说明，Pareto 偏好妥协还可以被设计为多轴组合评测。它组合现有 relax 能力，要求两个隐藏轴同时被证据命中，并在画像构造阶段保证两个轴围绕一致显性需求或可解释正交需求。其结果显示，专业-地域与风险组合在修正后提升到 6/10，专业质量与预算组合保持 5/10，而就业结果与地域组合为 0/10，暴露出就业证据与地域树证据联合编排不足。论文中应将其作为 Benchmark 压力测试修正版，用来支持“评测框架能够暴露更复杂偏好结构下的 Agent 短板”这一结论。
+`multi_axis_v2` 进一步说明，Pareto 偏好妥协还可以被设计为多轴组合评测。它组合现有 relax 能力，要求两个隐藏轴同时被证据命中，并在画像构造阶段保证两个轴围绕一致显性需求或可解释正交需求。其结果显示，专业-地域与风险组合在修正后提升到 6/10，专业质量与预算组合保持 5/10，而就业结果与地域组合为 0/10，暴露出就业证据与地域层级证据联合编排不足。论文中应将其作为 Benchmark 压力测试修正版，用来支持“评测框架能够暴露更复杂偏好结构下的 Agent 短板”这一结论。
 
 ### 2.9 本章小结
 
-本章从 RAG、数据证据标准化、Agent、LangGraph、多轮 benchmark、LLM-as-a-Judge、专业树、地域树、风险分层和 Pareto 偏好妥协等角度，梳理了本文方法所依赖的关键技术。总体来看，v1 `gaokaollmmodel` 证明了高考志愿咨询可以被构建为 Agentic RAG 工程系统；v2 则进一步将研究问题收敛到可评测的偏好妥协 Agent，并通过数据贡献、Agent 贡献和 Benchmark 贡献形成最终论文主线。
+本章从 RAG、数据证据标准化、Agent、LangGraph、多轮 benchmark、LLM-as-a-Judge、专业层级本体、地域层级画像、风险分层和 Pareto 偏好妥协等角度，梳理了本文方法所依赖的关键技术。总体来看，v1 `gaokaollmmodel` 证明了高考志愿咨询可以被构建为 Agentic RAG 工程系统；v2 则进一步将研究问题收敛到可评测的偏好妥协 Agent，并通过数据贡献、Agent 贡献和 Benchmark 贡献形成最终论文主线。
 
 后续章节将先介绍 v1 原型系统与问题诊断，再展开 v2 的数据层与 Benchmark 构建、证据驱动 Pareto Agent 设计、主实验与扩展实验结果，以及局限性和后续工作。

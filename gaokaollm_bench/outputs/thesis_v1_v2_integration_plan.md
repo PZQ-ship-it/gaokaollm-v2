@@ -24,7 +24,7 @@
 
 | 贡献层次 | 当前内容 | 论文作用 |
 |---|---|---|
-| 数据贡献 | PostgreSQL 招生快照、分数/位次、学费、专业树、`school_major_quality_profiles`、`major_employment_outcome_profiles`、`region_geo_tree_reviewed_v1.json`、`region_urban_tier_tree_reviewed_v1.json` | 为每一次推荐、放宽和评测提供可核验事实证据 |
+| 数据贡献 | PostgreSQL 招生快照、分数/位次、学费、专业层级本体全量覆盖 v2、学校-专业质量画像、专业就业结果画像、经人工审校的地域层级画像 | 为每一次推荐、放宽和评测提供可核验事实证据 |
 | Agent 贡献 | LangGraph 轻量 MAS：前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器，以及 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` | 把用户显性约束转化为证据驱动的 Pareto 妥协谈判 |
 | Benchmark 贡献 | 冰山画像、多轮沙盒、事实/过程联合评价、`app_pareto` vs `hard_constraint` | 验证 Agent 是否真的触发隐藏可妥协条件，而不是只生成看似合理的建议 |
 
@@ -35,7 +35,7 @@ v1：工程原型跑通高考志愿 Agentic RAG
   -> 暴露仅靠问答/RAG 难以严格评测偏好妥协效果
   -> v2：补齐数据证据层、Benchmark 框架和 Pareto 谈判 Agent
   -> v2 主实验：验证专业+地域联合放宽与风险偏好放宽
-  -> v2 扩展实验：验证学科实力、学费、专业质量、就业结果和地域树证据可接入同一闭环
+  -> v2 扩展实验：验证学科实力、学费、专业质量、就业结果和地域层级证据可接入同一闭环
 ```
 
 ## 2. v1 内容概括
@@ -58,7 +58,7 @@ v1：工程原型跑通高考志愿 Agentic RAG
 
 v2 的核心是“数据 + Agent + Benchmark”闭环，主线比 v1 更聚焦。
 
-数据层方面，v2 使用本地 PostgreSQL 招生快照承载分数、位次、批次线、学校、专业、招生计划和学费字段，并进一步构建专业树、专业质量标准化层、就业结果标准化层和地域树 reviewed v1。`school_major_quality_profiles` 将专业排名、学科评估、特色专业、重点专业和满意度等信号聚合为学校-专业质量证据；`major_employment_outcome_profiles` 将就业排名、行业、岗位和薪资等就业画像清洗为可比较字段；`region_geo_tree_reviewed_v1.json` 与 `region_urban_tier_tree_reviewed_v1.json` 将学校所在省市映射为可审校的地理板块和城市层级证据。
+数据层方面，v2 使用本地 PostgreSQL 招生快照承载分数、位次、批次线、学校、专业、招生计划和学费字段，并进一步构建专业层级本体全量覆盖 v2、学校-专业质量画像、专业就业结果画像和经人工审校的地域层级画像。专业层级本体全量覆盖 v2 已完成 `22,759 / 22,759` 个原始去重专业名和 `140,995 / 140,995` 条录取记录的可审计挂载，`remaining_unassigned = 0`；该覆盖不等于全部语义边界都已人工逐条确认正确。学校-专业质量画像将专业排名、学科评估、特色专业、重点专业和满意度等信号聚合为质量证据；专业就业结果画像将就业排名、行业、岗位和薪资等就业画像清洗为可比较字段；经人工审校的地域层级画像将学校所在省市映射为地理邻近层级和城市层级证据。
 
 Agent 层方面，v2 使用 `前置语义归一层 -> 约束解析器 -> LLM 引导的机会规划器 -> 确定性证据探针 -> 证据谈判器` 结构：前置语义归一层负责查询重写和偏好轴拆解，约束解析器抽取用户显式约束并查询 baseline，LLM 引导的机会规划器输出探针计划、机会排序和澄清提示，确定性证据探针调用 PostgreSQL 与标准化证据层寻找 Pareto opportunities，证据谈判器将真实候选组织为面向用户的证据化回复。当前能力包括两类主能力和五类扩展能力：
 
@@ -73,7 +73,7 @@ Benchmark 层方面，v2 构建冰山画像、多轮沙盒和事实/过程联合
 |---|---|---|
 | 核心定位 | 面向高考志愿咨询的 Agentic RAG 原型 | 面向偏好妥协的可评测决策 Agent 与 Benchmark |
 | 主要问题 | 如何让系统能查、能答、能多轮交互 | 如何证明 Agent 能触发更优或更完整的偏好妥协 |
-| 数据使用 | MySQL/向量库/Redis 支撑问答与检索 | PostgreSQL 快照、专业树、专业质量、就业结果和地域树 reviewed v1 支撑真实 DB gap 与评测 |
+| 数据使用 | MySQL/向量库/Redis 支撑问答与检索 | PostgreSQL 快照、专业层级本体全量覆盖 v2、学校-专业质量画像、专业就业结果画像和经人工审校的地域层级画像支撑真实 DB gap 与评测 |
 | Agent 架构 | 状态机式 RAG 工作流，含意图识别、检索、生成 | LangGraph 轻量 MAS：前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器 |
 | 算法重点 | 混合检索、重排、`1:3:9` 冲稳保、上下文裁剪、一致性校验 | `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` |
 | 风险推荐定位 | 工程化梯度推荐策略 | 可被 benchmark 检验的风险偏好谈判能力 |
@@ -89,7 +89,7 @@ Benchmark 层方面，v2 构建冰山画像、多轮沙盒和事实/过程联合
 | 第 1 章 | 绪论 | 高考志愿咨询的高风险性，大模型幻觉与偏好锚定问题，数据 + Agent + Benchmark 三贡献 | v1/v2 共同背景 |
 | 第 2 章 | 相关技术 | RAG、Agent、LangGraph、数据证据标准化、多轮评测、LLM-as-a-Judge | 方法背景 |
 | 第 3 章 | 第一版 Agentic RAG 原型系统与问题诊断 | `gaokaollmmodel` 架构、意图识别、画像缓存、混合检索、`1:3:9` 冲稳保、流式响应、一致性校验；指出评测不足 | v1 正文 |
-| 第 4 章 | 高考志愿偏好妥协 Benchmark 与数据层构建 | PostgreSQL 快照、专业树、专业质量与就业结果标准化层、地域树 reviewed v1、冰山画像、真实 DB gap、多轮沙盒、事实/过程联合评价 | v2 主贡献 |
+| 第 4 章 | 高考志愿偏好妥协 Benchmark 与数据层构建 | PostgreSQL 快照、专业层级本体全量覆盖 v2、学校-专业质量画像、专业就业结果画像、经人工审校的地域层级画像、冰山画像、真实 DB gap、多轮沙盒、事实/过程联合评价 | v2 主贡献 |
 | 第 5 章 | 证据驱动 Pareto 谈判 Agent 设计 | 前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器，`major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` | v2 主贡献 |
 | 第 6 章 | 实验结果、逐例证据与扩展实验 | 主实验 `major_geo_v1 + risk_band_v1`，扩展实验 `school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1 + region_tree_v1`，`multi_axis_v1` / `multi_axis_v2` Benchmark 压力测试，失败 case 与逐例证据 | v2 实验 |
 | 第 7 章 | 总结与展望 | 总结从工程原型到可评测 Agent 的演进，讨论样本规模、真实用户、事实裁判增强和更多放宽类别 | 综合 |
@@ -110,7 +110,7 @@ Benchmark 层方面，v2 构建冰山画像、多轮沙盒和事实/过程联合
 | v2 PostgreSQL 招生快照 | 是 | 第 4 章 | 数据贡献底座 |
 | v2 专业质量标准化层 | 是 | 第 4 章 | 数据贡献核心扩展之一 |
 | v2 就业结果标准化层 | 是 | 第 4 章 | 数据贡献核心扩展之一 |
-| v2 地域树 reviewed v1 | 是 | 第 4 章 | 数据贡献中的层级地域证据 |
+| v2 经人工审校的地域层级画像 | 是 | 第 4 章 | 数据贡献中的层级地域证据 |
 | v2 冰山画像 benchmark | 是 | 第 4 章 | Benchmark 贡献核心 |
 | v2 专业树和 probe | 是 | 第 4 章 | Benchmark 基础设施和专业放宽支撑 |
 | v2 `major_geo_relax` | 是 | 第 5 章 | Agent 主能力之一 |
@@ -118,7 +118,7 @@ Benchmark 层方面，v2 构建冰山画像、多轮沙盒和事实/过程联合
 | v2 `tuition_value_relax` | 是 | 第 5 章或第 6 章扩展实验 | 作为数据证据扩展能力 |
 | v2 `major_quality_relax` | 是 | 第 5 章或第 6 章扩展实验 | 作为专业质量数据贡献的验证 |
 | v2 `employment_outcome_relax` | 是 | 第 5 章或第 6 章扩展实验 | 作为就业结果数据贡献的验证 |
-| v2 `region_tree_relax` | 是 | 第 5 章或第 6 章扩展实验 | 作为地域树数据贡献的验证，含 `geo_block_relax` 与 `urban_tier_relax` |
+| v2 `region_tree_relax` | 是 | 第 5 章或第 6 章扩展实验 | 作为地域层级画像数据贡献的验证，含 `geo_block_relax` 与 `urban_tier_relax` |
 | v2 主实验 | 是 | 第 6 章 | `major_geo_v1 + risk_band_v1` |
 | v2 扩展实验 | 是 | 第 6 章 | `school_strength_v1 + tuition_value_v1 + major_quality_v1 + employment_outcome_v1 + region_tree_v1` |
 
@@ -140,11 +140,11 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 | `tuition_value_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.000 / 11.00` | 学费字段可支撑预算性价比谈判 |
 | `major_quality_v1` | 扩展实验 | `1.000 / 16.000 / 0.000 / 5.00` | `0.000 / 0.000 / 0.050 / 11.00` | 专业质量标准化层可支撑学校-专业质量跃迁 |
 | `employment_outcome_v1` | 扩展实验 | `1.000 / 49.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 就业结果标准化层可支撑就业导向放宽 |
-| `region_tree_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | reviewed 地域树可支撑地理板块和城市层级证据谈判 |
+| `region_tree_v1` | 扩展实验 | `1.000 / 1.000 / 0.000 / 3.00` | `0.000 / 0.000 / 0.000 / 11.00` | 经人工审校的地域层级画像可支撑地理板块和城市层级证据谈判 |
 
 `major_geo_v1` 不是 100% 成功。失败样本为 `real-db-set-浙江-569-009`，该样本要求 Agent 进一步退到更远的 `any_major` 候选才能命中 hidden volunteer set，而当前回复停留在医学相关近邻阶段，因此 deterministic judge 未判定成功。论文中应保留该失败样本，以说明系统已经形成闭环但仍存在放宽阶段选择的改进空间。
 
-此外，`multi_axis_v1` 与 `multi_axis_v2` 作为 Benchmark 压力测试单独写入第 6 章或附录，不并入上表的七组实验事实口径。`multi_axis_v1` 是历史压力测试版本，包含 `major_geo_risk`、`quality_tuition`、`employment_region` 三类 profile，各 10 个 case，聚合结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`，逐 profile 成功分布为 1/10、5/10、10/10。`multi_axis_v2` 是轴一致性修正版，仍使用三类 profile，但要求两个隐藏放宽轴围绕一致显性需求或可解释正交需求构造；聚合结果为 `app_pareto 0.367 / 1.133 / 0.005 / 9.33` vs `hard_constraint 0.000 / 0.000 / 0.008 / 13.00`，逐 profile 成功分布为 6/10、5/10、0/10。该测试说明，多轴隐藏妥协评测能够暴露单轴实验看不出的证据编排瓶颈，尤其 `employment_region` 暴露出就业证据与地域树证据联合组织不足。七组 `app_pareto` 实验结果和多轴压力测试结果都属于 v2，不混入 v1 成果。
+此外，`multi_axis_v1` 与 `multi_axis_v2` 作为 Benchmark 压力测试单独写入第 6 章或附录，不并入上表的七组实验事实口径。`multi_axis_v1` 是历史压力测试版本，包含 `major_geo_risk`、`quality_tuition`、`employment_region` 三类 profile，各 10 个 case，聚合结果为 `app_pareto 0.533 / 1.133 / 0.029 / 7.67` vs `hard_constraint 0.000 / 0.000 / 0.000 / 13.00`，逐 profile 成功分布为 1/10、5/10、10/10。`multi_axis_v2` 是轴一致性修正版，仍使用三类 profile，但要求两个隐藏放宽轴围绕一致显性需求或可解释正交需求构造；聚合结果为 `app_pareto 0.367 / 1.133 / 0.005 / 9.33` vs `hard_constraint 0.000 / 0.000 / 0.008 / 13.00`，逐 profile 成功分布为 6/10、5/10、0/10。该测试说明，多轴隐藏妥协评测能够暴露单轴实验看不出的证据编排瓶颈，尤其 `employment_region` 暴露出就业证据与地域层级证据联合组织不足。七组 `app_pareto` 实验结果和多轴压力测试结果都属于 v2，不混入 v1 成果。
 
 ## 8. 过渡叙事模板
 
@@ -154,9 +154,9 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 但是，第一版系统也暴露出一个更核心的问题：系统能回答问题，并不等于系统能改善用户决策。特别是在高考志愿这种偏好强、风险高、约束多的场景中，用户的显性红线可能包含信息不足形成的初始锚定。传统 RAG 指标和单轮功能测试难以评价 Agent 是否真正帮助用户发现更优且可接受的志愿集合。
 
-因此，第二阶段将研究重点从“构建可用问答系统”收敛到“构建可评测的数据驱动偏好妥协 Agent”。v2 首先补齐可核验数据证据层，将分数、位次、学费、专业质量、就业结果和地域树节点转化为 Agent 可表达、Benchmark 可核验的字段；其次通过冰山画像 benchmark 显式建模显性红线和隐性妥协条件；最后在 Agent 侧使用 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax` 和 `region_tree_relax` 等能力，验证证据驱动 Pareto 谈判是否优于只迎合显性红线的 baseline。
+因此，第二阶段将研究重点从“构建可用问答系统”收敛到“构建可评测的数据驱动偏好妥协 Agent”。v2 首先补齐可核验数据证据层，将分数、位次、学费、专业质量、就业结果和地域层级节点转化为 Agent 可表达、Benchmark 可核验的字段；其次通过冰山画像 benchmark 显式建模显性红线和隐性妥协条件；最后在 Agent 侧使用 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax` 和 `region_tree_relax` 等能力，验证证据驱动 Pareto 谈判是否优于只迎合显性红线的 baseline。
 
-最终实验表明，在主实验中，`app_pareto` 相比 `hard_constraint` 显著提升隐性妥协触发效果，并保持较低幻觉率；在扩展实验中，同一框架也能够接入学科实力、学费预算、专业质量、就业结果和地域树等更多数据证据维度。这说明 v2 不是对 v1 的否定，而是把 v1 的工程能力推进到可评测、可审计、可逐例追溯的数据驱动研究闭环。
+最终实验表明，在主实验中，`app_pareto` 相比 `hard_constraint` 显著提升隐性妥协触发效果，并保持较低幻觉率；在扩展实验中，同一框架也能够接入学科实力、学费预算、专业质量、就业结果和地域层级等更多数据证据维度。这说明 v2 不是对 v1 的否定，而是把 v1 的工程能力推进到可评测、可审计、可逐例追溯的数据驱动研究闭环。
 
 `multi_axis_v2` 则进一步作为压力测试修正版说明：当用户同时在两个方面存在隐藏妥协时，Benchmark 可以检验 Agent 是否具备多证据链组织能力，并通过轴一致性约束减少画像构造噪声。它只组合已有 relax 能力，不新增业务放宽算法；Agent 不读取 `implicit_flexibilities`、`volunteer_set` 或 `axis_flexibilities`。`multi_axis_v1` 保留为历史压力测试版本，用于对照说明修正前后的诊断差异。
 
@@ -184,7 +184,7 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 
 最终论文摘要和绪论中，建议将贡献写成三点，并把 v1 作为工程基础补充说明：
 
-1. 构建面向高考志愿动态决策的可核验数据证据层，基于 PostgreSQL 招生快照、专业树、专业质量标准化层、就业结果标准化层和地域树 reviewed v1，为分数、位次、学费、专业质量、就业结果和地域树节点等 Pareto 谈判证据提供数据基础。
+1. 构建面向高考志愿动态决策的可核验数据证据层，基于 PostgreSQL 招生快照、专业层级本体全量覆盖 v2、学校-专业质量画像、专业就业结果画像和经人工审校的地域层级画像，为分数、位次、学费、专业质量、就业结果和地域层级节点等 Pareto 谈判证据提供数据基础。
 2. 设计证据驱动的 Pareto 谈判 Agent，通过 前置语义归一层、约束解析器、LLM 引导的机会规划器、确定性证据探针和证据谈判器架构，在不读取 hidden persona 字段的前提下，基于用户显式话语和数据库查询结果提出 `major_geo_relax`、`risk_band_relax`、`tuition_value_relax`、`major_quality_relax`、`employment_outcome_relax`、`region_tree_relax` 等可审计放宽方案。
 3. 提出面向高考志愿偏好妥协的冰山画像 benchmark，将评测从静态问答扩展到多轮偏好启发，并通过 `app_pareto` vs `hard_constraint` 对照、事实/过程联合评价、逐例 transcript 和 evidence 附录验证 Agent 是否真的触发隐性妥协。
 
