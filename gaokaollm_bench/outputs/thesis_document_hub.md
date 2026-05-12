@@ -80,7 +80,9 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 | `thesis_diagrams_with_diagrams.md` | 手工 SVG/PNG 论文框图生成说明与渲染命令 | 修改论文图像生成方式或图号时同步 |
 | `thesis_figure_visual_acceptance.md` | 当前论文插图在 PDF 中的视觉验收报告 | 重绘插图、替换图号或调整 LaTeX 图位置后同步 |
 | `thesis_latex_final_consistency_report.md` | 正式 LaTeX 终稿事实一致性与编译验收记录 | 提交前复查 `zjuthesis.pdf`、事实口径、编译结果和剩余版式 warning |
+| `thesis_latex_pdf_visual_acceptance.md` | 正式 LaTeX 终稿 PDF 页面级视觉验收记录 | 提交前复查封面、摘要、目录、核心图表和附录边界是否裁切、重叠或口径回退 |
 | `thesis_figures/` | 当前可迁入论文/PPT 的 SVG/PNG 图像资产 | 重新渲染图像或替换正式插图时同步 |
+| `thesis_latex_pdf_snapshots/` | 终稿 PDF 关键页面快照 | 检查封面、摘要、核心图表、专业树表和压力测试表的真实页面效果 |
 | `thesis_figures_pdf_snapshots/` | LaTeX PDF 页面快照 | 检查图像是否裁切、重叠或与正文口径不一致 |
 | `dynamic_decision_considerations_roadmap.md` | 动态决策路线图 | 修改后续开发优先级和能力矩阵时同步 |
 | `gaokaollm_bench/放宽与跃迁.md` | 动态放宽与 Pareto 跃迁总览 | 修改放宽能力清单和实验总览时同步 |
@@ -122,7 +124,7 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 | 新增或删除实验 | `thesis_claims_manifest.json`、本 hub | 方法实验正文、贡献母版、路线图、放宽总览、系统架构、图表包、总结章 |
 | 修改实验指标 | `thesis_claims_manifest.json`、对应 summary/evidence | 结果表所在正文母版和 PPT/图表素材 |
 | 修改 MAS 表述 | 本 hub、系统架构算法母版、术语映射 | 方法正文、贡献母版、绪论、图表包 |
-| 修改图像资产或图号 | `thesis_diagrams_with_diagrams.md`、`thesis_figures/`、`thesis_figure_visual_acceptance.md` | 图表包、最终成稿装配清单、README 入口 |
+| 修改图像资产、图号或 LaTeX 图表位置 | `thesis_diagrams_with_diagrams.md`、`thesis_figures/`、`thesis_figure_visual_acceptance.md`、`thesis_latex_pdf_visual_acceptance.md` | 图表包、最终成稿装配清单、README 入口 |
 | 修改 hidden persona 边界 | `thesis_claims_manifest.json`、本 hub | 方法正文、证据附录、Benchmark 方法学 |
 | 修改地域树边界 | 本 hub、术语映射、层级放宽方法论 | 放宽总览、路线图、系统架构、region evidence |
 | 修改 v1/v2 关系 | v1/v2 整合方案 | 第 3 章、绪论、总结章 |
@@ -135,6 +137,6 @@ LLM 不生成事实候选，Agent 不读取 `implicit_flexibilities`、`voluntee
 3. 查逐例证据时，按主实验 evidence、扩展 evidence、region evidence 三类入口进入。
 4. 做全局口径变更时，先更新 `thesis_claims_manifest.json`、`thesis_term_mapping.json` 与本 hub，再按第 4 节同步相关母版。
 5. coverage report、artifact audit 等历史报告只用于追溯，不建议为了当前论文口径反复改写。
-6. 提交正式论文或同步 LaTeX 终稿后，查看 `thesis_latex_final_consistency_report.md`；若重编译、改图或改实验口径，应重新生成该报告。
+6. 提交正式论文或同步 LaTeX 终稿后，查看 `thesis_latex_final_consistency_report.md` 和 `thesis_latex_pdf_visual_acceptance.md`；若重编译、改图、改表或改实验口径，应重新生成对应报告和页面快照。
 
 - `thesis_mas_architecture_acceptance.md`：新 MAS 架构接入、LLM 参与边界和 smoke/regression 验收说明。
