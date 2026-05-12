@@ -1,4 +1,4 @@
-# LaTeX 终稿事实一致性验收报告
+﻿# LaTeX 终稿事实一致性验收报告
 
 本文档记录对浙江大学 LaTeX 模板终稿的事实一致性验收。验收对象为：
 
@@ -46,6 +46,7 @@
 | 七组实验主表 | 通过 | 第 6 章 |
 | `multi_axis_v2` 压力测试 | 通过 | 摘要、第 6/7 章、附录 |
 | `real-db-set-浙江-569-009` 失败样本 | 通过 | 摘要、第 6/7 章 |
+| `v1_hybrid_rag` pilot 补充基线 | 通过 | 第 6 章与附录；不进入七组正式实验主表 |
 
 说明：`reviewed v1`、地域树文件名等工程化旧术语仅出现在 `term_mapping.json` 的映射表中，属于允许保留的术语追溯位置；正文主叙述未发现这些旧口径残留。
 
@@ -58,6 +59,7 @@
 | `八组主实验` / `第八组主实验` | 未发现 |
 | `地域树 reviewed v1` | 未在正文主叙述中发现 |
 | `gatekeeper -> radar -> negotiator` 主叙述 | 未发现 |
+| `v1_hybrid_rag` 被写成第八组实验 | 未发现 |
 
 当前 LaTeX 正文将 `multi_axis_v2` 写作轴一致性压力测试修正版，不进入七组实验主表；主实验仍为专业--地域联合放宽实验与风险组合放宽实验，五组扩展实验定位保持不变。
 
@@ -73,9 +75,15 @@ latexmk -xelatex -outdir=out zjuthesis
 
 - 编译成功，无 LaTeX fatal error。
 - PDF 输出：`D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf`
-- PDF 大小：`3,565,808` bytes
-- 最近写入时间：`2026-05-12 09:18:53`
-- `latexmk` 报告：`All targets (out/zjuthesis.xdv out/zjuthesis.pdf) are up-to-date`
+- PDF 大小：`3,572,241` bytes
+- 最近写入时间：`2026-05-12 11:09:17`
+- `latexmk` 报告：`All targets (out/zjuthesis.xdv out/zjuthesis.pdf) are up-to-date`；本轮新增 `v1_hybrid_rag` pilot 小节后已完成三轮 xelatex 与一次 xdvipdfmx。
+
+本轮同步处理：
+
+- 新增第 6 章 v1 混合检索基线 pilot 对照表，作为软约束 RAG / 冲稳保推荐补充基线，不进入七组正式实验主表。
+- 附录实验材料说明新增 gent_benchmark_v1_hybrid_rag_pilot_evidence.md 与两个 pilot summary 的索引。
+- 提交索引新增 v1 混合检索基线 pilot evidence，并明确不得写入七组正式主表。
 
 本轮版式收敛处理：
 
@@ -91,12 +99,13 @@ latexmk -xelatex -outdir=out zjuthesis
 | LaTeX Warning | 1 | 模板类加载提示 |
 | Package Warning | 1 | `xeCJK` 字体族重定义提示 |
 | Overfull `\hbox` | 0 | 明显水平溢出已清零 |
-| Underfull `\hbox` | 15 | 主要是窄表格列或短中文短语断行松散 |
+| Underfull `\hbox` | 17 | 主要是窄表格列、附录路径和短中文短语断行松散 |
 | Underfull `\vbox` | 3 | 页面垂直排版松散 |
 | undefined reference / undefined citation | 0 | 未发现未定义引用或未定义文献 |
 
 ## 5. 剩余风险
 
+- v1 混合检索基线 pilot 已作为第 6 章补充基线讨论加入，新增表格不改变七组正式实验主表。
 - 仍有少量 underfull 版式 warning，主要来自窄表格列、附录表格和页面垂直排版松散；这些不影响事实一致性和 PDF 生成。
 - 本报告只验证事实口径和编译状态，不替代导师对正文论证、参考文献完整性和格式细节的审阅。
 - 若后续重跑实验、调整专业树或修改 `multi_axis_v2` 解释，应先更新 `thesis_claims_manifest.json`、`thesis_document_hub.md` 和 `major_tree_annotation_summary.md`，再重新执行本报告对应的检查。

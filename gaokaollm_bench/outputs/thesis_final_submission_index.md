@@ -1,4 +1,4 @@
-# 毕业论文最终提交包清单与导师审阅索引
+﻿# 毕业论文最终提交包清单与导师审阅索引
 
 本文档是提交前总入口，用于把正式 PDF、LaTeX 源码、论文事实源、验收报告和可复查 evidence 集中到一处。它不替代 `thesis_document_hub.md`、`thesis_claims_manifest.json` 或 LaTeX 正文，只用于提交前快速核对。
 
@@ -77,6 +77,7 @@
 | 多轴压力测试历史版逐例证据 | `agent_benchmark_multi_axis_v1_evidence.md` |
 | 多轴压力测试修正版逐例证据 | `agent_benchmark_multi_axis_v2_evidence.md` |
 | 专业树标注与全量覆盖事实 | `major_tree_annotation_summary.md` |
+| v1 混合检索基线 pilot 逐例证据 | `agent_benchmark_v1_hybrid_rag_pilot_evidence.md` |
 
 `major_geo_v1` 不是 100% 成功，唯一失败样本为 `real-db-set-浙江-569-009`。论文中应保留这一失败样本，避免把主实验包装成完全成功。
 
@@ -101,6 +102,7 @@
 - 不把城市层级写成就业机会、生活成本或城市生活质量收益。
 - 不把专业树全量覆盖 v2 写成“全部语义边界人工确认正确”。
 - 不把 v1 基准系统写成最终主贡献；v1 是问题来源、工程基础和语义归一能力来源，v2 是最终数据 + Agent + Benchmark 闭环。
+- 不把 `v1_hybrid_rag` pilot 写入七组正式实验主表；它只是软约束 RAG / 冲稳保推荐的补充系统基线。
 
 ## 8. 最终建议
 
