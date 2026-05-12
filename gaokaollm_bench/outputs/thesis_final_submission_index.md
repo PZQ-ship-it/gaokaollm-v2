@@ -1,4 +1,4 @@
-# 毕业论文最终提交包清单与导师审阅索引
+﻿# 毕业论文最终提交包清单与导师审阅索引
 
 本文档是提交前总入口，用于把正式 PDF、LaTeX 源码、论文事实源、验收报告和可复查 evidence 集中到一处。它不替代 `thesis_document_hub.md`、`thesis_claims_manifest.json` 或 LaTeX 正文，只用于提交前快速核对。
 
@@ -7,8 +7,8 @@
 | 项目 | 路径 / 状态 |
 | --- | --- |
 | 最终 PDF | `D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf` |
-| PDF 大小 | `3,578,565` bytes |
-| PDF 最近写入时间 | `2026-05-12 12:01:56` |
+| PDF 大小 | `3,578,125` bytes |
+| PDF 最近写入时间 | `2026-05-12 21:17:38` |
 | LaTeX 主入口 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\zjuthesis.tex` |
 | 正文入口 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\body\undergraduate\final\content.tex` |
 | 正文章节目录 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\body\undergraduate\final\chapters\` |
@@ -114,3 +114,4 @@
 4. 对照 `thesis_final_human_review_check.md` 确认递交日期、英文题名、致谢、作者简历和 `v1_hybrid_rag` pilot 入口等提交信息。
 5. 对照本文档第 4-6 节确认贡献、证据和人工待办。
 6. 只在确有必要时修改 LaTeX；修改后重新编译并更新验收报告。
+

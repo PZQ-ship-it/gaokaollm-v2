@@ -1,4 +1,4 @@
-# LaTeX 终稿事实一致性验收报告
+﻿# LaTeX 终稿事实一致性验收报告
 
 本文档记录对浙江大学 LaTeX 模板终稿的事实一致性验收。验收对象为：
 
@@ -75,8 +75,8 @@ latexmk -xelatex -outdir=out zjuthesis
 
 - 编译成功，无 LaTeX fatal error。
 - PDF 输出：`D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf`
-- PDF 大小：`3,578,565` bytes
-- 最近写入时间：`2026-05-12 12:01:56`
+- PDF 大小：`3,578,125` bytes
+- 最近写入时间：`2026-05-12 21:17:38`
 - `latexmk` 报告：`All targets (out/zjuthesis.xdv out/zjuthesis.pdf) are up-to-date`；本轮新增 `v1_hybrid_rag` pilot 小节后已完成三轮 xelatex 与一次 xdvipdfmx。
 
 本轮同步处理：
@@ -89,6 +89,7 @@ latexmk -xelatex -outdir=out zjuthesis
 
 - 将最终封面长题名改为三行下划线题名，消除封面 `271pt` 级别的明显 overfull。
 - 缩短英文摘要中一处长句，消除摘要页的英文行溢出。
+- 按 `论文自查清单.md` 第 7-8 项重写中英文摘要：中文摘要调整为三段式，覆盖背景问题、具体工作与贡献、实验结果和结论；关键词页内显示正常。
 - 收紧第 6 章“专业层级本体标注方法对比与最终效果”表格列距和列宽，消除实验表格 overfull。
 - 将开题/中期材料中一处长英文括注改为中文短标签，避免旧材料在合并编译时产生正文外溢。
 
@@ -109,3 +110,5 @@ latexmk -xelatex -outdir=out zjuthesis
 - 仍有少量 underfull 版式 warning，主要来自窄表格列、附录表格和页面垂直排版松散；这些不影响事实一致性和 PDF 生成。
 - 本报告只验证事实口径和编译状态，不替代导师对正文论证、参考文献完整性和格式细节的审阅。
 - 若后续重跑实验、调整专业树或修改 `multi_axis_v2` 解释，应先更新 `thesis_claims_manifest.json`、`thesis_document_hub.md` 和 `major_tree_annotation_summary.md`，再重新执行本报告对应的检查。
+
+

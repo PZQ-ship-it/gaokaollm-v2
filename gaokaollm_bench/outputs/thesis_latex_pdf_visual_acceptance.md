@@ -1,4 +1,4 @@
-# LaTeX 终稿 PDF 页面级视觉验收报告
+﻿# LaTeX 终稿 PDF 页面级视觉验收报告
 
 本文档记录对正式 LaTeX 终稿 PDF 的页面级视觉验收。它补充 `thesis_latex_final_consistency_report.md`：后者关注事实一致性与编译日志，本报告关注真实 PDF 页面中封面、摘要、目录、图表和附录是否存在裁切、重叠、乱码或旧口径残留。
 
@@ -11,8 +11,8 @@
 | LaTeX 根目录 | `D:\毕设\latex-for-zju-master\latex-for-zju-master` |
 | PDF 路径 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf` |
 | PDF 页数 | 78 |
-| PDF 大小 | `3,578,565` bytes |
-| PDF 最近写入时间 | `2026-05-12 12:01:56` |
+| PDF 大小 | `3,578,125` bytes |
+| PDF 最近写入时间 | `2026-05-12 21:17:38` |
 | 快照目录 | `gaokaollm_bench/outputs/thesis_latex_pdf_snapshots/` |
 | 渲染工具 | `pdftoppm` |
 | 渲染分辨率 | 144 dpi |
@@ -25,8 +25,8 @@
 | ---: | --- | --- | --- |
 | 1 | `thesis_latex_pdf_snapshots/page_01-01.png` | 封面 | 通过。题名三行下划线显示完整，无明显水平溢出。 |
 | 5 | `thesis_latex_pdf_snapshots/page_05-05.png` | 致谢页 | 通过。致谢正文已补齐，段落排版正常，未发现裁切、重叠或乱码。 |
-| 7 | `thesis_latex_pdf_snapshots/page_07-07.png` | 中文摘要 | 通过。摘要段落、关键词和页眉页脚显示正常。 |
-| 9 | `thesis_latex_pdf_snapshots/page_09-09.png` | 英文摘要 | 通过。英文摘要无明显裁切，关键词显示正常。 |
+| 7 | `thesis_latex_pdf_snapshots/page_07-07.png` | 中文摘要 | 通过。摘要已按自查清单改为三段式，关键词和页眉页脚显示正常。 |
+| 9 | `thesis_latex_pdf_snapshots/page_09-09.png` | 英文摘要 | 通过。英文摘要已与中文摘要同步，未见裁切或关键词异常。 |
 | 11 | `thesis_latex_pdf_snapshots/page_11-11.png` | 目录首页 | 通过。目录层级、页码和标题对齐正常。 |
 | 29 | `thesis_latex_pdf_snapshots/page_29-29.png` | 图 4.1 数据 + Agent + Benchmark 总体架构图 | 通过。图像居中，无裁切；节点使用新 MAS 口径。 |
 | 32 | `thesis_latex_pdf_snapshots/page_32-32.png` | 图 4.2 专业层级本体全量覆盖 v2 局部可视化起始页 | 通过。图像无裁切；专业层级本体和可审计挂载边界可读。 |
@@ -67,3 +67,5 @@
 ## 5. 结论
 
 本次页面级视觉验收通过。当前 `zjuthesis.pdf` 的核心提交页面未发现明显裁切、重叠、乱码或旧 MAS 口径回退；致谢和作者简历已补齐并通过页面快照复查；专业树全量覆盖 v2、七组实验、`v1_hybrid_rag` pilot 基线、`multi_axis_v2` 压力测试和 hidden persona 边界均能在 PDF 页面中复查。
+
+

@@ -1,4 +1,4 @@
-# 最终论文人工占位与提交信息检查报告
+﻿# 最终论文人工占位与提交信息检查报告
 
 本文档记录正式 LaTeX 终稿在提交前需要人工确认的非实验性信息。它不修改论文事实、不新增实验、不重跑 benchmark，也不替代 `thesis_latex_final_consistency_report.md` 和 `thesis_latex_pdf_visual_acceptance.md`。
 
@@ -10,8 +10,8 @@
 | 主入口 | `zjuthesis.tex` |
 | 正文入口 | `body/undergraduate/final/content.tex` |
 | PDF 路径 | `D:\毕设\latex-for-zju-master\latex-for-zju-master\out\zjuthesis.pdf` |
-| PDF 大小 | `3,578,565` bytes |
-| PDF 最近写入时间 | `2026-05-12 12:01:56` |
+| PDF 大小 | `3,578,125` bytes |
+| PDF 最近写入时间 | `2026-05-12 21:17:38` |
 | 检查时间 | `2026-05-12` |
 
 当前 `content.tex` 实际编译第 1-7 章、参考文献、实验材料附录和作者简历。`body/undergraduate/final/1-introduction.tex`、`body/undergraduate/final/2-body.tex` 是旧结构遗留文件，未被当前正文入口引用。
@@ -38,7 +38,7 @@
 | 检查项 | 结果 |
 | --- | --- |
 | 正文第 1-7 章 | 未发现 `TODO`、`FIXME`、`待补`、`占位`、`??`、`citation needed`、`TBD` 等明显占位符。 |
-| 摘要与关键词 | 中英文摘要和关键词均存在。 |
+| 摘要与关键词 | 中英文摘要和关键词均存在；摘要已按自查清单重写为背景问题、工作贡献、实验结论三段式。 |
 | 附录边界说明 | 已写明 `implicit_flexibilities`、`volunteer_set`、`axis_flexibilities` 只用于模拟器/评测器，不进入被测 Agent。 |
 | `v1_hybrid_rag` pilot | 已进入第 6 章和附录索引；它是软约束 RAG / 冲稳保推荐 pilot 基线，不进入七组正式实验主表。 |
 | 专业树全量覆盖 v2 | 正文保留 `22,759 / 22,759`、`140,995 / 140,995` 与 `remaining_unassigned = 0` 的可审计挂载覆盖口径。 |
@@ -62,3 +62,5 @@
 ## 6. 结论
 
 当前终稿的人工占位字段已补齐，实验事实、正文结构、引用编译和页面级视觉验收保持稳定。最新 PDF 已包含 `v1_hybrid_rag` pilot 补充基线、正式递交日期、英文题名、致谢正文和作者简历，并通过重新编译与最新页面快照复查。提交前最后建议人工核对学院实际日期要求、英文题名译法、致谢措辞和作者简历是否符合学院模板。
+
+

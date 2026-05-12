@@ -68,8 +68,8 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | `major_geo_relax` | `thesis_method_experiment_chapters.md`、`thesis_hierarchical_relaxation_methodology.md` | 第 5 章 | 结合专业树 staged relaxation，不写成简单去掉专业限制 |
 | `risk_band_relax` | `thesis_method_experiment_chapters.md` | 第 5 章 | 说明 `score_margin` / `rank_gap` 与 `chong/wen/bao` |
 | `tuition_value_relax` | `thesis_method_experiment_chapters.md` | 第 5 章或扩展实验 | 保留 `budget < tuition <= budget + 10000` 窗口 |
-| `major_quality_relax` | `thesis_method_experiment_chapters.md` | 第 5 章或扩展实验 | 引用 `school_major_quality_profiles` |
-| `employment_outcome_relax` | `thesis_method_experiment_chapters.md` | 第 5 章或扩展实验 | 引用 `major_employment_outcome_profiles` |
+| `major_quality_relax` | `thesis_method_experiment_chapters.md` | 第 5 章或扩展实验 | 引用学校-专业质量画像 |
+| `employment_outcome_relax` | `thesis_method_experiment_chapters.md` | 第 5 章或扩展实验 | 引用专业就业结果画像 |
 | `region_tree_relax` | `thesis_method_experiment_chapters.md`、`thesis_hierarchical_relaxation_methodology.md` | 第 5 章或扩展实验 | 写清 `geo_block_relax` / `urban_tier_relax`，城市层级不直接等价于城市收益 |
 
 ## 4.1 专业层级本体全量覆盖 v2 必写事实
