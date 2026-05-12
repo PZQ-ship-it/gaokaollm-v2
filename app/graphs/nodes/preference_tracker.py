@@ -38,6 +38,7 @@ def _safe_variance(raw_variance: dict[str, Any]) -> dict[str, float]:
 
 
 def preference_tracker_node(state: AgentState) -> dict[str, Any]:
+    print("[preference_tracker] updated implicit preference state")
     user_reply = str(state.get("latest_human_feedback") or "")
     weights = deepcopy(dict(DEFAULT_IMPLICIT_WEIGHTS))
     weights.update(deepcopy(state.get("implicit_weights") or {}))

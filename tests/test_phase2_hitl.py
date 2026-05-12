@@ -80,19 +80,27 @@ async def test_hitl_interrupt_resume_updates_preference_state(monkeypatch):
 
     snapshot = app.get_state(config)
     question = snapshot.tasks[0].interrupts[0].value
+    print(f"[interrupt] {question}")
     assert "能接受" in question
     assert "外省跃迁大学" in question
 
+    resume_text = "行，我可以接受出省"
+    print(f"[resume] {resume_text}")
     resume_events = [
         event
         async for event in app.astream(
-            Command(resume="行，我可以接受出省"),
+            Command(resume=resume_text),
             config=config,
         )
     ]
     assert any("preference_tracker" in event for event in resume_events)
 
     updated = app.get_state(config).values
+    print(
+        "[tracker] "
+        f"weights={updated['implicit_weights']} "
+        f"variance={updated['weight_variance']}"
+    )
     assert (
         updated["implicit_weights"]["school"]
         > initial_state["implicit_weights"]["school"]
