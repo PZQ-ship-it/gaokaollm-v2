@@ -37,6 +37,7 @@
 | --- | --- |
 | `thesis_latex_final_consistency_report.md` | `zjuthesis.pdf` 已生成；无 LaTeX fatal error；无 undefined references / citations；无 overfull `\hbox`。 |
 | `thesis_latex_pdf_visual_acceptance.md` | 封面、摘要、目录、核心图、专业树表、七组实验表、多轴压力测试表和附录边界页面通过页面级视觉验收。 |
+| `thesis_final_human_review_check.md` | 记录递交日期、英文题名、致谢、作者简历和模板字段等提交前人工待办。 |
 | `thesis_latex_pdf_snapshots/` | 关键 PDF 页面快照，可用于快速复查真实版式效果。 |
 | `thesis_figure_visual_acceptance.md` | 核心图像资产在论文 PDF 中的视觉验收记录。 |
 
@@ -86,6 +87,7 @@
 | 封面提交日期 | 按学校最终要求填写，不要保留占位文本。 |
 | 导师署名与学生信息 | 与学院系统和模板要求逐项核对。 |
 | 致谢 | 当前模板中致谢页较短，提交前建议补齐正式致谢文本。 |
+| 作者简历 | 当前作者简历页较短，按学院要求确认是否需要补充。 |
 | 参考文献格式 | 检查引用是否满足学院要求，确认 BibTeX 条目完整。 |
 | 图片清晰度 | PDF 已通过页面级验收；答辩 PPT 建议使用 `thesis_figures/` 中的原始 SVG/PNG，尤其是架构图、Benchmark 图、专业层级本体局部图和地域层级画像局部图。当前新增树形局部图已进入第 4 章。 |
 | 表格与图题 | 确认图表编号、正文引用和目录一致。 |
@@ -107,5 +109,6 @@
 1. 打开 `zjuthesis.pdf` 做人工通读。
 2. 对照 `thesis_latex_final_consistency_report.md` 确认编译状态。
 3. 对照 `thesis_latex_pdf_visual_acceptance.md` 查看关键页面快照。
-4. 对照本文档第 4-6 节确认贡献、证据和人工待办。
-5. 只在确有必要时修改 LaTeX；修改后重新编译并更新验收报告。
+4. 对照 `thesis_final_human_review_check.md` 确认递交日期、英文题名、致谢、作者简历等人工信息。
+5. 对照本文档第 4-6 节确认贡献、证据和人工待办。
+6. 只在确有必要时修改 LaTeX；修改后重新编译并更新验收报告。

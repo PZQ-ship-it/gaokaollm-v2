@@ -29,6 +29,7 @@ Agent 架构写作口径为轻量 MAS / 多角色 Agent：
 | 7 | `gaokaollm_bench/outputs/thesis_figures_tables_pack.md` | 图、表、伪代码和 Mermaid 草稿 |
 | 8 | `gaokaollm_bench/outputs/thesis_latex_final_consistency_report.md` | LaTeX 终稿事实一致性、`zjuthesis.pdf` 编译状态和剩余版式 warning |
 | 9 | `gaokaollm_bench/outputs/thesis_latex_pdf_visual_acceptance.md` | LaTeX 终稿 PDF 页面级视觉验收、关键页面快照和剩余视觉风险 |
+| 10 | `gaokaollm_bench/outputs/thesis_final_human_review_check.md` | 提交前人工信息、占位符、致谢、作者简历和模板字段检查 |
 
 ## 2. 最终 7 章装配表
 
@@ -151,3 +152,4 @@ elicitation_success_rate / mean_pareto_gain / mean_hallucination_rate / avg_turn
 - 查看 `thesis_final_submission_index.md`，确认最终 PDF、LaTeX 源码、事实源、验收报告、证据入口和导师审阅待办集中可查。
 - 查看 `thesis_latex_final_consistency_report.md`，确认 `zjuthesis.pdf` 已生成、无 LaTeX fatal error，且七组实验、新 MAS、专业树全量覆盖 v2、`multi_axis_v2` 和 hidden persona 边界均通过一致性检查。
 - 查看 `thesis_latex_pdf_visual_acceptance.md`，确认封面、摘要、目录、核心图、专业树表、七组实验表、多轴压力测试表和附录边界页面无明显裁切、重叠、乱码或旧口径回退。
+- 查看 `thesis_final_human_review_check.md`，确认递交日期、英文题名、致谢、作者简历和模板人工字段已经处理。
