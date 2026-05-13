@@ -338,6 +338,35 @@ def wrap_for_figure(text: str, width: int = 32) -> str:
     return textwrap.fill(str(text or "").replace("\n", " "), width=width)
 
 
+def _representative_interrupt(
+    logs: list[dict[str, Any]],
+    thread_id: str,
+    *,
+    turn: int | None = 1,
+) -> dict[str, Any]:
+    rows = [
+        row
+        for row in logs
+        if row.get("thread_id") == thread_id and row.get("status") == "interrupt"
+    ]
+    if turn is not None:
+        for row in rows:
+            if int(row.get("turn") or 0) == turn:
+                return row
+    return rows[0] if rows else {}
+
+
+def _question_excerpt(row: dict[str, Any], max_len: int = 60) -> str:
+    question = str(row.get("question") or "")
+    if not question:
+        return "未记录有效提问"
+    if "本轮候选不足以形成取舍" in question:
+        return "候选不足以形成取舍；不建议牺牲/放宽目标维度换取不存在收益。"
+    if "你刚才拒绝了" in question:
+        return short(question, max_len)
+    return short(question, max_len)
+
+
 def figure_dialogue_flow(logs: list[dict[str, Any]]) -> None:
     profile = "robust_major_extreme"
     fig, ax = plt.subplots(figsize=(8.4, 9.2))
@@ -353,8 +382,7 @@ def figure_dialogue_flow(logs: list[dict[str, Any]]) -> None:
             "edge": "#4b8aa5",
             "title": "EDMIE full：问到底线并更新后验",
             "target": "专业",
-            "question": "用真实候选对追问：是否愿意放宽专业匹配。",
-            "reply": "专业不能偏太远，这个我不接受。",
+            "turn": 1,
         },
         {
             "mode": "no_ucb",
@@ -363,8 +391,7 @@ def figure_dialogue_flow(logs: list[dict[str, Any]]) -> None:
             "edge": "#c59a35",
             "title": "no-UCB：泛化澄清，未命中专业底线",
             "target": "随机方向：证据丰富度 / 风险 / 相邻范围",
-            "question": "询问不确定性、风险等泛化方向，没有明确候选取舍。",
-            "reply": "这个问题没问到我的真正底线，我先保留。",
+            "turn": 1,
         },
         {
             "mode": "no_tracker",
@@ -373,8 +400,7 @@ def figure_dialogue_flow(logs: list[dict[str, Any]]) -> None:
             "edge": "#b97070",
             "title": "no-tracker：问到底线但不能记住",
             "target": "专业",
-            "question": "第一轮命中专业底线，后续仍重复确认同一问题。",
-            "reply": "专业不能偏太远，这个我不接受。",
+            "turn": 2,
         },
     ]
 
@@ -393,6 +419,13 @@ def figure_dialogue_flow(logs: list[dict[str, Any]]) -> None:
         ax.text(6, y + 20.1, spec["title"], fontsize=13, weight="bold", va="center")
 
         thread = f"{profile}_{spec['mode']}_r1"
+        representative = _representative_interrupt(
+            logs,
+            thread,
+            turn=int(spec.get("turn") or 1),
+        )
+        question = _question_excerpt(representative)
+        reply = short(str(representative.get("simulator_reply") or ""), 46)
         weights = final_weight_for(logs, thread)
         major = weights.get("major", 0.0)
         school = weights.get("school", 0.0)
@@ -418,9 +451,7 @@ def figure_dialogue_flow(logs: list[dict[str, Any]]) -> None:
             color="#333333",
             va="top",
         )
-        ax.text(
-            20, y + 10.8, wrap_for_figure(spec["question"], 29), fontsize=10.5, va="top"
-        )
+        ax.text(20, y + 10.8, wrap_for_figure(question, 29), fontsize=10.5, va="top")
         ax.text(
             7,
             y + 4.4,
@@ -430,9 +461,7 @@ def figure_dialogue_flow(logs: list[dict[str, Any]]) -> None:
             color="#333333",
             va="top",
         )
-        ax.text(
-            20, y + 4.4, wrap_for_figure(spec["reply"], 34), fontsize=10.5, va="top"
-        )
+        ax.text(20, y + 4.4, wrap_for_figure(reply, 34), fontsize=10.5, va="top")
 
         weights = final_weight_for(logs, thread)
         ax.text(

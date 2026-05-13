@@ -20,7 +20,7 @@ Total interrupts: 285
 
 ## no_ucb
 - n: 105
-- repeated_question_rate: 0.1619047619047619
+- repeated_question_rate: 0.10476190476190476
 - cost_equals_benefit_rate: 0.0
 - same_candidate_pair_rate: 0.0
 - target_dimension_hit_rate: 0.0

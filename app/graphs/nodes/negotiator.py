@@ -574,6 +574,26 @@ def _has_real_benefit(diff: dict[str, Any], cost: str) -> bool:
     )
 
 
+def _locked_preference_text(dimension: str) -> str:
+    return {
+        "major": "专业不偏离",
+        "geo": "地域不越界",
+        "tuition": "预算不突破",
+        "school": "学校层次不下降",
+        "quality": "培养质量不下降",
+    }.get(dimension, "这项偏好不放宽")
+
+
+def _alternative_tradeoff_text(dimension: str) -> str:
+    return {
+        "major": "地域/学校层次",
+        "geo": "专业/学校层次",
+        "tuition": "学校层次/培养质量",
+        "school": "专业/培养质量",
+        "quality": "学校层次/专业",
+    }.get(dimension, "其他维度")
+
+
 def _tradeoff_fact_sentence(
     option_a: dict[str, Any],
     option_b: dict[str, Any],
@@ -597,11 +617,12 @@ def _tradeoff_fact_sentence(
         benefit,
         verb="提升",
     )
+    kept_cost = _dimension_value_text(option_a, cost)
     benefit_effect = _delta_effect_text(delta_phi, benefit)
     return (
-        f"如果保留 {title_a}，{cost_label} 更稳；"
+        f"如果保留 {title_a}，你保留 {cost_label}：{kept_cost}；"
         f"如果改看 {title_b}，需要你牺牲/放宽 {cost_label}：{cost_transition}，"
-        f"换取 {benefit_label}：{benefit_transition}（{benefit_effect}）。"
+        f"但能换取 {benefit_label}：{benefit_transition}（{benefit_effect}）。"
     )
 
 
@@ -623,28 +644,30 @@ def _fallback_pareto_question(
     if not option_b:
         current_cost = _dimension_value_text(option_a, cost)
         return (
-            f"本轮候选不足以形成可靠取舍。以 {school_a} 为参照，"
-            f"我只看到 {cost_label} 的边界可能要放松到「{current_cost}」，"
-            f"但没有找到可供换取的可验证补偿；"
-            f"你愿意继续牺牲/放宽 {cost_label} 再看一轮，还是先保留这条底线？"
+            f"本轮候选不足以形成取舍。以 {school_a} 为参照，"
+            f"目前只看到 {cost_label} 边界在「{current_cost}」，"
+            f"但没有可验证收益维度可供换取；我不建议你牺牲/放宽 {cost_label} "
+            f"去换取不存在的收益，这属于低信息量探测。"
+            f"你是否先保留 {cost_label}，让我下一轮改看其他候选？"
         )
     if option_b and _same_visible_candidate(option_a, option_b):
         current_cost = _dimension_value_text(option_a, cost)
         return (
-            f"本轮两个候选在可见学校上过于接近，无法构成有信息量的 A/B 取舍。"
-            f"目前可讨论的是 {cost_label} 已到「{current_cost}」。"
-            f"你愿意牺牲/放宽 {cost_label} 继续探索，还是把它当作暂时不能动的底线？"
+            f"本轮候选不足以形成取舍。两个候选在可见学校上过于接近，"
+            f"目前只看到 {cost_label} 边界在「{current_cost}」，"
+            f"但没有可验证收益维度可供换取；我不建议你牺牲/放宽 {cost_label} "
+            f"去换取不存在的收益，这属于低信息量探测。"
+            f"你是否先保留 {cost_label}，让我下一轮改看其他候选？"
         )
     if not has_real_benefit:
-        title_a = _option_title(option_a, "方案A")
-        title_b = _option_title(option_b, "方案B")
         cost_transition = _dimension_transition_text(
             option_a, option_b, cost, verb="放宽"
         )
         return (
-            f"如果从 {title_a} 改看 {title_b}，主要变化是牺牲/放宽 {cost_label}："
-            f"{cost_transition}；但这组候选没有给出可供换取的可验证补偿。"
-            f"这种没有清晰收益的放宽你能接受吗？"
+            f"本轮候选不足以形成取舍。候选之间只显示出牺牲/放宽 {cost_label}："
+            f"{cost_transition}，但没有可验证收益维度可供换取；"
+            f"我不建议你用这项放宽换取不存在的收益，这属于低信息量探测。"
+            f"你是否先保留 {cost_label}，让我下一轮改看其他候选？"
         )
     fact_sentence = _tradeoff_fact_sentence(
         option_a, option_b, cost, benefit, delta_phi
@@ -677,6 +700,8 @@ def _followup_pareto_question(
         )
     cost_label = DIMENSION_LABELS.get(forced_cost_dimension, forced_cost_dimension)
     benefit_label = DIMENSION_LABELS.get(benefit, benefit)
+    locked_text = _locked_preference_text(forced_cost_dimension)
+    alternatives = _alternative_tradeoff_text(forced_cost_dimension)
     round_number = negotiation_turns + 1
     has_real_benefit = _has_real_benefit(delta_phi, forced_cost_dimension)
     reply_hint = {
@@ -695,22 +720,25 @@ def _followup_pareto_question(
             delta_phi,
         )
         return (
-            f"上一轮你已经表达过“{reply_hint}”。第 {round_number} 轮我按这个底线继续追问："
+            f"你刚才拒绝了“{reply_hint}”。第 {round_number} 轮我按“{locked_text}”先锁定，"
+            f"再看这组事实取舍："
             f"{fact_sentence}"
-            f"如果这仍然触碰 {cost_label}，我就把它记为强底线；"
-            f"你是否愿意为了 {benefit_label} 牺牲/放宽 {cost_label}？"
+            f"如果仍要牺牲/放宽 {cost_label} 换取 {benefit_label}，"
+            f"你更不能接受哪一项？"
         )
     elif option_a:
         current = _dimension_value_text(option_a, forced_cost_dimension)
         return (
-            f"上一轮你已经表达过“{reply_hint}”。第 {round_number} 轮我没有找到足够清晰的收益候选，"
-            f"目前只能看到 {cost_label} 边界在「{current}」。"
-            f"你愿意继续牺牲/放宽 {cost_label} 再探索，还是先把这项锁为强底线？"
+            f"你刚才拒绝了“{reply_hint}”。第 {round_number} 轮我按“{locked_text}”先锁定；"
+            f"本轮候选不足以形成能牺牲/放宽 {cost_label} 换取其他收益的事实取舍，"
+            f"目前只看到 {cost_label} 边界在「{current}」。"
+            f"是否改看 {alternatives} 上的取舍？"
         )
     else:
         return (
-            f"上一轮你已经表达过“{reply_hint}”。第 {round_number} 轮我先不伪造收益，"
-            f"只确认一件事：你是否愿意牺牲/放宽 {cost_label} 去换取其它维度的潜在收益？"
+            f"你刚才拒绝了“{reply_hint}”。第 {round_number} 轮我按“{locked_text}”先锁定；"
+            f"本轮候选不足以形成能牺牲/放宽 {cost_label} 换取 {benefit_label} 的事实取舍。"
+            f"是否改看 {alternatives} 上的取舍？"
         )
 
 
@@ -803,11 +831,6 @@ async def _generate_pareto_question(
             str(forced_cost_dimension),
             previous_delta_phi=state.get("latest_pareto_diff"),
         )
-        if not option_b:
-            option_a, option_b, delta_phi = select_max_divergence_pair(
-                rows,
-                previous_delta_phi=state.get("latest_pareto_diff"),
-            )
     else:
         option_a, option_b, delta_phi = select_max_divergence_pair(
             rows,
@@ -843,8 +866,10 @@ async def _generate_pareto_question(
         delta_phi[str(forced_cost_dimension)] = -1.0
     instruction = (
         "你是一个谈判专家。请基于方案A和B的特征差异，向用户发起一个简短的"
-        "‘二选一帕累托权衡提问’。必须明确使用‘牺牲/放宽 [代价维度] 换取 "
-        "[收益维度] 跃迁’这种边际替代率（MRS）句式！直接提问，绝不要寒暄或做最终推荐！"
+        "‘二选一帕累托权衡提问’。只有当方案B在代价维度真实下降、且另一个维度真实上升时，"
+        "才使用‘牺牲/放宽 [代价维度] 换取 [收益维度]’这种边际替代率（MRS）句式；"
+        "如果没有真实收益，必须说明候选不足以形成取舍，不能伪造收益。"
+        "直接提问，绝不要寒暄或做最终推荐！"
     )
     question_factory_is_monkeypatched = get_chat_model is not get_structured_chat_model
     if (
