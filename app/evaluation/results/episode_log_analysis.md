@@ -7,7 +7,7 @@ Total interrupts: 285
 - repeated_question_rate: 0.0
 - cost_equals_benefit_rate: 0.0
 - same_candidate_pair_rate: 0.0
-- target_dimension_hit_rate: 0.875
+- target_dimension_hit_rate: 0.9166666666666666
 - simulator_ambiguous_reply_rate: 0.08333333333333333
 
 ## no_tracker
@@ -15,12 +15,12 @@ Total interrupts: 285
 - repeated_question_rate: 0.0
 - cost_equals_benefit_rate: 0.0
 - same_candidate_pair_rate: 0.0
-- target_dimension_hit_rate: 0.8611111111111112
+- target_dimension_hit_rate: 0.9166666666666666
 - simulator_ambiguous_reply_rate: 0.08333333333333333
 
 ## no_ucb
 - n: 105
-- repeated_question_rate: 0.13333333333333333
+- repeated_question_rate: 0.1619047619047619
 - cost_equals_benefit_rate: 0.0
 - same_candidate_pair_rate: 0.0
 - target_dimension_hit_rate: 0.0

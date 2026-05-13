@@ -93,12 +93,20 @@ get_chat_model = get_structured_chat_model
 MAJOR_NOTE_PATTERN = re.compile(
     r"[\(（][^()（）]*(?:学院|校区|班|方向)[^()（）]*[\)）]"
 )
+MAX_DISPLAY_VALUE_LEN = 48
 
 
 def _display_major(value: Any) -> str:
     text = str(value or "")
     cleaned = MAJOR_NOTE_PATTERN.sub("", text).strip()
-    return cleaned or text
+    return _short_display(cleaned or text, max_len=MAX_DISPLAY_VALUE_LEN)
+
+
+def _short_display(value: Any, *, max_len: int = MAX_DISPLAY_VALUE_LEN) -> str:
+    text = re.sub(r"\s+", " ", str(value or "")).strip()
+    if len(text) <= max_len:
+        return text
+    return text[: max_len - 1] + "..."
 
 
 def _compact(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -443,7 +451,10 @@ def _phi_text(row: dict[str, Any], dimension: str) -> str:
 
 def _dimension_value_text(row: dict[str, Any], dimension: str) -> str:
     if dimension == "school":
-        school = _first_present(row, ("school_name", "school")) or "未知学校"
+        school = _short_display(
+            _first_present(row, ("school_name", "school")) or "未知学校",
+            max_len=24,
+        )
         tier = _first_present(
             row, ("school_tier", "school_level", "tier_label", "tier")
         )
@@ -455,8 +466,12 @@ def _dimension_value_text(row: dict[str, Any], dimension: str) -> str:
         level = _first_present(row, ("major_relax_level", "relaxation_stage"))
         return f"{major}，放宽层级={level}" if level is not None else str(major)
     if dimension == "geo":
-        province = _first_present(row, ("school_province", "province")) or "未知省份"
-        city = _first_present(row, ("school_city", "city"))
+        province = _short_display(
+            _first_present(row, ("school_province", "province")) or "未知省份",
+            max_len=16,
+        )
+        raw_city = _first_present(row, ("school_city", "city"))
+        city = _short_display(raw_city, max_len=16) if raw_city else None
         level = _first_present(row, ("geo_relax_level", "region_relax_level"))
         location = f"{province}/{city}" if city else str(province)
         return f"{location}，地域放宽层级={level}" if level is not None else location
@@ -484,6 +499,17 @@ def _dimension_value_text(row: dict[str, Any], dimension: str) -> str:
     return _phi_text(row, dimension)
 
 
+def _option_title(row: dict[str, Any], fallback: str) -> str:
+    school = _short_display(
+        _first_present(row, ("school_name", "school")) or fallback,
+        max_len=24,
+    )
+    major = _display_major(_first_present(row, ("major_name", "major")) or "")
+    if major:
+        return f"{school} / {major}"
+    return school
+
+
 def _dimension_transition_text(
     option_a: dict[str, Any],
     option_b: dict[str, Any],
@@ -507,71 +533,58 @@ def _delta_effect_text(delta_phi: dict[str, float], dimension: str) -> str:
     return f"{direction} {abs(delta):.2f} 个标准化效用点"
 
 
-def _fallback_pareto_question(
+def _choose_benefit_dimension(
+    diff: dict[str, Any],
+    cost: str,
+    *,
+    fallback: str = "quality",
+) -> str:
+    positive = [
+        (key, float(value))
+        for key, value in diff.items()
+        if key != cost and isinstance(value, (int, float)) and float(value) > 0.05
+    ]
+    if positive:
+        return max(positive, key=lambda item: item[1])[0]
+    if fallback != cost:
+        return fallback
+    return "school" if cost != "school" else "quality"
+
+
+def _choose_cost_dimension(
+    diff: dict[str, Any],
+    forced_cost_dimension: str | None,
+) -> str:
+    if forced_cost_dimension in PREFERENCE_KEYS:
+        return str(forced_cost_dimension)
+    negative = [
+        (key, float(value))
+        for key, value in diff.items()
+        if isinstance(value, (int, float)) and float(value) < -0.05
+    ]
+    if negative:
+        return min(negative, key=lambda item: item[1])[0]
+    return "geo"
+
+
+def _has_real_benefit(diff: dict[str, Any], cost: str) -> bool:
+    return any(
+        key != cost and isinstance(value, (int, float)) and float(value) > 0.05
+        for key, value in diff.items()
+    )
+
+
+def _tradeoff_fact_sentence(
     option_a: dict[str, Any],
     option_b: dict[str, Any],
+    cost: str,
+    benefit: str,
     delta_phi: dict[str, float],
-    *,
-    forced_cost_dimension: str | None = None,
 ) -> str:
-    payload = _pareto_prompt_payload(option_a, option_b, delta_phi)
-    diff = payload.get("delta_phi_b_minus_a") or {}
-    positive = [
-        (key, value)
-        for key, value in diff.items()
-        if isinstance(value, (int, float)) and value > 0.05
-    ]
-    negative = [
-        (key, value)
-        for key, value in diff.items()
-        if isinstance(value, (int, float)) and value < -0.05
-    ]
-    benefit = max(positive, key=lambda item: item[1])[0] if positive else "school"
-    cost = (
-        forced_cost_dimension
-        if forced_cost_dimension in PREFERENCE_KEYS
-        else min(negative, key=lambda item: item[1])[0]
-        if negative
-        else "geo"
-    )
-    if cost == benefit:
-        benefit = next(
-            (key for key, _value in positive if key != cost),
-            "quality" if cost != "quality" else "school",
-        )
-    has_real_benefit = any(
-        key != cost and isinstance(value, (int, float)) and value > 0.05
-        for key, value in diff.items()
-    )
-    benefit_label = DIMENSION_LABELS.get(benefit, benefit)
+    title_a = _option_title(option_a, "方案A")
+    title_b = _option_title(option_b, "方案B")
     cost_label = DIMENSION_LABELS.get(cost, cost)
-    school_a = (payload.get("option_a") or {}).get("school") or "方案A"
-    school_b = (payload.get("option_b") or {}).get("school") or "方案B"
-    if not option_b:
-        current_cost = _dimension_value_text(option_a, cost)
-        return (
-            f"当前可比较候选高度同质。以 {school_a} 为参照，"
-            f"这批结果没有形成清晰的‘换取’收益跃迁。"
-            f"我想直接确认：你是否愿意继续放宽 {cost_label}（当前为「{current_cost}」）？"
-        )
-    if option_b and _same_visible_candidate(option_a, option_b):
-        current_cost = _dimension_value_text(option_a, cost)
-        return (
-            f"这两个候选在可见学校上高度接近。"
-            f"你是否要坚持 {cost_label} 这条底线（当前为「{current_cost}」）？"
-        )
-    if not has_real_benefit:
-        cost_transition = _dimension_transition_text(
-            option_a,
-            option_b,
-            cost,
-            verb="放宽",
-        )
-        return (
-            f"在 {school_a} 和 {school_b} 之间，方案B主要要求你放宽 {cost_label}："
-            f"{cost_transition}；但当前候选没有带来明确的 {benefit_label} 正向提升。"
-            f"你是否仍愿意放宽这条底线？"
-        )
+    benefit_label = DIMENSION_LABELS.get(benefit, benefit)
     cost_transition = _dimension_transition_text(
         option_a,
         option_b,
@@ -586,10 +599,60 @@ def _fallback_pareto_question(
     )
     benefit_effect = _delta_effect_text(delta_phi, benefit)
     return (
-        f"在 {school_a} 和 {school_b} 之间，"
-        f"方案B需要你牺牲/放宽 {cost_label}：{cost_transition}；"
+        f"如果保留 {title_a}，{cost_label} 更稳；"
+        f"如果改看 {title_b}，需要你牺牲/放宽 {cost_label}：{cost_transition}，"
         f"换取 {benefit_label}：{benefit_transition}（{benefit_effect}）。"
-        "你能接受这笔交换吗？"
+    )
+
+
+def _fallback_pareto_question(
+    option_a: dict[str, Any],
+    option_b: dict[str, Any],
+    delta_phi: dict[str, float],
+    *,
+    forced_cost_dimension: str | None = None,
+) -> str:
+    payload = _pareto_prompt_payload(option_a, option_b, delta_phi)
+    diff = payload.get("delta_phi_b_minus_a") or {}
+    cost = _choose_cost_dimension(diff, forced_cost_dimension)
+    benefit = _choose_benefit_dimension(diff, cost)
+    has_real_benefit = _has_real_benefit(diff, cost)
+    benefit_label = DIMENSION_LABELS.get(benefit, benefit)
+    cost_label = DIMENSION_LABELS.get(cost, cost)
+    school_a = _short_display((payload.get("option_a") or {}).get("school") or "方案A")
+    if not option_b:
+        current_cost = _dimension_value_text(option_a, cost)
+        return (
+            f"本轮候选不足以形成可靠取舍。以 {school_a} 为参照，"
+            f"我只看到 {cost_label} 的边界可能要放松到「{current_cost}」，"
+            f"但没有找到可供换取的可验证补偿；"
+            f"你愿意继续牺牲/放宽 {cost_label} 再看一轮，还是先保留这条底线？"
+        )
+    if option_b and _same_visible_candidate(option_a, option_b):
+        current_cost = _dimension_value_text(option_a, cost)
+        return (
+            f"本轮两个候选在可见学校上过于接近，无法构成有信息量的 A/B 取舍。"
+            f"目前可讨论的是 {cost_label} 已到「{current_cost}」。"
+            f"你愿意牺牲/放宽 {cost_label} 继续探索，还是把它当作暂时不能动的底线？"
+        )
+    if not has_real_benefit:
+        title_a = _option_title(option_a, "方案A")
+        title_b = _option_title(option_b, "方案B")
+        cost_transition = _dimension_transition_text(
+            option_a, option_b, cost, verb="放宽"
+        )
+        return (
+            f"如果从 {title_a} 改看 {title_b}，主要变化是牺牲/放宽 {cost_label}："
+            f"{cost_transition}；但这组候选没有给出可供换取的可验证补偿。"
+            f"这种没有清晰收益的放宽你能接受吗？"
+        )
+    fact_sentence = _tradeoff_fact_sentence(
+        option_a, option_b, cost, benefit, delta_phi
+    )
+    return (
+        f"{fact_sentence}"
+        f"这笔取舍里，你更不能接受的是放宽 {cost_label}，"
+        f"还是愿意为了 {benefit_label} 接受它？"
     )
 
 
@@ -615,30 +678,40 @@ def _followup_pareto_question(
     cost_label = DIMENSION_LABELS.get(forced_cost_dimension, forced_cost_dimension)
     benefit_label = DIMENSION_LABELS.get(benefit, benefit)
     round_number = negotiation_turns + 1
-    has_real_benefit = any(
-        key != forced_cost_dimension
-        and isinstance(value, (int, float))
-        and value > 0.05
-        for key, value in delta_phi.items()
-    )
+    has_real_benefit = _has_real_benefit(delta_phi, forced_cost_dimension)
+    reply_hint = {
+        "major": "专业不能偏太远",
+        "geo": "不能出省或离目标地域太远",
+        "tuition": "预算不能超",
+        "school": "学校层次不能降",
+        "quality": "培养质量不能弱",
+    }.get(forced_cost_dimension, "这条底线不能轻易动")
     if option_a and option_b and has_real_benefit:
-        detail = (
-            f"具体仍是 {cost_label}："
-            f"{_dimension_transition_text(option_a, option_b, forced_cost_dimension, verb='放宽')}；"
-            f"{benefit_label}："
-            f"{_dimension_transition_text(option_a, option_b, benefit, verb='提升')}"
+        fact_sentence = _tradeoff_fact_sentence(
+            option_a,
+            option_b,
+            forced_cost_dimension,
+            benefit,
+            delta_phi,
+        )
+        return (
+            f"上一轮你已经表达过“{reply_hint}”。第 {round_number} 轮我按这个底线继续追问："
+            f"{fact_sentence}"
+            f"如果这仍然触碰 {cost_label}，我就把它记为强底线；"
+            f"你是否愿意为了 {benefit_label} 牺牲/放宽 {cost_label}？"
         )
     elif option_a:
-        detail = (
-            f"当前没有明确的正向收益跃迁，我只确认底线："
-            f"{cost_label} 当前为「{_dimension_value_text(option_a, forced_cost_dimension)}」"
+        current = _dimension_value_text(option_a, forced_cost_dimension)
+        return (
+            f"上一轮你已经表达过“{reply_hint}”。第 {round_number} 轮我没有找到足够清晰的收益候选，"
+            f"目前只能看到 {cost_label} 边界在「{current}」。"
+            f"你愿意继续牺牲/放宽 {cost_label} 再探索，还是先把这项锁为强底线？"
         )
     else:
-        detail = "当前没有明确的正向收益跃迁，我只确认底线"
-    return (
-        f"上一轮你已经回应过一次。第 {round_number} 轮我换成底线确认："
-        f"{detail}。你是否仍然不愿放宽 {cost_label} 来换取 {benefit_label} 跃迁？"
-    )
+        return (
+            f"上一轮你已经表达过“{reply_hint}”。第 {round_number} 轮我先不伪造收益，"
+            f"只确认一件事：你是否愿意牺牲/放宽 {cost_label} 去换取其它维度的潜在收益？"
+        )
 
 
 def _xai_fallback_text(

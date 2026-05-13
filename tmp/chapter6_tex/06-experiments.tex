@@ -1,0 +1,230 @@
+\cleardoublepage
+\section{实验与分析}
+
+本章围绕最终版本的 Robust Iceberg Benchmark 展开实验分析。与早期面向单一放宽能力的工程验证不同，本章不再把若干过时的 Agent-vs-Baseline 小实验作为论文主结果，而是统一使用带隐藏底线的冰山画像、多轮用户模拟器、消融系统和逐轮日志来回答一个核心问题：EDMIE 是否能够在用户显式话语具有防御性、诱导性或不完整性的情况下，用更少轮次识别真实偏好底线，并将其转化为可解释的后验权重。
+
+\subsection{实验目标与研究问题}
+
+高考志愿填报中的困难并不只是候选学校数量多，而是用户初始表达往往不能等同于真实偏好函数。用户可能说“想冲名校”，但真实底线是专业不能偏离；也可能说“地域可以商量”，但实际上不能出省；还可能同时在学费和专业两个维度上存在底线。若系统只根据第一轮输入进行一次性检索或生成，它很难区分表层偏好和隐藏底线。
+
+因此，本章实验围绕三个研究问题展开：
+
+\begin{enumerate}[label=(\arabic*)]
+    \item \textbf{偏好对齐：}EDMIE 最终推断出的五维权重是否更接近冰山画像中的隐藏权重？
+    \item \textbf{交互效率：}EDMIE 是否能用更少轮次问到真正有诊断价值的问题？
+    \item \textbf{底线识别：}EDMIE 是否能识别隐藏底线所在维度，而不是被显式话语中的诱饵维度误导？
+\end{enumerate}
+
+这三个问题分别对应 MAE、交互轮次和隐性底线维度 F1。本文同时保留逐轮对话日志，用于解释聚合指标背后的机制差异：no-UCB 为什么问不到底线，no-tracker 为什么问到后仍会遗忘，EDMIE 又如何通过明确的边际替代问题触发用户真实拒绝。
+
+\subsection{实验设置}
+
+\subsubsection{Robust Iceberg Benchmark}
+
+实验使用 Robust Iceberg Benchmark。每个样本称为一个 Iceberg Profile，包含三部分：第一，用户显式查询，即被测系统可见的第一轮自然语言输入；第二，隐藏底线，即仅用户模拟器和评测器可见的真实约束；第三，ground truth weights，即学校层次、专业匹配、学费预算、培养质量和地域偏好五个维度上的真实权重。被测系统在运行过程中只能看到显式查询和数据库/证据探针返回结果，不能读取隐藏底线和真实权重。
+
+Robust 数据集共包含 12 类画像，每类重复 3 次，因此 full、no-UCB 和 no-tracker 三个 Agent 变体各产生 36 条对弈结果。画像类型见表 \ref{tab:robust-profile-design}。其中，单维强底线用于验证系统能否识别一个压倒性真实底线；双维底线用于检验系统是否能处理多个同时存在的隐性约束；伪装诱饵用于检验系统是否会被显式话语中的学校、地域等表层表达误导；均衡画像用于检验系统是否会在没有单一强底线时过度放大某一维度。
+
+\begin{table}[htbp]
+\centering
+\caption{Robust Iceberg Benchmark 画像设计}
+\label{tab:robust-profile-design}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{0.16\textwidth}p{0.32\textwidth}p{0.40\textwidth}}
+\hline
+类型 & 代表画像 & 评测目的 \\
+\hline
+单维强底线 & major、geo、tuition、school 四类 extreme 画像 & 用户真实底线集中在一个维度，检验主动探测是否能快速命中核心维度 \\
+双维底线 & major+tuition、school+geo、quality+major、geo+tuition & 用户同时有两个底线，检验系统是否能在有限轮次内恢复多维真实约束 \\
+伪装诱饵 & school-to-tuition、geo-free、low-school-decoy & 显式话语强调的维度不等于真实底线，检验系统抗表层语义诱导能力 \\
+均衡画像 & balanced true & 多维权重接近均衡，检验系统是否过度拟合单一强偏好 \\
+\hline
+\end{tabular}
+\end{table}
+
+例如，\texttt{robust\_major\_extreme} 的显式查询为：“我是浙江考生 612 分，选科物理化学生物，想读计算机相关专业。表面上我想冲 985，也说江浙沪都可以看。”该输入表面强调学校层次与地域灵活性，但隐藏底线实际是专业匹配：用户不愿为了学校或地域牺牲过多专业相关性。该样本专门检验系统是否会被“冲 985”这样的表层表达带偏。
+
+\subsubsection{系统变体与参考基线}
+
+本文比较三类主要系统：
+
+\begin{enumerate}[label=(\arabic*)]
+    \item \textbf{EDMIE full：}启用 UCB 主动探测、帕累托候选对构造、Bradley-Terry 后验更新和 Dempster-Shafer 式犹豫处理。
+    \item \textbf{w/o UCB Active Probing：}移除 UCB 探测规划，问题选择退化为弱规划或近似随机探测，用于检验“问什么”是否重要。
+    \item \textbf{w/o BT-Gradient Tracker：}保留探测问题，但关闭基于反馈的后验追踪，权重保持初始均匀状态，用于检验“问完后是否记住”是否重要。
+\end{enumerate}
+
+此外，本文报告三个参考基线。Random Dirichlet Baseline 在概率单纯形上随机采样权重，用于提供随机猜测下界；Initial-query LLM Baseline 只读取用户第一轮显式输入，不进行后续交互；V1 Hybrid RAG Baseline 使用混合检索与重排候选，再从最终候选反推偏好权重。参考基线不参与交互轮次显著性检验，因为它们不是多轮 HITL 系统。
+
+\subsubsection{运行环境与超参}
+
+实验在本地 Windows 环境运行，核心代码位于 \path{D:/gaokaollm-v2}。Python 环境为 Conda 环境 \texttt{gaokao\_pg}，Python 版本为 3.11.15；本地数据库为 PostgreSQL 招生数据快照。运行机器系统识别为 Windows 10，处理器标识为 AMD64 Family 23 Model 96。为保护密钥安全，论文只报告非敏感模型与超参配置：推理模型由环境变量 \texttt{OPENAI\_MODEL} 指定，项目示例配置为 \texttt{Pro/moonshotai/Kimi-K2.6}；结构化抽取模型由 \texttt{SMALL\_MODEL} 指定，示例配置为 \texttt{deepseek-ai/DeepSeek-V4-Flash}；若环境变量未覆盖，代码中的默认推理模型为 \texttt{gpt-5.2}，默认结构化模型为 \texttt{deepseek-ai/DeepSeek-V4-Flash}。
+
+实验通过 benchmark、reference baselines、log analyzer 和 plotter 四个 evaluation 入口生成。关键参数如下：\texttt{dataset=robust}、\texttt{require-real=true}、\texttt{repeats=3}、\texttt{max-turns=4}、\texttt{turn-timeout=180}、\texttt{samples=50000}、\texttt{seed=20260513}。其中，\texttt{require-real} 表示主结果不允许 synthetic fallback；\texttt{repeats=3} 表示每个 profile 重复运行 3 次；\texttt{max-turns=4} 限制多轮探测上限；Random Dirichlet Baseline 使用 50,000 次采样。结构化调用默认超时为 45 秒，推理调用默认超时为 180 秒；结构化模型最大补全 token 数为 256，并关闭额外思考模式。
+
+\subsection{评价指标}
+
+\subsubsection{偏好对齐 MAE}
+
+设系统最终推断权重为 $\hat{\mathbf{w}}$，隐藏真实权重为 $\mathbf{w}^{*}$，偏好维度集合为 $\mathcal{D}=\{\text{school},\text{major},\text{tuition},\text{quality},\text{geo}\}$。本文使用平均绝对误差衡量权重对齐质量：
+
+\[
+\mathrm{MAE}(\hat{\mathbf{w}},\mathbf{w}^{*})
+=\frac{1}{|\mathcal{D}|}\sum_{k\in\mathcal{D}}
+|\hat{w}_{k}-w^{*}_{k}|.
+\]
+
+MAE 越低，说明系统对用户真实偏好的恢复越准确。该指标适合比较 full、no-tracker 和 reference baselines，因为这些系统最终都输出同一五维概率权重。
+
+\subsubsection{隐性底线维度 F1}
+
+仅有 MAE 仍不足以说明系统是否问到了用户真正底线。本文进一步把隐藏权重转化为维度集合。若某维权重 $w^{*}_{k}\geq 0.35$，则该维属于真实底线集合 $G$；若没有维度超过阈值，则取 ground truth Top-1。系统预测集合 $P$ 从最终推断权重中取 Top-$|G|$ 维度。Precision、Recall 和 F1 定义为：
+
+\[
+\mathrm{Precision}=\frac{|P\cap G|}{|P|},\quad
+\mathrm{Recall}=\frac{|P\cap G|}{|G|},\quad
+\mathrm{F1}=\frac{2PR}{P+R}.
+\]
+
+这一指标回答“系统是否识别了底线所在维度”。例如，一个系统可能 MAE 不算极高，但若把“学费一票否决”误判成“学校层次优先”，在真实咨询中仍会导致错误追问和不可接受推荐。
+
+\subsubsection{交互轮次与日志质量}
+
+交互效率用 negotiation turns 表示，即系统完成隐藏底线确认所需轮次。为分析“为什么少用轮次”，本文还从 \path{app/evaluation/results/episode_logs.jsonl} 中计算逐轮日志质量，包括重复提问率、无效代价=收益率、同候选对率、目标维度命中率和模拟器模糊回复率。日志质量指标不替代 MAE 和 F1，而是用于解释系统行为：问题是否重复、是否构造了无意义替代、是否真正命中隐藏底线维度。
+
+\subsection{总体定量结果}
+
+表 \ref{tab:robust-main-results} 汇总主消融实验结果。EDMIE 在交互轮次、MAE 和 F1 上同时优于两个消融系统。相较 no-UCB，EDMIE 平均交互轮次从 2.916667 降至 2.000000，减少约 31.4\%，Welch t-test 给出 $p=1.81537\times 10^{-20}$。相较 no-tracker，EDMIE 将 MAE 从 0.203000 降至 0.131290，相对下降约 35.3\%，Welch t-test 给出 $p=3.49248\times 10^{-7}$。隐性底线维度 F1 从两个消融系统的 0.333333 提升至 0.833333。
+
+\begin{table}[htbp]
+\centering
+\caption{Robust Iceberg 主消融实验结果}
+\label{tab:robust-main-results}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{0.28\textwidth}p{0.10\textwidth}p{0.16\textwidth}p{0.16\textwidth}p{0.16\textwidth}}
+\hline
+系统 & 样本数 & 交互轮次 & MAE & F1 \\
+\hline
+EDMIE (Ours) & 36 & $2.000000\pm0.000000$ & $0.131290\pm0.017403$ & 0.833333 \\
+w/o UCB Active Probing & 36 & $2.916667\pm0.280306$ & $0.213054\pm0.042083$ & 0.333333 \\
+w/o BT-Gradient Tracker & 36 & $3.000000\pm0.000000$ & $0.203000\pm0.068268$ & 0.333333 \\
+\hline
+\end{tabular}
+\end{table}
+
+图 \ref{fig:robust-metric-dashboard} 将三个核心指标放在同一张图中。可以看到，EDMIE 的提升不是单点指标改善，而是同时体现在“更少轮次”“更低权重误差”和“更准确底线维度识别”上。这一点很重要：若系统只是通过强行提前结束对话减少轮次，MAE 和 F1 应该下降；若系统只是持续追问直到猜中底线，轮次应显著增加。EDMIE 的结果说明 UCB 探测和后验追踪共同提高了交互质量。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{thesis_figures/fig_6_1_robust_metric_dashboard.png}
+\caption{Robust Iceberg Benchmark 总体指标对比}
+\label{fig:robust-metric-dashboard}
+\end{figure}
+
+参考基线结果见表 \ref{tab:robust-reference-baselines}。Initial-query LLM 的 MAE 为 0.204667，F1 为 0.333333；V1 Hybrid RAG Baseline 的 MAE 为 0.206510，F1 同样为 0.333333。二者都接近 no-tracker，而明显弱于 EDMIE。这说明初始显式话语中并没有足够信息让大模型零样本恢复隐藏底线；一次性混合检索和重排也不能自然产生用户真实偏好 posterior。EDMIE 的增益来自多轮闭环，而不是来自更长提示词或更复杂的一次性检索。
+
+\begin{table}[htbp]
+\centering
+\caption{参考基线结果与统计口径}
+\label{tab:robust-reference-baselines}
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{p{0.22\textwidth}p{0.12\textwidth}p{0.14\textwidth}p{0.12\textwidth}p{0.30\textwidth}}
+\hline
+参考基线 & MAE & MAE 口径 & F1 & 说明 \\
+\hline
+Random Dirichlet & 0.222274 & n=1 & -- & 50,000 次随机权重采样，用作随机猜测参考 \\
+Initial-query LLM & 0.204667 & n=12 & 0.333333 & 仅根据初始查询推断偏好权重，不执行后续交互 \\
+V1 Hybrid RAG & 0.206510 & n=1 & 0.333333 & 用混合检索候选反推权重；MAE 来自汇总行，F1 来自 12 个 profile 维度判定 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{画像类型鲁棒性分析}
+
+为了避免只报告整体均值，本节按画像类型分解 MAE 和 F1。图 \ref{fig:profile-type-breakdown} 展示四类 profile 的热力图结果。EDMIE 在单维强底线上达到 F1 1.000000，MAE 为 0.148028；在伪装诱饵画像上达到 F1 0.833333，MAE 为 0.127276。相比之下，no-UCB 和 no-tracker 在伪装诱饵上的 F1 仅为 0.166667。这说明当用户显式话语包含“想冲名校”“地域可以商量”等诱导信息时，一次性语义理解或无主动探测的系统极易被表层表达带偏。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{thesis_figures/fig_6_2_profile_type_breakdown.png}
+\caption{不同画像类型下的 MAE 与底线维度 F1}
+\label{fig:profile-type-breakdown}
+\end{figure}
+
+双维底线是 EDMIE 当前最困难的场景。EDMIE 在双维底线上的 MAE 为 0.125743，仍明显低于 no-UCB/no-tracker 的 0.183000，但 F1 仅为 0.625000。这说明系统往往能识别其中一个真实底线，却可能漏掉第二个底线，或把第二个底线误替换为 school 这类通用收益维度。该结果不是实验失败，而是重要边界：当前 UCB 探测在短轮次内更擅长发现最强单轴底线，对两个并列底线的恢复仍需要更强的多标签探测策略。
+
+均衡画像上，三类系统的 F1 都达到 1.000000。这是因为真实权重没有明显强底线，评价规则退回 Top-1。该结果说明 Robust Benchmark 并非总是让 EDMIE 胜出；当用户不存在明显隐藏底线时，简单均匀权重本身就不差。因此，EDMIE 的优势主要出现在高风险咨询中最关键的场景：用户有真实底线，但表层表达并不直接等于该底线。
+
+\subsection{逐轮日志质量分析}
+
+图 \ref{fig:log-quality-diagnostics} 给出逐轮日志质量诊断。EDMIE full 模式共产生 72 次 interrupt，目标维度命中率为 0.875000，重复提问率、代价=收益率和同候选对率均为 0。no-UCB 模式共产生 105 次 interrupt，目标维度命中率为 0，模拟器模糊回复率为 1.000000，重复提问率为 0.133333。no-tracker 模式的目标维度命中率为 0.861111，接近 full，但由于它不更新 posterior，最终 F1 仍只有 0.333333。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth]{thesis_figures/fig_6_3_log_quality_diagnostics.png}
+\caption{逐轮日志质量诊断}
+\label{fig:log-quality-diagnostics}
+\end{figure}
+
+这一对比揭示了两个不同层面的失败。no-UCB 的问题是“问不到”：它缺少不确定性驱动的主动探测，因此常提出泛化问题，用户模拟器只能回答“这个问题没问到我的真正底线，我先保留。” no-tracker 的问题是“记不住”：它能提出与 full 类似的问题，但用户反馈不会改变权重，系统最终仍回到均匀或错误偏好。EDMIE 同时解决这两个问题：UCB 决定优先问哪个维度，BT/D-S tracker 决定用户回答后如何改变后验。
+
+\subsection{Bad Case 分析}
+
+EDMIE full 模式并非在所有 profile 上都完全正确。36 次 full 运行中，F1 低于 1 的样本集中在四类画像：major+tuition、quality+major、geo+tuition 和 major+quality 诱饵画像，每类 3 次重复均出现 F1 0.5。图 \ref{fig:bad-case-dimension-errors} 显示，主要错误不是完全没有识别底线，而是漏掉第二个隐藏维度，并把 school 误加入预测集合。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\textwidth]{thesis_figures/fig_6_5_bad_case_dimension_errors.png}
+\caption{EDMIE full 的 Bad Case 维度错误构成}
+\label{fig:bad-case-dimension-errors}
+\end{figure}
+
+以 quality+major 双维画像为例，真实底线是 quality 与 major 并重。EDMIE 通常能问到 major，但在有限两轮内未充分恢复 quality，而是把 school 作为候选收益维度纳入 Top-2。原因在于当前候选对构造常把“牺牲某一维度”与“换取学校层次提升”组织在一起；当用户拒绝某一维牺牲后，后验会强化该维，但 school 仍因作为常见收益维度保留较高可见度。类似地，geo+tuition 中系统能识别 tuition，却漏掉 geo；major+tuition 中系统能识别 tuition，却漏掉 major。
+
+这些 Bad Case 说明，EDMIE 当前更像一个强单轴底线发现器，而不是完全成熟的多标签偏好恢复器。当隐藏底线为两个并列维度时，系统需要在第二轮继续主动探测“另一个尚未解释的高不确定维度”，而不是过早收敛到单一底线确认。后续改进可以包括：第一，把 UCB 从单维 argmax 扩展为 Top-2 或 pairwise UCB；第二，在候选对构造中显式限制 school 作为通用收益维度的过度进入；第三，对双维画像引入“已确认底线之外仍需探测”的停止条件。这些失败分析也证明了保留逐例日志的必要性：平均 MAE 提升不能替代对失败机制的解释。
+
+\subsection{代表性 Dialogue Flow：robust\_major\_extreme}
+
+本节选取 \texttt{robust\_major\_extreme} 展开定性分析。该画像具有明显的表层诱饵：用户说“想冲 985”，也说“江浙沪都可以看”，但真实隐藏底线是专业匹配。图 \ref{fig:major-extreme-dialogue-flow} 对比 full、no-UCB 和 no-tracker 三种模式的对话流。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{thesis_figures/fig_6_4_major_extreme_dialogue_flow.png}
+\caption{\texttt{robust\_major\_extreme} 三种模式的 Dialogue Flow}
+\label{fig:major-extreme-dialogue-flow}
+\end{figure}
+
+no-UCB 模式连续提出泛化问题，例如“我先随机看一个证据丰富度方向：你愿意接受这个方案的不确定性吗？”、“我先随机看一个组合编排方向：你愿意接受更高录取风险吗？”、“我先随机看一个相邻范围方向：你愿意考虑不完全相同的选择范围吗？”这些问题在语言上看似合理，但没有给出明确候选对，也没有形成“牺牲什么以换取什么”的边际替代结构。用户模拟器因此连续回复：“这个问题没问到我的真正底线，我先保留。”该案例说明，没有 UCB 时，系统的问题会退化为低信息量澄清。
+
+no-tracker 模式的问题相反。它第一轮已经问到专业底线，用户明确回答“专业不能偏太远，这个我不接受。”但由于没有后验追踪，系统第二轮和第三轮仍围绕同一底线重复确认：“当前没有明确的正向收益跃迁，我只确认底线：专业匹配(major) 当前为‘植物保护，放宽层级=5’。你是否仍然不愿放宽专业匹配(major)来换取学校层次(school)跃迁？”在真实产品中，这会被用户理解为系统没有记住自己刚说过的话。
+
+EDMIE full 模式则在第一轮构造出清晰的候选对：“在 西北农林科技大学 和 江苏农牧科技职业学院 之间，方案 B 主要要求你放宽 专业匹配(major)：从‘植物保护，放宽层级=5’放宽到‘计算机应用技术’；但当前候选没有带来明确的 学校层次(school) 正向提升。你是否仍愿意放宽这条底线？”用户回复“专业不能偏太远，这个我不接受。”随后系统进行底线确认，并将 major 权重从先验 0.2 提升到 0.4674289304072983，其余维度降至约 0.13314276739817543。图 \ref{fig:posterior-trajectory} 展示了该后验变化过程。
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\textwidth]{thesis_figures/fig_6_6_posterior_trajectory.png}
+\caption{\texttt{robust\_major\_extreme} 中 EDMIE 的后验权重收敛}
+\label{fig:posterior-trajectory}
+\end{figure}
+
+该 Dialogue Flow 展示了 EDMIE 的核心机制：系统并不是试图用话术说服用户放宽底线，而是用真实候选构造一个可拒绝的反事实问题。用户的拒绝不是交互失败，而是偏好证据。一旦拒绝被 tracker 接收，系统就能把“表面想冲名校”修正为“专业匹配才是真正底线”。
+
+\subsection{鲁棒性与可扩展性讨论}
+
+本章不再报告早期工程验证结果，而是从 Robust 数据集内部的压力设计讨论鲁棒性和可扩展性。首先，单维强底线验证了系统在 major、geo、tuition 和 school 四类强约束下的稳定性。EDMIE 在该组 F1 达到 1.000000，说明只要真实底线足够集中，UCB 探测能够在短轮次内稳定命中。
+
+其次，伪装诱饵画像模拟了“增加干扰信息”的情况。用户显式说法会强调学校或地域，但真实底线可能落在学费、地域或专业质量上。EDMIE 在伪装诱饵上的 F1 为 0.833333，而两个消融系统均为 0.166667。这说明 EDMIE 不是简单复述初始输入中的高频词，而是通过候选对反馈重新校准权重。
+
+再次，双维底线模拟了更复杂的约束变化。EDMIE 在双维底线上仍保持较低 MAE，但 F1 降至 0.625000，暴露出多轴偏好恢复的上限。换言之，当约束条件从单底线扩展到双底线时，EDMIE 仍能比消融系统更接近真实权重，但无法保证每次都完整找回两个维度。这为后续扩展提供了清晰方向：系统需要从单轴探测扩展到多轴联合探测，而不是仅增加更多数据表或更大模型。
+
+最后，均衡画像说明 EDMIE 没有在所有样本上机械制造强偏好。当真实权重接近均衡时，简单系统也能取得较好结果，EDMIE 不应为了展示主动性而强行追问用户不存在的底线。未来若扩展到真实用户研究，可以把“系统何时停止追问”作为与“系统能否问到底线”同等重要的指标。
+
+\subsection{可复现材料与实验边界}
+
+本章所有聚合指标、原始结果、参考基线和逐轮日志均保存在 \path{app/evaluation/results/} 下。核心文件包括统计汇总、消融结果、维度分类、参考基线、逐轮日志和日志质量分析六类产物；对应文件名分别为 \path{statistical_summary.txt}、\path{ablation_results.csv}、\path{classification_metrics.csv}、\path{reference_baselines.csv}、\path{episode_logs.jsonl} 和 \path{episode_log_analysis.md}。第六章增强图由 \path{chapter6_figures.py} 生成。
+
+需要强调的是，Robust Iceberg Benchmark 仍是模拟器环境。它适合验证机制差异，尤其适合比较 full、no-UCB 和 no-tracker 的因果作用，但不能直接等同于真实考生用户研究。真实用户可能存在更强情绪表达、家庭成员意见变化、对某些问题的抵触以及长期满意度反馈。其次，当前五维权重只覆盖 school、major、tuition、quality 和 geo，真实志愿决策还可能涉及就业城市、家庭照护距离、转专业政策、保研机会、生活成本等更细粒度因素。再次，当前实验主要基于浙江高考志愿场景，跨省份、跨年份和新招生政策下仍需复验。
+
+尽管存在这些边界，Robust Iceberg Benchmark 已经足以支持本文核心结论：在高风险教育决策中，系统可靠性不能只依赖更强语言模型或更多检索材料，而需要事实候选、反事实提问、用户反馈和偏好后验之间形成闭环。EDMIE 在 MAE、交互轮次和 F1 上的同步提升，以及在 Dialogue Flow 中表现出的“问到、记住、更新”能力，正是这一闭环有效性的实验证据。

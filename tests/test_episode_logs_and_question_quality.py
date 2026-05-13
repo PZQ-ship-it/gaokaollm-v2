@@ -124,7 +124,11 @@ def test_fallback_question_never_trades_dimension_for_itself():
 
     assert cost == "school"
     assert benefit != "school"
-    assert "没有带来明确" in question
+    assert "A大学" in question
+    assert "B大学" in question
+    assert "没有给出可供换取的可验证补偿" in question
+    assert "没有带来明确" not in question
+    assert "正向收益跃迁" not in question
 
 
 def test_fallback_question_avoids_fake_same_candidate_pair_when_no_option_b():
@@ -143,8 +147,9 @@ def test_fallback_question_avoids_fake_same_candidate_pair_when_no_option_b():
     )
 
     assert "A大学 和 A大学" not in question
-    assert "高度同质" in question
-    assert "当前为" in question
+    assert "本轮候选不足以形成可靠取舍" in question
+    assert "牺牲/放宽 专业匹配(major)" in question
+    assert "正向收益跃迁" not in question
 
 
 def test_followup_question_changes_surface_form_after_first_turn():
@@ -156,9 +161,42 @@ def test_followup_question_changes_surface_form_after_first_turn():
     )
 
     assert followup != first
-    assert "底线确认" in followup
+    assert "专业不能偏太远" in followup
     assert extract_cost_benefit(followup)[0] == "major"
-    assert "没有明确的正向收益跃迁" in followup
+    assert "底线确认" not in followup
+    assert "没有明确的正向收益跃迁" not in followup
+
+
+def test_followup_question_keeps_fact_tradeoff_when_pair_has_gain():
+    option_a = _candidate(
+        "A大学",
+        "计算机",
+        1.0,
+        {"school": 0.5, "major": 1.0, "tuition": 1.0, "quality": 0.5, "geo": 0.8},
+    )
+    option_b = _candidate(
+        "C大学",
+        "智能科学与技术",
+        0.8,
+        {"school": 0.9, "major": 0.4, "tuition": 1.0, "quality": 0.5, "geo": 0.8},
+    )
+
+    question = _followup_pareto_question(
+        {"school": 0.4, "major": -0.6, "tuition": 0.0, "quality": 0.0, "geo": 0.0},
+        "major",
+        1,
+        option_a=option_a,
+        option_b=option_b,
+    )
+    cost, benefit = extract_cost_benefit(question)
+
+    assert "如果保留" in question
+    assert "如果改看" in question
+    assert "A大学" in question
+    assert "C大学" in question
+    assert cost == "major"
+    assert benefit == "school"
+    assert "正向收益跃迁" not in question
 
 
 def test_forced_tradeoff_pair_requires_real_gain_on_another_dimension():
@@ -189,6 +227,35 @@ def test_forced_tradeoff_pair_requires_real_gain_on_another_dimension():
     assert selected_b["school_name"] == "C大学"
     assert delta["major"] < 0
     assert delta["school"] > 0
+
+
+def test_forced_tradeoff_pair_returns_no_pair_without_real_gain():
+    option_a = _candidate(
+        "A大学",
+        "计算机",
+        1.0,
+        {"school": 0.5, "major": 1.0, "tuition": 1.0, "quality": 0.5, "geo": 0.8},
+    )
+    bad_b = _candidate(
+        "B大学",
+        "植物保护",
+        0.9,
+        {"school": 0.4, "major": 0.4, "tuition": 0.9, "quality": 0.5, "geo": 0.8},
+    )
+
+    _a, selected_b, delta = select_forced_tradeoff_pair(
+        [option_a, bad_b],
+        "major",
+    )
+
+    assert selected_b == {}
+    assert delta == {
+        "school": 0.0,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": 0.0,
+    }
 
 
 def test_select_max_divergence_pair_skips_same_school_major_pair():
