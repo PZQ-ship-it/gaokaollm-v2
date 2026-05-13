@@ -19,6 +19,11 @@ from app.core.llm_client import (
     structured_timeout_seconds,
 )
 from app.evaluation.benchmark import get_dataset
+from app.evaluation.classification_metrics import (
+    REFERENCE_SOURCE,
+    classification_rows_from_reference_rows,
+    merge_classification_metrics,
+)
 from app.evaluation.schemas import IcebergProfile
 
 
@@ -35,6 +40,7 @@ REFERENCE_FIELDS = (
 )
 RANDOM_BASELINE = "random_dirichlet_expected"
 INITIAL_LLM_BASELINE = "initial_query_llm"
+V1_HYBRID_BASELINE = "v1_hybrid_candidate_proxy"
 
 
 class InitialPreferenceWeights(BaseModel):
@@ -92,6 +98,143 @@ def normalize_weights(
     if not math.isfinite(total) or total <= 0.0:
         return {key: 1.0 / len(PREFERENCE_KEYS) for key in PREFERENCE_KEYS}
     return {key: values[key] / total for key in PREFERENCE_KEYS}
+
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return default
+    return number if math.isfinite(number) else default
+
+
+def _contains_any(text: str, tokens: tuple[str, ...]) -> bool:
+    lowered = text.lower()
+    return any(token.lower() in lowered for token in tokens)
+
+
+def _extract_budget_from_text(text: str) -> float | None:
+    patterns = (
+        r"(?:预算|学费|费用)[^\d]{0,8}(\d+(?:\.\d+)?)\s*(?:万|w|W)",
+        r"(\d+(?:\.\d+)?)\s*(?:万|w|W)[^\n，。；;]{0,8}(?:预算|学费|费用)",
+        r"(?:预算|学费|费用)[^\d]{0,8}(\d{4,6})",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, text)
+        if not match:
+            continue
+        value = _safe_float(match.group(1), 0.0)
+        if value <= 0:
+            continue
+        if "万" in match.group(0) or "w" in match.group(0).lower():
+            value *= 10000
+        return value
+    return None
+
+
+def _school_signal(row: dict[str, Any]) -> float:
+    tier = str(
+        row.get("school_tier") or row.get("school_level") or row.get("tier") or ""
+    )
+    if _contains_any(tier, ("C9", "顶尖985")):
+        return 1.0
+    if row.get("is_985") or _contains_any(tier, ("985",)):
+        return 0.9
+    if (
+        row.get("is_211")
+        or row.get("is_double_first_class")
+        or _contains_any(tier, ("211", "双一流"))
+    ):
+        return 0.72
+    numeric_tier = _safe_float(row.get("tier"), 0.0)
+    if numeric_tier >= 4:
+        return 0.9
+    if numeric_tier >= 3:
+        return 0.72
+    if numeric_tier >= 2 or _contains_any(tier, ("一本", "本科", "重点")):
+        return 0.45
+    return 0.18
+
+
+def _major_signal(row: dict[str, Any], query_text: str) -> float:
+    major_name = str(row.get("major_name") or row.get("major_name_raw") or "")
+    combined = f"{query_text} {major_name}"
+    if _contains_any(combined, ("计算机", "软件", "人工智能", "数据科学", "computer")):
+        return (
+            1.0
+            if _contains_any(
+                major_name, ("计算机", "软件", "人工智能", "数据科学", "computer")
+            )
+            else 0.25
+        )
+    if _contains_any(combined, ("临床", "医学", "clinical")):
+        return 1.0 if _contains_any(major_name, ("临床", "医学", "clinical")) else 0.25
+    if _contains_any(combined, ("法学", "law")):
+        return 1.0 if _contains_any(major_name, ("法学", "law")) else 0.25
+    return 0.5
+
+
+def _geo_signal(row: dict[str, Any], query_text: str) -> float:
+    province = str(row.get("school_province") or row.get("province") or "")
+    city = str(row.get("school_city") or row.get("city") or "")
+    location = f"{province} {city}"
+    if _contains_any(query_text, ("江浙沪",)):
+        return 1.0 if _contains_any(location, ("浙江", "江苏", "上海")) else 0.2
+    if _contains_any(query_text, ("浙江", "本省", "省内")):
+        return 1.0 if "浙江" in location else 0.1
+    if _contains_any(query_text, ("不出省", "绝不出省")):
+        return 1.0 if "浙江" in location else 0.0
+    return 0.35
+
+
+def _tuition_signal(row: dict[str, Any], query_text: str) -> float:
+    budget = _extract_budget_from_text(query_text)
+    if budget is None:
+        return 0.15
+    tuition = _safe_float(row.get("tuition"), 0.0)
+    if tuition <= 0:
+        return 0.35
+    if tuition <= budget:
+        return 1.0
+    excess = (tuition - budget) / max(budget, 1.0)
+    return max(0.0, 1.0 - 2.0 * excess)
+
+
+def _quality_signal(row: dict[str, Any]) -> float:
+    quality = row.get("quality_score")
+    if quality is not None:
+        return max(0.0, min(1.0, _safe_float(quality) / 100.0))
+    ranking = _safe_float(row.get("ranking"), 0.0)
+    if ranking > 0:
+        return max(0.1, min(1.0, 1.0 - ranking / 1000.0))
+    min_rank = _safe_float(row.get("min_rank"), 0.0)
+    if min_rank > 0:
+        return max(0.1, min(1.0, 1.0 - min_rank / 250000.0))
+    return 0.35
+
+
+def infer_weights_from_v1_candidates(
+    candidates: list[dict[str, Any]],
+    *,
+    query_text: str,
+    top_n: int = 9,
+) -> dict[str, float]:
+    if not candidates:
+        raise ValueError("v1 hybrid baseline produced no reranked candidates")
+    evidence = {key: 0.0 for key in PREFERENCE_KEYS}
+    used = candidates[: max(1, top_n)]
+    for index, row in enumerate(used):
+        rank_weight = 1.0 / math.log2(index + 2)
+        signals = {
+            "school": _school_signal(row),
+            "major": _major_signal(row, query_text),
+            "tuition": _tuition_signal(row, query_text),
+            "quality": _quality_signal(row),
+            "geo": _geo_signal(row, query_text),
+        }
+        for key, value in signals.items():
+            evidence[key] += rank_weight * max(0.0, min(1.0, value))
+    return normalize_weights(evidence)
 
 
 def _sample_dirichlet_uniform(rng: random.Random) -> dict[str, float]:
@@ -294,6 +437,89 @@ async def compute_initial_llm_baseline(
     return rows
 
 
+async def infer_v1_hybrid_weights(
+    profile: IcebergProfile,
+    *,
+    timeout_seconds: float = 180.0,
+) -> dict[str, float]:
+    import asyncio
+
+    from gaokaollm_bench.sandbox.v1_hybrid_rag import V1HybridRagBaselineAgent
+
+    agent = V1HybridRagBaselineAgent()
+    _, state = await asyncio.wait_for(
+        agent.chat(profile.explicit_query),
+        timeout=timeout_seconds,
+    )
+    candidates = (
+        state.get("second_stage_reranked_candidates")
+        or state.get("baseline_results")
+        or []
+    )
+    if not isinstance(candidates, list):
+        candidates = []
+    return infer_weights_from_v1_candidates(
+        [dict(candidate) for candidate in candidates if isinstance(candidate, dict)],
+        query_text=profile.explicit_query,
+    )
+
+
+async def compute_v1_hybrid_baseline(
+    dataset: list[IcebergProfile],
+    *,
+    dataset_name: str,
+    require_real: bool = False,
+    timeout_seconds: float = 180.0,
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    values: list[float] = []
+    for profile in dataset:
+        try:
+            weights = await infer_v1_hybrid_weights(
+                profile,
+                timeout_seconds=timeout_seconds,
+            )
+            mae_error = compute_mae(weights, profile.ground_truth_weights)
+            values.append(mae_error)
+            rows.append(
+                _reference_row(
+                    dataset_name,
+                    profile.profile_id,
+                    V1_HYBRID_BASELINE,
+                    mae_error,
+                    weights,
+                    status="ok",
+                )
+            )
+        except Exception as exc:
+            if require_real:
+                raise
+            rows.append(
+                _reference_row(
+                    dataset_name,
+                    profile.profile_id,
+                    V1_HYBRID_BASELINE,
+                    1.0,
+                    {},
+                    status="error",
+                    error_message=f"{type(exc).__name__}: {exc}",
+                )
+            )
+    if values:
+        rows.insert(
+            0,
+            _reference_row(
+                dataset_name,
+                "__dataset__",
+                V1_HYBRID_BASELINE,
+                sum(values) / len(values),
+                {"n": len(values), "std_mae": _std(values)},
+                status="ok",
+            ),
+        )
+    return rows
+
+
 def random_baseline_rows(
     dataset: list[IcebergProfile],
     *,
@@ -372,6 +598,8 @@ async def arun_reference_baselines(
     seed: int = 20260513,
     output_dir: str | Path | None = None,
     require_real: bool = False,
+    include_v1_hybrid: bool = False,
+    v1_timeout_seconds: float = 180.0,
 ) -> dict[str, Any]:
     dataset = get_dataset(dataset_name)
     rows = random_baseline_rows(
@@ -387,14 +615,32 @@ async def arun_reference_baselines(
             require_real=require_real,
         )
     )
+    if include_v1_hybrid:
+        rows.extend(
+            await compute_v1_hybrid_baseline(
+                dataset,
+                dataset_name=dataset_name,
+                require_real=require_real,
+                timeout_seconds=v1_timeout_seconds,
+            )
+        )
     csv_path = write_reference_csv(rows, output_dir)
+    classification_csv_path = merge_classification_metrics(
+        classification_rows_from_reference_rows(rows, dataset),
+        output_dir,
+        replace_sources=(REFERENCE_SOURCE,),
+    )
     print(_summary(rows))
-    return {"rows": rows, "csv_path": csv_path}
+    return {
+        "rows": rows,
+        "csv_path": csv_path,
+        "classification_csv_path": classification_csv_path,
+    }
 
 
 def _summary(rows: list[dict[str, Any]]) -> str:
     lines = ["[reference_baselines] summary"]
-    for baseline_type in (RANDOM_BASELINE, INITIAL_LLM_BASELINE):
+    for baseline_type in (RANDOM_BASELINE, INITIAL_LLM_BASELINE, V1_HYBRID_BASELINE):
         values = [
             float(row["mae_error"])
             for row in rows
@@ -425,6 +671,8 @@ def run_cli(argv: list[str] | None = None) -> dict[str, Any]:
     parser.add_argument("--samples", type=int, default=50_000)
     parser.add_argument("--seed", type=int, default=20260513)
     parser.add_argument("--require-real", action="store_true")
+    parser.add_argument("--include-v1-hybrid", action="store_true")
+    parser.add_argument("--v1-timeout", type=float, default=180.0)
     args = parser.parse_args(argv)
 
     import asyncio
@@ -436,6 +684,8 @@ def run_cli(argv: list[str] | None = None) -> dict[str, Any]:
             seed=args.seed,
             output_dir=RESULTS_DIR,
             require_real=args.require_real,
+            include_v1_hybrid=args.include_v1_hybrid,
+            v1_timeout_seconds=args.v1_timeout,
         )
     )
     print(f"[reference_baselines] wrote {result['csv_path']}")

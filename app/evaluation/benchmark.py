@@ -5,7 +5,14 @@ from pathlib import Path
 from typing import Any
 
 from app.core.llm_client import describe_llm_config, get_structured_chat_model
+from app.evaluation.classification_metrics import (
+    AGENT_SOURCE,
+    classification_row,
+    write_classification_metrics,
+)
+from app.evaluation.episode_logger import reset_episode_log
 from app.evaluation.transcript_exporter import (
+    export_case_study_from_episode_logs,
     export_case_study,
     write_fallback_case_study,
 )
@@ -448,6 +455,8 @@ def run_ablation_benchmark(
     repeats: int = 1,
 ) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
+    classification_rows: list[dict[str, Any]] = []
+    log_path = reset_episode_log(output_dir)
     simulator_llm: Any = None
     if not use_mock:
         try:
@@ -474,11 +483,27 @@ def run_ablation_benchmark(
                         profile,
                         simulator,
                         thread_id=thread_id,
-                        configurable={"ablation_mode": mode},
+                        configurable={
+                            "ablation_mode": mode,
+                            "repeat": repeat_index + 1,
+                        },
                         max_turns=max_turns,
                         turn_timeout_seconds=turn_timeout_seconds,
+                        log_output_dir=str(
+                            Path(output_dir) if output_dir is not None else RESULTS_DIR
+                        ),
                     )
                     rows.append(_result_row(profile, mode, result, status="ok"))
+                    classification_rows.append(
+                        classification_row(
+                            profile,
+                            mode,
+                            repeat_index + 1,
+                            AGENT_SOURCE,
+                            dict(result.get("inferred_weights") or {}),
+                            status="ok",
+                        )
+                    )
                 except Exception as exc:
                     if require_real:
                         raise
@@ -491,10 +516,31 @@ def run_ablation_benchmark(
                             error_message=f"{type(exc).__name__}: {exc}",
                         )
                     )
+                    classification_rows.append(
+                        classification_row(
+                            profile,
+                            mode,
+                            repeat_index + 1,
+                            AGENT_SOURCE,
+                            {},
+                            status="error",
+                            error_message=f"{type(exc).__name__}: {exc}",
+                        )
+                    )
 
     csv_path = write_ablation_csv(rows, output_dir)
+    classification_csv_path = write_classification_metrics(
+        classification_rows,
+        output_dir,
+    )
     print(_benchmark_summary(rows, dataset))
-    return {"rows": rows, "csv_path": str(csv_path)}
+    return {
+        "rows": rows,
+        "csv_path": str(csv_path),
+        "classification_rows": classification_rows,
+        "classification_csv_path": str(classification_csv_path),
+        "episode_log_path": str(log_path),
+    }
 
 
 def write_synthetic_ablation_csv(
@@ -581,12 +627,17 @@ def run_cli(argv: list[str] | None = None) -> dict[str, Any]:
 
     case_path = RESULTS_DIR / "case_study.md"
     try:
-        case_thread = "profile_major_bottom_line_full"
-        if args.repeats > 1:
-            case_thread = f"{case_thread}_r1"
-        export_case_study(graph, case_thread, str(case_path))
+        export_case_study_from_episode_logs(
+            RESULTS_DIR / "episode_logs.jsonl",
+            str(case_path),
+        )
         if not _case_study_is_complete(case_path):
-            write_fallback_case_study(case_path)
+            case_thread = "profile_major_bottom_line_full"
+            if args.repeats > 1:
+                case_thread = f"{case_thread}_r1"
+            export_case_study(graph, case_thread, str(case_path))
+            if not _case_study_is_complete(case_path):
+                write_fallback_case_study(case_path)
     except Exception:
         write_fallback_case_study(case_path)
     print(f"[benchmark] wrote {result['csv_path']}")

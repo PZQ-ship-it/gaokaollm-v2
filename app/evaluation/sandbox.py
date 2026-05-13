@@ -4,6 +4,7 @@ from typing import Any
 from langchain_core.messages import HumanMessage
 from langgraph.types import Command
 
+from app.evaluation.episode_logger import append_episode_log
 from app.evaluation.schemas import IcebergProfile
 from app.evaluation.simulator import UserSimulator
 
@@ -27,6 +28,14 @@ def _final_message_text(values: dict[str, Any]) -> str:
         return ""
     last = messages[-1]
     return str(getattr(last, "content", last) or "")
+
+
+def _current_probe_name(values: dict[str, Any]) -> str:
+    plan = values.get("probe_plan") or []
+    if not plan or not isinstance(plan[0], dict):
+        return ""
+    first = plan[0]
+    return str(first.get("probe_name") or first.get("probe") or "")
 
 
 def _mae(
@@ -71,6 +80,7 @@ async def arun_sandbox_evaluation(
     configurable: dict[str, Any] | None = None,
     max_turns: int = 8,
     turn_timeout_seconds: float | None = None,
+    log_output_dir: str | None = None,
 ) -> dict[str, Any]:
     config = {"configurable": {"thread_id": thread_id, **(configurable or {})}}
     payload: Any = {
@@ -78,7 +88,10 @@ async def arun_sandbox_evaluation(
         "constraints": {"profile_id": profile.profile_id},
     }
 
-    for _ in range(max_turns):
+    mode = str((configurable or {}).get("ablation_mode") or "full")
+    repeat = str((configurable or {}).get("repeat") or "")
+
+    for turn_index in range(1, max_turns + 1):
         await _drain_stream(
             agent_app,
             payload,
@@ -93,11 +106,48 @@ async def arun_sandbox_evaluation(
         print(f"[Agent]: {question}")
         reply = simulator.generate_reply(question)
         print(f"[Simulator]: {reply}")
+        values = getattr(snapshot, "values", {}) or {}
+        append_episode_log(
+            {
+                "profile_id": profile.profile_id,
+                "explicit_query": profile.explicit_query,
+                "ablation_mode": mode,
+                "repeat": repeat,
+                "thread_id": thread_id,
+                "turn": turn_index,
+                "current_probe": _current_probe_name(values),
+                "ucb_target_dimension": values.get("ucb_target_dimension"),
+                "question": question,
+                "simulator_reply": reply,
+                "latest_pareto_diff": values.get("latest_pareto_diff"),
+                "inferred_weights": values.get("implicit_weights"),
+                "status": "interrupt",
+            },
+            log_output_dir,
+        )
         payload = Command(resume=reply)
 
     final_state = agent_app.get_state(config).values
     inferred_weights = dict(final_state.get("implicit_weights") or {})
     turns = int(final_state.get("negotiation_turns") or 0)
+    append_episode_log(
+        {
+            "profile_id": profile.profile_id,
+            "explicit_query": profile.explicit_query,
+            "ablation_mode": mode,
+            "repeat": repeat,
+            "thread_id": thread_id,
+            "turn": turns,
+            "current_probe": _current_probe_name(final_state),
+            "ucb_target_dimension": final_state.get("ucb_target_dimension"),
+            "question": "",
+            "simulator_reply": "",
+            "latest_pareto_diff": final_state.get("latest_pareto_diff"),
+            "inferred_weights": inferred_weights,
+            "status": "final",
+        },
+        log_output_dir,
+    )
     return {
         "mae_error": float(_mae(inferred_weights, profile.ground_truth_weights)),
         "turns": turns,
@@ -115,6 +165,7 @@ def run_sandbox_evaluation(
     configurable: dict[str, Any] | None = None,
     max_turns: int = 8,
     turn_timeout_seconds: float | None = None,
+    log_output_dir: str | None = None,
 ) -> dict[str, Any]:
     try:
         asyncio.get_running_loop()
@@ -128,6 +179,7 @@ def run_sandbox_evaluation(
                 configurable=configurable,
                 max_turns=max_turns,
                 turn_timeout_seconds=turn_timeout_seconds,
+                log_output_dir=log_output_dir,
             )
         )
     raise RuntimeError(

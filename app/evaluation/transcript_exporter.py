@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Any
 
+from app.evaluation.episode_logger import read_episode_logs
+
 RESULTS_DIR = Path(__file__).parent / "results"
 
 
@@ -110,6 +112,69 @@ def export_case_study(agent_app: Any, thread_id: str, output_md_path: str) -> st
     output.parent.mkdir(parents=True, exist_ok=True)
     content = "\n\n".join(lines) + "\n"
     output.write_text(content, encoding="utf-8")
+    return str(output)
+
+
+def export_case_study_from_episode_logs(
+    log_path: str | Path,
+    output_md_path: str,
+) -> str:
+    rows = [
+        row
+        for row in read_episode_logs(log_path)
+        if row.get("ablation_mode") == "full" and row.get("question")
+    ]
+    if not rows:
+        raise ValueError("No full-mode episode log rows found.")
+
+    by_thread: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        by_thread.setdefault(str(row.get("thread_id") or ""), []).append(row)
+    selected_thread, selected_rows = max(
+        by_thread.items(),
+        key=lambda item: (
+            len(item[1]),
+            any("牺牲" in str(row.get("question") or "") for row in item[1]),
+            item[0],
+        ),
+    )
+    selected_rows = sorted(
+        selected_rows,
+        key=lambda row: int(row.get("turn") or 0),
+    )
+
+    lines = ["# EDMIE Case Study Transcript", ""]
+    initial_query = (
+        selected_rows[0].get("explicit_query")
+        or selected_rows[0].get("profile_id")
+        or selected_thread
+    )
+    lines.append(f'**[Initial Query | User]**: "{initial_query}"')
+    for index, row in enumerate(selected_rows, start=1):
+        lines.append("")
+        lines.append(
+            f'**[Round {index} | Agent Pareto Probe]**: "{row.get("question")}"'
+        )
+        lines.append("")
+        lines.append(
+            f'**[Round {index} | Simulator Feedback]**: "{row.get("simulator_reply")}"'
+        )
+    final_rows = [
+        row
+        for row in read_episode_logs(log_path)
+        if row.get("thread_id") == selected_thread and row.get("status") == "final"
+    ]
+    if final_rows:
+        weights = final_rows[-1].get("inferred_weights") or {}
+        lines.append("")
+        lines.append(
+            "**[Final | EDMIE XAI Recommendation]**: "
+            f'"Final inferred preference weights: {weights}"'
+        )
+
+    output = Path(output_md_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return str(output)
 
 

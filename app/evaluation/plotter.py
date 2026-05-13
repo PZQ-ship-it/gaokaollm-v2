@@ -19,6 +19,12 @@ RESULTS_DIR = Path(__file__).parent / "results"
 REFERENCE_LABELS = {
     "random_dirichlet_expected": "Random Dirichlet Baseline",
     "initial_query_llm": "Initial-query LLM Baseline",
+    "v1_hybrid_candidate_proxy": "V1 Hybrid RAG Baseline",
+}
+CLASSIFICATION_LABELS = {
+    **MODEL_LABELS,
+    "initial_query_llm": "Initial-query LLM Baseline",
+    "v1_hybrid_candidate_proxy": "V1 Hybrid RAG Baseline",
 }
 
 
@@ -164,6 +170,57 @@ def _reference_mae_rows(output_dir: Path) -> list[dict[str, Any]]:
     return plot_rows
 
 
+def _classification_plot_rows(output_dir: Path) -> list[dict[str, Any]]:
+    path = output_dir / "classification_metrics.csv"
+    if not path.exists():
+        return []
+    rows = _read_csv_rows(str(path))
+    plot_rows: list[dict[str, Any]] = []
+    for row in rows:
+        if row.get("status") != "ok":
+            continue
+        mode = str(row.get("ablation_mode") or "")
+        label = CLASSIFICATION_LABELS.get(mode)
+        if not label:
+            continue
+        try:
+            precision = float(row.get("precision", ""))
+            recall = float(row.get("recall", ""))
+            f1 = float(row.get("f1", ""))
+        except (TypeError, ValueError):
+            continue
+        plot_rows.append(
+            {
+                "ablation_mode": mode,
+                "model_variant": label,
+                "precision": precision,
+                "recall": recall,
+                "f1": f1,
+                "status": row.get("status", "ok"),
+                "source": row.get("source", ""),
+            }
+        )
+    return plot_rows
+
+
+def _classification_summary_lines(output_dir: Path) -> list[str]:
+    rows = _classification_plot_rows(output_dir)
+    if not rows:
+        return []
+    lines = ["", "Preference Dimension Classification"]
+    for mode, label in CLASSIFICATION_LABELS.items():
+        mode_rows = [row for row in rows if row.get("ablation_mode") == mode]
+        if not mode_rows:
+            continue
+        lines.append(f"[{label}] n={len(mode_rows)}")
+        for metric in ("precision", "recall", "f1"):
+            values = [float(row[metric]) for row in mode_rows]
+            lines.append(
+                f"  {metric}: mean={_mean(values):.6f}, std={_std(values):.6f}"
+            )
+    return lines
+
+
 def _summary_text(df: Any, stats: Any, output_dir: Path | None = None) -> str:
     lines = ["Ablation Statistical Summary", ""]
     for mode, label in MODEL_LABELS.items():
@@ -190,6 +247,7 @@ def _summary_text(df: Any, stats: Any, output_dir: Path | None = None) -> str:
     )
     if output_dir is not None:
         lines.extend(_reference_summary_lines(output_dir))
+        lines.extend(_classification_summary_lines(output_dir))
     return "\n".join(lines) + "\n"
 
 
@@ -271,6 +329,7 @@ def _fallback_summary_text(
     )
     if output_dir is not None:
         lines.extend(_reference_summary_lines(output_dir))
+        lines.extend(_classification_summary_lines(output_dir))
     return "\n".join(lines) + "\n"
 
 
@@ -325,10 +384,13 @@ def generate_academic_report_fallback(csv_path: str, output_dir: str) -> dict[st
     turns_png = output / "fig_efficiency_turns.png"
     mae_pdf = output / "fig_alignment_mae.pdf"
     mae_png = output / "fig_alignment_mae.png"
+    f1_pdf = output / "fig_dimension_f1.pdf"
+    f1_png = output / "fig_dimension_f1.png"
     summary_path = output / "statistical_summary.txt"
     summary = _fallback_summary_text(rows, output)
     _write_minimal_png(turns_png, color=(63, 127, 191))
     _write_minimal_png(mae_png, color=(191, 94, 74))
+    _write_minimal_png(f1_png, color=(86, 161, 89))
     _write_minimal_pdf(
         turns_pdf,
         "Convergence Efficiency",
@@ -337,12 +399,19 @@ def generate_academic_report_fallback(csv_path: str, output_dir: str) -> dict[st
     _write_minimal_pdf(
         mae_pdf, "Alignment MAE", "Fallback chart; see statistical_summary.txt"
     )
+    _write_minimal_pdf(
+        f1_pdf,
+        "Preference Dimension F1",
+        "Fallback chart; see statistical_summary.txt",
+    )
     summary_path.write_text(summary, encoding="utf-8")
     return {
         "fig_efficiency_turns_pdf": str(turns_pdf),
         "fig_efficiency_turns_png": str(turns_png),
         "fig_alignment_mae_pdf": str(mae_pdf),
         "fig_alignment_mae_png": str(mae_png),
+        "fig_dimension_f1_pdf": str(f1_pdf),
+        "fig_dimension_f1_png": str(f1_png),
         "statistical_summary": str(summary_path),
     }
 
@@ -370,6 +439,8 @@ def generate_academic_report(csv_path: str, output_dir: str) -> dict[str, str]:
     turns_png = output / "fig_efficiency_turns.png"
     mae_pdf = output / "fig_alignment_mae.pdf"
     mae_png = output / "fig_alignment_mae.png"
+    f1_pdf = output / "fig_dimension_f1.pdf"
+    f1_png = output / "fig_dimension_f1.png"
     summary_path = output / "statistical_summary.txt"
 
     _save_barplot(
@@ -398,16 +469,33 @@ def generate_academic_report(csv_path: str, output_dir: str) -> dict[str, str]:
         output_pdf=mae_pdf,
         output_png=mae_png,
     )
+    classification_rows = _classification_plot_rows(output)
+    if classification_rows:
+        f1_df = pd.DataFrame(classification_rows)
+        _save_barplot(
+            sns,
+            plt,
+            f1_df,
+            y="f1",
+            ylabel="Top-k Dimension F1",
+            title="Hidden Preference Dimension Identification",
+            output_pdf=f1_pdf,
+            output_png=f1_png,
+        )
     summary_path.write_text(_summary_text(df, stats, output), encoding="utf-8")
     plt.close("all")
 
-    return {
+    result = {
         "fig_efficiency_turns_pdf": str(turns_pdf),
         "fig_efficiency_turns_png": str(turns_png),
         "fig_alignment_mae_pdf": str(mae_pdf),
         "fig_alignment_mae_png": str(mae_png),
         "statistical_summary": str(summary_path),
     }
+    if classification_rows:
+        result["fig_dimension_f1_pdf"] = str(f1_pdf)
+        result["fig_dimension_f1_png"] = str(f1_png)
+    return result
 
 
 def run_cli() -> dict[str, str]:

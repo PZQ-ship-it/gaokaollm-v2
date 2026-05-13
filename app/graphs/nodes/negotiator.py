@@ -260,6 +260,24 @@ def _phi_delta_b_minus_a(a: dict[str, Any], b: dict[str, Any]) -> dict[str, floa
     return diff
 
 
+def _candidate_identity(row: dict[str, Any]) -> tuple[str, str]:
+    school = str(row.get("school_name") or row.get("school") or "").strip()
+    major = str(row.get("major_name") or row.get("major") or "").strip()
+    return school, major
+
+
+def _candidate_school(row: dict[str, Any]) -> str:
+    return str(row.get("school_name") or row.get("school") or "").strip()
+
+
+def _same_visible_candidate(a: dict[str, Any], b: dict[str, Any]) -> bool:
+    school_a = _candidate_school(a)
+    school_b = _candidate_school(b)
+    if school_a and school_b and school_a == school_b:
+        return True
+    return _candidate_identity(a) == _candidate_identity(b)
+
+
 def select_max_divergence_pair(
     candidates: list[dict[str, Any]],
     *,
@@ -277,9 +295,9 @@ def select_max_divergence_pair(
     if len(rows) == 1:
         return option_a, {}, {key: 0.0 for key in PREFERENCE_KEYS}
 
-    best_b = rows[1]
-    best_delta = _phi_delta_b_minus_a(option_a, best_b)
-    best_distance = sum(abs(value) for value in best_delta.values())
+    best_b: dict[str, Any] = {}
+    best_delta = {key: 0.0 for key in PREFERENCE_KEYS}
+    best_distance = 0.0
     previous: dict[str, float] = {}
     if isinstance(previous_delta_phi, dict):
         for key in PREFERENCE_KEYS:
@@ -288,12 +306,16 @@ def select_max_divergence_pair(
             except (TypeError, ValueError):
                 previous[key] = 0.0
 
-    fallback_candidate = best_b
-    fallback_delta = best_delta
-    fallback_distance = best_distance
+    fallback_candidate: dict[str, Any] = {}
+    fallback_delta = {key: 0.0 for key in PREFERENCE_KEYS}
+    fallback_distance = 0.0
     for candidate in rows[1:top_k]:
+        if _same_visible_candidate(option_a, candidate):
+            continue
         delta = _phi_delta_b_minus_a(option_a, candidate)
         distance = sum(abs(value) for value in delta.values())
+        if distance <= 0.05:
+            continue
         if distance > fallback_distance:
             fallback_candidate = candidate
             fallback_delta = delta
@@ -312,6 +334,71 @@ def select_max_divergence_pair(
     if best_distance <= 1e-9 and fallback_distance > best_distance:
         best_b = fallback_candidate
         best_delta = fallback_delta
+    if not best_b:
+        for candidate in rows[1:top_k]:
+            if not _same_visible_candidate(option_a, candidate):
+                return option_a, candidate, _phi_delta_b_minus_a(option_a, candidate)
+    return option_a, best_b, best_delta
+
+
+def select_forced_tradeoff_pair(
+    candidates: list[dict[str, Any]],
+    cost_dimension: str,
+    *,
+    top_k: int = 10,
+    previous_delta_phi: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, float]]:
+    rows = sorted(
+        [dict(row) for row in candidates if isinstance(row, dict)],
+        key=_utility_sort_key,
+        reverse=True,
+    )
+    if not rows:
+        return {}, {}, {key: 0.0 for key in PREFERENCE_KEYS}
+    option_a = rows[0]
+    previous: dict[str, float] = {}
+    if isinstance(previous_delta_phi, dict):
+        for key in PREFERENCE_KEYS:
+            try:
+                previous[key] = float(previous_delta_phi.get(key, 0.0))
+            except (TypeError, ValueError):
+                previous[key] = 0.0
+
+    best_b: dict[str, Any] = {}
+    best_delta = {key: 0.0 for key in PREFERENCE_KEYS}
+    best_score = -1.0
+    for candidate in rows[1:top_k]:
+        if _same_visible_candidate(option_a, candidate):
+            continue
+        delta = _phi_delta_b_minus_a(option_a, candidate)
+        try:
+            cost_delta = float(delta.get(cost_dimension, 0.0))
+        except (TypeError, ValueError):
+            cost_delta = 0.0
+        positive_gain = max(
+            (
+                float(value)
+                for key, value in delta.items()
+                if key != cost_dimension
+                and isinstance(value, (int, float))
+                and float(value) > 0.05
+            ),
+            default=0.0,
+        )
+        if cost_delta >= -0.05 or positive_gain <= 0.05:
+            continue
+        if previous:
+            repeat_distance = sum(
+                abs(delta.get(key, 0.0) - previous.get(key, 0.0))
+                for key in PREFERENCE_KEYS
+            )
+            if repeat_distance < 0.08:
+                continue
+        score = abs(cost_delta) + positive_gain + sum(abs(v) for v in delta.values())
+        if score > best_score:
+            best_b = candidate
+            best_delta = delta
+            best_score = score
     return option_a, best_b, best_delta
 
 
@@ -325,6 +412,99 @@ def _pareto_prompt_payload(
         "option_b": _compact([option_b])[0] if option_b else {},
         "delta_phi_b_minus_a": delta_phi,
     }
+
+
+def _first_present(row: dict[str, Any], keys: tuple[str, ...]) -> Any:
+    for key in keys:
+        value = row.get(key)
+        if value is not None and str(value).strip() != "":
+            return value
+    return None
+
+
+def _format_numeric(value: Any) -> str:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return str(value)
+    if number.is_integer():
+        return str(int(number))
+    return f"{number:.2f}"
+
+
+def _phi_text(row: dict[str, Any], dimension: str) -> str:
+    features = row.get("_phi_features")
+    if isinstance(features, dict):
+        value = features.get(dimension)
+        if value is not None:
+            return f"效用特征={_format_numeric(value)}"
+    return "候选字段缺失"
+
+
+def _dimension_value_text(row: dict[str, Any], dimension: str) -> str:
+    if dimension == "school":
+        school = _first_present(row, ("school_name", "school")) or "未知学校"
+        tier = _first_present(
+            row, ("school_tier", "school_level", "tier_label", "tier")
+        )
+        return f"{school}，层次={tier}" if tier is not None else str(school)
+    if dimension == "major":
+        major = _display_major(
+            _first_present(row, ("major_name", "major")) or "未知专业"
+        )
+        level = _first_present(row, ("major_relax_level", "relaxation_stage"))
+        return f"{major}，放宽层级={level}" if level is not None else str(major)
+    if dimension == "geo":
+        province = _first_present(row, ("school_province", "province")) or "未知省份"
+        city = _first_present(row, ("school_city", "city"))
+        level = _first_present(row, ("geo_relax_level", "region_relax_level"))
+        location = f"{province}/{city}" if city else str(province)
+        return f"{location}，地域放宽层级={level}" if level is not None else location
+    if dimension == "tuition":
+        tuition = _first_present(row, ("tuition", "tuition_fee"))
+        delta = _first_present(row, ("tuition_delta", "budget_delta"))
+        if tuition is not None and delta is not None:
+            return f"学费={_format_numeric(tuition)}，预算差={_format_numeric(delta)}"
+        if tuition is not None:
+            return f"学费={_format_numeric(tuition)}"
+        return _phi_text(row, dimension)
+    if dimension == "quality":
+        quality = _first_present(
+            row, ("quality_score", "major_strength_rating", "best_rating")
+        )
+        ranking = _first_present(
+            row, ("ranking", "major_strength_rank", "best_major_rank")
+        )
+        parts = []
+        if quality is not None:
+            parts.append(f"质量分/评级={_format_numeric(quality)}")
+        if ranking is not None:
+            parts.append(f"排名={_format_numeric(ranking)}")
+        return "，".join(parts) if parts else _phi_text(row, dimension)
+    return _phi_text(row, dimension)
+
+
+def _dimension_transition_text(
+    option_a: dict[str, Any],
+    option_b: dict[str, Any],
+    dimension: str,
+    *,
+    verb: str,
+) -> str:
+    before = _dimension_value_text(option_a, dimension)
+    after = _dimension_value_text(option_b, dimension)
+    return f"从「{before}」{verb}到「{after}」"
+
+
+def _delta_effect_text(delta_phi: dict[str, float], dimension: str) -> str:
+    try:
+        delta = float(delta_phi.get(dimension, 0.0))
+    except (TypeError, ValueError):
+        delta = 0.0
+    if abs(delta) < 0.005:
+        return "特征差值接近 0"
+    direction = "提升" if delta > 0 else "下降"
+    return f"{direction} {abs(delta):.2f} 个标准化效用点"
 
 
 def _fallback_pareto_question(
@@ -354,13 +534,110 @@ def _fallback_pareto_question(
         if negative
         else "geo"
     )
+    if cost == benefit:
+        benefit = next(
+            (key for key, _value in positive if key != cost),
+            "quality" if cost != "quality" else "school",
+        )
+    has_real_benefit = any(
+        key != cost and isinstance(value, (int, float)) and value > 0.05
+        for key, value in diff.items()
+    )
     benefit_label = DIMENSION_LABELS.get(benefit, benefit)
     cost_label = DIMENSION_LABELS.get(cost, cost)
     school_a = (payload.get("option_a") or {}).get("school") or "方案A"
     school_b = (payload.get("option_b") or {}).get("school") or "方案B"
+    if not option_b:
+        current_cost = _dimension_value_text(option_a, cost)
+        return (
+            f"当前可比较候选高度同质。以 {school_a} 为参照，"
+            f"这批结果没有形成清晰的‘换取’收益跃迁。"
+            f"我想直接确认：你是否愿意继续放宽 {cost_label}（当前为「{current_cost}」）？"
+        )
+    if option_b and _same_visible_candidate(option_a, option_b):
+        current_cost = _dimension_value_text(option_a, cost)
+        return (
+            f"这两个候选在可见学校上高度接近。"
+            f"你是否要坚持 {cost_label} 这条底线（当前为「{current_cost}」）？"
+        )
+    if not has_real_benefit:
+        cost_transition = _dimension_transition_text(
+            option_a,
+            option_b,
+            cost,
+            verb="放宽",
+        )
+        return (
+            f"在 {school_a} 和 {school_b} 之间，方案B主要要求你放宽 {cost_label}："
+            f"{cost_transition}；但当前候选没有带来明确的 {benefit_label} 正向提升。"
+            f"你是否仍愿意放宽这条底线？"
+        )
+    cost_transition = _dimension_transition_text(
+        option_a,
+        option_b,
+        cost,
+        verb="放宽",
+    )
+    benefit_transition = _dimension_transition_text(
+        option_a,
+        option_b,
+        benefit,
+        verb="提升",
+    )
+    benefit_effect = _delta_effect_text(delta_phi, benefit)
     return (
         f"在 {school_a} 和 {school_b} 之间，"
-        f"你愿意牺牲/放宽 {cost_label} 来换取 {benefit_label} 跃迁吗？"
+        f"方案B需要你牺牲/放宽 {cost_label}：{cost_transition}；"
+        f"换取 {benefit_label}：{benefit_transition}（{benefit_effect}）。"
+        "你能接受这笔交换吗？"
+    )
+
+
+def _followup_pareto_question(
+    delta_phi: dict[str, float],
+    forced_cost_dimension: str,
+    negotiation_turns: int,
+    *,
+    option_a: dict[str, Any] | None = None,
+    option_b: dict[str, Any] | None = None,
+) -> str:
+    positive = [
+        (key, value)
+        for key, value in delta_phi.items()
+        if isinstance(value, (int, float)) and value > 0.05
+    ]
+    benefit = max(positive, key=lambda item: item[1])[0] if positive else "school"
+    if benefit == forced_cost_dimension:
+        benefit = next(
+            (key for key, _value in positive if key != forced_cost_dimension),
+            "quality" if forced_cost_dimension != "quality" else "school",
+        )
+    cost_label = DIMENSION_LABELS.get(forced_cost_dimension, forced_cost_dimension)
+    benefit_label = DIMENSION_LABELS.get(benefit, benefit)
+    round_number = negotiation_turns + 1
+    has_real_benefit = any(
+        key != forced_cost_dimension
+        and isinstance(value, (int, float))
+        and value > 0.05
+        for key, value in delta_phi.items()
+    )
+    if option_a and option_b and has_real_benefit:
+        detail = (
+            f"具体仍是 {cost_label}："
+            f"{_dimension_transition_text(option_a, option_b, forced_cost_dimension, verb='放宽')}；"
+            f"{benefit_label}："
+            f"{_dimension_transition_text(option_a, option_b, benefit, verb='提升')}"
+        )
+    elif option_a:
+        detail = (
+            f"当前没有明确的正向收益跃迁，我只确认底线："
+            f"{cost_label} 当前为「{_dimension_value_text(option_a, forced_cost_dimension)}」"
+        )
+    else:
+        detail = "当前没有明确的正向收益跃迁，我只确认底线"
+    return (
+        f"上一轮你已经回应过一次。第 {round_number} 轮我换成底线确认："
+        f"{detail}。你是否仍然不愿放宽 {cost_label} 来换取 {benefit_label} 跃迁？"
     )
 
 
@@ -445,11 +722,24 @@ async def _generate_pareto_question(
         )
         return question, {key: 0.0 for key in PREFERENCE_KEYS}
 
-    option_a, option_b, delta_phi = select_max_divergence_pair(
-        _candidate_rows(state),
-        previous_delta_phi=state.get("latest_pareto_diff"),
-    )
     forced_cost_dimension = state.get("ucb_target_dimension")
+    rows = _candidate_rows(state)
+    if forced_cost_dimension in PREFERENCE_KEYS:
+        option_a, option_b, delta_phi = select_forced_tradeoff_pair(
+            rows,
+            str(forced_cost_dimension),
+            previous_delta_phi=state.get("latest_pareto_diff"),
+        )
+        if not option_b:
+            option_a, option_b, delta_phi = select_max_divergence_pair(
+                rows,
+                previous_delta_phi=state.get("latest_pareto_diff"),
+            )
+    else:
+        option_a, option_b, delta_phi = select_max_divergence_pair(
+            rows,
+            previous_delta_phi=state.get("latest_pareto_diff"),
+        )
     fallback = _fallback_pareto_question(
         option_a,
         option_b,
@@ -458,6 +748,17 @@ async def _generate_pareto_question(
             str(forced_cost_dimension) if forced_cost_dimension else None
         ),
     )
+    if (
+        forced_cost_dimension in PREFERENCE_KEYS
+        and int(state.get("negotiation_turns") or 0) > 0
+    ):
+        fallback = _followup_pareto_question(
+            delta_phi,
+            str(forced_cost_dimension),
+            int(state.get("negotiation_turns") or 0),
+            option_a=option_a,
+            option_b=option_b,
+        )
     if forced_cost_dimension in PREFERENCE_KEYS:
         # UCB-directed probes intentionally ask about the probed cost dimension.
         # Store a crisp one-dimensional counterfactual so the BT tracker updates

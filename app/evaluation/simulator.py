@@ -8,6 +8,37 @@ from langchain_core.messages import SystemMessage
 from app.evaluation.schemas import IcebergProfile
 
 
+DIMENSION_TOKENS = {
+    "major": ("专业匹配", "专业", "调剂", "major"),
+    "geo": ("地域距离", "地域", "外省", "出省", "跨省", "城市", "geo"),
+    "tuition": ("学费预算", "学费", "预算", "费用", "tuition"),
+    "school": ("学校层次", "学校", "名校", "985", "211", "school"),
+    "quality": ("培养质量", "质量", "实力", "学科", "quality", "strength"),
+}
+
+
+def dimension_from_text(text: str) -> str | None:
+    lowered = text.lower()
+    for dimension, tokens in DIMENSION_TOKENS.items():
+        if any(token.lower() in lowered for token in tokens):
+            return dimension
+    return None
+
+
+def extract_cost_dimension(agent_question: str) -> str | None:
+    patterns = (
+        r"(?:牺牲/放宽|牺牲|放宽)\s*([^\s，,。！？?]{1,24})",
+        r"(?:sacrifice|relax)\s+([a-z_]{2,16})",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, agent_question, flags=re.I)
+        if match:
+            dimension = dimension_from_text(match.group(1))
+            if dimension:
+                return dimension
+    return dimension_from_text(agent_question)
+
+
 class UserSimulator:
     def __init__(
         self,
@@ -94,7 +125,9 @@ class UserSimulator:
                     return "quality"
             return None
 
-        cost = cost_dimension()
+        cost = extract_cost_dimension(agent_question)
+        if cost is None:
+            cost = cost_dimension()
 
         asks = {
             "major": cost == "major"

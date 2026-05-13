@@ -136,11 +136,12 @@ def _target_dimension_from_text(text: str) -> TargetDimension:
 
 def _tradeoff_cost_dimension(proposal: str) -> TargetDimension:
     patterns = (
-        r"(?:牺牲|放宽)\s*([^\s，,。！？?]{1,12})",
         r"牺牲/放宽\s*([^\s，,。！？?]{1,12})",
+        r"(?:牺牲|放宽)\s*([^\s，,。！？?]{1,12})",
+        r"(?:sacrifice|relax)\s+([a-z_]{2,16})",
     )
     for pattern in patterns:
-        match = re.search(pattern, proposal)
+        match = re.search(pattern, proposal, flags=re.I)
         if match:
             dimension = _target_dimension_from_text(match.group(1))
             if dimension != "unknown":

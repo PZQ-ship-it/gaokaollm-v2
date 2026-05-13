@@ -69,11 +69,101 @@ def _write_mock_ablation_csv(csv_path: Path) -> None:
         writer.writerows(rows)
 
 
+def _write_mock_classification_csv(csv_path: Path) -> None:
+    rows: list[dict[str, Any]] = []
+    for index in range(10):
+        rows.append(
+            {
+                "profile_id": f"p{index}",
+                "ablation_mode": "full",
+                "repeat": 1,
+                "source": "agent_ablation",
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1": 1.0,
+                "gold_dims": '["major"]',
+                "pred_dims": '["major"]',
+                "weights": '{"major": 0.7}',
+                "status": "ok",
+                "error_message": "",
+            }
+        )
+        rows.append(
+            {
+                "profile_id": f"p{index}",
+                "ablation_mode": "no_ucb",
+                "repeat": 1,
+                "source": "agent_ablation",
+                "precision": 0.5,
+                "recall": 0.5,
+                "f1": 0.5,
+                "gold_dims": '["major", "tuition"]',
+                "pred_dims": '["major", "school"]',
+                "weights": '{"major": 0.4, "school": 0.3}',
+                "status": "ok",
+                "error_message": "",
+            }
+        )
+        rows.append(
+            {
+                "profile_id": f"p{index}",
+                "ablation_mode": "initial_query_llm",
+                "repeat": "",
+                "source": "reference_baseline",
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "gold_dims": '["tuition"]',
+                "pred_dims": '["school"]',
+                "weights": '{"school": 0.5}',
+                "status": "ok",
+                "error_message": "",
+            }
+        )
+        rows.append(
+            {
+                "profile_id": f"p{index}",
+                "ablation_mode": "v1_hybrid_candidate_proxy",
+                "repeat": "",
+                "source": "reference_baseline",
+                "precision": 0.6,
+                "recall": 0.6,
+                "f1": 0.6,
+                "gold_dims": '["tuition"]',
+                "pred_dims": '["tuition"]',
+                "weights": '{"tuition": 0.5}',
+                "status": "ok",
+                "error_message": "",
+            }
+        )
+    with csv_path.open("w", encoding="utf-8", newline="") as file:
+        writer = csv.DictWriter(
+            file,
+            fieldnames=[
+                "profile_id",
+                "ablation_mode",
+                "repeat",
+                "source",
+                "precision",
+                "recall",
+                "f1",
+                "gold_dims",
+                "pred_dims",
+                "weights",
+                "status",
+                "error_message",
+            ],
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def test_generate_academic_report_or_dependency_hint():
     output = _analysis_output_dir()
     try:
         csv_path = output / "mock_ablation_results.csv"
         _write_mock_ablation_csv(csv_path)
+        _write_mock_classification_csv(output / "classification_metrics.csv")
 
         deps_available = all(
             importlib.util.find_spec(module) is not None
@@ -96,6 +186,8 @@ def test_generate_academic_report_or_dependency_hint():
             "fig_efficiency_turns_pdf",
             "fig_alignment_mae_png",
             "fig_alignment_mae_pdf",
+            "fig_dimension_f1_png",
+            "fig_dimension_f1_pdf",
             "statistical_summary",
         ):
             path = Path(paths[key])
@@ -105,6 +197,8 @@ def test_generate_academic_report_or_dependency_hint():
         summary = Path(paths["statistical_summary"]).read_text(encoding="utf-8")
         assert "p-value" in summary
         assert re.search(r"p-value=\d", summary)
+        assert "Preference Dimension Classification" in summary
+        assert "V1 Hybrid RAG Baseline" in summary
 
         from matplotlib import pyplot as plt
 
