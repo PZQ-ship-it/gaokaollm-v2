@@ -4,11 +4,11 @@ from langgraph.graph.message import add_messages
 
 
 DEFAULT_IMPLICIT_WEIGHTS: dict[str, float] = {
-    "school": 0.25,
-    "major": 0.25,
-    "tuition": 0.25,
-    "quality": 0.25,
-    "geo": 0.25,
+    "school": 0.2,
+    "major": 0.2,
+    "tuition": 0.2,
+    "quality": 0.2,
+    "geo": 0.2,
 }
 
 DEFAULT_WEIGHT_VARIANCE: dict[str, float] = {
@@ -33,6 +33,8 @@ class AgentState(TypedDict, total=False):
     normalized_intent: dict[str, Any]
     probe_plan: list[dict[str, Any]]
     opportunity_rankings: list[str]
+    planner_source: str | None
+    ucb_target_dimension: str | None
     implicit_weights: dict[str, float]
     weight_variance: dict[str, float]
     negotiation_turns: int

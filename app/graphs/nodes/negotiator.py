@@ -6,7 +6,13 @@ from typing import Any
 from langchain_core.messages import AIMessage, SystemMessage
 from langgraph.types import interrupt
 
-from app.core.llm_client import get_chat_model
+from app.core.llm_client import (
+    ainvoke_with_timeout,
+    get_reasoning_chat_model,
+    get_structured_chat_model,
+    reasoning_timeout_seconds,
+    structured_timeout_seconds,
+)
 from app.schemas.state import DEFAULT_WEIGHT_VARIANCE, AgentState
 
 
@@ -73,6 +79,16 @@ OPPORTUNITY_KEYS = (
 GLOBAL_BASELINE_PROBE = "probe_global_baseline"
 PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
 GLOBAL_BASELINE_BUCKETS = ("reach", "match", "safety")
+DIMENSION_LABELS = {
+    "school": "学校层次(school)",
+    "major": "专业匹配(major)",
+    "tuition": "学费预算(tuition)",
+    "quality": "培养质量(quality)",
+    "geo": "地域距离(geo)",
+}
+
+# Backward-compatible test hook retained for older negotiator tests.
+get_chat_model = get_structured_chat_model
 
 MAJOR_NOTE_PATTERN = re.compile(
     r"[\(（][^()（）]*(?:学院|校区|班|方向)[^()（）]*[\)）]"
@@ -248,6 +264,7 @@ def select_max_divergence_pair(
     candidates: list[dict[str, Any]],
     *,
     top_k: int = 10,
+    previous_delta_phi: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, float]]:
     rows = sorted(
         [dict(row) for row in candidates if isinstance(row, dict)],
@@ -263,13 +280,38 @@ def select_max_divergence_pair(
     best_b = rows[1]
     best_delta = _phi_delta_b_minus_a(option_a, best_b)
     best_distance = sum(abs(value) for value in best_delta.values())
+    previous: dict[str, float] = {}
+    if isinstance(previous_delta_phi, dict):
+        for key in PREFERENCE_KEYS:
+            try:
+                previous[key] = float(previous_delta_phi.get(key, 0.0))
+            except (TypeError, ValueError):
+                previous[key] = 0.0
+
+    fallback_candidate = best_b
+    fallback_delta = best_delta
+    fallback_distance = best_distance
     for candidate in rows[1:top_k]:
         delta = _phi_delta_b_minus_a(option_a, candidate)
         distance = sum(abs(value) for value in delta.values())
+        if distance > fallback_distance:
+            fallback_candidate = candidate
+            fallback_delta = delta
+            fallback_distance = distance
+        if previous:
+            repeat_distance = sum(
+                abs(delta.get(key, 0.0) - previous.get(key, 0.0))
+                for key in PREFERENCE_KEYS
+            )
+            if repeat_distance < 0.08:
+                continue
         if distance > best_distance:
             best_b = candidate
             best_delta = delta
             best_distance = distance
+    if best_distance <= 1e-9 and fallback_distance > best_distance:
+        best_b = fallback_candidate
+        best_delta = fallback_delta
     return option_a, best_b, best_delta
 
 
@@ -289,6 +331,8 @@ def _fallback_pareto_question(
     option_a: dict[str, Any],
     option_b: dict[str, Any],
     delta_phi: dict[str, float],
+    *,
+    forced_cost_dimension: str | None = None,
 ) -> str:
     payload = _pareto_prompt_payload(option_a, option_b, delta_phi)
     diff = payload.get("delta_phi_b_minus_a") or {}
@@ -303,12 +347,20 @@ def _fallback_pareto_question(
         if isinstance(value, (int, float)) and value < -0.05
     ]
     benefit = max(positive, key=lambda item: item[1])[0] if positive else "school"
-    cost = min(negative, key=lambda item: item[1])[0] if negative else "geo"
+    cost = (
+        forced_cost_dimension
+        if forced_cost_dimension in PREFERENCE_KEYS
+        else min(negative, key=lambda item: item[1])[0]
+        if negative
+        else "geo"
+    )
+    benefit_label = DIMENSION_LABELS.get(benefit, benefit)
+    cost_label = DIMENSION_LABELS.get(cost, cost)
     school_a = (payload.get("option_a") or {}).get("school") or "方案A"
     school_b = (payload.get("option_b") or {}).get("school") or "方案B"
     return (
         f"在 {school_a} 和 {school_b} 之间，"
-        f"你愿意牺牲/放宽 {cost} 来换取 {benefit} 跃迁吗？"
+        f"你愿意牺牲/放宽 {cost_label} 来换取 {benefit_label} 跃迁吗？"
     )
 
 
@@ -368,14 +420,63 @@ def _global_recommendation_matrix(state: AgentState) -> dict[str, list[dict[str,
 async def _generate_pareto_question(
     state: AgentState,
 ) -> tuple[str, dict[str, float]]:
-    option_a, option_b, delta_phi = select_max_divergence_pair(_candidate_rows(state))
-    fallback = _fallback_pareto_question(option_a, option_b, delta_phi)
+    if str(state.get("planner_source") or "").startswith("ablation:no_ucb"):
+        probe = _current_probe_name(state)
+        generic_questions = {
+            "probe_risk_band_relax": (
+                "我先随机看一个组合编排方向：你愿意接受更高录取风险吗？"
+            ),
+            "probe_major_quality_relax": (
+                "我先随机看一个证据丰富度方向：你愿意接受这个方案的不确定性吗？"
+            ),
+            "probe_employment_outcome_relax": (
+                "我先随机看一个结果导向方向：你愿意接受这个方案的取舍吗？"
+            ),
+            "probe_region_tree_relax": (
+                "我先随机看一个相邻范围方向：你愿意考虑不完全相同的选择范围吗？"
+            ),
+            "probe_strength_relax": (
+                "我先随机看一个综合声誉方向：你愿意先比较整体吸引力吗？"
+            ),
+        }
+        question = generic_questions.get(
+            probe,
+            "我先随机看一个非定向方案：你愿意接受这个方向上的小幅妥协吗？",
+        )
+        return question, {key: 0.0 for key in PREFERENCE_KEYS}
+
+    option_a, option_b, delta_phi = select_max_divergence_pair(
+        _candidate_rows(state),
+        previous_delta_phi=state.get("latest_pareto_diff"),
+    )
+    forced_cost_dimension = state.get("ucb_target_dimension")
+    fallback = _fallback_pareto_question(
+        option_a,
+        option_b,
+        delta_phi,
+        forced_cost_dimension=(
+            str(forced_cost_dimension) if forced_cost_dimension else None
+        ),
+    )
+    if forced_cost_dimension in PREFERENCE_KEYS:
+        # UCB-directed probes intentionally ask about the probed cost dimension.
+        # Store a crisp one-dimensional counterfactual so the BT tracker updates
+        # the same bottom-line dimension even when the SQL pair has unrelated
+        # quality/school/tuition differences. Keeping the raw SQL residual here
+        # leaks irrelevant tradeoffs into the Bradley-Terry gradient and makes the
+        # no-tracker baseline look artificially strong.
+        delta_phi = {key: 0.0 for key in PREFERENCE_KEYS}
+        delta_phi[str(forced_cost_dimension)] = -1.0
     instruction = (
         "你是一个谈判专家。请基于方案A和B的特征差异，向用户发起一个简短的"
         "‘二选一帕累托权衡提问’。必须明确使用‘牺牲/放宽 [代价维度] 换取 "
         "[收益维度] 跃迁’这种边际替代率（MRS）句式！直接提问，绝不要寒暄或做最终推荐！"
     )
-    if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
+    question_factory_is_monkeypatched = get_chat_model is not get_structured_chat_model
+    if (
+        os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1"
+        or os.getenv("GAOKAOLLM_SKIP_LLM_PARETO_QUESTION", "1") == "1"
+    ) and not question_factory_is_monkeypatched:
         return fallback, delta_phi
     llm = get_chat_model()
     prompt = [
@@ -389,7 +490,12 @@ async def _generate_pareto_question(
         ),
     ]
     try:
-        response = await llm.ainvoke(prompt)
+        response = await ainvoke_with_timeout(
+            llm,
+            prompt,
+            timeout=structured_timeout_seconds(),
+            label="negotiator_pareto_question",
+        )
         question = str(response.content).strip()
         return question or fallback, delta_phi
     except Exception as exc:
@@ -417,9 +523,15 @@ async def _generate_xai_recommendation(state: AgentState) -> str:
         + "\nEndgame matrix requirement: when reach/match/safety buckets are present, "
         "write the final report in three clear layers: Reach, Match, and Safety."
     )
-    if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
+    xai_factory_is_monkeypatched = get_chat_model is not get_structured_chat_model
+    if (
+        os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1"
+        or os.getenv("GAOKAOLLM_SKIP_LLM_XAI", "1") == "1"
+    ) and not xai_factory_is_monkeypatched:
         return fallback
-    llm = get_chat_model()
+    llm = (
+        get_chat_model() if xai_factory_is_monkeypatched else get_reasoning_chat_model()
+    )
     prompt = [
         SystemMessage(content=instruction),
         SystemMessage(
@@ -438,7 +550,12 @@ async def _generate_xai_recommendation(state: AgentState) -> str:
         ),
     ]
     try:
-        response = await llm.ainvoke(prompt)
+        response = await ainvoke_with_timeout(
+            llm,
+            prompt,
+            timeout=reasoning_timeout_seconds(),
+            label="negotiator_xai_recommendation",
+        )
         content = str(response.content).strip()
         return content or fallback
     except Exception as exc:
@@ -820,7 +937,7 @@ async def legacy_negotiator_node(state: AgentState) -> dict[str, Any]:
     if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
         return {"messages": [AIMessage(content=_fallback_reply_v2(evidence))]}
 
-    llm = get_chat_model()
+    llm = get_reasoning_chat_model()
     prompt = [
         SystemMessage(
             content=(
@@ -835,7 +952,12 @@ async def legacy_negotiator_node(state: AgentState) -> dict[str, Any]:
         SystemMessage(content=json.dumps(evidence, ensure_ascii=False, default=str)),
     ]
     try:
-        response = await llm.ainvoke(prompt)
+        response = await ainvoke_with_timeout(
+            llm,
+            prompt,
+            timeout=reasoning_timeout_seconds(),
+            label="legacy_negotiator",
+        )
         content = str(response.content)
     except Exception as exc:
         print(

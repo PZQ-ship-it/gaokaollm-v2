@@ -5,7 +5,11 @@ from typing import Any
 
 from langchain_core.messages import SystemMessage
 
-from app.core.llm_client import get_chat_model
+from app.core.llm_client import (
+    ainvoke_with_timeout,
+    get_structured_chat_model,
+    structured_timeout_seconds,
+)
 from app.schemas.state import AgentState
 
 
@@ -105,10 +109,11 @@ def _fallback_intent(text: str) -> dict[str, Any]:
 
 
 def _sanitize_intent(data: dict[str, Any], fallback: dict[str, Any]) -> dict[str, Any]:
+    rewritten = str(data.get("rewritten_query") or fallback["rewritten_query"])
+    if rewritten.count("?") >= max(3, len(rewritten) // 4):
+        rewritten = fallback["rewritten_query"]
     sanitized = {
-        "rewritten_query": str(
-            data.get("rewritten_query") or fallback["rewritten_query"]
-        ),
+        "rewritten_query": rewritten,
         "intent_axes": data.get("intent_axes") or fallback["intent_axes"],
         "ambiguities": data.get("ambiguities") or [],
         "clarification_hint": data.get("clarification_hint"),
@@ -131,10 +136,14 @@ async def semantic_normalizer_node(state: AgentState) -> dict[str, Any]:
     fallback = _fallback_intent(text)
     print("[semantic_normalizer] normalizing explicit user intent")
 
-    if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1" or not text:
+    if (
+        os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1"
+        or os.getenv("GAOKAOLLM_SKIP_LLM_SEMANTIC", "1") == "1"
+        or not text
+    ):
         intent = fallback
     else:
-        llm = get_chat_model()
+        llm = get_structured_chat_model()
         prompt = [
             SystemMessage(
                 content=(
@@ -151,7 +160,12 @@ async def semantic_normalizer_node(state: AgentState) -> dict[str, Any]:
             SystemMessage(content=f"Latest user utterance: {text}"),
         ]
         try:
-            response = await llm.ainvoke(prompt)
+            response = await ainvoke_with_timeout(
+                llm,
+                prompt,
+                timeout=structured_timeout_seconds(),
+                label="semantic_normalizer",
+            )
             parsed = _json_from_text(str(response.content))
             intent = _sanitize_intent(parsed, fallback)
         except Exception as exc:

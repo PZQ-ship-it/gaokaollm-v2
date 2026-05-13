@@ -5,7 +5,11 @@ from typing import Any
 
 from langchain_core.messages import AIMessage, SystemMessage
 
-from app.core.llm_client import get_chat_model
+from app.core.llm_client import (
+    ainvoke_with_timeout,
+    get_structured_chat_model,
+    structured_timeout_seconds,
+)
 from app.flows.probers import run_baseline
 from app.schemas.state import (
     DEFAULT_IMPLICIT_WEIGHTS,
@@ -213,6 +217,14 @@ def _fallback_extract(text: str) -> dict[str, Any]:
     return extracted
 
 
+def _dedupe_subjects(subjects: list[str]) -> list[str]:
+    deduped: list[str] = []
+    for subject in subjects:
+        if subject not in deduped:
+            deduped.append(subject)
+    return deduped[:3]
+
+
 def _extract_subjects(text: str) -> list[str]:
     subjects: list[str] = []
     compact = re.sub(r"\s+", "", text)
@@ -223,11 +235,23 @@ def _extract_subjects(text: str) -> list[str]:
         .replace("地区不限制", "")
     )
 
-    for alias, subject in SUBJECT_ALIASES.items():
-        if alias in compact and subject not in subjects:
+    subject_window = compact
+    window_match = re.search(
+        r"(?:选科|选考|科目|组合)[:：是为]*(.{0,16})",
+        compact,
+    )
+    if window_match:
+        subject_window = window_match.group(1)
+
+    for subject in VALID_SUBJECTS:
+        if subject in subject_window and subject not in subjects:
             subjects.append(subject)
 
-    return subjects[:3]
+    for alias, subject in SUBJECT_ALIASES.items():
+        if alias in subject_window and subject not in subjects:
+            subjects.append(subject)
+
+    return _dedupe_subjects(subjects)
 
 
 def _normalize_subjects(value: Any) -> list[str] | None:
@@ -289,9 +313,11 @@ def _merge_constraints(
 
 async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, Any]:
     fallback = _fallback_extract(text)
+    if fallback.get("score") and fallback.get("selected_subjects"):
+        return fallback
     if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
         return fallback
-    llm = get_chat_model()
+    llm = get_structured_chat_model()
     prompt = [
         SystemMessage(
             content=(
@@ -315,7 +341,12 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
         SystemMessage(content=f"用户最新消息: {text}"),
     ]
     try:
-        response = await llm.ainvoke(prompt)
+        response = await ainvoke_with_timeout(
+            llm,
+            prompt,
+            timeout=structured_timeout_seconds(),
+            label="gatekeeper",
+        )
         parsed = _json_from_text(str(response.content))
     except Exception as exc:
         print(

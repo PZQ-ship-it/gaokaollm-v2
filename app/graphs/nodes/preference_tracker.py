@@ -1,12 +1,17 @@
 from copy import deepcopy
 import math
+import re
 from typing import Any, Literal
 
 from langchain_core.messages import SystemMessage
 from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel
 
-from app.core.llm_client import get_chat_model
+from app.core.llm_client import (
+    ainvoke_with_timeout,
+    get_structured_chat_model,
+    structured_timeout_seconds,
+)
 from app.evaluation.ablation import get_ablation_mode
 from app.schemas.state import (
     DEFAULT_IMPLICIT_WEIGHTS,
@@ -27,7 +32,7 @@ PREFERENCE_KEYS: tuple[PreferenceKey, ...] = (
     "geo",
 )
 BT_TAU = 3.0
-BT_LEARNING_RATE = 0.3
+BT_LEARNING_RATE = 0.75
 
 
 class FeedbackAnalysis(BaseModel):
@@ -82,10 +87,19 @@ def _safe_delta_phi(
                 delta[key] = float(delta_phi.get(key, 0.0))
             except (TypeError, ValueError):
                 delta[key] = 0.0
-    if any(abs(value) > 1e-9 for value in delta.values()):
+    target = analysis.target_dimension
+    has_signal = any(abs(value) > 1e-9 for value in delta.values())
+    if target in PREFERENCE_KEYS and (
+        not has_signal or abs(delta.get(target, 0.0)) < 0.05
+    ):
+        # When the stored Pareto residual is missing, too small, or does not touch
+        # the parsed bottom-line dimension, inject a one-dimensional counterfactual.
+        # Rejecting B means B violated that dimension, so delta_B-A is negative.
+        delta[target] = 1.0 if analysis.intent == "accept" else -1.0
+        return delta
+    if has_signal:
         return delta
 
-    target = analysis.target_dimension
     if target in PREFERENCE_KEYS:
         # Compatibility fallback for old tests/threads without a stored Pareto diff.
         delta[target] = 1.0 if analysis.intent == "accept" else -1.0
@@ -93,6 +107,85 @@ def _safe_delta_phi(
         delta["school"] = 1.0
         delta["geo"] = -1.0
     return delta
+
+
+def _target_dimension_from_text(text: str) -> TargetDimension:
+    lowered = text.lower()
+    if any(
+        token in lowered
+        for token in ("专业", "专业匹配", "调剂", "major", "computer", "计算机")
+    ):
+        return "major"
+    if any(token in lowered for token in ("学费", "预算", "费用", "tuition", "budget")):
+        return "tuition"
+    if any(
+        token in lowered
+        for token in ("地域", "外省", "出省", "跨省", "省内", "geo", "城市")
+    ):
+        return "geo"
+    if any(
+        token in lowered for token in ("学校", "985", "211", "层次", "名校", "school")
+    ):
+        return "school"
+    if any(
+        token in lowered for token in ("质量", "实力", "排名", "quality", "strength")
+    ):
+        return "quality"
+    return "unknown"
+
+
+def _tradeoff_cost_dimension(proposal: str) -> TargetDimension:
+    patterns = (
+        r"(?:牺牲|放宽)\s*([^\s，,。！？?]{1,12})",
+        r"牺牲/放宽\s*([^\s，,。！？?]{1,12})",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, proposal)
+        if match:
+            dimension = _target_dimension_from_text(match.group(1))
+            if dimension != "unknown":
+                return dimension
+    return _target_dimension_from_text(proposal)
+
+
+def _rule_based_feedback_analysis(
+    proposal: str,
+    user_reply: str,
+) -> FeedbackAnalysis | None:
+    reply = user_reply.strip()
+    if not reply:
+        return FeedbackAnalysis(intent="hesitate", target_dimension="unknown")
+
+    reject_words = (
+        "不行",
+        "拒绝",
+        "绝不",
+        "不能接受",
+        "不接受",
+        "不换",
+        "不调剂",
+        "不能偏",
+        "太远",
+        "太贵",
+        "不能超",
+        "必须压住",
+    )
+    accept_words = ("接受", "可以", "能接受", "愿意")
+    hesitate_words = ("犹豫", "不确定", "再看看", "关系不大", "还想", "保留")
+    target = _tradeoff_cost_dimension(proposal)
+    reply_target = _target_dimension_from_text(reply)
+    if reply_target != "unknown" and any(word in reply for word in reject_words):
+        target = reply_target
+    elif target == "unknown":
+        target = _target_dimension_from_text(reply)
+
+    if any(word in reply for word in reject_words):
+        return FeedbackAnalysis(intent="reject", target_dimension=target)
+    if any(word in reply for word in hesitate_words):
+        return FeedbackAnalysis(intent="hesitate", target_dimension=target)
+    if any(word in reply for word in accept_words):
+        return FeedbackAnalysis(intent="accept", target_dimension=target)
+    return None
 
 
 def apply_feedback_update(
@@ -164,6 +257,10 @@ async def analyze_feedback_with_llm(state: AgentState) -> FeedbackAnalysis:
     if not proposal:
         proposal = _latest_message_text(state)
 
+    rule_result = _rule_based_feedback_analysis(proposal, user_reply)
+    if rule_result is not None:
+        return rule_result
+
     prompt = [
         SystemMessage(
             content=(
@@ -183,9 +280,14 @@ async def analyze_feedback_with_llm(state: AgentState) -> FeedbackAnalysis:
         ),
     ]
     try:
-        llm = get_chat_model()
+        llm = get_structured_chat_model()
         structured_llm = llm.with_structured_output(FeedbackAnalysis)
-        result = await structured_llm.ainvoke(prompt)
+        result = await ainvoke_with_timeout(
+            structured_llm,
+            prompt,
+            timeout=structured_timeout_seconds(),
+            label="preference_tracker",
+        )
         if isinstance(result, FeedbackAnalysis):
             return result
         if isinstance(result, dict):

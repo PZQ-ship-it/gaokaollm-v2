@@ -1,0 +1,21 @@
+Ablation Statistical Summary
+
+[EDMIE (Ours)] n=36
+  negotiation_turns: mean=2.000000, std=0.000000
+  mae_error: mean=0.131290, std=0.017403
+
+[w/o UCB Active Probing] n=36
+  negotiation_turns: mean=2.916667, std=0.280306
+  mae_error: mean=0.213054, std=0.042083
+
+[w/o BT-Gradient Tracker] n=36
+  negotiation_turns: mean=3.000000, std=0.000000
+  mae_error: mean=0.203000, std=0.068268
+
+Independent Welch T-Tests
+  EDMIE (Ours) vs w/o UCB Active Probing on negotiation_turns: p-value=1.81537e-20
+  EDMIE (Ours) vs w/o BT-Gradient Tracker on mae_error: p-value=3.49248e-07
+
+Reference Baselines
+  Random Dirichlet Baseline: MAE=0.222274, n=1
+  Initial-query LLM Baseline: MAE=0.203000, n=12

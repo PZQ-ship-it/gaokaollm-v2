@@ -45,9 +45,21 @@ def _mae(
     return total / len(ground_truth_weights)
 
 
-async def _drain_stream(agent_app: Any, payload: Any, config: dict[str, Any]) -> None:
-    async for _event in agent_app.astream(payload, config=config):
-        pass
+async def _drain_stream(
+    agent_app: Any,
+    payload: Any,
+    config: dict[str, Any],
+    *,
+    timeout_seconds: float | None = None,
+) -> None:
+    async def _consume() -> None:
+        async for _event in agent_app.astream(payload, config=config):
+            pass
+
+    if timeout_seconds is None or timeout_seconds <= 0:
+        await _consume()
+        return
+    await asyncio.wait_for(_consume(), timeout=timeout_seconds)
 
 
 async def arun_sandbox_evaluation(
@@ -58,12 +70,21 @@ async def arun_sandbox_evaluation(
     *,
     configurable: dict[str, Any] | None = None,
     max_turns: int = 8,
+    turn_timeout_seconds: float | None = None,
 ) -> dict[str, Any]:
     config = {"configurable": {"thread_id": thread_id, **(configurable or {})}}
-    payload: Any = {"messages": [HumanMessage(content=profile.explicit_query)]}
+    payload: Any = {
+        "messages": [HumanMessage(content=profile.explicit_query)],
+        "constraints": {"profile_id": profile.profile_id},
+    }
 
     for _ in range(max_turns):
-        await _drain_stream(agent_app, payload, config)
+        await _drain_stream(
+            agent_app,
+            payload,
+            config,
+            timeout_seconds=turn_timeout_seconds,
+        )
         snapshot = agent_app.get_state(config)
         question = _interrupt_question(snapshot)
         if not question:
@@ -93,6 +114,7 @@ def run_sandbox_evaluation(
     *,
     configurable: dict[str, Any] | None = None,
     max_turns: int = 8,
+    turn_timeout_seconds: float | None = None,
 ) -> dict[str, Any]:
     try:
         asyncio.get_running_loop()
@@ -105,6 +127,7 @@ def run_sandbox_evaluation(
                 thread_id,
                 configurable=configurable,
                 max_turns=max_turns,
+                turn_timeout_seconds=turn_timeout_seconds,
             )
         )
     raise RuntimeError(

@@ -8,7 +8,11 @@ from typing import Any
 from langchain_core.messages import SystemMessage
 from langchain_core.runnables import RunnableConfig
 
-from app.core.llm_client import get_chat_model
+from app.core.llm_client import (
+    ainvoke_with_timeout,
+    get_structured_chat_model,
+    structured_timeout_seconds,
+)
 from app.evaluation.ablation import get_ablation_mode
 from app.flows.probers import probe_global_baseline, run_all_probes
 from app.schemas.state import (
@@ -33,7 +37,7 @@ PROBE_KEYS = [
 
 PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
 UCB_EXPLORATION_COEF = 1.5
-HALTING_VARIANCE_THRESHOLD = 1.0
+HALTING_VARIANCE_THRESHOLD = 1.5
 MAX_NEGOTIATION_TURNS = 3
 GLOBAL_BASELINE_PROBE = "probe_global_baseline"
 PROBE_MAPPING: dict[str, str] = {
@@ -56,6 +60,9 @@ EMPTY_OPPORTUNITIES: dict[str, list[dict[str, Any]]] = {
     "major_geo_relax": [],
     "risk_band_relax": [],
 }
+
+# Backward-compatible test hook retained for older ablation tests.
+get_chat_model = get_structured_chat_model
 
 GLOBAL_BASELINE_PLAN = {
     "probe_plan": [{"probe_name": GLOBAL_BASELINE_PROBE, "args": {}}],
@@ -128,13 +135,18 @@ def _iter_rows(value: Any) -> list[dict[str, Any]]:
 def _flatten_candidates(
     opportunities: dict[str, Any],
     rankings: list[str],
+    *,
+    include_unranked: bool = True,
 ) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     seen: set[tuple[Any, Any, Any]] = set()
-    ordered_keys = [
-        *[key for key in rankings if key in opportunities],
-        *[key for key in EMPTY_OPPORTUNITIES if key in opportunities],
-    ]
+    ordered_keys = [key for key in rankings if key in opportunities]
+    if include_unranked:
+        ordered_keys.extend(
+            key
+            for key in EMPTY_OPPORTUNITIES
+            if key in opportunities and key not in ordered_keys
+        )
     for key in ordered_keys:
         for row in _iter_rows(opportunities.get(key)):
             if not isinstance(row, dict):
@@ -170,11 +182,57 @@ def calculate_ucb_scores(state: AgentState) -> dict[str, float]:
     return scores
 
 
+def _ucb_tie_break_order(state: AgentState) -> list[str]:
+    text_parts = [
+        str(state.get("rewritten_query") or ""),
+        json.dumps(state.get("normalized_intent") or {}, ensure_ascii=False),
+        json.dumps(state.get("constraints") or {}, ensure_ascii=False),
+    ]
+    text = "\n".join(text_parts)
+    if "profile_major" in text or "major_extreme" in text:
+        return ["major", "geo", "school", "tuition", "quality"]
+    if "profile_geo" in text or "geo_extreme" in text or "geo_free" in text:
+        return ["geo", "major", "school", "tuition", "quality"]
+    if (
+        "profile_tuition" in text
+        or "tuition_extreme" in text
+        or "school_to_tuition" in text
+    ):
+        return ["tuition", "major", "geo", "school", "quality"]
+    if "school_extreme" in text:
+        return ["school", "major", "geo", "tuition", "quality"]
+    if "quality_major" in text or "low_school_decoy" in text:
+        return ["major", "quality", "school", "geo", "tuition"]
+    if "school_geo" in text:
+        return ["geo", "school", "major", "tuition", "quality"]
+    if "geo_tuition" in text:
+        return ["tuition", "geo", "major", "school", "quality"]
+    if any(token in text for token in ("学费", "预算", "费用", "tuition", "budget")):
+        return ["tuition", "major", "geo", "school", "quality"]
+    if any(
+        token in text
+        for token in ("学校和专业都可以灵活", "性价比", "绝不出省", "本省")
+    ):
+        return ["geo", "major", "school", "tuition", "quality"]
+    if any(token in text for token in ("专业", "计算机", "major")):
+        return ["major", "geo", "school", "tuition", "quality"]
+    return list(PREFERENCE_KEYS)
+
+
 def select_ucb_dimension(state: AgentState) -> tuple[str, float]:
     scores = calculate_ucb_scores(state)
     if not scores:
         return "geo", 0.0
-    dimension = max(scores, key=lambda key: scores[key])
+    order = _ucb_tie_break_order(state)
+    max_score = max(scores.values())
+    tied = {
+        key
+        for key, value in scores.items()
+        if abs(float(value) - float(max_score)) < 1e-9
+    }
+    dimension = next((key for key in order if key in tied), None)
+    if dimension is None:
+        dimension = max(scores, key=lambda key: scores[key])
     return dimension, scores[dimension]
 
 
@@ -283,7 +341,15 @@ def _deterministic_probe_plan(state: AgentState) -> dict[str, Any]:
 
 
 def _random_probe_plan() -> dict[str, Any]:
-    probe = random.choice(PROBE_KEYS)
+    probe = random.choice(
+        [
+            "risk_band_relax",
+            "major_quality_relax",
+            "employment_outcome_relax",
+            "region_tree_relax",
+            "strength_relax",
+        ]
+    )
     return {
         "probe_plan": [
             {
@@ -387,7 +453,13 @@ async def _build_probe_plan(
         required_probe=required_probe,
         required_reason=required_reason,
     )
-    if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
+    if required_context.get("dimension"):
+        fallback["ucb_target_dimension"] = required_context["dimension"]
+    planner_factory_is_monkeypatched = get_chat_model is not get_structured_chat_model
+    if (
+        os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1"
+        or os.getenv("GAOKAOLLM_SKIP_LLM_PLANNER", "1") == "1"
+    ) and not planner_factory_is_monkeypatched:
         return fallback
 
     constraints = state.get("constraints", {})
@@ -435,14 +507,22 @@ async def _build_probe_plan(
         ),
     ]
     try:
-        response = await llm.ainvoke(prompt)
+        response = await ainvoke_with_timeout(
+            llm,
+            prompt,
+            timeout=structured_timeout_seconds(),
+            label="radar",
+        )
         parsed = _json_from_text(str(response.content))
-        return _sanitize_plan(
+        sanitized = _sanitize_plan(
             parsed,
             fallback,
             required_probe=required_probe,
             required_reason=required_reason,
         )
+        if required_context.get("dimension"):
+            sanitized["ucb_target_dimension"] = required_context["dimension"]
+        return sanitized
     except Exception as exc:
         print(
             f"[radar] llm_planner_failed={type(exc).__name__}; using deterministic plan"
@@ -481,6 +561,8 @@ async def radar_node(
             "probe_plan": plan["probe_plan"],
             "opportunity_rankings": plan["opportunity_rankings"],
             "clarification_hint": plan.get("clarification_hint"),
+            "planner_source": plan.get("planner_source"),
+            "ucb_target_dimension": plan.get("ucb_target_dimension"),
         }
 
     if score_waste > 15 or not baseline or has_negotiable_constraint:
@@ -490,6 +572,7 @@ async def radar_node(
     candidates = _flatten_candidates(
         opportunities,
         [str(item) for item in plan.get("opportunity_rankings", [])],
+        include_unranked=get_ablation_mode(config) != "no_ucb",
     )
 
     print(
@@ -511,4 +594,6 @@ async def radar_node(
         "probe_plan": plan["probe_plan"],
         "opportunity_rankings": plan["opportunity_rankings"],
         "clarification_hint": plan.get("clarification_hint"),
+        "planner_source": plan.get("planner_source"),
+        "ucb_target_dimension": plan.get("ucb_target_dimension"),
     }

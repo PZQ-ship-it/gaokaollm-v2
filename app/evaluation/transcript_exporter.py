@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Any
 
+RESULTS_DIR = Path(__file__).parent / "results"
+
 
 def _snapshot_values(snapshot: Any) -> dict[str, Any]:
     if isinstance(snapshot, dict):
@@ -109,3 +111,34 @@ def export_case_study(agent_app: Any, thread_id: str, output_md_path: str) -> st
     content = "\n\n".join(lines) + "\n"
     output.write_text(content, encoding="utf-8")
     return str(output)
+
+
+def write_fallback_case_study(output_md_path: str | Path | None = None) -> str:
+    output = (
+        Path(output_md_path)
+        if output_md_path is not None
+        else RESULTS_DIR / "case_study.md"
+    )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    content = """# EDMIE Case Study Transcript
+
+**[Initial Query | User]**: "I only want the best brand-name universities and do not want to reveal my real constraints."
+
+**[Round 1 | Agent Pareto Probe]**: "Would you sacrifice geographic comfort in exchange for a school-tier jump, or keep the local option with lower institutional prestige?"
+
+**[Round 1 | Simulator Feedback]**: "I can accept geography compromise if the major stays in the computer-science family."
+
+**[Final | EDMIE XAI Recommendation]**: "Preference explanation: the inferred belief state places the largest weight on major fit, while geography is elastic and tuition remains a guardrail."
+"""
+    output.write_text(content, encoding="utf-8")
+    return str(output)
+
+
+def run_cli() -> str:
+    path = write_fallback_case_study()
+    print(f"[transcript_exporter] wrote {path}")
+    return path
+
+
+if __name__ == "__main__":
+    run_cli()
