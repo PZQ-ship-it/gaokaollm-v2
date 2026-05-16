@@ -422,7 +422,7 @@ def render_system_architecture() -> SvgCanvas:
         (115, ["语义归一器", "查询重写", "槽位标准化"]),
         (405, ["约束解析器", "硬约束锁定", "缺失项识别"]),
         (695, ["探针调度器", "选择澄清维度", "编排确定性探针"]),
-        (985, ["证据检索器", "SQL / 本体 / 画像", "生成事实候选"]),
+        (985, ["证据检索器", "SQL / 树 / 画像", "生成事实候选"]),
         (1275, ["对话生成器", "证据约束提示", "取舍问题生成"]),
         (1565, ["状态管理器", "更新权重与方差", "写回轮次日志"]),
     ]
@@ -514,7 +514,7 @@ def render_system_architecture() -> SvgCanvas:
         895,
         390,
         85,
-        ["层级本体库", "专业树 / 地域树"],
+        ["树结构证据库", "专业树 / 地域树"],
         fill=COLORS["white"],
         stroke=COLORS["artifact_stroke"],
         size=17,
@@ -719,7 +719,7 @@ def render_system_use_cases() -> SvgCanvas:
         "explain": (930, 800, 300, 78, ["生成显示性", "偏好解释"]),
         "boundary_test": (1245, 555, 300, 78, ["执行受控边界", "测试用例"]),
         "audit": (1245, 675, 300, 78, ["审计偏好交互", "推理日志"]),
-        "maintain": (1245, 795, 300, 78, ["维护招生本体", "与画像数据"]),
+        "maintain": (1245, 795, 300, 78, ["维护专业树", "地域树与画像"]),
     }
     for x, y, w, h, lines in use_cases.values():
         c.use_case(x, y, w, h, lines, fill="#ffffff", stroke="#111827", size=18)
@@ -815,7 +815,7 @@ def render_mas_workflow() -> SvgCanvas:
         365,
         300,
         135,
-        ["确定性证据探针", "专业-地域 / 风险", "预算 / 质量 / 就业"],
+        ["确定性证据探针", "专业树 / 地域树", "风险 / 预算 / 质量 / 就业"],
         fill=COLORS["agent"],
         stroke=COLORS["agent_stroke"],
     )
@@ -1021,7 +1021,7 @@ def render_data_mapping() -> SvgCanvas:
     c = SvgCanvas()
     evidence = [
         (85, 125, "招生事实", "最低分 / 位次 / 选科"),
-        (85, 265, "专业层级本体", "规则挂载 / 候选复核"),
+        (85, 265, "专业树", "规则挂载 / 候选复核"),
         (85, 405, "风险证据", "分差 / 位次差"),
         (85, 545, "成本证据", "学费与预算差"),
         (85, 685, "质量 / 就业 / 地域画像", "质量 / 就业 / 地域"),
@@ -1052,18 +1052,18 @@ def render_data_mapping() -> SvgCanvas:
         500,
         320,
         120,
-        ["确定性证据探针", "数据表 / 本体 / 画像", "事实候选来源"],
+        ["确定性证据探针", "数据表 / 树 / 画像", "事实候选来源"],
         fill=COLORS["agent"],
         stroke=COLORS["agent_stroke"],
     )
 
     relax = [
-        (1120, 105, "专业-地域联合放宽", "分阶段放宽"),
+        (1120, 105, "专业树放宽", "分阶段专业放宽"),
         (1475, 105, "风险组合放宽", "冲 / 稳 / 保"),
         (1120, 275, "预算性价比放宽", "小幅超预算"),
         (1475, 275, "专业质量放宽", "质量收益证据"),
         (1120, 445, "就业导向放宽", "结果证据"),
-        (1475, 445, "地域层级放宽", "偏好显性化证据"),
+        (1475, 445, "地域树放宽", "偏好显性化证据"),
     ]
     for x, y, title, desc in relax:
         c.box(
@@ -1279,7 +1279,7 @@ def render_region_hierarchy_partial() -> SvgCanvas:
 
     draw_tree_panel(
         panel_x=80,
-        title="地理邻近层级",
+        title="地理邻近树",
         root="全国",
         root_w=220,
         columns=[
@@ -1294,7 +1294,7 @@ def render_region_hierarchy_partial() -> SvgCanvas:
 
     draw_tree_panel(
         panel_x=1020,
-        title="城市层级画像",
+        title="城市层级树",
         root="城市发展层级",
         root_w=260,
         columns=[
@@ -1760,7 +1760,12 @@ def render_ucb_dispatch() -> SvgCanvas:
         170,
         310,
         120,
-        ["映射确定性探针", "学校层次 -> 实力探针", "专业/地域 -> 联合探针"],
+        [
+            "映射确定性探针",
+            "学校层次 -> 实力探针",
+            "专业偏好 -> 专业树探针",
+            "地域偏好 -> 地域树探针",
+        ],
         fill=COLORS["agent"],
         stroke=COLORS["agent_stroke"],
         size=20,
@@ -1780,7 +1785,7 @@ def render_ucb_dispatch() -> SvgCanvas:
         380,
         310,
         120,
-        ["运行证据探针", "SQL / 本体 / 画像", "返回真实候选"],
+        ["运行证据探针", "SQL / 树 / 画像", "返回真实候选"],
         fill=COLORS["data"],
         stroke=COLORS["data_stroke"],
         size=20,
