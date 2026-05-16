@@ -682,7 +682,7 @@ def render_system_use_cases() -> SvgCanvas:
 
     # Actors.
     c.actor(145, 470, ["考生 / 家长", "<<Primary User>>"], size=22)
-    c.actor(1660, 735, ["系统管理员 / 测试工程师", "<<Admin/QA>>"], size=20)
+    c.actor(1660, 735, ["系统管理员", "<<Admin>>"], size=20)
     c.box(
         1510,
         155,
@@ -699,7 +699,7 @@ def render_system_use_cases() -> SvgCanvas:
         375,
         285,
         92,
-        ["结构化招生事实底座", "<<Database>>"],
+        ["招生数据库", "<<Database>>"],
         fill="#f4f6f8",
         stroke="#64748b",
         size=18,
