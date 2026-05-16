@@ -265,7 +265,7 @@ def render_system_architecture() -> SvgCanvas:
         55,
         1780,
         210,
-        "Tier 1  混合倡议交互与评测环境",
+        "Tier 1  Mixed-Initiative Interaction and Benchmark Environment",
         COLORS["data"],
         COLORS["data_stroke"],
     )
@@ -274,50 +274,54 @@ def render_system_architecture() -> SvgCanvas:
         130,
         260,
         80,
-        ["用户", "显式目标与反馈"],
+        ["Student User", "Explicit goals and feedback"],
         fill=COLORS["white"],
         stroke=COLORS["data_stroke"],
-        size=20,
+        size=18,
     )
     c.box(
         455,
         120,
         310,
         100,
-        ["冰山画像", "显式约束 + 隐藏底线", "只在交互中逐步暴露"],
+        [
+            "Iceberg Profile",
+            "Explicit constraints + hidden bottom lines",
+            "Revealed only through dialogue",
+        ],
         fill=COLORS["hidden"],
         stroke=COLORS["hidden_stroke"],
-        size=19,
+        size=17,
     )
     c.box(
         850,
         130,
         290,
         80,
-        ["Interrupt 挂起", "抛出帕累托边际替代问题"],
+        ["Interrupt", "Ask a Pareto trade-off question"],
         fill=COLORS["white"],
         stroke=COLORS["data_stroke"],
-        size=19,
+        size=17,
     )
     c.box(
         1225,
         130,
         290,
         80,
-        ["Resume 唤醒", "接受 / 拒绝 / 犹豫"],
+        ["Resume", "Accept / reject / hesitate"],
         fill=COLORS["white"],
         stroke=COLORS["data_stroke"],
-        size=19,
+        size=17,
     )
     c.box(
         1585,
         130,
         220,
         80,
-        ["显式约束", "分数 / 位次 / 地域"],
+        ["Hard Constraints", "Score / rank / region"],
         fill=COLORS["white"],
         stroke=COLORS["data_stroke"],
-        size=19,
+        size=17,
     )
 
     c.panel(
@@ -325,17 +329,17 @@ def render_system_architecture() -> SvgCanvas:
         300,
         1780,
         255,
-        "Tier 2  轻量多角色智能体工作流（LLM 边界）",
+        "Tier 2  Lightweight Multi-Role Agent Workflow (LLM Boundary)",
         COLORS["agent"],
         COLORS["agent_stroke"],
     )
     mas_nodes = [
-        (115, ["语义归一器", "查询重写 / 槽位标准化"]),
-        (405, ["约束解析器", "事实锁定 / 一票否决"]),
-        (695, ["机会规划器", "可谈判机会排序"]),
-        (985, ["确定性证据探针", "SQL / 本体 / 画像"]),
-        (1275, ["证据谈判器", "组织证据化提问"]),
-        (1565, ["偏好追踪器", "w_t, σ²_t 后验更新"]),
+        (115, ["Semantic Normalizer", "Query rewrite", "Slot canonicalization"]),
+        (405, ["Constraint Parser", "Fact locking", "Veto detection"]),
+        (695, ["Opportunity Planner", "Negotiable option ranking"]),
+        (985, ["Evidence Prober", "SQL / ontology / profiles"]),
+        (1275, ["Evidence Negotiator", "Evidence-grounded prompts"]),
+        (1565, ["Preference Tracker", "Update w_t and sigma^2_t"]),
     ]
     for x, lines in mas_nodes:
         c.box(
@@ -346,7 +350,7 @@ def render_system_architecture() -> SvgCanvas:
             lines,
             fill=COLORS["white"],
             stroke=COLORS["agent_stroke"],
-            size=18,
+            size=16,
         )
 
     c.panel(
@@ -354,7 +358,7 @@ def render_system_architecture() -> SvgCanvas:
         590,
         1780,
         205,
-        "Tier 3  运筹学认知引擎层（本文核心创新）",
+        "Tier 3  Decision-Theoretic Cognitive Engine (Core Contribution)",
         "#fff2df",
         "#d97938",
     )
@@ -363,30 +367,42 @@ def render_system_architecture() -> SvgCanvas:
         665,
         390,
         90,
-        ["非补偿性 SAVF", "单属性价值映射 v_j(x)", "触发隐藏底线一票否决"],
+        [
+            "Non-Compensatory SAVF",
+            "Single-attribute value v_j(x)",
+            "Hidden-bottom-line veto",
+        ],
         fill="#ffe4c4",
         stroke="#d97938",
-        size=19,
+        size=17,
     )
     c.box(
         765,
         665,
         390,
         90,
-        ["UCB Max-EIG 主动探测", "选择最大信息增益轴", "调度帕累托极大 L1 候选对"],
+        [
+            "UCB Max-EIG Probing",
+            "Select highest information-gain axis",
+            "Dispatch Pareto-maximal L1 pairs",
+        ],
         fill="#ffe4c4",
         stroke="#d97938",
-        size=19,
+        size=17,
     )
     c.box(
         1345,
         665,
         390,
         90,
-        ["BT 梯度与 D-S 追踪", "Bradley-Terry 更新 w_t", "犹豫反馈推高 σ²_t"],
+        [
+            "BT Gradient + D-S Tracking",
+            "Bradley-Terry update of w_t",
+            "Hesitation increases sigma^2_t",
+        ],
         fill="#ffe4c4",
         stroke="#d97938",
-        size=19,
+        size=17,
     )
 
     c.panel(
@@ -394,7 +410,7 @@ def render_system_architecture() -> SvgCanvas:
         830,
         1780,
         185,
-        "Tier 4  数据与证据物理底座",
+        "Tier 4  Data and Evidence Foundation",
         COLORS["artifact"],
         COLORS["artifact_stroke"],
     )
@@ -403,36 +419,36 @@ def render_system_architecture() -> SvgCanvas:
         895,
         390,
         85,
-        ["PostgreSQL 招生事实库", "分数 / 位次 / 计划 / 学费"],
+        ["PostgreSQL Admission Facts", "Scores / ranks / quotas / tuition"],
         fill=COLORS["white"],
         stroke=COLORS["artifact_stroke"],
-        size=18,
+        size=17,
     )
     c.cylinder(
         765,
         895,
         390,
         85,
-        ["层级本体库", "专业层级 / 地域层级"],
+        ["Hierarchical Ontologies", "Major tree / region tree"],
         fill=COLORS["white"],
         stroke=COLORS["artifact_stroke"],
-        size=18,
+        size=17,
     )
     c.cylinder(
         1340,
         895,
         390,
         85,
-        ["标准化画像库", "专业质量 / 就业证据"],
+        ["Standardized Profile Store", "Major quality / employment evidence"],
         fill=COLORS["white"],
         stroke=COLORS["artifact_stroke"],
-        size=18,
+        size=17,
     )
 
-    c.arrow(375, 170, 455, 170, label="陈述需求")
-    c.arrow(765, 170, 850, 170, label="探索提问")
-    c.arrow(1140, 170, 1225, 170, label="用户反馈")
-    c.arrow(1515, 170, 1585, 170, label="事实锚定")
+    c.arrow(375, 170, 455, 170, label="Needs")
+    c.arrow(765, 170, 850, 170, label="Probe")
+    c.arrow(1140, 170, 1225, 170, label="Feedback")
+    c.arrow(1515, 170, 1585, 170, label="Anchor")
 
     c.arrow(355, 443, 405, 443)
     c.arrow(645, 443, 695, 443)
@@ -443,20 +459,20 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         700,
         515,
-        "反馈闭环：更新信念状态",
+        "Feedback loop: belief-state update",
         fill=COLORS["agent"],
         stroke=COLORS["agent_stroke"],
-        width=240,
+        width=300,
     )
 
-    c.polyline([(610, 220), (610, 335), (235, 335), (235, 395)])
+    c.polyline([(610, 220), (610, 284), (90, 284), (90, 443), (115, 443)])
     c.tag(
-        300,
+        305,
         268,
-        "用户画像输入",
+        "Profile input",
         fill=COLORS["agent"],
         stroke=COLORS["agent_stroke"],
-        width=135,
+        width=125,
     )
     c.polyline([(995, 395), (995, 270), (995, 210)])
     c.tag(
@@ -480,29 +496,29 @@ def render_system_architecture() -> SvgCanvas:
     c.polyline([(385, 895), (385, 815), (1105, 815), (1105, 490)])
     c.tag(
         1008,
-        795,
-        "结构化事实",
+        800,
+        "Structured facts",
         fill=COLORS["artifact"],
         stroke=COLORS["artifact_stroke"],
-        width=120,
+        width=145,
     )
     c.polyline([(960, 895), (960, 815), (235, 815), (235, 490)])
     c.tag(
         182,
-        786,
-        "语义标准化",
+        800,
+        "Semantic mapping",
         fill=COLORS["artifact"],
         stroke=COLORS["artifact_stroke"],
-        width=120,
+        width=150,
     )
     c.polyline([(1535, 895), (1535, 815), (1105, 815), (1105, 490)])
     c.tag(
         1465,
-        786,
-        "画像证据",
+        800,
+        "Profile evidence",
         fill=COLORS["artifact"],
         stroke=COLORS["artifact_stroke"],
-        width=110,
+        width=145,
     )
 
     c.polyline(
@@ -511,11 +527,11 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         995,
         556,
-        "SAVF 映射探针结果",
+        "SAVF evidence signal",
         fill="#fff2df",
         stroke="#d97938",
         color="#d97938",
-        width=190,
+        width=185,
     )
     c.polyline(
         [(960, 665), (960, 575), (815, 575), (815, 490)], dashed=True, color="#d97938"
@@ -523,11 +539,11 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         735,
         556,
-        "UCB 强控规划器",
+        "UCB planner control",
         fill="#fff2df",
         stroke="#d97938",
         color="#d97938",
-        width=160,
+        width=170,
     )
     c.polyline(
         [(960, 665), (960, 575), (1105, 575), (1105, 490)], dashed=True, color="#d97938"
@@ -535,11 +551,11 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         1040,
         585,
-        "Max-EIG 调度探针",
+        "Max-EIG probe dispatch",
         fill="#fff2df",
         stroke="#d97938",
         color="#d97938",
-        width=170,
+        width=205,
     )
     c.polyline(
         [(1540, 665), (1540, 575), (1685, 575), (1685, 490)],
@@ -549,15 +565,15 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         1590,
         556,
-        "BT / D-S 更新后验",
+        "BT / D-S posterior update",
         fill="#fff2df",
         stroke="#d97938",
         color="#d97938",
-        width=180,
+        width=220,
     )
 
-    c.arrow(575, 710, 765, 710, label="价值曲面")
-    c.arrow(1155, 710, 1345, 710, label="比较反馈")
+    c.arrow(575, 710, 765, 710, label="Value surface")
+    c.arrow(1155, 710, 1345, 710, label="Pairwise feedback")
     return c
 
 
@@ -1175,6 +1191,109 @@ def render_v1_hybrid_rag_flow() -> SvgCanvas:
     return c
 
 
+def render_v1_hybrid_rag_flow_en() -> SvgCanvas:
+    c = SvgCanvas()
+    c.box(
+        80,
+        210,
+        260,
+        110,
+        ["User Query", "Score / Subjects / Region", "Major and Risk Intent"],
+        fill=COLORS["white"],
+        stroke=COLORS["artifact_stroke"],
+    )
+    c.box(
+        410,
+        210,
+        285,
+        110,
+        ["Explicit Intent Parsing", "Query Rewrite", "Constraint Extraction"],
+        fill=COLORS["agent"],
+        stroke=COLORS["agent_stroke"],
+    )
+    c.box(
+        765,
+        105,
+        310,
+        110,
+        [
+            "Relational Hard Filter",
+            "Score / Rank / Subjects / Region",
+            "Build Candidate Pool",
+        ],
+        fill=COLORS["data"],
+        stroke=COLORS["data_stroke"],
+    )
+    c.box(
+        765,
+        315,
+        310,
+        110,
+        ["Dense Retrieval Ranking", "Semantic Similarity", "Text Relevance Signals"],
+        fill=COLORS["data"],
+        stroke=COLORS["data_stroke"],
+    )
+    c.box(
+        1145,
+        210,
+        305,
+        110,
+        [
+            "Cross-Encoder Reranking",
+            "Second-Stage Relevance",
+            "Improve Candidate Order",
+        ],
+        fill=COLORS["agent"],
+        stroke=COLORS["agent_stroke"],
+    )
+    c.box(
+        1515,
+        105,
+        300,
+        110,
+        ["Reach / Match / Safety Bands", "Score Gap", "Rank Gap"],
+        fill=COLORS["bench"],
+        stroke=COLORS["bench_stroke"],
+    )
+    c.box(
+        1515,
+        315,
+        300,
+        110,
+        ["Candidate List and Explanation", "Baseline Output", "Risk Bands"],
+        fill=COLORS["artifact"],
+        stroke=COLORS["artifact_stroke"],
+    )
+    c.box(
+        660,
+        645,
+        600,
+        120,
+        [
+            "Engineering Boundary",
+            "Retrieval scores rank documents and candidates",
+            "No next-probe axis or hidden-weight update",
+        ],
+        fill=COLORS["hidden"],
+        stroke=COLORS["hidden_stroke"],
+        size=22,
+    )
+
+    c.arrow(340, 265, 410, 265)
+    c.arrow(695, 265, 765, 160, label="Structured Conditions")
+    c.arrow(695, 265, 765, 370, label="Semantic Conditions")
+    c.arrow(1075, 160, 1145, 265)
+    c.arrow(1075, 370, 1145, 265)
+    c.arrow(1450, 265, 1515, 160)
+    c.arrow(1450, 265, 1515, 370)
+    c.polyline(
+        [(1665, 425), (1665, 575), (960, 575), (960, 645)],
+        dashed=True,
+        label="Reference Baseline",
+    )
+    return c
+
+
 def render_database_physical_schema() -> SvgCanvas:
     c = SvgCanvas()
     c.panel(70, 100, 510, 760, "基础事实表", COLORS["data"], COLORS["data_stroke"])
@@ -1576,6 +1695,7 @@ def render_all(output_dir: Path) -> list[Path]:
         "fig_4_4_major_tree_partial": render_major_tree_partial(),
         "fig_4_5_region_hierarchy_partial": render_region_hierarchy_partial(),
         "fig_3_1_v1_hybrid_rag_flow": render_v1_hybrid_rag_flow(),
+        "fig_3_1_v1_hybrid_rag_flow_en": render_v1_hybrid_rag_flow_en(),
         "fig_4_6_database_physical_schema": render_database_physical_schema(),
         "fig_5_2_runtime_state_machine": render_runtime_state_machine(),
         "fig_5_3_ucb_dispatch": render_ucb_dispatch(),
