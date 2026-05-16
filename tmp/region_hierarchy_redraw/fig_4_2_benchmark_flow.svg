@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+<rect width="100%" height="100%" fill="#ffffff"/>
+
+<defs>
+  <marker id="arrow" markerWidth="14" markerHeight="14" refX="11" refY="5"
+          orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L12,5 L0,10 Z" fill="#64748b"/>
+  </marker>
+  <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+    <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.12"/>
+  </filter>
+</defs>
+<style>
+  text {
+    font-family: Microsoft YaHei, Noto Sans CJK SC, SimHei, Arial, sans-serif;
+    dominant-baseline: alphabetic;
+  }
+  .card {
+    filter: url(#shadow);
+  }
+</style>
+
+<rect class="card" x="95" y="210" width="290" height="120" rx="18" fill="#e6f2ff" stroke="#7aa7d9" stroke-width="2"/>
+<text x="240.0" y="263" text-anchor="middle" font-size="22" font-weight="600" fill="#1f2937">真实数据差异</text>
+<text x="240.0" y="292" text-anchor="middle" font-size="22" font-weight="500" fill="#1f2937">基准集合 / 放宽集合</text>
+<rect class="card" x="465" y="210" width="290" height="120" rx="18" fill="#f1eaff" stroke="#9b83d4" stroke-width="2"/>
+<text x="610.0" y="263" text-anchor="middle" font-size="22" font-weight="600" fill="#1f2937">冰山用户画像</text>
+<text x="610.0" y="292" text-anchor="middle" font-size="22" font-weight="500" fill="#1f2937">显式约束 + 隐藏妥协</text>
+<rect class="card" x="835" y="125" width="300" height="120" rx="18" fill="#f1eaff" stroke="#9b83d4" stroke-width="2"/>
+<text x="985.0" y="178" text-anchor="middle" font-size="22" font-weight="600" fill="#1f2937">显式用户话语</text>
+<text x="985.0" y="207" text-anchor="middle" font-size="22" font-weight="500" fill="#1f2937">只暴露表层约束</text>
+<rect class="card" x="1215" y="125" width="300" height="120" rx="18" fill="#f1eaff" stroke="#9b83d4" stroke-width="2"/>
+<text x="1365.0" y="178" text-anchor="middle" font-size="22" font-weight="600" fill="#1f2937">用户模拟器</text>
+<text x="1365.0" y="207" text-anchor="middle" font-size="22" font-weight="500" fill="#1f2937">多轮交互</text>
+<rect class="card" x="1595" y="125" width="270" height="120" rx="18" fill="#e8f7ed" stroke="#67a87b" stroke-width="2"/>
+<text x="1730.0" y="178" text-anchor="middle" font-size="22" font-weight="600" fill="#1f2937">被测智能体</text>
+<text x="1730.0" y="207" text-anchor="middle" font-size="22" font-weight="500" fill="#1f2937">语义归一 + 规划 + 探针</text>
+<rect class="card" x="835" y="535" width="300" height="120" rx="18" fill="#fff3cf" stroke="#d6a23a" stroke-width="2"/>
+<text x="985.0" y="588" text-anchor="middle" font-size="22" font-weight="600" fill="#1f2937">隐藏妥协条件</text>
+<text x="985.0" y="617" text-anchor="middle" font-size="22" font-weight="500" fill="#1f2937">仅评测端可见</text>
+<rect class="card" x="1215" y="535" width="300" height="120" rx="18" fill="#f4f6f8" stroke="#9aa4af" stroke-width="2"/>
+<text x="1365.0" y="588" text-anchor="middle" font-size="22" font-weight="600" fill="#1f2937">对话记录</text>
+<text x="1365.0" y="617" text-anchor="middle" font-size="22" font-weight="500" fill="#1f2937">回复 + 可审计状态</text>
+<rect class="card" x="1595" y="535" width="270" height="120" rx="18" fill="#f1eaff" stroke="#9b83d4" stroke-width="2"/>
+<text x="1730.0" y="588" text-anchor="middle" font-size="22" font-weight="600" fill="#1f2937">评测器</text>
+<text x="1730.0" y="617" text-anchor="middle" font-size="22" font-weight="500" fill="#1f2937">事实命中 + 过程检查</text>
+<rect class="card" x="1215" y="790" width="300" height="105" rx="18" fill="#f4f6f8" stroke="#9aa4af" stroke-width="2"/>
+<text x="1365.0" y="835" text-anchor="middle" font-size="22" font-weight="600" fill="#1f2937">聚合结果</text>
+<text x="1365.0" y="864" text-anchor="middle" font-size="22" font-weight="500" fill="#1f2937">逐例证据</text>
+<path d="M385,270 L465,270" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+<path d="M755,270 L835,185" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+<path d="M1135,185 L1215,185" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+<path d="M1515,185 L1595,185" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+<polyline points="1730,245 1730,455 1365,455 1365,535" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+<path d="M1515,595 L1595,595" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+<path d="M1730,655 L1515,840" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+<polyline points="610,330 610,595 835,595" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)" stroke-dasharray="9 8"/>
+<text x="610" y="583" text-anchor="middle" font-size="17" font-weight="600" fill="#64748b">隐藏通道</text>
+<path d="M1135,595 L1215,595" fill="none" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)" stroke-dasharray="9 8"/>
+<text x="1175.0" y="585.0" text-anchor="middle" font-size="17" font-weight="600" fill="#64748b">评测通道</text>
+<rect class="card" x="650" y="375" width="520" height="72" rx="18" fill="#fff3cf" stroke="#d6a23a" stroke-width="2"/>
+<text x="910.0" y="404" text-anchor="middle" font-size="20" font-weight="600" fill="#1f2937">隔离边界</text>
+<text x="910.0" y="431" text-anchor="middle" font-size="20" font-weight="500" fill="#1f2937">隐藏字段不进入被测智能体</text>
+</svg>

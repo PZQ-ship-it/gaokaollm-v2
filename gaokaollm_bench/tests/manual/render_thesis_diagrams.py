@@ -1188,104 +1188,123 @@ def render_major_tree_partial() -> SvgCanvas:
 
 def render_region_hierarchy_partial() -> SvgCanvas:
     c = SvgCanvas()
-    c.panel(80, 95, 820, 820, "地理邻近层级", COLORS["data"], COLORS["data_stroke"])
-    c.box(
-        385,
-        175,
-        210,
-        64,
-        "全国",
-        fill=COLORS["white"],
-        stroke=COLORS["data_stroke"],
-        size=21,
-    )
-    geo_blocks = [
-        (160, 320, "华东", ["浙江", "江苏", "上海", "安徽"]),
-        (385, 320, "华北", ["北京", "天津", "河北"]),
-        (610, 320, "华南 / 华中", ["广东", "湖北", "湖南"]),
-    ]
-    for x, y, block, cities in geo_blocks:
+
+    panel_y = 95
+    panel_w = 820
+    panel_h = 820
+    root_y = 170
+    root_h = 64
+    group_y = 315
+    group_h = 58
+    leaf_y = 430
+    leaf_h = 50
+    leaf_step = 86
+    col_w = 180
+
+    def centered_badge_x(panel_x: int, text: str) -> int:
+        badge_w = max(120, len(text) * 18 + 34)
+        return int(panel_x + (panel_w - badge_w) / 2)
+
+    def draw_tree_panel(
+        *,
+        panel_x: int,
+        title: str,
+        root: str,
+        root_w: int,
+        columns: list[tuple[str, list[str]]],
+        fill: str,
+        stroke: str,
+        badge: str,
+    ) -> None:
+        c.panel(panel_x, panel_y, panel_w, panel_h, title, fill, stroke)
+        panel_center = panel_x + panel_w / 2
+        root_x = int(panel_center - root_w / 2)
         c.box(
-            x,
-            y,
-            175,
-            58,
-            block,
+            root_x,
+            root_y,
+            root_w,
+            root_h,
+            root,
             fill=COLORS["white"],
-            stroke=COLORS["data_stroke"],
-            size=19,
+            stroke=stroke,
+            size=21,
         )
-        c.arrow(490, 239, x + 88, y)
-        for idx, city in enumerate(cities):
-            cy = y + 92 + idx * 58
+
+        col_gap = int((panel_w - col_w * 3 - 100) / 2)
+        col_xs = [
+            panel_x + 50,
+            panel_x + 50 + col_w + col_gap,
+            panel_x + 50 + (col_w + col_gap) * 2,
+        ]
+        root_bottom_y = root_y + root_h
+
+        for col_x, (heading, leaves) in zip(col_xs, columns):
+            col_center = col_x + col_w / 2
             c.box(
-                x,
-                cy,
-                175,
-                45,
-                city,
-                fill="#ffffff",
-                stroke=COLORS["data_stroke"],
-                size=17,
-                radius=13,
+                col_x,
+                group_y,
+                col_w,
+                group_h,
+                heading,
+                fill=COLORS["white"],
+                stroke=stroke,
+                size=19,
             )
-            c.arrow(x + 88, y + 58, x + 88, cy)
-    c.badge(
-        245,
-        835,
-        "用于表达：别太远 / 江浙沪 / 华东",
-        fill="#ffffff",
+            c.arrow(int(panel_center), root_bottom_y, int(col_center), group_y)
+
+            prev_bottom_y = group_y + group_h
+            for idx, leaf in enumerate(leaves):
+                current_y = leaf_y + idx * leaf_step
+                c.box(
+                    col_x,
+                    current_y,
+                    col_w,
+                    leaf_h,
+                    leaf,
+                    fill="#ffffff",
+                    stroke=stroke,
+                    size=17,
+                    radius=13,
+                )
+                c.arrow(int(col_center), prev_bottom_y, int(col_center), current_y)
+                prev_bottom_y = current_y + leaf_h
+
+        c.badge(
+            centered_badge_x(panel_x, badge),
+            845,
+            badge,
+            fill="#ffffff",
+            stroke=stroke,
+        )
+
+    draw_tree_panel(
+        panel_x=80,
+        title="地理邻近层级",
+        root="全国",
+        root_w=220,
+        columns=[
+            ("华东", ["浙江", "江苏", "上海", "安徽"]),
+            ("华北", ["北京", "天津", "河北"]),
+            ("华南 / 华中", ["广东", "湖北", "湖南"]),
+        ],
+        fill=COLORS["data"],
         stroke=COLORS["data_stroke"],
+        badge="用于表达：别太远 / 江浙沪 / 华东",
     )
 
-    c.panel(1020, 95, 820, 820, "城市层级画像", COLORS["agent"], COLORS["agent_stroke"])
-    c.box(
-        1325,
-        175,
-        230,
-        64,
-        "城市发展层级",
-        fill=COLORS["white"],
+    draw_tree_panel(
+        panel_x=1020,
+        title="城市层级画像",
+        root="城市发展层级",
+        root_w=260,
+        columns=[
+            ("一线城市", ["北京", "上海", "广州", "深圳"]),
+            ("新一线城市", ["杭州", "成都", "南京", "武汉"]),
+            ("区域中心", ["苏州", "宁波", "合肥", "温州"]),
+        ],
+        fill=COLORS["agent"],
         stroke=COLORS["agent_stroke"],
-        size=21,
-    )
-    tiers = [
-        (1085, 320, "一线城市", ["北京", "上海", "广州", "深圳"]),
-        (1315, 320, "新一线城市", ["杭州", "成都", "南京", "武汉"]),
-        (1545, 320, "区域中心", ["苏州", "宁波", "合肥", "温州"]),
-    ]
-    for x, y, tier, cities in tiers:
-        c.box(
-            x,
-            y,
-            190,
-            58,
-            tier,
-            fill=COLORS["white"],
-            stroke=COLORS["agent_stroke"],
-            size=19,
-        )
-        c.arrow(1440, 239, x + 95, y)
-        for idx, city in enumerate(cities):
-            cy = y + 92 + idx * 58
-            c.box(
-                x,
-                cy,
-                190,
-                45,
-                city,
-                fill="#ffffff",
-                stroke=COLORS["agent_stroke"],
-                size=17,
-                radius=13,
-            )
-            c.arrow(x + 95, y + 58, x + 95, cy)
-    c.badge(
-        1185,
-        835,
-        "用于表达：好城市 / 城市资源 / 发展机会",
-        fill="#ffffff",
-        stroke=COLORS["agent_stroke"],
+        badge="用于表达：好城市 / 城市资源 / 发展机会",
     )
     return c
 
