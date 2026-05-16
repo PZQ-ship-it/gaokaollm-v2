@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>高考志愿推荐系统</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #5b6475;
+      --line: #d9dee8;
+      --panel: #ffffff;
+      --soft: #f4f7fb;
+      --blue: #1d4ed8;
+      --green: #047857;
+      --amber: #b45309;
+      --red: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #eef2f7;
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    .shell {
+      width: min(1440px, 100vw);
+      min-height: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: 72px 1fr;
+      background: var(--soft);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: #14213d;
+      color: #fff;
+      border-bottom: 1px solid #0f172a;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .status {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+      color: #dbeafe;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #94a3b8;
+    }
+
+    .dot.ok {
+      background: #22c55e;
+    }
+
+    .dot.err {
+      background: #ef4444;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 330px 1fr 370px;
+      gap: 16px;
+      padding: 18px;
+    }
+
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .section-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .section-body {
+      padding: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    textarea {
+      width: 100%;
+      height: 190px;
+      resize: none;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px;
+      font: inherit;
+      line-height: 1.55;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    button {
+      width: 100%;
+      height: 42px;
+      margin-top: 12px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--blue);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.7;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 8px 10px;
+      margin-top: 14px;
+      font-size: 13px;
+    }
+
+    .kv dt {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .kv dd {
+      margin: 0;
+      word-break: break-word;
+    }
+
+    .message {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+
+    .message.user {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .message.system {
+      background: #f7fee7;
+      border-color: #d9f99d;
+    }
+
+    .message .role {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--green);
+      border-radius: 7px;
+      padding: 11px 12px;
+      background: #fff;
+    }
+
+    .card h3 {
+      margin: 0 0 7px;
+      font-size: 14px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #075985;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .panel-title {
+      margin: 18px 0 8px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .json {
+      max-height: 210px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 10px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .error {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .meta {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <h1>大模型驱动的高考志愿推荐系统</h1>
+      <div class="status">
+        <span id="status-dot" class="dot"></span>
+        <span id="status-text">正在连接本地系统服务</span>
+      </div>
+    </header>
+    <main>
+      <section>
+        <div class="section-head"><h2>用户条件输入</h2></div>
+        <div class="section-body">
+          <label for="message">咨询内容</label>
+          <textarea id="message">我是浙江考生，分数612分，选科：物理、化学、生物，想读计算机相关专业，江浙沪都可以看，预算每年6000元以内。</textarea>
+          <button id="send">提交到推荐系统</button>
+          <dl class="kv">
+            <dt>线程 ID</dt>
+            <dd id="thread-id"></dd>
+            <dt>接口</dt>
+            <dd>POST /api/v1/chat</dd>
+            <dt>状态</dt>
+            <dd id="call-state">等待调用</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head"><h2>对话与推荐解释</h2></div>
+        <div class="section-body">
+          <div id="dialogue">
+            <p class="empty">页面加载后会自动提交左侧输入，并在此处展示系统回复。</p>
+          </div>
+          <div class="panel-title">约束解析结果</div>
+          <div id="constraints" class="pill-list"></div>
+          <div class="panel-title">探针计划</div>
+          <div id="probe-plan" class="pill-list"></div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head"><h2>候选证据与运行状态</h2></div>
+        <div class="section-body">
+          <div class="panel-title" style="margin-top:0">候选/机会卡片</div>
+          <div id="cards" class="cards">
+            <p class="empty">等待系统返回候选和证据字段。</p>
+          </div>
+          <div class="panel-title">状态日志摘要</div>
+          <div id="state-json" class="json">{}</div>
+          <div class="meta">本页面由 FastAPI 托管，截图来自本地真实服务运行结果。</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const threadId = `ui-${Date.now()}`;
+    const messageEl = document.getElementById("message");
+    const sendEl = document.getElementById("send");
+    const dialogueEl = document.getElementById("dialogue");
+    const constraintsEl = document.getElementById("constraints");
+    const probeEl = document.getElementById("probe-plan");
+    const cardsEl = document.getElementById("cards");
+    const stateEl = document.getElementById("state-json");
+    const statusDot = document.getElementById("status-dot");
+    const statusText = document.getElementById("status-text");
+    const callState = document.getElementById("call-state");
+    document.getElementById("thread-id").textContent = threadId;
+
+    function setStatus(kind, text) {
+      statusDot.className = `dot ${kind || ""}`;
+      statusText.textContent = text;
+      callState.textContent = text;
+    }
+
+    function valueText(value) {
+      if (value === null || value === undefined || value === "") return "未给出";
+      if (Array.isArray(value)) return value.join("、") || "未给出";
+      if (typeof value === "object") return JSON.stringify(value);
+      return String(value);
+    }
+
+    function renderPills(target, data) {
+      target.innerHTML = "";
+      if (!data || (Array.isArray(data) && data.length === 0) || (typeof data === "object" && Object.keys(data).length === 0)) {
+        target.innerHTML = '<span class="empty">暂无结构化字段</span>';
+        return;
+      }
+      if (Array.isArray(data)) {
+        data.forEach((item, index) => {
+          const span = document.createElement("span");
+          span.className = "pill";
+          span.textContent = typeof item === "object" ? `${item.probe_name || item.probe || item.name || "plan"} #${index + 1}` : valueText(item);
+          target.appendChild(span);
+        });
+        return;
+      }
+      Object.entries(data).forEach(([key, value]) => {
+        const span = document.createElement("span");
+        span.className = "pill";
+        span.textContent = `${key}: ${valueText(value)}`;
+        target.appendChild(span);
+      });
+    }
+
+    function flattenRows(value) {
+      if (Array.isArray(value)) return value.filter((row) => row && typeof row === "object");
+      if (!value || typeof value !== "object") return [];
+      return Object.values(value).flatMap((rows) => Array.isArray(rows) ? rows : []);
+    }
+
+    function renderCards(data) {
+      const rows = [
+        ...flattenRows(data.baseline_results),
+        ...flattenRows(data.pareto_opportunities)
+      ].slice(0, 4);
+      cardsEl.innerHTML = "";
+      if (!rows.length) {
+        cardsEl.innerHTML = '<p class="empty">本轮未返回候选卡片，详情见状态日志。</p>';
+        return;
+      }
+      rows.forEach((row) => {
+        const card = document.createElement("article");
+        card.className = "card";
+        const school = row.school_name || row.school || "候选方案";
+        const major = row.major_name || row.major || "专业待确认";
+        const score = row.min_score ? `最低分 ${row.min_score}` : "分数字段待返回";
+        const city = row.school_city || row.city || row.school_province || row.province || "地域字段待返回";
+        const evidence = [
+          score,
+          row.min_rank ? `最低位次 ${row.min_rank}` : "",
+          row.tuition ? `学费 ${row.tuition}` : "",
+          row.risk_level ? `风险 ${row.risk_level}` : "",
+        ].filter(Boolean).join("｜");
+        card.innerHTML = `<h3>${school}｜${major}</h3><p>${city}｜${evidence}</p>`;
+        cardsEl.appendChild(card);
+      });
+    }
+
+    async function submit() {
+      const message = messageEl.value.trim();
+      if (!message) return;
+      sendEl.disabled = true;
+      setStatus("", "正在调用推荐系统");
+      dialogueEl.innerHTML = `
+        <div class="message user"><span class="role">用户输入</span>${message}</div>
+        <div class="message system"><span class="role">系统回复</span>正在生成...</div>
+      `;
+      try {
+        const response = await fetch("/api/v1/chat", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({thread_id: threadId, message})
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        dialogueEl.innerHTML = `
+          <div class="message user"><span class="role">用户输入</span>${message}</div>
+          <div class="message system"><span class="role">系统回复</span>${valueText(data.reply)}</div>
+        `;
+        renderPills(constraintsEl, data.constraints || {});
+        renderPills(probeEl, data.probe_plan || []);
+        renderCards(data);
+        stateEl.textContent = JSON.stringify({
+          thread_id: data.thread_id,
+          missing_constraints: data.missing_constraints,
+          intent_axes: data.intent_axes,
+          rewritten_query: data.rewritten_query,
+          clarification_hint: data.clarification_hint,
+          score_waste: data.score_waste
+        }, null, 2);
+        setStatus("ok", "真实 API 调用完成");
+      } catch (error) {
+        dialogueEl.innerHTML = `
+          <div class="message user"><span class="role">用户输入</span>${message}</div>
+          <div class="message system error"><span class="role">系统回复</span>调用失败：${error.message}</div>
+        `;
+        setStatus("err", "调用失败");
+      } finally {
+        sendEl.disabled = false;
+      }
+    }
+
+    sendEl.addEventListener("click", submit);
+    window.addEventListener("load", () => setTimeout(submit, 400));
+  </script>
+</body>
+</html>

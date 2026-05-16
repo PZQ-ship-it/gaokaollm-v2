@@ -165,6 +165,91 @@ class SvgCanvas:
                 weight=weight if idx == 0 else "500",
             )
 
+    def use_case(
+        self,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        lines: list[str] | str,
+        *,
+        fill: str = "#ffffff",
+        stroke: str = "#111827",
+        size: int = 18,
+    ) -> None:
+        if isinstance(lines, str):
+            lines = [lines]
+        self.items.append(
+            f'<ellipse class="card" cx="{x}" cy="{y}" rx="{w / 2}" ry="{h / 2}" '
+            f'fill="{fill}" stroke="{stroke}" stroke-width="2.4"/>'
+        )
+        line_gap = int(size * 1.35)
+        start_y = y - (len(lines) - 1) * line_gap / 2 + size * 0.35
+        for idx, line in enumerate(lines):
+            self.text(
+                line,
+                x,
+                int(start_y + idx * line_gap),
+                size=size,
+                weight="600" if idx == 0 else "500",
+            )
+
+    def actor(self, x: int, y: int, label: list[str] | str, *, size: int = 20) -> None:
+        if isinstance(label, str):
+            label = [label]
+        self.items.append(
+            f'<circle cx="{x}" cy="{y - 72}" r="23" fill="#ffffff" '
+            f'stroke="#111827" stroke-width="4"/>'
+        )
+        self.items.append(
+            f'<path d="M{x},{y - 49} L{x},{y + 32} M{x - 42},{y - 18} '
+            f"L{x + 42},{y - 18} M{x},{y + 32} L{x - 42},{y + 82} "
+            f'M{x},{y + 32} L{x + 42},{y + 82}" fill="none" '
+            f'stroke="#111827" stroke-width="4" stroke-linecap="round"/>'
+        )
+        line_gap = int(size * 1.25)
+        start_y = y + 115
+        for idx, line in enumerate(label):
+            self.text(
+                line,
+                x,
+                start_y + idx * line_gap,
+                size=size if idx == 0 else max(16, size - 3),
+                weight="700" if idx == 0 else "600",
+                fill=COLORS["ink"] if idx == 0 else COLORS["muted"],
+            )
+
+    def association(
+        self,
+        x1: int,
+        y1: int,
+        x2: int,
+        y2: int,
+        *,
+        color: str = "#374151",
+        width: float = 2.2,
+    ) -> None:
+        self.items.append(
+            f'<path d="M{x1},{y1} L{x2},{y2}" fill="none" stroke="{color}" '
+            f'stroke-width="{width}" stroke-linecap="round"/>'
+        )
+
+    def connector(
+        self,
+        points: list[tuple[int, int]],
+        *,
+        color: str = "#374151",
+        width: float = 2.0,
+        dashed: bool = False,
+    ) -> None:
+        point_text = " ".join(f"{x},{y}" for x, y in points)
+        dash = ' stroke-dasharray="8 7"' if dashed else ""
+        self.items.append(
+            f'<polyline points="{point_text}" fill="none" stroke="{color}" '
+            f'stroke-width="{width}" stroke-linecap="round" '
+            f'stroke-linejoin="round"{dash}/>'
+        )
+
     def text(
         self,
         content: str,
@@ -265,7 +350,7 @@ def render_system_architecture() -> SvgCanvas:
         55,
         1780,
         210,
-        "Tier 1  Mixed-Initiative Interaction and Benchmark Environment",
+        "第一层：交互表示层",
         COLORS["data"],
         COLORS["data_stroke"],
     )
@@ -274,10 +359,10 @@ def render_system_architecture() -> SvgCanvas:
         130,
         260,
         80,
-        ["Student User", "Explicit goals and feedback"],
+        ["用户条件输入", "分数 / 选科 / 专业", "地域 / 预算偏好"],
         fill=COLORS["white"],
         stroke=COLORS["data_stroke"],
-        size=18,
+        size=17,
     )
     c.box(
         455,
@@ -285,9 +370,9 @@ def render_system_architecture() -> SvgCanvas:
         310,
         100,
         [
-            "Iceberg Profile",
-            "Explicit constraints + hidden bottom lines",
-            "Revealed only through dialogue",
+            "对话与澄清问题",
+            "显式目标与待澄清偏好",
+            "跨轮反馈进入状态",
         ],
         fill=COLORS["hidden"],
         stroke=COLORS["hidden_stroke"],
@@ -298,7 +383,7 @@ def render_system_architecture() -> SvgCanvas:
         130,
         290,
         80,
-        ["Interrupt", "Ask a Pareto trade-off question"],
+        ["Interrupt 澄清", "提出 A/B 取舍问题"],
         fill=COLORS["white"],
         stroke=COLORS["data_stroke"],
         size=17,
@@ -308,7 +393,7 @@ def render_system_architecture() -> SvgCanvas:
         130,
         290,
         80,
-        ["Resume", "Accept / reject / hesitate"],
+        ["Resume 反馈", "接受 / 拒绝 / 犹豫"],
         fill=COLORS["white"],
         stroke=COLORS["data_stroke"],
         size=17,
@@ -318,7 +403,7 @@ def render_system_architecture() -> SvgCanvas:
         130,
         220,
         80,
-        ["Hard Constraints", "Score / rank / region"],
+        ["推荐结果展示", "候选证据 / 取舍解释"],
         fill=COLORS["white"],
         stroke=COLORS["data_stroke"],
         size=17,
@@ -329,17 +414,17 @@ def render_system_architecture() -> SvgCanvas:
         300,
         1780,
         255,
-        "Tier 2  Lightweight Multi-Role Agent Workflow (LLM Boundary)",
+        "第二层：智能体服务层（LLM 服务边界）",
         COLORS["agent"],
         COLORS["agent_stroke"],
     )
     mas_nodes = [
-        (115, ["Semantic Normalizer", "Query rewrite", "Slot canonicalization"]),
-        (405, ["Constraint Parser", "Fact locking", "Veto detection"]),
-        (695, ["Opportunity Planner", "Negotiable option ranking"]),
-        (985, ["Evidence Prober", "SQL / ontology / profiles"]),
-        (1275, ["Evidence Negotiator", "Evidence-grounded prompts"]),
-        (1565, ["Preference Tracker", "Update w_t and sigma^2_t"]),
+        (115, ["语义归一器", "查询重写", "槽位标准化"]),
+        (405, ["约束解析器", "硬约束锁定", "缺失项识别"]),
+        (695, ["探针调度器", "选择澄清维度", "编排确定性探针"]),
+        (985, ["证据检索器", "SQL / 本体 / 画像", "生成事实候选"]),
+        (1275, ["对话生成器", "证据约束提示", "取舍问题生成"]),
+        (1565, ["状态管理器", "更新权重与方差", "写回轮次日志"]),
     ]
     for x, lines in mas_nodes:
         c.box(
@@ -358,7 +443,7 @@ def render_system_architecture() -> SvgCanvas:
         590,
         1780,
         205,
-        "Tier 3  Decision-Theoretic Cognitive Engine (Core Contribution)",
+        "第三层：推荐决策层",
         "#fff2df",
         "#d97938",
     )
@@ -368,9 +453,9 @@ def render_system_architecture() -> SvgCanvas:
         390,
         90,
         [
-            "Non-Compensatory SAVF",
-            "Single-attribute value v_j(x)",
-            "Hidden-bottom-line veto",
+            "非补偿性 SAVF",
+            "单属性价值映射",
+            "底线违约惩罚",
         ],
         fill="#ffe4c4",
         stroke="#d97938",
@@ -382,9 +467,9 @@ def render_system_architecture() -> SvgCanvas:
         390,
         90,
         [
-            "UCB Max-EIG Probing",
-            "Select highest information-gain axis",
-            "Dispatch Pareto-maximal L1 pairs",
+            "UCB 主动澄清",
+            "选择高信息增益维度",
+            "构造帕累托候选对",
         ],
         fill="#ffe4c4",
         stroke="#d97938",
@@ -396,9 +481,9 @@ def render_system_architecture() -> SvgCanvas:
         390,
         90,
         [
-            "BT Gradient + D-S Tracking",
-            "Bradley-Terry update of w_t",
-            "Hesitation increases sigma^2_t",
+            "BT/D-S 偏好追踪",
+            "Bradley-Terry 更新权重",
+            "犹豫反馈提升不确定性",
         ],
         fill="#ffe4c4",
         stroke="#d97938",
@@ -410,7 +495,7 @@ def render_system_architecture() -> SvgCanvas:
         830,
         1780,
         185,
-        "Tier 4  Data and Evidence Foundation",
+        "第四层：数据证据层",
         COLORS["artifact"],
         COLORS["artifact_stroke"],
     )
@@ -419,7 +504,7 @@ def render_system_architecture() -> SvgCanvas:
         895,
         390,
         85,
-        ["PostgreSQL Admission Facts", "Scores / ranks / quotas / tuition"],
+        ["招生事实库", "分数 / 位次 / 计划 / 学费"],
         fill=COLORS["white"],
         stroke=COLORS["artifact_stroke"],
         size=17,
@@ -429,7 +514,7 @@ def render_system_architecture() -> SvgCanvas:
         895,
         390,
         85,
-        ["Hierarchical Ontologies", "Major tree / region tree"],
+        ["层级本体库", "专业树 / 地域树"],
         fill=COLORS["white"],
         stroke=COLORS["artifact_stroke"],
         size=17,
@@ -439,16 +524,16 @@ def render_system_architecture() -> SvgCanvas:
         895,
         390,
         85,
-        ["Standardized Profile Store", "Major quality / employment evidence"],
+        ["标准化画像库", "专业质量 / 就业证据"],
         fill=COLORS["white"],
         stroke=COLORS["artifact_stroke"],
         size=17,
     )
 
-    c.arrow(375, 170, 455, 170, label="Needs")
-    c.arrow(765, 170, 850, 170, label="Probe")
-    c.arrow(1140, 170, 1225, 170, label="Feedback")
-    c.arrow(1515, 170, 1585, 170, label="Anchor")
+    c.arrow(375, 170, 455, 170, label="条件输入")
+    c.arrow(765, 170, 850, 170, label="澄清触发")
+    c.arrow(1140, 170, 1225, 170, label="用户反馈")
+    c.arrow(1515, 170, 1585, 170, label="推荐生成")
 
     c.arrow(355, 443, 405, 443)
     c.arrow(645, 443, 695, 443)
@@ -459,7 +544,7 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         700,
         515,
-        "Feedback loop: belief-state update",
+        "状态回写：偏好与轮次更新",
         fill=COLORS["agent"],
         stroke=COLORS["agent_stroke"],
         width=300,
@@ -469,7 +554,7 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         305,
         268,
-        "Profile input",
+        "条件输入",
         fill=COLORS["agent"],
         stroke=COLORS["agent_stroke"],
         width=125,
@@ -497,7 +582,7 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         1008,
         800,
-        "Structured facts",
+        "结构化事实",
         fill=COLORS["artifact"],
         stroke=COLORS["artifact_stroke"],
         width=145,
@@ -506,7 +591,7 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         182,
         800,
-        "Semantic mapping",
+        "语义映射",
         fill=COLORS["artifact"],
         stroke=COLORS["artifact_stroke"],
         width=150,
@@ -515,7 +600,7 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         1465,
         800,
-        "Profile evidence",
+        "画像证据",
         fill=COLORS["artifact"],
         stroke=COLORS["artifact_stroke"],
         width=145,
@@ -527,7 +612,7 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         995,
         556,
-        "SAVF evidence signal",
+        "SAVF 证据信号",
         fill="#fff2df",
         stroke="#d97938",
         color="#d97938",
@@ -539,7 +624,7 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         735,
         556,
-        "UCB planner control",
+        "UCB 调度控制",
         fill="#fff2df",
         stroke="#d97938",
         color="#d97938",
@@ -551,7 +636,7 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         1040,
         585,
-        "Max-EIG probe dispatch",
+        "候选对分发",
         fill="#fff2df",
         stroke="#d97938",
         color="#d97938",
@@ -565,15 +650,124 @@ def render_system_architecture() -> SvgCanvas:
     c.tag(
         1590,
         556,
-        "BT / D-S posterior update",
+        "BT/D-S 后验更新",
         fill="#fff2df",
         stroke="#d97938",
         color="#d97938",
         width=220,
     )
 
-    c.arrow(575, 710, 765, 710, label="Value surface")
-    c.arrow(1155, 710, 1345, 710, label="Pairwise feedback")
+    c.arrow(575, 710, 765, 710, label="价值映射")
+    c.arrow(1155, 710, 1345, 710, label="成对反馈")
+    return c
+
+
+def render_system_use_cases() -> SvgCanvas:
+    c = SvgCanvas(width=1850, height=1020)
+
+    # UML system boundary.
+    boundary_x, boundary_y, boundary_w, boundary_h = 300, 60, 1150, 860
+    c.items.append(
+        f'<rect x="{boundary_x}" y="{boundary_y}" width="{boundary_w}" '
+        f'height="{boundary_h}" rx="10" fill="#ffffff" stroke="#111827" '
+        f'stroke-width="3"/>'
+    )
+    c.text(
+        "大模型驱动的高考志愿智能推荐系统",
+        boundary_x + boundary_w / 2,
+        112,
+        size=30,
+        weight="700",
+    )
+
+    # Actors.
+    c.actor(145, 470, ["考生 / 家长", "<<Primary User>>"], size=22)
+    c.actor(1660, 735, ["系统管理员 / 测试工程师", "<<Admin/QA>>"], size=20)
+    c.box(
+        1510,
+        155,
+        285,
+        92,
+        ["大语言模型 API", "<<External Service>>"],
+        fill="#eef6ff",
+        stroke="#2563eb",
+        size=18,
+        radius=6,
+    )
+    c.box(
+        1510,
+        375,
+        285,
+        92,
+        ["结构化招生事实底座", "<<Database>>"],
+        fill="#f4f6f8",
+        stroke="#64748b",
+        size=18,
+        radius=6,
+    )
+
+    # Business-level use cases.
+    use_cases = {
+        "initial": (565, 190, 270, 78, ["发起初始志愿咨询"]),
+        "missing": (565, 315, 270, 78, ["引导补充缺失条件"]),
+        "hard": (930, 190, 300, 78, ["提取不可妥协", "硬约束"]),
+        "negotiate": (565, 455, 270, 78, ["参与偏好妥协谈判"]),
+        "hesitate": (565, 580, 270, 78, ["澄清模糊/犹豫底线"]),
+        "counterfactual": (930, 455, 300, 78, ["构造反事实", "探测问题"]),
+        "report": (565, 720, 270, 78, ["获取冲稳保志愿报告"]),
+        "rerank": (930, 665, 300, 78, ["执行全局效用", "下推重排"]),
+        "explain": (930, 800, 300, 78, ["生成显示性", "偏好解释"]),
+        "boundary_test": (1245, 555, 300, 78, ["执行受控边界", "测试用例"]),
+        "audit": (1245, 675, 300, 78, ["审计偏好交互", "推理日志"]),
+        "maintain": (1245, 795, 300, 78, ["维护招生本体", "与画像数据"]),
+    }
+    for x, y, w, h, lines in use_cases.values():
+        c.use_case(x, y, w, h, lines, fill="#ffffff", stroke="#111827", size=18)
+
+    # Associations between actors and use cases.
+    actor_anchor_x, actor_anchor_y = 215, 470
+    for key in ["initial", "negotiate", "report"]:
+        x, y, w, _, _ = use_cases[key]
+        c.association(actor_anchor_x, actor_anchor_y, int(x - w / 2), y)
+
+    admin_anchor_x, admin_anchor_y = 1585, 735
+    for key in ["boundary_test", "audit", "maintain"]:
+        x, y, w, _, _ = use_cases[key]
+        c.association(admin_anchor_x, admin_anchor_y, int(x + w / 2), y)
+
+    # UML include / extend relations. The arrow points to the included or extended use case.
+    relation_color = "#64748b"
+    c.arrow(700, 190, 780, 190, label="<<include>>", dashed=True, color=relation_color)
+    c.arrow(565, 276, 565, 230, label="<<extend>>", dashed=True, color=relation_color)
+    c.arrow(700, 455, 780, 455, label="<<include>>", dashed=True, color=relation_color)
+    c.arrow(565, 541, 565, 495, label="<<extend>>", dashed=True, color=relation_color)
+    c.arrow(700, 700, 780, 675, label="<<include>>", dashed=True, color=relation_color)
+    c.arrow(700, 742, 780, 795, label="<<include>>", dashed=True, color=relation_color)
+
+    # External service associations highlight the boundary between facts and language.
+    service_color = "#334155"
+    c.connector(
+        [(1510, 190), (1458, 190), (1458, 150), (700, 150), (700, 170)],
+        color=service_color,
+    )
+    c.connector(
+        [(1510, 205), (1468, 205), (1468, 455), (1080, 455)], color=service_color
+    )
+    c.connector(
+        [(1510, 220), (1478, 220), (1478, 800), (1080, 800)], color=service_color
+    )
+    c.connector(
+        [(1510, 410), (1430, 410), (1430, 190), (1080, 190)], color=service_color
+    )
+    c.connector(
+        [(1510, 425), (1415, 425), (1415, 455), (1080, 455)], color=service_color
+    )
+    c.connector(
+        [(1510, 440), (1400, 440), (1400, 665), (1080, 665)], color=service_color
+    )
+    c.connector(
+        [(1510, 455), (1465, 455), (1465, 795), (1395, 795)], color=service_color
+    )
     return c
 
 
@@ -1688,6 +1882,7 @@ def render_all(output_dir: Path) -> list[Path]:
         )
 
     figures = {
+        "fig_3_1_system_use_cases": render_system_use_cases(),
         "fig_4_1_system_architecture": render_system_architecture(),
         "fig_5_1_mas_workflow": render_mas_workflow(),
         "fig_4_2_benchmark_flow": render_benchmark_flow(),

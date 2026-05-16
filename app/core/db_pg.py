@@ -3,6 +3,7 @@ import asyncio
 import sys
 from typing import Any
 
+import psycopg
 from dotenv import load_dotenv
 from psycopg.rows import dict_row
 from psycopg_pool import AsyncConnectionPool
@@ -38,11 +39,21 @@ async def get_pool() -> AsyncConnectionPool:
 
 
 async def fetch_query(query: str, *args: Any) -> list[dict[str, Any]]:
+    if sys.platform == "win32":
+        return await asyncio.to_thread(_fetch_query_sync, query, *args)
     pool = await get_pool()
     async with pool.connection() as conn:
         async with conn.cursor() as cur:
             await cur.execute(query, args)
             rows = await cur.fetchall()
+            return [dict(row) for row in rows]
+
+
+def _fetch_query_sync(query: str, *args: Any) -> list[dict[str, Any]]:
+    with psycopg.connect(get_database_url(), row_factory=dict_row) as conn:
+        with conn.cursor() as cur:
+            cur.execute(query, args)
+            rows = cur.fetchall()
             return [dict(row) for row in rows]
 
 
