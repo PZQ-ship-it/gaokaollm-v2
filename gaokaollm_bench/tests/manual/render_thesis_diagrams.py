@@ -344,321 +344,273 @@ class SvgCanvas:
 
 
 def render_system_architecture() -> SvgCanvas:
-    c = SvgCanvas()
+    c = SvgCanvas(width=1400, height=1800)
+    panel_y = 70
+    panel_h = 1640
+    panel_w = 300
+    x_interaction = 55
+    x_agent = 380
+    x_math = 705
+    x_data = 1030
+    warm_fill = "#fff2df"
+    warm_stroke = "#d97938"
+    warm_card = "#ffe4c4"
+
     c.panel(
-        70,
-        55,
-        1780,
-        210,
+        x_interaction,
+        panel_y,
+        panel_w,
+        panel_h,
         "第一层：交互表示层",
         COLORS["data"],
         COLORS["data_stroke"],
     )
-    c.box(
-        115,
-        130,
-        260,
-        80,
-        ["用户条件输入", "分数 / 选科 / 专业", "地域 / 预算偏好"],
-        fill=COLORS["white"],
-        stroke=COLORS["data_stroke"],
-        size=17,
-    )
-    c.box(
-        455,
-        120,
-        310,
-        100,
-        [
-            "对话与澄清问题",
-            "显式目标与待澄清偏好",
-            "跨轮反馈进入状态",
-        ],
-        fill=COLORS["hidden"],
-        stroke=COLORS["hidden_stroke"],
-        size=17,
-    )
-    c.box(
-        850,
-        130,
-        290,
-        80,
-        ["Interrupt 澄清", "提出 A/B 取舍问题"],
-        fill=COLORS["white"],
-        stroke=COLORS["data_stroke"],
-        size=17,
-    )
-    c.box(
-        1225,
-        130,
-        290,
-        80,
-        ["Resume 反馈", "接受 / 拒绝 / 犹豫"],
-        fill=COLORS["white"],
-        stroke=COLORS["data_stroke"],
-        size=17,
-    )
-    c.box(
-        1585,
-        130,
-        220,
-        80,
-        ["推荐结果展示", "候选证据 / 取舍解释"],
-        fill=COLORS["white"],
-        stroke=COLORS["data_stroke"],
-        size=17,
-    )
-
     c.panel(
-        70,
-        300,
-        1780,
-        255,
-        "第二层：智能体服务层（LLM 服务边界）",
+        x_agent,
+        panel_y,
+        panel_w,
+        panel_h,
+        "第二层：智能体服务层",
         COLORS["agent"],
         COLORS["agent_stroke"],
     )
-    mas_nodes = [
-        (115, ["语义归一器", "查询重写", "槽位标准化"]),
-        (405, ["约束解析器", "硬约束锁定", "缺失项识别"]),
-        (695, ["探针调度器", "选择澄清维度", "编排确定性探针"]),
-        (985, ["证据检索器", "SQL / 树 / 画像", "生成事实候选"]),
-        (1275, ["对话生成器", "证据约束提示", "取舍问题生成"]),
-        (1565, ["状态管理器", "更新权重与方差", "写回轮次日志"]),
-    ]
-    for x, lines in mas_nodes:
-        c.box(
-            x,
-            395,
-            240,
-            95,
-            lines,
-            fill=COLORS["white"],
-            stroke=COLORS["agent_stroke"],
-            size=16,
-        )
-
+    c.tag(
+        x_agent + 185,
+        panel_y + 58,
+        "LLM 边界",
+        fill=COLORS["white"],
+        stroke=COLORS["agent_stroke"],
+        width=92,
+    )
     c.panel(
-        70,
-        590,
-        1780,
-        205,
+        x_math,
+        panel_y,
+        panel_w,
+        panel_h,
         "第三层：推荐决策层",
-        "#fff2df",
-        "#d97938",
+        warm_fill,
+        warm_stroke,
     )
-    c.box(
-        185,
-        665,
-        390,
-        90,
-        [
-            "非补偿性 SAVF",
-            "单属性价值映射",
-            "底线违约惩罚",
-        ],
-        fill="#ffe4c4",
-        stroke="#d97938",
-        size=17,
+    c.tag(
+        x_math + 175,
+        panel_y + 58,
+        "数学强控",
+        fill="#ffffff",
+        stroke=warm_stroke,
+        color=warm_stroke,
+        width=100,
     )
-    c.box(
-        765,
-        665,
-        390,
-        90,
-        [
-            "UCB 主动澄清",
-            "选择高信息增益维度",
-            "构造帕累托候选对",
-        ],
-        fill="#ffe4c4",
-        stroke="#d97938",
-        size=17,
-    )
-    c.box(
-        1345,
-        665,
-        390,
-        90,
-        [
-            "BT/D-S 偏好追踪",
-            "Bradley-Terry 更新权重",
-            "犹豫反馈提升不确定性",
-        ],
-        fill="#ffe4c4",
-        stroke="#d97938",
-        size=17,
-    )
-
     c.panel(
-        70,
-        830,
-        1780,
-        185,
+        x_data,
+        panel_y,
+        panel_w,
+        panel_h,
         "第四层：数据证据层",
         COLORS["artifact"],
         COLORS["artifact_stroke"],
     )
-    c.cylinder(
-        190,
-        895,
-        390,
-        85,
-        ["招生事实库", "分数 / 位次 / 计划 / 学费"],
-        fill=COLORS["white"],
-        stroke=COLORS["artifact_stroke"],
-        size=17,
-    )
-    c.cylinder(
-        765,
-        895,
-        390,
-        85,
-        ["树结构证据库", "专业树 / 地域树"],
-        fill=COLORS["white"],
-        stroke=COLORS["artifact_stroke"],
-        size=17,
-    )
-    c.cylinder(
-        1340,
-        895,
-        390,
-        85,
-        ["标准化画像库", "专业质量 / 就业证据"],
-        fill=COLORS["white"],
-        stroke=COLORS["artifact_stroke"],
-        size=17,
-    )
 
-    c.arrow(375, 170, 455, 170, label="条件输入")
-    c.arrow(765, 170, 850, 170, label="澄清触发")
-    c.arrow(1140, 170, 1225, 170, label="用户反馈")
-    c.arrow(1515, 170, 1585, 170, label="推荐生成")
+    interaction_nodes = [
+        (
+            95,
+            165,
+            ["用户条件输入", "分数 / 选科 / 专业", "地域 / 预算偏好"],
+            COLORS["white"],
+        ),
+        (85, 365, ["冰山画像", "显式约束", "隐藏底线"], COLORS["hidden"]),
+        (85, 625, ["Interrupt 澄清", "帕累托边际替代提问"], COLORS["white"]),
+        (85, 900, ["Resume 反馈", "接受 / 拒绝 / 犹豫"], COLORS["white"]),
+        (85, 1185, ["推荐结果展示", "候选证据", "取舍解释"], COLORS["white"]),
+        (85, 1490, ["评测环境", "受控边界样本", "过程日志回放"], COLORS["white"]),
+    ]
+    for x, y, lines, fill in interaction_nodes:
+        stroke = (
+            COLORS["hidden_stroke"]
+            if fill == COLORS["hidden"]
+            else COLORS["data_stroke"]
+        )
+        c.box(
+            x,
+            y,
+            230 if x == 95 else 250,
+            120 if y != 365 else 150,
+            lines,
+            fill=fill,
+            stroke=stroke,
+            size=22,
+        )
 
-    c.arrow(355, 443, 405, 443)
-    c.arrow(645, 443, 695, 443)
-    c.arrow(935, 443, 985, 443)
-    c.arrow(1225, 443, 1275, 443)
-    c.arrow(1515, 443, 1565, 443)
-    c.polyline([(1685, 490), (1685, 535), (815, 535), (815, 490)], dashed=True)
+    c.arrow(210, 285, 210, 365, label="画像补全")
+    c.arrow(210, 515, 210, 625, label="触发探索")
+    c.arrow(210, 745, 210, 900, label="等待反馈")
+    c.arrow(210, 1020, 210, 1185, label="利用阶段")
+    c.arrow(210, 1305, 210, 1490, label="记录评测")
+
+    agent_nodes = [
+        (415, 160, ["语义归一器", "查询重写", "槽位标准化"]),
+        (415, 335, ["约束解析器", "硬约束锁定", "缺失项识别"]),
+        (415, 510, ["机会探测规划器", "选择澄清维度", "组织探针计划"]),
+        (415, 685, ["确定性证据探针", "SQL / 树 / 画像", "返回事实候选"]),
+        (415, 860, ["证据谈判器", "证据约束表达", "生成取舍问题"]),
+        (415, 1035, ["偏好后验追踪器", "权重 w_t", "方差 sigma^2"]),
+    ]
+    for x, y, lines in agent_nodes:
+        c.box(
+            x,
+            y,
+            230,
+            118,
+            lines,
+            fill=COLORS["white"],
+            stroke=COLORS["agent_stroke"],
+            size=21,
+        )
+
+    for start_y, end_y in [(278, 335), (453, 510), (628, 685), (803, 860), (978, 1035)]:
+        c.arrow(530, start_y, 530, end_y)
+
+    c.polyline([(325, 225), (370, 225), (370, 219), (415, 219)], label="用户话语")
+    c.polyline(
+        [(415, 919), (365, 919), (365, 690), (335, 690)],
+        label="Interrupt",
+    )
+    c.polyline(
+        [(335, 962), (370, 962), (370, 1094), (415, 1094)],
+        label="Resume",
+    )
+    c.polyline(
+        [(645, 1094), (675, 1094), (675, 565), (645, 565)],
+        dashed=True,
+    )
     c.tag(
-        700,
-        515,
-        "状态回写：偏好与轮次更新",
+        535,
+        1215,
+        "偏好状态回写",
         fill=COLORS["agent"],
         stroke=COLORS["agent_stroke"],
-        width=300,
-    )
-
-    c.polyline([(610, 220), (610, 284), (90, 284), (90, 443), (115, 443)])
-    c.tag(
-        305,
-        268,
-        "条件输入",
-        fill=COLORS["agent"],
-        stroke=COLORS["agent_stroke"],
-        width=125,
-    )
-    c.polyline([(995, 395), (995, 270), (995, 210)])
-    c.tag(
-        945,
-        272,
-        "Interrupt",
-        fill=COLORS["data"],
-        stroke=COLORS["data_stroke"],
-        width=100,
-    )
-    c.polyline([(1370, 210), (1370, 335), (1685, 335), (1685, 395)])
-    c.tag(
-        1628,
-        313,
-        "Resume",
-        fill=COLORS["data"],
-        stroke=COLORS["data_stroke"],
-        width=100,
-    )
-
-    c.polyline([(385, 895), (385, 815), (1105, 815), (1105, 490)])
-    c.tag(
-        1008,
-        800,
-        "结构化事实",
-        fill=COLORS["artifact"],
-        stroke=COLORS["artifact_stroke"],
-        width=145,
-    )
-    c.polyline([(960, 895), (960, 815), (235, 815), (235, 490)])
-    c.tag(
-        182,
-        800,
-        "语义映射",
-        fill=COLORS["artifact"],
-        stroke=COLORS["artifact_stroke"],
         width=150,
     )
-    c.polyline([(1535, 895), (1535, 815), (1105, 815), (1105, 490)])
-    c.tag(
-        1465,
-        800,
-        "画像证据",
-        fill=COLORS["artifact"],
-        stroke=COLORS["artifact_stroke"],
-        width=145,
+    c.polyline([(415, 1102), (365, 1102), (365, 1245), (335, 1245)])
+
+    c.box(
+        740,
+        260,
+        230,
+        145,
+        ["非补偿性 SAVF", "v_j(x) 价值映射", "一票否决", "底线违约惩罚"],
+        fill=warm_card,
+        stroke=warm_stroke,
+        size=20,
+    )
+    c.box(
+        740,
+        605,
+        230,
+        150,
+        ["UCB Max-EIG", "置信上限选轴", "最大化 Delta Phi", "帕累托 L1 选对"],
+        fill=warm_card,
+        stroke=warm_stroke,
+        size=20,
+    )
+    c.box(
+        740,
+        950,
+        230,
+        155,
+        ["BT / D-S 追踪", "BT 梯度更新", "犹豫反馈", "推高 sigma^2"],
+        fill=warm_card,
+        stroke=warm_stroke,
+        size=20,
+    )
+    c.box(
+        740,
+        1300,
+        230,
+        145,
+        ["全局效用重排", "硬约束先过滤", "收益轴下推", "冲稳保报告"],
+        fill="#fff7ed",
+        stroke=warm_stroke,
+        size=20,
     )
 
     c.polyline(
-        [(380, 665), (380, 575), (1105, 575), (1105, 490)], dashed=True, color="#d97938"
-    )
-    c.tag(
-        995,
-        556,
-        "SAVF 证据信号",
-        fill="#fff2df",
-        stroke="#d97938",
-        color="#d97938",
-        width=185,
-    )
-    c.polyline(
-        [(960, 665), (960, 575), (815, 575), (815, 490)], dashed=True, color="#d97938"
-    )
-    c.tag(
-        735,
-        556,
-        "UCB 调度控制",
-        fill="#fff2df",
-        stroke="#d97938",
-        color="#d97938",
-        width=170,
-    )
-    c.polyline(
-        [(960, 665), (960, 575), (1105, 575), (1105, 490)], dashed=True, color="#d97938"
-    )
-    c.tag(
-        1040,
-        585,
-        "候选对分发",
-        fill="#fff2df",
-        stroke="#d97938",
-        color="#d97938",
-        width=205,
-    )
-    c.polyline(
-        [(1540, 665), (1540, 575), (1685, 575), (1685, 490)],
+        [(740, 332), (700, 332), (700, 744), (645, 744)],
         dashed=True,
-        color="#d97938",
+        color=warm_stroke,
+        label="SAVF 映射",
     )
-    c.tag(
-        1590,
-        556,
-        "BT/D-S 后验更新",
-        fill="#fff2df",
-        stroke="#d97938",
-        color="#d97938",
-        width=220,
+    c.polyline(
+        [(740, 680), (700, 680), (700, 565), (645, 565)],
+        dashed=True,
+        color=warm_stroke,
+        label="UCB 调度",
+    )
+    c.polyline(
+        [(740, 1028), (700, 1028), (700, 1094), (645, 1094)],
+        dashed=True,
+        color=warm_stroke,
+        label="BT/D-S 更新",
+    )
+    c.arrow(855, 405, 855, 605, label="价值信号")
+    c.arrow(855, 755, 855, 950, label="成对反馈")
+    c.arrow(855, 1105, 855, 1300, label="收敛利用")
+
+    c.cylinder(
+        1065,
+        240,
+        230,
+        150,
+        ["招生事实库", "分数 / 位次", "计划 / 学费"],
+        fill=COLORS["white"],
+        stroke=COLORS["artifact_stroke"],
+        size=21,
+    )
+    c.cylinder(
+        1065,
+        555,
+        230,
+        150,
+        ["层级本体库", "专业树", "地域树"],
+        fill=COLORS["white"],
+        stroke=COLORS["artifact_stroke"],
+        size=21,
+    )
+    c.cylinder(
+        1065,
+        870,
+        230,
+        150,
+        ["标准化画像库", "专业质量", "就业证据"],
+        fill=COLORS["white"],
+        stroke=COLORS["artifact_stroke"],
+        size=21,
+    )
+    c.box(
+        1065,
+        1210,
+        230,
+        125,
+        ["证据审计", "来源字段", "版本快照"],
+        fill=COLORS["white"],
+        stroke=COLORS["artifact_stroke"],
+        size=21,
     )
 
-    c.arrow(575, 710, 765, 710, label="价值映射")
-    c.arrow(1155, 710, 1345, 710, label="成对反馈")
+    c.polyline(
+        [(1065, 315), (1010, 315), (1010, 405), (645, 405)],
+        label="硬约束事实",
+    )
+    c.polyline(
+        [(1065, 630), (1010, 630), (1010, 565), (645, 565)],
+        label="层级映射",
+    )
+    c.polyline(
+        [(1065, 945), (1010, 945), (1010, 744), (645, 744)],
+        label="画像证据",
+    )
+    c.polyline([(1065, 1265), (1010, 1265), (1010, 1368), (970, 1368)])
+    c.polyline([(855, 1445), (855, 1585), (335, 1585)], label="过程留痕")
+
     return c
 
 
