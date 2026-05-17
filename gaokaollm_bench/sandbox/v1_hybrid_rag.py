@@ -28,6 +28,8 @@ class V1HybridPreflightError(RuntimeError):
 ENV_EMBEDDING_MODEL = "EMBEDDING_MODEL"
 ENV_RERANKING_MODEL = "RERANKING_MODEL"
 ENV_RERANKER_MODEL = "RERANKER_MODEL"
+ENV_RERANKING_BASE_URL = "RERANKING_BASE_URL"
+ENV_RERANKING_ENDPOINT = "RERANKING_ENDPOINT"
 
 
 class EmbedderBackend(Protocol):
@@ -251,7 +253,15 @@ class OpenAICompatibleRerankerBackend:
             model or os.getenv(ENV_RERANKING_MODEL) or os.getenv(ENV_RERANKER_MODEL)
         )
         self.api_key = api_key or os.getenv(ENV_OPENAI_API_KEY)
-        self.base_url = (base_url or os.getenv(ENV_OPENAI_BASE_URL) or "").rstrip("/")
+        self.base_url = (
+            base_url
+            or os.getenv(ENV_RERANKING_BASE_URL)
+            or os.getenv(ENV_OPENAI_BASE_URL)
+            or ""
+        ).rstrip("/")
+        self.endpoint = os.getenv(ENV_RERANKING_ENDPOINT) or "/rerank"
+        if not self.endpoint.startswith("/"):
+            self.endpoint = f"/{self.endpoint}"
         self.timeout = timeout
         if not self.model:
             raise V1HybridPreflightError(
@@ -285,7 +295,7 @@ class OpenAICompatibleRerankerBackend:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-        url = f"{self.base_url}/rerank"
+        url = f"{self.base_url}{self.endpoint}"
         try:
             response = httpx.post(
                 url,
@@ -297,7 +307,7 @@ class OpenAICompatibleRerankerBackend:
         except httpx.HTTPError as exc:
             raise V1HybridPreflightError(
                 "remote rerank request failed; verify RERANKING_MODEL and "
-                f"{ENV_OPENAI_BASE_URL}."
+                f"{ENV_RERANKING_BASE_URL}/{ENV_RERANKING_ENDPOINT}."
             ) from exc
 
         data = response.json()

@@ -30,6 +30,32 @@ def norm_name(value: Any) -> str | None:
     return re.sub(r"\s+", "", text)
 
 
+def norm_major_name(value: Any) -> str | None:
+    text = norm_name(value)
+    if not text:
+        return None
+    candidates = [text]
+    stripped = re.split(r"[（(]", text, maxsplit=1)[0].strip()
+    if stripped and stripped != text:
+        candidates.append(stripped)
+    normalized = []
+    for item in candidates:
+        for suffix in ("专业",):
+            if item.endswith(suffix):
+                item = item[: -len(suffix)]
+        if item and item not in normalized:
+            normalized.append(item)
+    return normalized[-1] if normalized else text
+
+
+def resolve_major_id(major_map: dict[str, int], value: Any) -> int | None:
+    keys = [norm_name(value), norm_major_name(value)]
+    for key in keys:
+        if key and key in major_map:
+            return major_map[key]
+    return None
+
+
 def to_int(value: Any) -> int | None:
     text = norm_text(value)
     if not text:
@@ -442,7 +468,7 @@ def load_plans(
                 if not year or not school or not major:
                     continue
                 school_id = school_map.get(norm_name(school) or "")
-                major_id = major_map.get(norm_name(major) or "")
+                major_id = resolve_major_id(major_map, major)
                 school_code = norm_text(
                     row.get("院校代码") or row.get("院校代号") or row.get("招生代码")
                 )
@@ -551,7 +577,7 @@ def load_admission_scores(
                         school_map.get(norm_name(school) or ""),
                         norm_text(row.get("院校代码") or row.get("招生代码")),
                         school,
-                        major_map.get(norm_name(major) or ""),
+                        resolve_major_id(major_map, major),
                         norm_text(row.get("专业代码") or row.get("专业组")),
                         major,
                         norm_text(row.get("专业备注") or row.get("备注")),
@@ -594,7 +620,7 @@ def load_supporting_data(
             continue
         employment.append(
             (
-                major_map.get(norm_name(major) or ""),
+                resolve_major_id(major_map, major),
                 major,
                 norm_text(row.get("就业概况-名次")),
                 norm_text(row.get("就业概况-名次-描述")),
@@ -665,7 +691,7 @@ def load_supporting_data(
             strength_rows.append(
                 (
                     school_map.get(norm_name(school) or ""),
-                    major_map.get(norm_name(major) or "") if major else None,
+                    resolve_major_id(major_map, major) if major else None,
                     discipline,
                     source_type,
                     to_int(row.get("排名")),
@@ -767,7 +793,7 @@ def load_special_admission_programs(
                     program_type,
                     school_map.get(norm_name(school) or ""),
                     school,
-                    major_map.get(norm_name(major) or "") if major else None,
+                    resolve_major_id(major_map, major) if major else None,
                     major,
                     norm_text(row.get("批次")),
                     norm_text(row.get("科类")),

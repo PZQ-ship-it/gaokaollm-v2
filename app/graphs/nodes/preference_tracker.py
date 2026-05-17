@@ -18,6 +18,7 @@ from app.schemas.state import (
     DEFAULT_WEIGHT_VARIANCE,
     AgentState,
 )
+from gaokaollm_bench.utils.trace import trace_event
 
 
 PreferenceKey = Literal["school", "major", "tuition", "quality", "geo"]
@@ -307,14 +308,27 @@ async def preference_tracker_node(
     config: RunnableConfig | None = None,
 ) -> dict[str, Any]:
     print("[preference_tracker] updated implicit preference state")
+    trace_event(
+        "preference_tracker",
+        "node_start",
+        {
+            "ablation_mode": get_ablation_mode(config),
+            "latest_human_feedback": state.get("latest_human_feedback"),
+            "latest_pareto_diff": state.get("latest_pareto_diff"),
+            "weights_before": state.get("implicit_weights"),
+            "variance_before": state.get("weight_variance"),
+        },
+    )
     if get_ablation_mode(config) == "no_tracker":
-        return {
+        output = {
             "implicit_weights": dict(state.get("implicit_weights") or {}),
             "weight_variance": dict(state.get("weight_variance") or {}),
             "latest_human_feedback": None,
             "latest_agent_probe_question": None,
-            "latest_pareto_diff": None,
+            "latest_pareto_diff": state.get("latest_pareto_diff"),
         }
+        trace_event("preference_tracker", "node_end", {"skipped": True, **output})
+        return output
 
     analysis = await analyze_feedback_with_llm(state)
     weights, variance = apply_feedback_update(
@@ -324,10 +338,21 @@ async def preference_tracker_node(
         state.get("latest_pareto_diff"),
     )
 
-    return {
+    output = {
         "implicit_weights": weights,
         "weight_variance": variance,
         "latest_human_feedback": None,
         "latest_agent_probe_question": None,
-        "latest_pareto_diff": None,
+        "latest_pareto_diff": state.get("latest_pareto_diff"),
     }
+    trace_event(
+        "preference_tracker",
+        "node_end",
+        {
+            "analysis": analysis.model_dump()
+            if hasattr(analysis, "model_dump")
+            else dict(analysis),
+            **output,
+        },
+    )
+    return output

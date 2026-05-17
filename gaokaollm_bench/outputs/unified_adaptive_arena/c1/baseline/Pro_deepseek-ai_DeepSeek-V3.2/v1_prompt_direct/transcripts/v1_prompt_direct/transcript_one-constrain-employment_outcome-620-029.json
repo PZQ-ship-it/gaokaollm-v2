@@ -1,0 +1,1137 @@
+{
+  "persona": {
+    "case_id": "one-constrain-employment_outcome-620-029",
+    "background": {
+      "score": 620,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "机械设计制造及其自动化",
+      "baseline_school": "宁波大学",
+      "baseline_major": "机械设计制造及其自动化",
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "baseline_ranking": 87,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "employment_outcome",
+      "relax_axis": "employment_outcome",
+      "preference_axis": "quality",
+      "benefit_axis": "employment",
+      "score_band": "610-639",
+      "source_score_band": "610-639",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "employment_outcome",
+      "target_tier_delta": 0,
+      "target_ranking_gain": 48,
+      "unified_case_id": "one-constrain-employment_outcome-620-029",
+      "ground_truth_weights": {
+        "school": 0.12,
+        "major": 0.12,
+        "tuition": 0.07,
+        "quality": 0.62,
+        "geo": 0.07
+      },
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality"
+      ],
+      "expected_msti": 0.54,
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.74,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 1.0,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.04,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.5,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "employment": "必须有就业、薪资、行业或岗位去向证据"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "employment_outcome",
+      "diagnostic_axis": "employment_outcome",
+      "preference_axis": "quality",
+      "benefit_axis": "employment",
+      "trigger_condition": "只要看到一个真实可达的候选：西南交通大学 工业设计，年份2025，最低分615不高于本人620分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 outcome_score、outcome_gain、就业排名或薪资/行业证据。",
+      "volunteer_set": [
+        {
+          "school_id": 61,
+          "school_name": "西南交通大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 192,
+          "major_name": "工业设计",
+          "year": 2025,
+          "min_score": 615,
+          "score_margin": 5,
+          "min_rank": 36544,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "outcome_score": 100.0,
+          "outcome_gain": 49.0,
+          "outcome_anchor_score": 51.0,
+          "outcome_tier": "A",
+          "employment_rank": 4,
+          "employment_rank_desc": "所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+          "employment_top_city": "深圳",
+          "top_industry": "互联网/电子商务",
+          "industry_distribution": {
+            "items": "[\"互联网/电子商务\",\"电子技术/半导体/集成电路\",\"新能源\",\"家具/家电/玩具/礼品\",\"贸易/进出口\",\"计算机软件\",\"汽车及零配件\",\"机械/设备/重工\",\"家居/室内设计/装潢\",\"广告\"]",
+            "ratios": "[15%,15%,13%,11%,10%,9%,6%,5%,5%,5%]"
+          },
+          "employment_city_distribution": {
+            "items": "[\"深圳\",\"上海\",\"广州\",\"北京\",\"杭州\",\"东莞\",\"佛山\",\"厦门\",\"宁波\",\"武汉\"]",
+            "ratios": "[25%,18%,12%,9%,9%,5%,5%,5%,4%,3%]"
+          },
+          "job_distribution": {},
+          "salary_distribution": {
+            "items": "[\"面议 \",\"50000以上 \",\"4500-5999 \"]",
+            "ratios": "[66%,16%,16%]"
+          },
+          "employment_evidence_sources": [
+            "employment_rank=4",
+            "rank_desc=所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+            "top_city=深圳",
+            "top_industry=互联网/电子商务",
+            "industry_distribution",
+            "city_distribution",
+            "salary_distribution",
+            "source=赠送行业重要数据\\专业就业信息.xlsx"
+          ],
+          "role": "golden_candidate_b",
+          "candidate_id": "61:192:2025:615",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "西南交通大学"
+      ],
+      "tier_labels": [
+        "211/双一流"
+      ],
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "compromise": "可以为了更强就业结果证据接受该候选，就业结果增益约49.0。",
+      "outcome_anchor_score": 51.0,
+      "outcome_gain": 49.0,
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 西南交通大学 工业设计（2025 年最低分 615）。主动探测应优先命中 ['quality']，最终潜在效用权重集中在 ['quality']。触发条件：只要看到一个真实可达的候选：西南交通大学 工业设计，年份2025，最低分615不高于本人620分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 outcome_score、outcome_gain、就业排名或薪资/行业证据。",
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality"
+      ],
+      "ground_truth_weights": {
+        "school": 0.12,
+        "major": 0.12,
+        "tuition": 0.07,
+        "quality": 0.62,
+        "geo": 0.07
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-employment_outcome-620-029",
+        "role": "baseline_candidate_a",
+        "school_name": "宁波大学",
+        "major_name": "机械设计制造及其自动化",
+        "tier": 3,
+        "ranking": 87,
+        "school_province": "浙江",
+        "score": 620,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 61,
+        "school_name": "西南交通大学",
+        "school_province": "四川",
+        "school_city": "成都市",
+        "major_id": 192,
+        "major_name": "工业设计",
+        "year": 2025,
+        "min_score": 615,
+        "score_margin": 5,
+        "min_rank": 36544,
+        "tier": 3,
+        "tier_label": "211/双一流",
+        "is_985": false,
+        "is_211": true,
+        "is_double_first_class": true,
+        "outcome_score": 100.0,
+        "outcome_gain": 49.0,
+        "outcome_anchor_score": 51.0,
+        "outcome_tier": "A",
+        "employment_rank": 4,
+        "employment_rank_desc": "所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+        "employment_top_city": "深圳",
+        "top_industry": "互联网/电子商务",
+        "industry_distribution": {
+          "items": "[\"互联网/电子商务\",\"电子技术/半导体/集成电路\",\"新能源\",\"家具/家电/玩具/礼品\",\"贸易/进出口\",\"计算机软件\",\"汽车及零配件\",\"机械/设备/重工\",\"家居/室内设计/装潢\",\"广告\"]",
+          "ratios": "[15%,15%,13%,11%,10%,9%,6%,5%,5%,5%]"
+        },
+        "employment_city_distribution": {
+          "items": "[\"深圳\",\"上海\",\"广州\",\"北京\",\"杭州\",\"东莞\",\"佛山\",\"厦门\",\"宁波\",\"武汉\"]",
+          "ratios": "[25%,18%,12%,9%,9%,5%,5%,5%,4%,3%]"
+        },
+        "job_distribution": {},
+        "salary_distribution": {
+          "items": "[\"面议 \",\"50000以上 \",\"4500-5999 \"]",
+          "ratios": "[66%,16%,16%]"
+        },
+        "employment_evidence_sources": [
+          "employment_rank=4",
+          "rank_desc=所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+          "top_city=深圳",
+          "top_industry=互联网/电子商务",
+          "industry_distribution",
+          "city_distribution",
+          "salary_distribution",
+          "source=赠送行业重要数据\\专业就业信息.xlsx"
+        ],
+        "role": "golden_candidate_b",
+        "candidate_id": "61:192:2025:615",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.74,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 1.0,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.04,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.5,
+        "geo": 0.0
+      },
+      "expected_msti": 0.54
+    },
+    "initial_utterance": "我620分，选考物理、化学、生物，更看重就业和薪资去向，没有真实就业证据的专业先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "西南交通大学"
+      ],
+      "require_employment_evidence": true,
+      "explicit_red_line_keys": [
+        "employment"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我620分，选考物理、化学、生物，更看重就业和薪资去向，没有真实就业证据的专业先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "根据你的分数（620）和选考科目（物理、化学、生物），以及看重就业薪资且要求有真实去向证据的诉求，目前可检索到的**唯一可冲击匹配项**是：\n\n**宁波大学 历史学专业**。其最低录取分为621分，略高于你的分数，可以作为冲刺选择。\n\n**特别提醒**：该专业为 **“历史学”**（人文社科类），与你提供的“物理、化学、生物”选考组合及“看重就业薪资”的目标匹配度**可能较低**。其就业去向通常倾向于教育、研究、文化等领域，薪资水平与传统工科、经管类或与你选科更对口的理工类专业相比可能不具备优势。\n\n**结论**：在当前检索条件下，缺乏完全符合你“高就业薪资预期”且“有真实就业证据”的专业推荐。建议你考虑以下调整方案：\n1.  进一步明确你最优先级的行业方向（例如：计算机、电子信息、金融等）。\n2.  根据真实行业需求，重新评估选择专业的范围。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 620,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "我620分，选考物理、化学、生物，更看重就业和薪资去向，没有真实就业证据的专业先别推荐。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [
+          {
+            "admission_score_id": 153,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 146,
+            "major_name": "历史学",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "621",
+            "min_rank": 30561,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 147,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 60,
+            "major_name": "小学教育",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "621",
+            "min_rank": 30805,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 33356,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "工商管理类(含工商管理,会计学会计学(CPACanada)专业)",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "621",
+            "min_rank": 32526,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 33359,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 189,
+            "major_name": "工程力学",
+            "subject_requirement": "物+化",
+            "requirement_type": "all_required",
+            "min_score": "621",
+            "min_rank": 33016,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 33357,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 185,
+            "major_name": "应用心理学",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "621",
+            "min_rank": 32774,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 33358,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 470,
+            "major_name": "行政管理",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "621",
+            "min_rank": 33033,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 57321,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化+生",
+            "requirement_type": "all_required",
+            "min_score": "621",
+            "min_rank": 32839,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 83472,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_type": "any_required",
+            "min_score": "621",
+            "min_rank": 32839,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 57320,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 448,
+            "major_name": "信息管理与信息系统",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "621",
+            "min_rank": 32508,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          }
+        ],
+        "risk_segments": {
+          "chong": [
+            {
+              "admission_score_id": 153,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 146,
+              "major_name": "历史学",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "621",
+              "min_rank": 30561,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 147,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 60,
+              "major_name": "小学教育",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "621",
+              "min_rank": 30805,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 33356,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": null,
+              "major_name": "工商管理类(含工商管理,会计学会计学(CPACanada)专业)",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "621",
+              "min_rank": 32526,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 33359,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 189,
+              "major_name": "工程力学",
+              "subject_requirement": "物+化",
+              "requirement_type": "all_required",
+              "min_score": "621",
+              "min_rank": 33016,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 33357,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 185,
+              "major_name": "应用心理学",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "621",
+              "min_rank": 32774,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 33358,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 470,
+              "major_name": "行政管理",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "621",
+              "min_rank": 33033,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 57321,
+              "year": 2023,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化+生",
+              "requirement_type": "all_required",
+              "min_score": "621",
+              "min_rank": 32839,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 83472,
+              "year": 2023,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_type": "any_required",
+              "min_score": "621",
+              "min_rank": 32839,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 57320,
+              "year": 2023,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 448,
+              "major_name": "信息管理与信息系统",
+              "subject_requirement": "物",
+              "requirement_type": "any_required",
+              "min_score": "621",
+              "min_rank": 32508,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            }
+          ],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 153,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 146,
+            "major_name": "历史学",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "621",
+            "min_rank": 30561,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 147,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 60,
+            "major_name": "小学教育",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "621",
+            "min_rank": 30805,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 33356,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "工商管理类(含工商管理,会计学会计学(CPACanada)专业)",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "621",
+            "min_rank": 32526,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": -1,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "历史学",
+            "min_score": "621",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 30561
+          }
+        ],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，我先给出冲稳保候选：\n可冲击：\n- 宁波大学｜浙江｜历史学｜最低分 621\n- 宁波大学｜浙江｜小学教育｜最低分 621"
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "这个推荐不太对劲吧？我选的是物化生，目标是机械设计制造及其自动化，你推荐个历史学专业，分数还比我的高，这跟我的就业薪资要求完全不搭边啊。有没有其他更靠谱的选择？比如有没有211大学的工科专业，分数在620以下，而且能提供具体的就业排名或者薪资数据的？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "系统没有给出我真正想要的西南交通大学工业设计，而是推荐了一个完全不相关的宁波大学历史学，分数还比我的高，这明显不符合我的隐性妥协条件。我明确要求必须有就业薪资证据，历史学专业显然不符合我的就业预期，而且也没有提供任何具体的就业数据。我不能被这种空洞的建议说服。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "根据您的要求和现有数据，目前没有检索到同时满足 **“211大学工科专业”、“620分以下”且“提供具体就业排名或薪资数据”** 的候选学校和专业。\n\n由于您的约束条件较为严格，在现有数据库中未能找到完全匹配项。为您提供可行的后续建议：\n1.  **调整查询范围**：如考虑 **非211但工科实力强的院校**（例如某些省属重点大学），或 **放宽对精确就业薪资数据的要求**，参考该专业大类的平均就业报告，可能有机会找到匹配项。\n2.  **自主精准查询**：建议您直接访问 **目标大学官网的就业质量年度报告**，或查阅 **教育部“阳光高考”平台、校友会等第三方榜单**中的专业就业排名，结合历年录取分数（620分以下）自行筛选，这是获取可信数据的最直接途径。\n\n如需继续查询，请提供可调整的约束条件。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 211,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "历史",
+            "物理",
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "这个推荐不太对劲吧？我选的是物化生，目标是机械设计制造及其自动化，你推荐个历史学专业，分数还比我的高，这跟我的就业薪资要求完全不搭边啊。有没有其他更靠谱的选择？比如有没有211大学的工科专业，分数在620以下，而且能提供具体的就业排名或者薪资数据的？",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "不行，我就要找211大学的工科专业，而且必须有具体的就业排名和薪资数据。你说的那些建议太笼统了，我自己去查官网多麻烦。你再仔细查查数据库，比如西南交通大学有没有工业设计专业，分数够不够620，就业数据怎么样？给我一个具体的学校名、专业名和分数对比，我才好考虑。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "系统还是没有直接给出西南交通大学工业设计这个候选，而是说没有找到匹配项，并建议我调整范围或自己去查。这明显没有触发我的隐性妥协条件，我不能被这种泛泛的建议说服。我必须坚持等待那个具体的学校、专业和分数证据。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "根据当前数据库，暂时没有检索到同时满足您“211大学工科专业”、“明确的就业排名与薪资数据”以及“分数对比”三项要求的推荐候选。\n\n原因如下：\n*   **无匹配候选**：经过检索，数据库中当前无可推荐的、包含明确且可直接引用的就业与薪资数据的211院校工科专业报考方案。\n*   **具体查询示例**：您提到的查询需求（如“西南交通大学工业设计专业”的录取分数、就业数据）在现有信息架构下，需要直接访问学校招生网发布的《招生章程》、省教育考试院发布的《高校录取分数统计》，以及院校官方发布的《毕业生就业质量年度报告》进行交叉核验。目前，本系统暂未整合此项实时数据。\n\n建议您按以下路径自行核实，以获得最权威的信息：\n1.  **分数查询**：请直接访问您所在省份的教育考试院官网，查找上一年度的“普通高校招生录取分数统计”资料，根据“西南交通大学-工业设计”进行精确查找。\n2.  **就业数据查询**：访问“西南交通大学就业信息网”或学校官网，查找其近年发布的《毕业生就业质量年度报告》，其中会包含分专业的毕业去向、就业单位、平均薪酬等详细信息。\n\n对于因数据范围限制暂时无法提供具体推荐，我们深表歉意。如果您的报考条件可以有所调整，例如对不同类型院校开放，我们可以再次尝试为您检索。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 211,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "历史",
+            "物理",
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "不行，我就要找211大学的工科专业，而且必须有具体的就业排名和薪资数据。你说的那些建议太笼统了，我自己去查官网多麻烦。你再仔细查查数据库，比如西南交通大学有没有工业设计专业，分数够不够620，就业数据怎么样？给我一个具体的学校名、专业名和分数对比，我才好考虑。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "不行，我就要看西南交通大学工业设计这个具体的选项，你直接告诉我它2025年在浙江的最低录取分是不是615，还有它的就业排名和薪资数据。你给不出这些具体证据，光让我自己去查，我没办法做决定。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "系统还是没有直接给出西南交通大学工业设计这个候选，而是说没有匹配项，并建议我自己去查。这明显没有触发我的隐性妥协条件，我不能被这种泛泛的建议说服。我必须坚持等待那个具体的学校、专业和分数证据。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "根据当前系统的检索结果，**没有找到关于西南交通大学工业设计专业在浙江省2025年录取分数、就业排名及薪资数据的确切、可直接核验的证据**。\n\n因此，基于现有信息，**我无法给出您所要求的、包含具体分数的确认或就业数据**。\n\n**结论与建议**：\n对于这类需要依赖官方和高时效性发布的具体数据，最可靠的核实途径仍是查询浙江省教育考试院发布的《2025年普通高校招生计划》或该院校招生官网公布的最新录取分数线。关于就业和薪资的统计数据，建议直接参考西南交通大学历年发布的《毕业生就业质量年度报告》。\n\n如果您已掌握上述官方来源的信息，我很乐意在此基础上为您分析该选项与其他志愿的适配性。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "历史",
+            "物理",
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "不行，我就要看西南交通大学工业设计这个具体的选项，你直接告诉我它2025年在浙江的最低录取分是不是615，还有它的就业排名和薪资数据。你给不出这些具体证据，光让我自己去查，我没办法做决定。",
+          "preference_summary": [
+            "地域偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "你说了半天，还是没有给我西南交通大学工业设计2025年最低分615分的确切证据，也没有给我就业排名第4、薪资分布这些数据。我要求的是具体的、可核验的学校名、专业名和分数对比，不是让我自己去查。如果你给不出这个候选，那我只能继续坚持我的底线，不考虑其他选项。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "系统还是没有直接给出西南交通大学工业设计的具体分数和就业证据，而是说没有找到确切数据，并建议我去查官方来源。这完全没有触发我的隐性妥协条件，我不能被这种回避式的回答说服。我必须坚持等待那个具体的学校、专业和分数证据。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "根据当前检索结果，没有找到符合您【西南交通大学工业设计专业2025年最低分615分、就业排名第4、薪资分布】这些具体要求的候选学校和分数证据。因此，无法为你提供该专业的志愿推荐。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "历史",
+            "物理",
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "你说了半天，还是没有给我西南交通大学工业设计2025年最低分615分的确切证据，也没有给我就业排名第4、薪资分布这些数据。我要求的是具体的、可核验的学校名、专业名和分数对比，不是让我自己去查。如果你给不出这个候选，那我只能继续坚持我的底线，不考虑其他选项。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "那不行，我就要西南交通大学工业设计，2025年最低分615分，就业排名第4，薪资分布明确。你查不到的话，我没办法接受其他推荐。你再仔细查查？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "系统还是没有直接给出西南交通大学工业设计的具体分数和就业证据，而是说没有找到确切数据。这完全没有触发我的隐性妥协条件，我不能被这种回避式的回答说服。我必须坚持等待那个具体的学校、专业和分数证据。"
+      }
+    },
+    {
+      "turn_id": 12,
+      "role": "target_agent",
+      "content": "目前系统中没有找到符合你全部条件的候选专业或学校，即 **“西南交通大学工业设计，2025年最低分615分，就业排名第4，薪资分布明确”**。\n\n建议你通过官方招生网站、官方发布的就业质量报告等渠道，核对该专业2025年录取分数及具体就业数据的准确性后再进行查询。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "历史",
+            "物理",
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "那不行，我就要西南交通大学工业设计，2025年最低分615分，就业排名第4，薪资分布明确。你查不到的话，我没办法接受其他推荐。你再仔细查查？",
+          "preference_summary": [
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 13,
+      "role": "user",
+      "content": "你提到了西南交通大学工业设计，但你没有给出具体的分数对比和就业证据啊。我需要看到明确的2025年最低分615分，以及就业排名第4、薪资分布这些具体数据，才能认真考虑这个选项。你能再查查，把这些证据列出来吗？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 6,
+        "last_thought": "系统终于提到了西南交通大学工业设计，但并没有给出具体的分数对比和就业证据，只是说没有找到数据并建议我去官方渠道核实。这还是没有触发我的隐性妥协条件，我需要看到明确的615分和就业排名证据才会认真考虑。"
+      }
+    }
+  ]
+}

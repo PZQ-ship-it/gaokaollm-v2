@@ -263,6 +263,14 @@ def get_dataset(dataset_name: str) -> list[IcebergProfile]:
         return get_evaluation_dataset()
     if dataset_name == "robust":
         return get_robust_evaluation_dataset()
+    if dataset_name == "synthetic_pressure":
+        from app.evaluation.synthetic_profiles import read_synthetic_pressure_profiles
+
+        return read_synthetic_pressure_profiles()
+    if dataset_name == "robust_plus_synthetic":
+        from app.evaluation.synthetic_profiles import read_synthetic_pressure_profiles
+
+        return [*get_robust_evaluation_dataset(), *read_synthetic_pressure_profiles()]
     if dataset_name == "all":
         return [*get_evaluation_dataset(), *get_robust_evaluation_dataset()]
     raise ValueError(f"Unknown dataset: {dataset_name}")
@@ -588,7 +596,15 @@ def run_cli(argv: list[str] | None = None) -> dict[str, Any]:
     parser = argparse.ArgumentParser()
     parser.add_argument("--require-real", action="store_true")
     parser.add_argument(
-        "--dataset", choices=("smoke", "robust", "all"), default="smoke"
+        "--dataset",
+        choices=(
+            "smoke",
+            "robust",
+            "all",
+            "synthetic_pressure",
+            "robust_plus_synthetic",
+        ),
+        default="smoke",
     )
     parser.add_argument("--single-profile")
     parser.add_argument("--single-mode", choices=ABLATION_MODES)

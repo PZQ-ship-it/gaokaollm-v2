@@ -118,6 +118,7 @@ def capture_all(
     output_dir: Path,
     width: int,
     height: int,
+    font_bump: float = 0.0,
 ) -> list[Path]:
     browser = _find_browser()
     base_url = f"http://{host}:{port}"
@@ -132,7 +133,7 @@ def capture_all(
     try:
         for view, filename in VIEWS.items():
             target = output_dir / filename
-            url = f"{base_url}/ui-showcase?view={view}"
+            url = f"{base_url}/ui-showcase?view={view}&font_bump={font_bump:g}"
             _capture(browser, url, target, width, height)
             rendered.append(target)
     finally:
@@ -153,6 +154,12 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--width", type=int, default=1440)
     parser.add_argument("--height", type=int, default=900)
+    parser.add_argument(
+        "--font-bump",
+        type=float,
+        default=0.0,
+        help="Numeric font-size increase to apply to the showcase page before screenshotting.",
+    )
     args = parser.parse_args()
 
     rendered = capture_all(
@@ -161,6 +168,7 @@ def main() -> None:
         output_dir=args.output_dir,
         width=args.width,
         height=args.height,
+        font_bump=args.font_bump,
     )
     for path in rendered:
         print(path)

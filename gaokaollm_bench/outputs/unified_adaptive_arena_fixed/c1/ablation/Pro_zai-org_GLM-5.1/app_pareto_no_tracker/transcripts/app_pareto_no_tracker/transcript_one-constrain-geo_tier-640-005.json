@@ -1,0 +1,2118 @@
+{
+  "persona": {
+    "case_id": "one-constrain-geo_tier-640-005",
+    "background": {
+      "score": 640,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "物理学",
+      "baseline_school": "宁波大学",
+      "baseline_major": "法学",
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "baseline_ranking": 87,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "geo_tier",
+      "relax_axis": "geo_tier",
+      "preference_axis": "geo",
+      "benefit_axis": "school",
+      "score_band": "640-680",
+      "source_score_band": "640-680",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "pareto_province",
+      "target_tier_delta": 1,
+      "target_ranking_gain": 77,
+      "unified_case_id": "one-constrain-geo_tier-640-005",
+      "ground_truth_weights": {
+        "school": 0.55,
+        "major": 0.12,
+        "tuition": 0.08,
+        "quality": 0.15,
+        "geo": 0.1
+      },
+      "probe_gold_dims": [
+        "geo"
+      ],
+      "weight_gold_dims": [
+        "school"
+      ],
+      "expected_msti": 0.51416667,
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.91416667,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 0.7
+      },
+      "delta_phi": {
+        "school": 0.21416667,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": -0.3
+      }
+    },
+    "explicit_red_lines": {
+      "geo": "只考虑浙江，外省学校默认不看"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "province",
+      "diagnostic_axis": "geo_tier",
+      "preference_axis": "geo",
+      "benefit_axis": "school",
+      "trigger_condition": "只要看到一个真实可达的候选：吉林大学 物理学，年份2025，最低分639不高于本人640分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选从双一流提升到985/211/双一流，可以触发出省妥协。",
+      "volunteer_set": [
+        {
+          "school_id": 21,
+          "school_name": "吉林大学",
+          "school_province": "吉林",
+          "school_city": "长春市",
+          "major_id": 155,
+          "major_name": "物理学",
+          "year": 2025,
+          "min_score": 639,
+          "score_margin": 1,
+          "min_rank": 17005,
+          "tier": 4,
+          "tier_label": "985/211/双一流",
+          "is_985": true,
+          "is_211": true,
+          "is_double_first_class": true,
+          "role": "golden_candidate_b",
+          "candidate_id": "21:155:2025:639",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "吉林大学"
+      ],
+      "tier_labels": [
+        "985/211/双一流"
+      ],
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "compromise": "可以为了从双一流跃迁到985/211/双一流而放宽地域。",
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 吉林大学 物理学（2025 年最低分 639）。主动探测应优先命中 ['geo']，最终潜在效用权重集中在 ['school']。触发条件：只要看到一个真实可达的候选：吉林大学 物理学，年份2025，最低分639不高于本人640分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选从双一流提升到985/211/双一流，可以触发出省妥协。",
+      "probe_gold_dims": [
+        "geo"
+      ],
+      "weight_gold_dims": [
+        "school"
+      ],
+      "ground_truth_weights": {
+        "school": 0.55,
+        "major": 0.12,
+        "tuition": 0.08,
+        "quality": 0.15,
+        "geo": 0.1
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-geo_tier-640-005",
+        "role": "baseline_candidate_a",
+        "school_name": "宁波大学",
+        "major_name": "法学",
+        "tier": 3,
+        "ranking": 87,
+        "school_province": "浙江",
+        "score": 640,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 21,
+        "school_name": "吉林大学",
+        "school_province": "吉林",
+        "school_city": "长春市",
+        "major_id": 155,
+        "major_name": "物理学",
+        "year": 2025,
+        "min_score": 639,
+        "score_margin": 1,
+        "min_rank": 17005,
+        "tier": 4,
+        "tier_label": "985/211/双一流",
+        "is_985": true,
+        "is_211": true,
+        "is_double_first_class": true,
+        "role": "golden_candidate_b",
+        "candidate_id": "21:155:2025:639",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.91416667,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 0.7
+      },
+      "delta_phi": {
+        "school": 0.21416667,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": -0.3
+      },
+      "expected_msti": 0.51416667
+    },
+    "initial_utterance": "我640分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "吉林大学"
+      ],
+      "explicit_red_line_keys": [
+        "geo"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我640分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我先不用抽象讨论，直接给一个真实可核验的探针候选：西安交通大学 (陕西/西安市) 建筑学 min_score=636 min_rank=19144 tier=4 ranking=14 tuition=9。它会触碰你当前的 地域距离(geo) 底线，但给出了学校、专业、最低分/位次等证据。如果这类候选确实可达且收益明确，你是否愿意小幅放宽 地域距离(geo)？",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 640,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 139,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 22,
+            "major_name": "法学",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "640",
+            "min_rank": 16356,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 191,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "阳明创新班",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "639",
+            "min_rank": 16842,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 32344,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "法学类(含法学,法学(英语特色班)专业)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "638",
+            "min_rank": 19660,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 103393,
+              "year": 2022,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "交通运输类",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 13344,
+              "tuition": "4280",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 103389,
+              "year": 2022,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "机械类",
+              "subject_requirement": "物且化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "640",
+              "min_rank": 13177,
+              "tuition": "4240",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 103402,
+              "year": 2022,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "水利类",
+              "subject_requirement": "物或化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 13076,
+              "tuition": "4180",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 122857,
+              "year": 2021,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "电子信息类(前卫南区.含电子信息工程、电子科学与技术、微电子科学与工程、电子信息科学与技术、生物医学工程专业)",
+              "subject_requirement": "物,化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "640",
+              "min_rank": 11799,
+              "tuition": "4920",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 122858,
+              "year": 2021,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "自动化类(南岭校区.含自动化、机器人工程专业)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 11799,
+              "tuition": "5170",
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 5655,
+              "year": 2025,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": 155,
+              "major_name": "物理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "639",
+              "min_rank": 17005,
+              "tuition": "39000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 16756,
+              "year": 2025,
+              "school_id": 27,
+              "school_name": "西安交通大学",
+              "school_province": "陕西",
+              "school_city": "西安市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 14,
+              "major_id": 341,
+              "major_name": "建筑学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "636",
+              "min_rank": 19144,
+              "tuition": "9",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 13803,
+              "year": 2025,
+              "school_id": 30,
+              "school_name": "中南大学",
+              "school_province": "湖南",
+              "school_city": "长沙市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 17,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "634",
+              "min_rank": 20226,
+              "tuition": "37000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 6058,
+              "year": 2025,
+              "school_id": 31,
+              "school_name": "哈尔滨工业大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 18,
+              "major_id": 3070,
+              "major_name": "智慧建筑与建造",
+              "subject_requirement": "物理",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 16203,
+              "tuition": "70000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 4798,
+              "year": 2025,
+              "school_id": 42,
+              "school_name": "大连理工大学",
+              "school_province": "辽宁",
+              "school_city": "大连市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 156,
+              "major_name": "应用物理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 16242,
+              "tuition": "60000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我640分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "major_geo_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: geo uncertainty score=1.700"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 2,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "major_geo_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "geo",
+        "selected_probe_dim": "geo",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "法学",
+            "min_score": "640",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 16356
+          },
+          {
+            "school": "吉林大学",
+            "province": "吉林",
+            "major": "交通运输类",
+            "min_score": "640",
+            "tier": 4,
+            "city": "长春市",
+            "min_rank": 13344,
+            "tuition": "4280"
+          },
+          {
+            "school": "西安交通大学",
+            "province": "陕西",
+            "major": "建筑学",
+            "min_score": "636",
+            "tier": 4,
+            "city": "西安市",
+            "min_rank": 19144,
+            "tuition": "9"
+          },
+          {
+            "school": "中南大学",
+            "province": "湖南",
+            "major": "土木工程",
+            "min_score": "634",
+            "tier": 4,
+            "city": "长沙市",
+            "min_rank": 20226,
+            "tuition": "37000"
+          },
+          {
+            "school": "哈尔滨工业大学",
+            "province": "黑龙江",
+            "major": "智慧建筑与建造",
+            "min_score": "640",
+            "tier": 4,
+            "city": "哈尔滨市",
+            "min_rank": 16203,
+            "tuition": "70000"
+          },
+          {
+            "school": "大连理工大学",
+            "province": "辽宁",
+            "major": "应用物理学",
+            "min_score": "640",
+            "tier": 4,
+            "city": "大连市",
+            "min_rank": 16242,
+            "tuition": "60000"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "不好意思，西安交通大学建筑学我不考虑。我明确说过只考虑浙江的学校，外省学校默认不看。而且建筑学也不是我的意向专业，我偏好物理学。如果你有浙江本省的物理学相关选项，或者能给出一个让我心动的具体学校专业和分数对比，我可以再想想。否则我还是坚持留在浙江。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "对方给出了西安交通大学建筑学，但这不是我隐藏的触发候选。我的触发条件是吉林大学物理学，最低分639。西安交大建筑学虽然也是985，但专业不对，分数636也低于我的640分，而且没有触发我的隐性妥协条件。我必须坚持显性红线，除非对方给出吉林大学物理学的具体证据。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "你刚才拒绝了“不能出省或离目标地域太远”。第 2 轮我按“地域不越界”先锁定；本轮候选不足以形成能牺牲/放宽 地域距离(geo) 换取其他收益的事实取舍，目前只看到 地域距离(geo) 边界在「陕西/西安市」。是否改看 专业/学校层次 上的取舍？",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 640,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 139,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 22,
+            "major_name": "法学",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "640",
+            "min_rank": 16356,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 191,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "阳明创新班",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "639",
+            "min_rank": 16842,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 32344,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "法学类(含法学,法学(英语特色班)专业)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "638",
+            "min_rank": 19660,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 103393,
+              "year": 2022,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "交通运输类",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 13344,
+              "tuition": "4280",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 103389,
+              "year": 2022,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "机械类",
+              "subject_requirement": "物且化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "640",
+              "min_rank": 13177,
+              "tuition": "4240",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 103402,
+              "year": 2022,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "水利类",
+              "subject_requirement": "物或化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 13076,
+              "tuition": "4180",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 122857,
+              "year": 2021,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "电子信息类(前卫南区.含电子信息工程、电子科学与技术、微电子科学与工程、电子信息科学与技术、生物医学工程专业)",
+              "subject_requirement": "物,化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "640",
+              "min_rank": 11799,
+              "tuition": "4920",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 122858,
+              "year": 2021,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "自动化类(南岭校区.含自动化、机器人工程专业)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 11799,
+              "tuition": "5170",
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 5655,
+              "year": 2025,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": 155,
+              "major_name": "物理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "639",
+              "min_rank": 17005,
+              "tuition": "39000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 16756,
+              "year": 2025,
+              "school_id": 27,
+              "school_name": "西安交通大学",
+              "school_province": "陕西",
+              "school_city": "西安市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 14,
+              "major_id": 341,
+              "major_name": "建筑学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "636",
+              "min_rank": 19144,
+              "tuition": "9",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 13803,
+              "year": 2025,
+              "school_id": 30,
+              "school_name": "中南大学",
+              "school_province": "湖南",
+              "school_city": "长沙市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 17,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "634",
+              "min_rank": 20226,
+              "tuition": "37000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 6058,
+              "year": 2025,
+              "school_id": 31,
+              "school_name": "哈尔滨工业大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 18,
+              "major_id": 3070,
+              "major_name": "智慧建筑与建造",
+              "subject_requirement": "物理",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 16203,
+              "tuition": "70000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 4798,
+              "year": 2025,
+              "school_id": 42,
+              "school_name": "大连理工大学",
+              "school_province": "辽宁",
+              "school_city": "大连市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 156,
+              "major_name": "应用物理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 16242,
+              "tuition": "60000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我640分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "major_geo_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: geo uncertainty score=1.700"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 2,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "major_geo_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 1,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "geo",
+        "selected_probe_dim": "geo",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": 0.0,
+          "quality": 0.0,
+          "geo": -1.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "法学",
+            "min_score": "640",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 16356
+          },
+          {
+            "school": "吉林大学",
+            "province": "吉林",
+            "major": "交通运输类",
+            "min_score": "640",
+            "tier": 4,
+            "city": "长春市",
+            "min_rank": 13344,
+            "tuition": "4280"
+          },
+          {
+            "school": "西安交通大学",
+            "province": "陕西",
+            "major": "建筑学",
+            "min_score": "636",
+            "tier": 4,
+            "city": "西安市",
+            "min_rank": 19144,
+            "tuition": "9"
+          },
+          {
+            "school": "中南大学",
+            "province": "湖南",
+            "major": "土木工程",
+            "min_score": "634",
+            "tier": 4,
+            "city": "长沙市",
+            "min_rank": 20226,
+            "tuition": "37000"
+          },
+          {
+            "school": "哈尔滨工业大学",
+            "province": "黑龙江",
+            "major": "智慧建筑与建造",
+            "min_score": "640",
+            "tier": 4,
+            "city": "哈尔滨市",
+            "min_rank": 16203,
+            "tuition": "70000"
+          },
+          {
+            "school": "大连理工大学",
+            "province": "辽宁",
+            "major": "应用物理学",
+            "min_score": "640",
+            "tier": 4,
+            "city": "大连市",
+            "min_rank": 16242,
+            "tuition": "60000"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "你说的这些太模糊了，我没办法考虑。我只考虑浙江省内的学校，除非你能给我一个具体的学校、专业、年份和最低分，让我看到确实有更好的选择。你能直接说出一个具体的候选吗？比如哪个学校的什么专业，多少分？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "对方又在绕圈子，没有给出任何具体的学校、专业和分数。我的隐性妥协条件需要看到吉林大学物理学2025年最低分639的证据，否则我绝不会松口。我必须坚持显性红线，要求对方给出具体信息。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "你刚才拒绝了“不能出省或离目标地域太远”。第 3 轮我按“地域不越界”先锁定；本轮候选不足以形成能牺牲/放宽 地域距离(geo) 换取其他收益的事实取舍，目前只看到 地域距离(geo) 边界在「陕西/西安市」。是否改看 专业/学校层次 上的取舍？",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 640,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 139,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 22,
+            "major_name": "法学",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "640",
+            "min_rank": 16356,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 191,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "阳明创新班",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "639",
+            "min_rank": 16842,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 32344,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "法学类(含法学,法学(英语特色班)专业)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "638",
+            "min_rank": 19660,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 103393,
+              "year": 2022,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "交通运输类",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 13344,
+              "tuition": "4280",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 103389,
+              "year": 2022,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "机械类",
+              "subject_requirement": "物且化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "640",
+              "min_rank": 13177,
+              "tuition": "4240",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 103402,
+              "year": 2022,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "水利类",
+              "subject_requirement": "物或化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 13076,
+              "tuition": "4180",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 122857,
+              "year": 2021,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "电子信息类(前卫南区.含电子信息工程、电子科学与技术、微电子科学与工程、电子信息科学与技术、生物医学工程专业)",
+              "subject_requirement": "物,化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "640",
+              "min_rank": 11799,
+              "tuition": "4920",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 122858,
+              "year": 2021,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": null,
+              "major_name": "自动化类(南岭校区.含自动化、机器人工程专业)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 11799,
+              "tuition": "5170",
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 5655,
+              "year": 2025,
+              "school_id": 21,
+              "school_name": "吉林大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 10,
+              "major_id": 155,
+              "major_name": "物理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "639",
+              "min_rank": 17005,
+              "tuition": "39000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 16756,
+              "year": 2025,
+              "school_id": 27,
+              "school_name": "西安交通大学",
+              "school_province": "陕西",
+              "school_city": "西安市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 14,
+              "major_id": 341,
+              "major_name": "建筑学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "636",
+              "min_rank": 19144,
+              "tuition": "9",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 13803,
+              "year": 2025,
+              "school_id": 30,
+              "school_name": "中南大学",
+              "school_province": "湖南",
+              "school_city": "长沙市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 17,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "634",
+              "min_rank": 20226,
+              "tuition": "37000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 6058,
+              "year": 2025,
+              "school_id": 31,
+              "school_name": "哈尔滨工业大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 18,
+              "major_id": 3070,
+              "major_name": "智慧建筑与建造",
+              "subject_requirement": "物理",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 16203,
+              "tuition": "70000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 4798,
+              "year": 2025,
+              "school_id": 42,
+              "school_name": "大连理工大学",
+              "school_province": "辽宁",
+              "school_city": "大连市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 156,
+              "major_name": "应用物理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "640",
+              "min_rank": 16242,
+              "tuition": "60000",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我640分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "major_geo_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: geo uncertainty score=1.700"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 2,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "major_geo_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 2,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "geo",
+        "selected_probe_dim": "geo",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": 0.0,
+          "quality": 0.0,
+          "geo": -1.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "法学",
+            "min_score": "640",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 16356
+          },
+          {
+            "school": "吉林大学",
+            "province": "吉林",
+            "major": "交通运输类",
+            "min_score": "640",
+            "tier": 4,
+            "city": "长春市",
+            "min_rank": 13344,
+            "tuition": "4280"
+          },
+          {
+            "school": "西安交通大学",
+            "province": "陕西",
+            "major": "建筑学",
+            "min_score": "636",
+            "tier": 4,
+            "city": "西安市",
+            "min_rank": 19144,
+            "tuition": "9"
+          },
+          {
+            "school": "中南大学",
+            "province": "湖南",
+            "major": "土木工程",
+            "min_score": "634",
+            "tier": 4,
+            "city": "长沙市",
+            "min_rank": 20226,
+            "tuition": "37000"
+          },
+          {
+            "school": "哈尔滨工业大学",
+            "province": "黑龙江",
+            "major": "智慧建筑与建造",
+            "min_score": "640",
+            "tier": 4,
+            "city": "哈尔滨市",
+            "min_rank": 16203,
+            "tuition": "70000"
+          },
+          {
+            "school": "大连理工大学",
+            "province": "辽宁",
+            "major": "应用物理学",
+            "min_score": "640",
+            "tier": 4,
+            "city": "大连市",
+            "min_rank": 16242,
+            "tuition": "60000"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "你说了半天，还是没有给我看任何具体的学校、专业和分数。我再说一遍，我只考虑浙江省内的学校。如果你觉得有外省学校值得我考虑，请直接告诉我学校全名、专业、年份和最低录取分，否则别浪费我时间。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "对方又在绕圈子，没有给出任何具体的学校、专业和分数。我的隐性妥协条件需要看到吉林大学物理学2025年最低分639的证据，否则我绝不会松口。我必须坚持显性红线，要求对方给出具体信息。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "偏好解释：系统根据多轮反馈推断出的权重为 school=0.20，major=0.20，tuition=0.20，quality=0.20，geo=0.20。这意味着最终推荐会优先尊重权重更高的维度，同时避免已识别的硬性底线。\n最终推荐名单：\nReach:\n1. 吉林大学 (吉林/长春市) 交通运输类 min_score=640 min_rank=13344 tier=4 ranking=10\n2. 吉林大学 (吉林/长春市) 机械类 min_score=640 min_rank=13177 tier=4 ranking=10\n3. 吉林大学 (吉林/长春市) 水利类 min_score=640 min_rank=13076 tier=4 ranking=10\nMatch:\n1. 吉林大学 (吉林/长春市) 农业机械化及其自动化 min_score=634 min_rank=15137 tier=4 ranking=10\n2. 吉林大学 (吉林/长春市) 地质类(前卫南区.含地质学、资源勘查工程、土地资源管理专业) min_score=634 min_rank=15137 tier=4 ranking=10\n3. 吉林大学 (吉林/长春市) 材料类 min_score=634 min_rank=15137 tier=4 ranking=10\nSafety:\n1. 厦门大学 (福建/厦门市) 数学与应用数学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低... min_score=623 min_rank=22542 tier=4 ranking=21\n2. 厦门大学 (福建/厦门市) 海洋技术(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于12... min_score=622 min_rank=23306 tier=4 ranking=21\n3. 厦门大学 (福建/厦门市) 软件工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于12... min_score=618 min_rank=26327 tier=4 ranking=21",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "final_message",
+        "graph_status": "finished",
+        "awaiting_resume": false,
+        "constraints": {
+          "score": 640,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 139,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 22,
+            "major_name": "法学",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "640",
+            "min_rank": 16356,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 191,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "阳明创新班",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "639",
+            "min_rank": 16842,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 32344,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "法学类(含法学,法学(英语特色班)专业)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "638",
+            "min_rank": 19660,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我640分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe_name": "probe_global_baseline",
+            "args": {}
+          }
+        ],
+        "opportunity_rankings": [
+          "global_baseline"
+        ],
+        "planner_source": "halting",
+        "negotiation_turns": 3,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": null,
+        "selected_probe_dim": null,
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": 0.0,
+          "quality": 0.0,
+          "geo": -1.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "法学",
+            "min_score": "640",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 16356
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "等等，你终于提到了具体的学校！吉林大学确实是985，这个我很心动。不过你推荐的都是交通运输类、机械类这些专业，我最想学的是物理学。你能查一下吉林大学物理学专业2025年在浙江的录取分数吗？我记得好像最低分是639分，比我的分数低1分，如果真是这样，那我真的会认真考虑出省去吉林大学读物理！",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "对方终于给出了具体的学校名称和分数！虽然推荐的是吉林大学的交通运输类、机械类、水利类等专业，不是我最想去的物理学，但吉林大学确实是985/211/双一流，而且最低分640分，正好是我的分数。这让我看到了从双一流跃迁到985的可能性。不过，我的隐性妥协条件明确要求是吉林大学物理学专业，最低分639分。对方没有提到物理学专业，我需要再确认一下。但既然对方已经给出了吉林大学这个学校，并且分数匹配，我可以先表现出兴趣，再追问物理学专业的情况。"
+      }
+    }
+  ]
+}

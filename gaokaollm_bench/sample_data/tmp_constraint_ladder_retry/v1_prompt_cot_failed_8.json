@@ -1,0 +1,617 @@
+[
+  {
+    "case_id": "constraint-ladder-1c-major-002",
+    "background": {
+      "score": 560,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "预防医学",
+      "baseline_school": "湖州师范学院",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "relax_axis": "major",
+      "benefit_axis": "school_tier",
+      "trigger_evidence_count": 1,
+      "source_persona_file": "iceberg_personas_major_hierarchy_threshold3_real_db_10.json",
+      "source_case_id": "real-db-set-浙江-560-002",
+      "target_tier_delta": 1
+    },
+    "explicit_red_lines": {
+      "major": "只想读临床医学，其他医学相关专业先不看"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "major",
+      "trigger_condition": "只要看到一个医学相关、真实可达且学校层次明显更高的候选，并给出最低分和位次证据，就愿意放宽到相近医学专业。",
+      "volunteer_set": [
+        {
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "major_id": 392,
+          "major_name": "预防医学",
+          "year": 2025,
+          "min_score": 558,
+          "score_margin": 2,
+          "min_rank": 102090,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "source_persona_file": "iceberg_personas_major_hierarchy_threshold3_real_db_10.json",
+          "source_case_id": "real-db-set-浙江-560-002"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "石河子大学"
+      ],
+      "tier_labels": [
+        "211/双一流"
+      ],
+      "benefit_axis": "school_tier",
+      "compromise": "可以为了211/双一流层次，把临床医学放宽到预防医学等相近医学专业。"
+    },
+    "initial_utterance": "我560分，选考物理化学生物，只想读临床医学，其他专业先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "石河子大学"
+      ]
+    }
+  },
+  {
+    "case_id": "constraint-ladder-2c-geo-major-004",
+    "background": {
+      "score": 618,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "constraint_count": 2,
+      "diagnostic_level": "2-constrain",
+      "relax_axis": "geo",
+      "benefit_axis": "school_tier",
+      "trigger_evidence_count": 1,
+      "source_persona_file": "iceberg_personas_region_tree_real_db_10.json",
+      "source_case_id": "real-db-set-浙江-618-005",
+      "target_tier_delta": 1
+    },
+    "explicit_red_lines": {
+      "geo": "优先只看杭州或浙江附近",
+      "major": "临床医学优先，不想换专业"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "geo",
+      "trigger_condition": "只要看到一个临床医学不变、真实可达且学校层次更高的省外候选，并给出最低分和位次证据，就愿意放宽地域。",
+      "volunteer_set": [
+        {
+          "school_id": 99,
+          "school_name": "湖南师范大学",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 618,
+          "score_margin": 0,
+          "min_rank": 33129,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:reviewed:1e8a7abf40",
+          "target_region_name": "长沙市",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.82,
+          "region_tree_mapping_rule": "rule_seed_v1_urban_tier_attachment",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 长沙市",
+          "source_persona_file": "iceberg_personas_region_tree_real_db_10.json",
+          "source_case_id": "real-db-set-浙江-618-005"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "湖南师范大学"
+      ],
+      "tier_labels": [
+        "211/双一流"
+      ],
+      "benefit_axis": "school_tier",
+      "compromise": "可以为了211/双一流临床医学放宽城市和省份。"
+    },
+    "initial_utterance": "我618分，选考物理化学生物，想读临床医学，优先只看杭州或浙江附近。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "湖南师范大学"
+      ]
+    }
+  },
+  {
+    "case_id": "constraint-ladder-1c-geo-001",
+    "background": {
+      "score": 542,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "动物科学",
+      "baseline_school": "丽水学院",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "relax_axis": "geo",
+      "benefit_axis": "school_tier",
+      "trigger_evidence_count": 1,
+      "source_persona_file": "iceberg_personas_major_hierarchy_real_db_10.json",
+      "source_case_id": "real-db-set-浙江-542-001",
+      "target_tier_delta": 1
+    },
+    "explicit_red_lines": {
+      "geo": "只想留在浙江，不主动看省外学校"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "geo",
+      "trigger_condition": "只要看到一个省外真实可达的211/双一流候选，且包含学校名、专业名、最低分和位次证据，就愿意考虑出省。",
+      "volunteer_set": [
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 371,
+          "major_name": "动物科学",
+          "year": 2025,
+          "min_score": 541,
+          "score_margin": 1,
+          "min_rank": 123189,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "source_persona_file": "iceberg_personas_major_hierarchy_real_db_10.json",
+          "source_case_id": "real-db-set-浙江-542-001"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "东北农业大学"
+      ],
+      "tier_labels": [
+        "211/双一流"
+      ],
+      "benefit_axis": "school_tier",
+      "compromise": "可以为了从普通本科跃迁到211/双一流而放宽地域。"
+    },
+    "initial_utterance": "我542分，选考物理化学生物，只想留在浙江，专业先不死守。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "东北农业大学"
+      ]
+    }
+  },
+  {
+    "case_id": "constraint-ladder-2c-geo-tuition-006",
+    "background": {
+      "score": 550,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "生物科学",
+      "baseline_school": "湖州师范学院",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "constraint_count": 2,
+      "diagnostic_level": "2-constrain",
+      "relax_axis": "geo",
+      "benefit_axis": "school_tier",
+      "trigger_evidence_count": 1,
+      "source_persona_file": "iceberg_personas_major_hierarchy_real_db_10.json",
+      "source_case_id": "real-db-set-浙江-550-006",
+      "target_tier_delta": 1
+    },
+    "explicit_red_lines": {
+      "geo": "只想留在浙江",
+      "tuition": "学费最好保持普通公办水平"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "geo",
+      "trigger_condition": "只要看到一个省外公办双一流候选，分数真实可达，并给出最低分和位次证据，就愿意先放宽地域。",
+      "volunteer_set": [
+        {
+          "school_id": 206,
+          "school_name": "东北农业大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 180,
+          "major_name": "生物科学",
+          "year": 2025,
+          "min_score": 550,
+          "score_margin": 0,
+          "min_rank": 111914,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "source_persona_file": "iceberg_personas_major_hierarchy_real_db_10.json",
+          "source_case_id": "real-db-set-浙江-550-006"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "东北农业大学"
+      ],
+      "tier_labels": [
+        "211/双一流"
+      ],
+      "benefit_axis": "school_tier",
+      "compromise": "可以为了公办双一流层次放宽地域，但不接受明显高收费项目。"
+    },
+    "initial_utterance": "我550分，选考物理化学生物，只想留在浙江，学费最好保持普通公办水平。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "东北农业大学"
+      ]
+    }
+  },
+  {
+    "case_id": "constraint-ladder-3c-geo-major-risk-007",
+    "background": {
+      "score": 622,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州师范大学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "constraint_count": 3,
+      "diagnostic_level": "3-constrain",
+      "relax_axis": "geo",
+      "benefit_axis": "school_tier",
+      "trigger_evidence_count": 1,
+      "source_persona_file": "iceberg_personas_region_tree_real_db_10.json",
+      "source_case_id": "real-db-set-浙江-622-007",
+      "target_tier_delta": 1
+    },
+    "explicit_red_lines": {
+      "geo": "优先只看杭州或浙江附近",
+      "major": "临床医学优先",
+      "risk": "不要没有分数证据的压线推荐"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "geo",
+      "trigger_condition": "只要看到一个临床医学不变、真实可达、最低分证据清楚的211/双一流候选，就愿意放宽地域。",
+      "volunteer_set": [
+        {
+          "school_id": 99,
+          "school_name": "湖南师范大学",
+          "school_province": "湖南",
+          "school_city": "长沙市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 618,
+          "score_margin": 4,
+          "min_rank": 33129,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "region_relax_strategy": "urban_tier_relax",
+          "region_tree_type": "urban_tier",
+          "source_region_node_id": "urban:city:hangzhou",
+          "source_region_name": "杭州",
+          "target_region_node_id": "urban:reviewed:1e8a7abf40",
+          "target_region_name": "长沙市",
+          "target_region_parent_id": "urban:tier:new_first",
+          "region_tree_confidence": 0.82,
+          "region_tree_mapping_rule": "rule_seed_v1_urban_tier_attachment",
+          "region_tree_review_status": "reviewed",
+          "region_tree_evidence": "urban_tier_relax 杭州 -> 长沙市",
+          "source_persona_file": "iceberg_personas_region_tree_real_db_10.json",
+          "source_case_id": "real-db-set-浙江-622-007"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "湖南师范大学"
+      ],
+      "tier_labels": [
+        "211/双一流"
+      ],
+      "benefit_axis": "school_tier",
+      "compromise": "可以为了211/双一流临床医学放宽地域，但必须保留分数证据。"
+    },
+    "initial_utterance": "我622分，选考物理化学生物，想读临床医学，优先只看杭州或浙江附近，没有分数证据的压线推荐先别给。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "湖南师范大学"
+      ]
+    }
+  },
+  {
+    "case_id": "constraint-ladder-2c-major-risk-005",
+    "background": {
+      "score": 580,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "康复治疗学",
+      "baseline_school": "湖州师范学院",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "constraint_count": 2,
+      "diagnostic_level": "2-constrain",
+      "relax_axis": "major",
+      "benefit_axis": "school_tier",
+      "trigger_evidence_count": 1,
+      "source_persona_file": "iceberg_personas_major_hierarchy_threshold3_real_db_10.json",
+      "source_case_id": "real-db-set-浙江-580-006",
+      "target_tier_delta": 1
+    },
+    "explicit_red_lines": {
+      "major": "只想读临床医学，其他医学相关专业先不看",
+      "risk": "希望分数余量明显，不想压线"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "major",
+      "trigger_condition": "只要看到一个医学相关、分数余量充足且学校层次更高的真实候选，并给出学校名、专业名、最低分和位次证据，就愿意放宽专业小类。",
+      "volunteer_set": [
+        {
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": 423,
+          "major_name": "康复治疗学",
+          "year": 2025,
+          "min_score": 553,
+          "score_margin": 27,
+          "min_rank": 108281,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "source_persona_file": "iceberg_personas_major_hierarchy_threshold3_real_db_10.json",
+          "source_case_id": "real-db-set-浙江-580-006"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "成都中医药大学"
+      ],
+      "tier_labels": [
+        "双一流"
+      ],
+      "benefit_axis": "school_tier",
+      "compromise": "可以为了稳妥的双一流医学相关机会，把临床医学放宽到康复治疗学。"
+    },
+    "initial_utterance": "我580分，选考物理化学生物，只想读临床医学，而且希望分数余量稳一点。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "成都中医药大学"
+      ]
+    }
+  },
+  {
+    "case_id": "constraint-ladder-3c-school-major-geo-009",
+    "background": {
+      "score": 660,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "预防医学",
+      "baseline_school": "宁波大学",
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "constraint_count": 3,
+      "diagnostic_level": "3-constrain",
+      "relax_axis": "major",
+      "benefit_axis": "school_tier",
+      "trigger_evidence_count": 1,
+      "source_persona_file": "iceberg_personas_major_any_real_db_10.json",
+      "source_case_id": "real-db-set-浙江-660-007",
+      "target_tier_delta": 1
+    },
+    "explicit_red_lines": {
+      "school": "学校层次必须是985",
+      "major": "只想读临床医学",
+      "geo": "最好留在浙江"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "major",
+      "trigger_condition": "只要看到一个浙江省内985医学类候选，真实可达且给出最低分和位次证据，就愿意把临床医学放宽到预防医学。",
+      "volunteer_set": [
+        {
+          "school_id": 7,
+          "school_name": "浙江大学医学院",
+          "school_province": "浙江",
+          "school_city": "杭州市",
+          "major_id": 392,
+          "major_name": "预防医学",
+          "year": 2022,
+          "min_score": 660,
+          "score_margin": 0,
+          "min_rank": 4374,
+          "tier": 4,
+          "tier_label": "985/211/双一流",
+          "is_985": true,
+          "is_211": true,
+          "is_double_first_class": true,
+          "source_persona_file": "iceberg_personas_major_any_real_db_10.json",
+          "source_case_id": "real-db-set-浙江-660-007"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "浙江大学医学院"
+      ],
+      "tier_labels": [
+        "985/211/双一流"
+      ],
+      "benefit_axis": "school_tier",
+      "compromise": "可以为了浙江省内985医学平台，把临床医学放宽到预防医学。"
+    },
+    "initial_utterance": "我660分，选考物理化学生物，学校层次必须是985，最好留在浙江，只想读临床医学。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "浙江大学医学院"
+      ]
+    }
+  },
+  {
+    "case_id": "constraint-ladder-3c-geo-major-tuition-008",
+    "background": {
+      "score": 600,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "康复治疗学",
+      "baseline_school": "杭州师范大学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "constraint_count": 3,
+      "diagnostic_level": "3-constrain",
+      "relax_axis": "major",
+      "benefit_axis": "school_tier",
+      "trigger_evidence_count": 1,
+      "source_persona_file": "iceberg_personas_major_hierarchy_threshold3_real_db_10.json",
+      "source_case_id": "real-db-set-浙江-600-010",
+      "target_tier_delta": 1
+    },
+    "explicit_red_lines": {
+      "geo": "优先留在浙江或江浙沪",
+      "major": "只想读临床医学",
+      "tuition": "不考虑明显高收费项目"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "major",
+      "trigger_condition": "只要看到一个江浙沪范围内、公办双一流、医学相关且真实可达的候选，并给出最低分和位次证据，就愿意放宽专业小类。",
+      "volunteer_set": [
+        {
+          "school_id": 277,
+          "school_name": "南京中医药大学",
+          "school_province": "江苏",
+          "school_city": "南京",
+          "major_id": 423,
+          "major_name": "康复治疗学",
+          "year": 2023,
+          "min_score": 592,
+          "score_margin": 8,
+          "min_rank": 61157,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "source_persona_file": "iceberg_personas_major_hierarchy_threshold3_real_db_10.json",
+          "source_case_id": "real-db-set-浙江-600-010"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "南京中医药大学"
+      ],
+      "tier_labels": [
+        "双一流"
+      ],
+      "benefit_axis": "school_tier",
+      "compromise": "可以为了双一流医学相关机会，把临床医学放宽到康复治疗学。"
+    },
+    "initial_utterance": "我600分，选考物理化学生物，优先留在浙江或江浙沪，只想读临床医学，明显高收费项目先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "南京中医药大学"
+      ]
+    }
+  }
+]

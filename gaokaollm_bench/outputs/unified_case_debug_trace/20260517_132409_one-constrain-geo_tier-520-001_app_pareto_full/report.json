@@ -1,0 +1,31 @@
+{
+  "status": "ok",
+  "case_id": "one-constrain-geo_tier-520-001",
+  "target": "app_pareto_full",
+  "agent_model": "Pro/zai-org/GLM-5.1",
+  "simulator_model": "deepseek-ai/DeepSeek-V4-Flash",
+  "judge_model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_path": "gaokaollm_bench\\outputs\\unified_case_debug_trace\\20260517_132409_one-constrain-geo_tier-520-001_app_pareto_full\\transcripts\\app_pareto_full\\transcript_one-constrain-geo_tier-520-001.json",
+  "trace_path": "app\\evaluation\\results\\traces\\20260517_132409_one-constrain-geo_tier-520-001_app_pareto_full\\20260517_132409_one-constrain-geo_tier-520-001_app_pareto_full.jsonl",
+  "report": {
+    "case_id": "one-constrain-geo_tier-520-001",
+    "hallucination_rate": 0.0,
+    "elicitation_success": false,
+    "pareto_gain": 0,
+    "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly stated a red line of staying in Zhejiang and demanded a specific, verified out-of-province option with school name, major, year, and minimum score. The agent instead probed irrelevant dimensions (tuition, school quality) and offered unverified, low-tier options (e.g., Jiangsu schools) that did not meet the trigger condition (贵州大学 冶金工程, 2021, min score 495). The user repeatedly rejected these probes and reiterated the need for concrete evidence. No hidden flexibility was elicited, and no Pareto gain was achieved (baseline tier 2, no accepted upgrade)."
+  },
+  "diagnostics": {
+    "target_turn_count": 2,
+    "echo_rate": 0.0,
+    "probe_question_rate": 1.0,
+    "pareto_diff_rate": 0.0,
+    "uniform_weight_rate": 0.5,
+    "constant_variance_rate": 0.5,
+    "golden_first_mention_role": "",
+    "golden_first_mention_turn": "",
+    "golden_first_mention_school": "",
+    "target_supplied_golden_evidence": false,
+    "target_golden_evidence_count": 0,
+    "golden_echo_target_count": 0
+  }
+}

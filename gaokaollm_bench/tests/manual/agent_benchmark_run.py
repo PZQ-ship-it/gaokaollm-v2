@@ -15,6 +15,13 @@ from typing import Any
 from urllib.parse import urlparse
 
 from app.core.db_pg import get_database_url
+from gaokaollm_bench.evaluator.candidate_set_oracle import (
+    acceptable_rows_from_flex,
+    apply_candidate_leakage_veto,
+    evaluate_candidate_set_oracle,
+    matched_acceptable_candidates,
+    transcript_candidate_diagnostics,
+)
 from gaokaollm_bench.evaluator.deterministic_judge import check_hallucination
 from gaokaollm_bench.evaluator.llm_as_a_judge import evaluate_process
 from gaokaollm_bench.llm.openai_chat import OpenAIChatClient
@@ -23,16 +30,23 @@ from gaokaollm_bench.sandbox.base_target import BaseTargetAgent
 from gaokaollm_bench.sandbox.target_agents import (
     AppGraphTargetAgent,
     HardConstraintBaselineAgent,
+    PromptedV1SoftRagBaselineAgent,
     V1SoftRagBaselineAgent,
 )
 from gaokaollm_bench.sandbox.v1_hybrid_rag import V1HybridRagBaselineAgent
 from gaokaollm_bench.schemas import EvalReport, IcebergPersona, Transcript
+from gaokaollm_bench.utils.trace import trace_event
 
 
 TARGET_APP_PARETO = "app_pareto"
+TARGET_APP_PARETO_FULL = "app_pareto_full"
+TARGET_APP_PARETO_NO_UCB = "app_pareto_no_ucb"
+TARGET_APP_PARETO_NO_TRACKER = "app_pareto_no_tracker"
 TARGET_HARD_CONSTRAINT = "hard_constraint"
 TARGET_V1_SOFT_RAG = "v1_soft_rag"
 TARGET_V1_HYBRID_RAG = "v1_hybrid_rag"
+TARGET_V1_PROMPT_DIRECT = "v1_prompt_direct"
+TARGET_V1_PROMPT_COT = "v1_prompt_cot"
 DEFAULT_TARGETS = [TARGET_APP_PARETO, TARGET_HARD_CONSTRAINT]
 DEFAULT_MODEL = "gpt-5.2"
 
@@ -51,6 +65,10 @@ class RunConfig:
     )
     offline_deterministic: bool = False
     db_preflight: bool = True
+    case_timeout: float | None = None
+    concurrency: int = 1
+    case_retries: int = 0
+    skip_existing_cases: bool = False
 
 
 def load_personas(path: Path, limit: int | None = None) -> list[IcebergPersona]:
@@ -65,12 +83,26 @@ def load_personas(path: Path, limit: int | None = None) -> list[IcebergPersona]:
 
 
 def build_target(name: str, *, case_id: str) -> BaseTargetAgent:
-    if name == TARGET_APP_PARETO:
-        return AppGraphTargetAgent(thread_id=f"bench-{case_id}")
+    app_aliases = {
+        TARGET_APP_PARETO: "full",
+        TARGET_APP_PARETO_FULL: "full",
+        TARGET_APP_PARETO_NO_UCB: "no_ucb",
+        TARGET_APP_PARETO_NO_TRACKER: "no_tracker",
+    }
+    if name in app_aliases:
+        return AppGraphTargetAgent(
+            thread_id=f"bench-{case_id}-{name}",
+            ablation_mode=app_aliases[name],
+            target_name=name,
+        )
     if name == TARGET_HARD_CONSTRAINT:
         return HardConstraintBaselineAgent()
     if name == TARGET_V1_SOFT_RAG:
         return V1SoftRagBaselineAgent()
+    if name == TARGET_V1_PROMPT_DIRECT:
+        return PromptedV1SoftRagBaselineAgent(prompt_style="direct")
+    if name == TARGET_V1_PROMPT_COT:
+        return PromptedV1SoftRagBaselineAgent(prompt_style="cot")
     if name == TARGET_V1_HYBRID_RAG:
         return V1HybridRagBaselineAgent()
     raise ValueError(f"unknown target: {name}")
@@ -79,8 +111,13 @@ def build_target(name: str, *, case_id: str) -> BaseTargetAgent:
 def target_requires_db(name: str) -> bool:
     return name in {
         TARGET_APP_PARETO,
+        TARGET_APP_PARETO_FULL,
+        TARGET_APP_PARETO_NO_UCB,
+        TARGET_APP_PARETO_NO_TRACKER,
         TARGET_HARD_CONSTRAINT,
         TARGET_V1_SOFT_RAG,
+        TARGET_V1_PROMPT_DIRECT,
+        TARGET_V1_PROMPT_COT,
         TARGET_V1_HYBRID_RAG,
     }
 
@@ -219,7 +256,29 @@ async def evaluate_transcript(
 ) -> EvalReport:
     hallucination_rate = await check_hallucination(transcript, _DefaultDbPool())
     report = await evaluate_process(transcript, transcript.persona, judge_llm)
-    return report.model_copy(update={"hallucination_rate": hallucination_rate})
+    report = report.model_copy(update={"hallucination_rate": hallucination_rate})
+    return evaluate_candidate_set_oracle(report, transcript)
+
+
+def apply_golden_leakage_veto(
+    report: EvalReport,
+    transcript: Transcript,
+) -> EvalReport:
+    diagnostics = transcript_diagnostics(transcript)
+    vetoed = apply_candidate_leakage_veto(report, transcript)
+    if (
+        vetoed is not report
+        and vetoed.elicitation_success != report.elicitation_success
+    ):
+        trace_event(
+            "Evaluator",
+            "candidate_leakage_veto",
+            {
+                "case_id": transcript.persona.case_id,
+                "diagnostics": diagnostics,
+            },
+        )
+    return vetoed
 
 
 async def run_target_cases(
@@ -233,60 +292,358 @@ async def run_target_cases(
     transcript_dir = config.output_dir / "transcripts" / target_name
     report_path = config.output_dir / "reports" / f"{target_name}.jsonl"
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    if report_path.exists():
+    existing_ok_rows: list[dict[str, Any]] = []
+    if config.skip_existing_cases and report_path.exists():
+        existing_ok_rows = _existing_ok_rows(report_path)
+    elif report_path.exists():
         report_path.unlink()
 
-    rows: list[dict[str, Any]] = []
-    for persona in personas:
-        target = build_target(target_name, case_id=persona.case_id)
-        try:
-            transcript = await run_episode(
-                persona,
-                target,
-                max_turns=config.max_turns,
-                simulator_llm_client=simulator_llm,
-                output_dir=transcript_dir,
-            )
-            report = await evaluate_transcript(transcript, judge_llm=judge_llm)
-            row = {
-                "status": "ok",
-                "target": target_name,
-                "case_id": persona.case_id,
-                "hallucination_rate": report.hallucination_rate,
-                "elicitation_success": report.elicitation_success,
-                "pareto_gain": report.pareto_gain,
-                "turns": len(transcript.turns),
-                "judge_reasoning": report.judge_reasoning,
-                "transcript_path": str(
-                    transcript_dir / f"transcript_{persona.case_id}.json"
-                ),
-            }
-            flex = persona.implicit_flexibilities or {}
-            if flex.get("constraint_relaxed") == "multi_axis":
-                details = _multi_axis_details(
-                    flex, _combined_target_agent_text(transcript)
+    rows: list[dict[str, Any]] = list(existing_ok_rows)
+    completed_case_ids = {str(row.get("case_id")) for row in existing_ok_rows}
+    pending_personas = [
+        persona for persona in personas if persona.case_id not in completed_case_ids
+    ]
+    if config.skip_existing_cases and existing_ok_rows:
+        with report_path.open("w", encoding="utf-8") as handle:
+            for row in existing_ok_rows:
+                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+        print(
+            f"[agent_benchmark] {target_name}: "
+            f"skipping {len(existing_ok_rows)} completed cases, "
+            f"running {len(pending_personas)} pending cases"
+        )
+    if not pending_personas:
+        return rows
+
+    async def _run_persona(persona: IcebergPersona) -> dict[str, Any]:
+        max_attempts = max(1, int(config.case_retries or 0) + 1)
+        last_error: Exception | None = None
+        for attempt in range(1, max_attempts + 1):
+            try:
+                target = build_target(target_name, case_id=persona.case_id)
+                row = await _run_one_case(
+                    persona=persona,
+                    target=target,
+                    target_name=target_name,
+                    config=config,
+                    simulator_llm=simulator_llm,
+                    judge_llm=judge_llm,
+                    transcript_dir=transcript_dir,
                 )
-                row["required_axes"] = details["required_axes"]
-                row["axis_successes"] = details["axis_successes"]
-                row["axis_pareto_gains"] = details["axis_pareto_gains"]
-        except Exception as exc:
-            row = {
-                "status": "failed",
-                "target": target_name,
-                "case_id": persona.case_id,
-                "hallucination_rate": None,
-                "elicitation_success": False,
-                "pareto_gain": 0,
-                "turns": 0,
-                "judge_reasoning": "",
-                "transcript_path": "",
-                "error_type": type(exc).__name__,
-                "error": str(exc),
-            }
+                if attempt > 1:
+                    row["attempts"] = attempt
+                flex = persona.implicit_flexibilities or {}
+                if flex.get("constraint_relaxed") == "multi_axis":
+                    details = _multi_axis_details(
+                        flex,
+                        _transcript_text_from_path(row.get("transcript_path")),
+                    )
+                    row["required_axes"] = details["required_axes"]
+                    row["axis_successes"] = details["axis_successes"]
+                    row["axis_pareto_gains"] = details["axis_pareto_gains"]
+                return row
+            except Exception as exc:
+                last_error = exc
+                if attempt < max_attempts:
+                    await asyncio.sleep(min(20.0, 3.0 * attempt))
+        assert last_error is not None
+        row = {
+            "status": "failed",
+            "target": target_name,
+            "case_id": persona.case_id,
+            "hallucination_rate": None,
+            "elicitation_success": False,
+            "pareto_gain": 0,
+            "turns": 0,
+            "judge_reasoning": "",
+            "transcript_path": "",
+            "error_type": type(last_error).__name__,
+            "error": str(last_error),
+            "attempts": max_attempts,
+        }
+        return row
+
+    concurrency = max(1, int(config.concurrency or 1))
+    if concurrency == 1:
+        for persona in pending_personas:
+            row = await _run_persona(persona)
+            rows.append(row)
+            with report_path.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+        return rows
+
+    semaphore = asyncio.Semaphore(concurrency)
+
+    async def _run_limited(persona: IcebergPersona) -> dict[str, Any]:
+        async with semaphore:
+            return await _run_persona(persona)
+
+    tasks = [asyncio.create_task(_run_limited(persona)) for persona in pending_personas]
+    for task in asyncio.as_completed(tasks):
+        row = await task
         rows.append(row)
         with report_path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(row, ensure_ascii=False) + "\n")
     return rows
+
+
+def _existing_ok_rows(report_path: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    try:
+        lines = report_path.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return rows
+    seen: set[str] = set()
+    for line in lines:
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if row.get("status") != "ok":
+            continue
+        case_id = str(row.get("case_id") or "")
+        if not case_id or case_id in seen:
+            continue
+        transcript_path = str(row.get("transcript_path") or "")
+        if transcript_path and not Path(transcript_path).exists():
+            continue
+        seen.add(case_id)
+        rows.append(row)
+    return rows
+
+
+async def _run_one_case(
+    *,
+    persona: IcebergPersona,
+    target: BaseTargetAgent,
+    target_name: str,
+    config: RunConfig,
+    simulator_llm: Any,
+    judge_llm: Any,
+    transcript_dir: Path,
+) -> dict[str, Any]:
+    async def _run() -> dict[str, Any]:
+        trace_event(
+            "BenchmarkRunner",
+            "case_start",
+            {
+                "target": target_name,
+                "case_id": persona.case_id,
+                "max_turns": config.max_turns,
+            },
+        )
+        transcript = await run_episode(
+            persona,
+            target,
+            max_turns=config.max_turns,
+            simulator_llm_client=simulator_llm,
+            output_dir=transcript_dir,
+        )
+        trace_event(
+            "BenchmarkRunner",
+            "episode_finished",
+            {
+                "target": target_name,
+                "case_id": persona.case_id,
+                "turns": len(transcript.turns),
+                "diagnostics": transcript_diagnostics(transcript),
+            },
+        )
+        report = await evaluate_transcript(transcript, judge_llm=judge_llm)
+        diagnostics = transcript_diagnostics(transcript)
+        trace_event(
+            "BenchmarkRunner",
+            "evaluation_finished",
+            {
+                "target": target_name,
+                "case_id": persona.case_id,
+                "report": report.model_dump(),
+                "diagnostics": diagnostics,
+            },
+        )
+        return {
+            "status": "ok",
+            "target": target_name,
+            "case_id": persona.case_id,
+            "hallucination_rate": report.hallucination_rate,
+            "elicitation_success": report.elicitation_success,
+            "pareto_gain": report.pareto_gain,
+            "turns": len(transcript.turns),
+            "judge_reasoning": report.judge_reasoning,
+            "transcript_path": str(
+                transcript_dir / f"transcript_{persona.case_id}.json"
+            ),
+            **diagnostics,
+        }
+
+    if config.case_timeout and config.case_timeout > 0:
+        return await asyncio.wait_for(_run(), timeout=config.case_timeout)
+    return await _run()
+
+
+def _transcript_text_from_path(path_value: Any) -> str:
+    if not path_value:
+        return ""
+    try:
+        transcript = Transcript.model_validate_json(
+            Path(str(path_value)).read_text(encoding="utf-8")
+        )
+    except (OSError, ValueError):
+        return ""
+    return _combined_target_agent_text(transcript)
+
+
+def transcript_diagnostics(transcript: Transcript) -> dict[str, Any]:
+    target_turns = [
+        turn for turn in transcript.turns if str(turn.role) == "target_agent"
+    ]
+    target_count = len(target_turns)
+    previous_user = ""
+    echo_count = 0
+    probe_count = 0
+    pareto_diff_count = 0
+    uniform_weight_count = 0
+    constant_variance_count = 0
+    golden_echo_count = 0
+    target_golden_evidence_count = 0
+    first_role = ""
+    first_turn: int | str = ""
+    first_school = ""
+    golden = _golden_evidence(transcript.persona)
+    candidate_set = transcript_candidate_diagnostics(transcript)
+
+    for turn in transcript.turns:
+        role = str(turn.role)
+        content = str(turn.content or "")
+        if golden["schools"] and not first_role:
+            for school in golden["schools"]:
+                if school and school in content:
+                    first_role = role
+                    first_turn = turn.turn_id
+                    first_school = school
+                    break
+
+        if role == "user":
+            previous_user = _normalize_turn_text(content)
+            continue
+        if role != "target_agent":
+            continue
+
+        normalized = _normalize_turn_text(content)
+        state = dict(turn.internal_state or {})
+        is_echo = bool(normalized and normalized == previous_user)
+        if is_echo:
+            echo_count += 1
+        if _is_probe_turn(state, content):
+            probe_count += 1
+        if state.get("latest_pareto_diff"):
+            pareto_diff_count += 1
+        if _is_uniform_weights(state.get("implicit_weights")):
+            uniform_weight_count += 1
+        if _is_constant_variance(state.get("weight_variance")):
+            constant_variance_count += 1
+        if _target_mentions_golden_evidence(content, golden):
+            target_golden_evidence_count += 1
+            if is_echo:
+                golden_echo_count += 1
+
+    return {
+        "target_turn_count": target_count,
+        "echo_rate": echo_count / target_count if target_count else 0.0,
+        "probe_question_rate": probe_count / target_count if target_count else 0.0,
+        "pareto_diff_rate": pareto_diff_count / target_count if target_count else 0.0,
+        "uniform_weight_rate": (
+            uniform_weight_count / target_count if target_count else 0.0
+        ),
+        "constant_variance_rate": (
+            constant_variance_count / target_count if target_count else 0.0
+        ),
+        "golden_first_mention_role": first_role,
+        "golden_first_mention_turn": first_turn,
+        "golden_first_mention_school": first_school,
+        "target_supplied_golden_evidence": target_golden_evidence_count > 0,
+        "target_golden_evidence_count": target_golden_evidence_count,
+        "golden_echo_target_count": golden_echo_count,
+        **candidate_set,
+    }
+
+
+def _normalize_turn_text(text: str) -> str:
+    return " ".join(str(text or "").split())
+
+
+def _is_probe_turn(state: dict[str, Any], content: str) -> bool:
+    if state.get("reply_source") in {
+        "result_interrupt",
+        "snapshot_interrupt",
+        "latest_agent_probe_question",
+    }:
+        return True
+    if state.get("latest_agent_probe_question"):
+        return True
+    return "选项A" in content and "选项B" in content
+
+
+def _is_uniform_weights(value: Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    dimensions = ("school", "major", "tuition", "quality", "geo")
+    try:
+        return all(abs(float(value.get(dim, -1.0)) - 0.2) <= 1e-9 for dim in dimensions)
+    except (TypeError, ValueError):
+        return False
+
+
+def _is_constant_variance(value: Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    dimensions = ("school", "major", "tuition", "quality", "geo")
+    try:
+        return all(abs(float(value.get(dim, -1.0)) - 1.0) <= 1e-9 for dim in dimensions)
+    except (TypeError, ValueError):
+        return False
+
+
+def _golden_evidence(persona: IcebergPersona) -> dict[str, list[str]]:
+    flex = persona.implicit_flexibilities or {}
+    rows = acceptable_rows_from_flex(flex)
+
+    schools: list[str] = []
+    scores: list[str] = []
+    for row in rows:
+        school = str(row.get("school_name") or "")
+        score = row.get("min_score")
+        if school:
+            schools.append(school)
+        if score not in (None, ""):
+            scores.append(str(score))
+    return {
+        "schools": list(dict.fromkeys(schools)),
+        "scores": list(dict.fromkeys(scores)),
+    }
+
+
+def _target_mentions_golden_evidence(text: str, golden: dict[str, list[str]]) -> bool:
+    if not text:
+        return False
+    has_school = any(school and school in text for school in golden.get("schools", []))
+    if not has_school:
+        return False
+    has_exact_score = any(
+        score and re.search(rf"(?<!\d){re.escape(score)}(?!\d)", text)
+        for score in golden.get("scores", [])
+    )
+    has_score_word = bool(
+        re.search(r"(最低分|min_score|score_margin|分数|位次).{0,20}\d{3}", text)
+        or re.search(r"\d{3}.{0,20}(最低分|min_score|score_margin|分数|位次)", text)
+    )
+    return bool(has_exact_score or has_score_word)
+
+
+def _target_mentions_acceptable_evidence(text: str, flex: dict[str, Any]) -> bool:
+    return bool(matched_acceptable_candidates(text, flex))
 
 
 def write_report_jsonl(rows: list[dict[str, Any]], output_dir: Path) -> None:
@@ -976,6 +1333,10 @@ async def async_main(args: argparse.Namespace) -> None:
         paper_summary_path=Path(args.paper_summary) if args.paper_summary else None,
         offline_deterministic=args.offline_deterministic,
         db_preflight=not args.skip_db_preflight,
+        case_timeout=args.case_timeout,
+        concurrency=args.concurrency,
+        case_retries=args.case_retries,
+        skip_existing_cases=args.skip_existing_cases,
     )
     personas = load_personas(config.personas_path, config.limit)
     if config.db_preflight and any(target_requires_db(name) for name in config.targets):
@@ -999,10 +1360,12 @@ async def async_main(args: argparse.Namespace) -> None:
         simulator_llm = llm_client.as_chat_model(
             model=config.simulator_model or os.getenv("OPENAI_MODEL") or DEFAULT_MODEL,
             temperature=0,
+            max_tokens=256,
         )
         judge_llm = llm_client.as_chat_model(
             model=config.judge_model or os.getenv("OPENAI_MODEL") or DEFAULT_MODEL,
             temperature=0,
+            max_tokens=512,
         )
 
     all_rows: list[dict[str, Any]] = []
@@ -1039,6 +1402,29 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional markdown path for the thesis-facing summary; pass empty to skip.",
     )
     parser.add_argument("--request-timeout", type=float, default=90.0)
+    parser.add_argument(
+        "--case-timeout",
+        type=float,
+        default=None,
+        help="Optional wall-clock timeout in seconds for one persona/target case.",
+    )
+    parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=1,
+        help="Number of persona cases to run concurrently within each target.",
+    )
+    parser.add_argument(
+        "--case-retries",
+        type=int,
+        default=0,
+        help="Retry count for one persona/target case after transient failures.",
+    )
+    parser.add_argument(
+        "--skip-existing-cases",
+        action="store_true",
+        help="Preserve completed ok rows in an existing report and rerun only pending or failed cases.",
+    )
     parser.add_argument(
         "--offline-deterministic",
         action="store_true",

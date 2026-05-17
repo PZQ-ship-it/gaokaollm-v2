@@ -20,6 +20,7 @@ from app.schemas.state import (
     DEFAULT_WEIGHT_VARIANCE,
     AgentState,
 )
+from gaokaollm_bench.utils.trace import trace_event
 
 
 PROBE_KEYS = [
@@ -183,10 +184,17 @@ def calculate_ucb_scores(state: AgentState) -> dict[str, float]:
 
 
 def _ucb_tie_break_order(state: AgentState) -> list[str]:
+    constraint_order = _explicit_constraint_tie_break_order(state)
+    if constraint_order:
+        return constraint_order
+
+    intent_order = _intent_axis_tie_break_order(state)
+    if intent_order:
+        return intent_order
+
     text_parts = [
         str(state.get("rewritten_query") or ""),
         json.dumps(state.get("normalized_intent") or {}, ensure_ascii=False),
-        json.dumps(state.get("constraints") or {}, ensure_ascii=False),
     ]
     text = "\n".join(text_parts)
     if "profile_major" in text or "major_extreme" in text:
@@ -219,6 +227,86 @@ def _ucb_tie_break_order(state: AgentState) -> list[str]:
     return list(PREFERENCE_KEYS)
 
 
+def _intent_axis_tie_break_order(state: AgentState) -> list[str]:
+    axes: list[str] = list(_all_intent_axes(state))
+    axis_priority = {
+        "region": ["geo", "school", "major", "tuition", "quality"],
+        "geo": ["geo", "school", "major", "tuition", "quality"],
+        "major": ["major", "quality", "school", "geo", "tuition"],
+        "tuition": ["tuition", "school", "quality", "major", "geo"],
+        "budget": ["tuition", "school", "quality", "major", "geo"],
+        "risk": ["school", "major", "geo", "tuition", "quality"],
+        "quality": ["quality", "major", "school", "geo", "tuition"],
+        "employment": ["quality", "major", "school", "geo", "tuition"],
+    }
+    for axis in axes:
+        if axis in axis_priority:
+            return axis_priority[axis]
+    return []
+
+
+def _all_intent_axes(state: AgentState) -> set[str]:
+    axes: set[str] = set()
+    for value in state.get("intent_axes") or []:
+        axes.add(str(value))
+    normalized = state.get("normalized_intent") or {}
+    if isinstance(normalized, dict):
+        for value in normalized.get("intent_axes") or []:
+            axes.add(str(value))
+    return axes
+
+
+def _explicit_region_intent(state: AgentState) -> bool:
+    axes = _all_intent_axes(state)
+    if axes.intersection({"region", "geo"}):
+        return True
+    text = "\n".join(
+        [
+            str(state.get("rewritten_query") or ""),
+            json.dumps(state.get("normalized_intent") or {}, ensure_ascii=False),
+        ]
+    )
+    return any(
+        token in text
+        for token in (
+            "只想浙江",
+            "留在浙江",
+            "不出省",
+            "省内",
+            "本省",
+            "region",
+            "geo",
+        )
+    )
+
+
+def _explicit_constraint_tie_break_order(state: AgentState) -> list[str]:
+    constraints = state.get("constraints") or {}
+    if not isinstance(constraints, dict):
+        return []
+    if constraints.get("risk_preference"):
+        return ["school", "major", "geo", "tuition", "quality"]
+    if constraints.get("employment_preference") or constraints.get("strength"):
+        return ["quality", "major", "school", "geo", "tuition"]
+    budget = constraints.get("budget")
+    try:
+        has_real_budget = budget not in (None, "") and int(float(budget)) < 100000
+    except (TypeError, ValueError):
+        has_real_budget = False
+    if has_real_budget:
+        return ["tuition", "school", "quality", "major", "geo"]
+    if constraints.get("major"):
+        return ["major", "quality", "school", "geo", "tuition"]
+    if constraints.get("city"):
+        return ["geo", "school", "major", "tuition", "quality"]
+    province = constraints.get("province")
+    if _explicit_region_intent(state):
+        return ["geo", "school", "major", "tuition", "quality"]
+    if province not in (None, "", "浙江"):
+        return ["geo", "school", "major", "tuition", "quality"]
+    return []
+
+
 def select_ucb_dimension(state: AgentState) -> tuple[str, float]:
     scores = calculate_ucb_scores(state)
     if not scores:
@@ -236,7 +324,22 @@ def select_ucb_dimension(state: AgentState) -> tuple[str, float]:
     return dimension, scores[dimension]
 
 
-def target_probe_for_dimension(dimension: str) -> str:
+def target_probe_for_dimension(
+    dimension: str,
+    state: AgentState | None = None,
+) -> str:
+    if state is not None:
+        constraints = state.get("constraints") or {}
+        axes = _all_intent_axes(state)
+        if dimension == "school" and (
+            constraints.get("risk_preference") or "risk" in axes
+        ):
+            return "risk_band_relax"
+        if dimension == "quality":
+            if constraints.get("employment_preference") or "employment" in axes:
+                return "employment_outcome_relax"
+            if constraints.get("strength") or "quality" in axes:
+                return "major_quality_relax"
     return PROBE_MAPPING.get(dimension, "major_geo_relax")
 
 
@@ -273,7 +376,7 @@ def _required_probe_context(state: AgentState) -> dict[str, str | None]:
     if not should_apply_ucb_override(state):
         return {"dimension": None, "probe": None, "reason": None, "instruction": None}
     dimension, score = select_ucb_dimension(state)
-    probe = target_probe_for_dimension(dimension)
+    probe = target_probe_for_dimension(dimension, state)
     function_name = probe_function_name(probe)
     reason = f"UCB active learning target: {dimension} uncertainty score={score:.3f}"
     instruction = (
@@ -548,6 +651,16 @@ async def radar_node(
     )
 
     print(f"[radar] baseline={len(baseline)} score_waste={score_waste}")
+    trace_event(
+        "radar",
+        "node_start",
+        {
+            "constraints": constraints,
+            "baseline_count": len(baseline),
+            "score_waste": score_waste,
+            "has_negotiable_constraint": has_negotiable_constraint,
+        },
+    )
     plan = await _build_probe_plan(state, config)
 
     if _is_global_baseline_plan(plan):
@@ -555,7 +668,7 @@ async def radar_node(
         opportunities: dict[str, Any] = {"global_baseline": global_result}
         candidates = _iter_rows(global_result)
         print(f"[radar] global_baseline={len(candidates)}")
-        return {
+        output = {
             "pareto_opportunities": opportunities,
             "candidates": candidates,
             "probe_plan": plan["probe_plan"],
@@ -564,6 +677,16 @@ async def radar_node(
             "planner_source": plan.get("planner_source"),
             "ucb_target_dimension": plan.get("ucb_target_dimension"),
         }
+        trace_event(
+            "radar",
+            "node_end",
+            {
+                "global_baseline": True,
+                "candidate_count": len(candidates),
+                "plan": plan,
+            },
+        )
+        return output
 
     if score_waste > 15 or not baseline or has_negotiable_constraint:
         opportunities = await run_all_probes(constraints, user_state=dict(state))
@@ -588,7 +711,7 @@ async def radar_node(
         f"major_geo:{len(opportunities.get('major_geo_relax', []))} "
         f"risk:{len(opportunities.get('risk_band_relax', []))}"
     )
-    return {
+    output = {
         "pareto_opportunities": opportunities,
         "candidates": candidates,
         "probe_plan": plan["probe_plan"],
@@ -597,3 +720,17 @@ async def radar_node(
         "planner_source": plan.get("planner_source"),
         "ucb_target_dimension": plan.get("ucb_target_dimension"),
     }
+    trace_event(
+        "radar",
+        "node_end",
+        {
+            "plan": plan,
+            "candidate_count": len(candidates),
+            "opportunity_counts": {
+                key: len(value) if isinstance(value, list) else 0
+                for key, value in opportunities.items()
+            },
+            "candidate_preview": candidates[:5],
+        },
+    )
+    return output

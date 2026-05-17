@@ -1,0 +1,1145 @@
+{
+  "persona": {
+    "case_id": "one-constrain-employment_outcome-650-030",
+    "background": {
+      "score": 650,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "机械设计制造及其自动化",
+      "baseline_school": "宁波大学",
+      "baseline_major": "机械设计制造及其自动化",
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "baseline_ranking": 87,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "employment_outcome",
+      "relax_axis": "employment_outcome",
+      "preference_axis": "quality",
+      "benefit_axis": "employment",
+      "score_band": "640-680",
+      "source_score_band": "640-680",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "employment_outcome",
+      "target_tier_delta": 1,
+      "target_ranking_gain": 73,
+      "unified_case_id": "one-constrain-employment_outcome-650-030",
+      "ground_truth_weights": {
+        "school": 0.12,
+        "major": 0.12,
+        "tuition": 0.07,
+        "quality": 0.62,
+        "geo": 0.07
+      },
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality"
+      ],
+      "expected_msti": 0.71083333,
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.91083333,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 1.0,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.21083333,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.5,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "employment": "必须有就业、薪资、行业或岗位去向证据"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "employment_outcome",
+      "diagnostic_axis": "employment_outcome",
+      "preference_axis": "quality",
+      "benefit_axis": "employment",
+      "trigger_condition": "只要看到一个真实可达的候选：西安交通大学 工业设计，年份2025，最低分649不高于本人650分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 outcome_score、outcome_gain、就业排名或薪资/行业证据。",
+      "volunteer_set": [
+        {
+          "school_id": 27,
+          "school_name": "西安交通大学",
+          "school_province": "陕西",
+          "school_city": "西安市",
+          "major_id": 192,
+          "major_name": "工业设计",
+          "year": 2025,
+          "min_score": 649,
+          "score_margin": 1,
+          "min_rank": 11462,
+          "tier": 4,
+          "tier_label": "985/211/双一流",
+          "is_985": true,
+          "is_211": true,
+          "is_double_first_class": true,
+          "outcome_score": 100.0,
+          "outcome_gain": 49.0,
+          "outcome_anchor_score": 51.0,
+          "outcome_tier": "A",
+          "employment_rank": 4,
+          "employment_rank_desc": "所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+          "employment_top_city": "深圳",
+          "top_industry": "互联网/电子商务",
+          "industry_distribution": {
+            "items": "[\"互联网/电子商务\",\"电子技术/半导体/集成电路\",\"新能源\",\"家具/家电/玩具/礼品\",\"贸易/进出口\",\"计算机软件\",\"汽车及零配件\",\"机械/设备/重工\",\"家居/室内设计/装潢\",\"广告\"]",
+            "ratios": "[15%,15%,13%,11%,10%,9%,6%,5%,5%,5%]"
+          },
+          "employment_city_distribution": {
+            "items": "[\"深圳\",\"上海\",\"广州\",\"北京\",\"杭州\",\"东莞\",\"佛山\",\"厦门\",\"宁波\",\"武汉\"]",
+            "ratios": "[25%,18%,12%,9%,9%,5%,5%,5%,4%,3%]"
+          },
+          "job_distribution": {},
+          "salary_distribution": {
+            "items": "[\"面议 \",\"50000以上 \",\"4500-5999 \"]",
+            "ratios": "[66%,16%,16%]"
+          },
+          "employment_evidence_sources": [
+            "employment_rank=4",
+            "rank_desc=所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+            "top_city=深圳",
+            "top_industry=互联网/电子商务",
+            "industry_distribution",
+            "city_distribution",
+            "salary_distribution",
+            "source=赠送行业重要数据\\专业就业信息.xlsx"
+          ],
+          "role": "golden_candidate_b",
+          "candidate_id": "27:192:2025:649",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "西安交通大学"
+      ],
+      "tier_labels": [
+        "985/211/双一流"
+      ],
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "compromise": "可以为了更强就业结果证据接受该候选，就业结果增益约49.0。",
+      "outcome_anchor_score": 51.0,
+      "outcome_gain": 49.0,
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 西安交通大学 工业设计（2025 年最低分 649）。主动探测应优先命中 ['quality']，最终潜在效用权重集中在 ['quality']。触发条件：只要看到一个真实可达的候选：西安交通大学 工业设计，年份2025，最低分649不高于本人650分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 outcome_score、outcome_gain、就业排名或薪资/行业证据。",
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality"
+      ],
+      "ground_truth_weights": {
+        "school": 0.12,
+        "major": 0.12,
+        "tuition": 0.07,
+        "quality": 0.62,
+        "geo": 0.07
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-employment_outcome-650-030",
+        "role": "baseline_candidate_a",
+        "school_name": "宁波大学",
+        "major_name": "机械设计制造及其自动化",
+        "tier": 3,
+        "ranking": 87,
+        "school_province": "浙江",
+        "score": 650,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 27,
+        "school_name": "西安交通大学",
+        "school_province": "陕西",
+        "school_city": "西安市",
+        "major_id": 192,
+        "major_name": "工业设计",
+        "year": 2025,
+        "min_score": 649,
+        "score_margin": 1,
+        "min_rank": 11462,
+        "tier": 4,
+        "tier_label": "985/211/双一流",
+        "is_985": true,
+        "is_211": true,
+        "is_double_first_class": true,
+        "outcome_score": 100.0,
+        "outcome_gain": 49.0,
+        "outcome_anchor_score": 51.0,
+        "outcome_tier": "A",
+        "employment_rank": 4,
+        "employment_rank_desc": "所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+        "employment_top_city": "深圳",
+        "top_industry": "互联网/电子商务",
+        "industry_distribution": {
+          "items": "[\"互联网/电子商务\",\"电子技术/半导体/集成电路\",\"新能源\",\"家具/家电/玩具/礼品\",\"贸易/进出口\",\"计算机软件\",\"汽车及零配件\",\"机械/设备/重工\",\"家居/室内设计/装潢\",\"广告\"]",
+          "ratios": "[15%,15%,13%,11%,10%,9%,6%,5%,5%,5%]"
+        },
+        "employment_city_distribution": {
+          "items": "[\"深圳\",\"上海\",\"广州\",\"北京\",\"杭州\",\"东莞\",\"佛山\",\"厦门\",\"宁波\",\"武汉\"]",
+          "ratios": "[25%,18%,12%,9%,9%,5%,5%,5%,4%,3%]"
+        },
+        "job_distribution": {},
+        "salary_distribution": {
+          "items": "[\"面议 \",\"50000以上 \",\"4500-5999 \"]",
+          "ratios": "[66%,16%,16%]"
+        },
+        "employment_evidence_sources": [
+          "employment_rank=4",
+          "rank_desc=所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+          "top_city=深圳",
+          "top_industry=互联网/电子商务",
+          "industry_distribution",
+          "city_distribution",
+          "salary_distribution",
+          "source=赠送行业重要数据\\专业就业信息.xlsx"
+        ],
+        "role": "golden_candidate_b",
+        "candidate_id": "27:192:2025:649",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.91083333,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 1.0,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.21083333,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.5,
+        "geo": 0.0
+      },
+      "expected_msti": 0.71083333
+    },
+    "initial_utterance": "我650分，选考物理、化学、生物，更看重就业和薪资去向，没有真实就业证据的专业先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "西安交通大学"
+      ],
+      "require_employment_evidence": true,
+      "explicit_red_line_keys": [
+        "employment"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我650分，选考物理、化学、生物，更看重就业和薪资去向，没有真实就业证据的专业先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "**结论**：本轮 v1 返回的候选均不满足您“650 分、且具备真实就业薪资证据”的双重约束，暂不作就业导向推荐。\n\n**可核验证据**  \n1. **分数与位次**：返回候选的最低录取分均高于您的 650 分——  \n   - 浙江大学｜工科试验班(海洋)：最低分 **651**，最低位次 **7697**  \n   - 浙江大学｜应用生物科学(农学)：最低分 **652**  \n   - 浙江大学医学院｜药学类：最低分 **655**，最低位次 **5627**  \n   您的成绩处于“冲一冲”区间，录取存在不确定性。  \n\n2. **就业与薪资证据**：v1 返回字段仅包含院校、专业、最低分、位次、学费（6000 元/年）及 tier 信息，**未包含就业率、平均薪资、雇主去向等任何真实就业数据**。  \n\n依据您“没有真实就业证据的专业先别推荐”的要求，以上专业本轮不予推荐。如需填报，建议先补充检索并核验其官方就业质量报告。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 650,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "我650分，选考物理、化学、生物，更看重就业和薪资去向，没有真实就业证据的专业先别推荐。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [
+          {
+            "admission_score_id": 102550,
+            "year": 2022,
+            "school_id": 6,
+            "school_name": "浙江大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": null,
+            "major_name": "工科试验班(海洋)",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "651",
+            "min_rank": 7697,
+            "tuition": "6000",
+            "tier": 4,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 102492,
+            "year": 2022,
+            "school_id": 6,
+            "school_name": "浙江大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": 365,
+            "major_name": "应用生物科学(农学)",
+            "subject_requirement": "物或化",
+            "requirement_type": "any_required",
+            "min_score": "652",
+            "min_rank": 7137,
+            "tuition": "5500",
+            "tier": 4,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 102432,
+            "year": 2022,
+            "school_id": 6,
+            "school_name": "浙江大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": 170,
+            "major_name": "海洋科学",
+            "subject_requirement": "物或化或生",
+            "requirement_type": "any_required",
+            "min_score": "653",
+            "min_rank": 6731,
+            "tuition": "5300",
+            "tier": 4,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 122087,
+            "year": 2021,
+            "school_id": 6,
+            "school_name": "浙江大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": null,
+            "major_name": "工科试验班(材料、化工与高分子)(含材料科学与工程、化学工程与工艺、生物工程、高分子材料与工程专业)",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "654",
+            "min_rank": 5955,
+            "tuition": "6000",
+            "tier": 4,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 122088,
+            "year": 2021,
+            "school_id": 6,
+            "school_name": "浙江大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": 365,
+            "major_name": "应用生物科学(生工食品)(含农业工程、食品科学与工程专业)",
+            "subject_requirement": "物,化",
+            "requirement_type": "all_required",
+            "min_score": "654",
+            "min_rank": 5955,
+            "tuition": "5500",
+            "tier": 4,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 122106,
+            "year": 2021,
+            "school_id": 7,
+            "school_name": "浙江大学医学院",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": null,
+            "major_name": "药学类(含药学专业)",
+            "subject_requirement": "物,化,生",
+            "requirement_type": "all_required",
+            "min_score": "655",
+            "min_rank": 5627,
+            "tuition": "6000",
+            "tier": 4,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 102290,
+            "year": 2022,
+            "school_id": 6,
+            "school_name": "浙江大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": null,
+            "major_name": "工科试验班(材料、化工与高分子)",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "656",
+            "min_rank": 5713,
+            "tuition": "6000",
+            "tier": 4,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 102294,
+            "year": 2022,
+            "school_id": 6,
+            "school_name": "浙江大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": 365,
+            "major_name": "应用生物科学(生工食品)",
+            "subject_requirement": "物或化",
+            "requirement_type": "any_required",
+            "min_score": "656",
+            "min_rank": 5623,
+            "tuition": "5500",
+            "tier": 4,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 102272,
+            "year": 2022,
+            "school_id": 7,
+            "school_name": "浙江大学医学院",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": null,
+            "major_name": "药学类",
+            "subject_requirement": "物或化或生",
+            "requirement_type": "any_required",
+            "min_score": "657",
+            "min_rank": 5271,
+            "tuition": "6000",
+            "tier": 4,
+            "soft_match_score": 2
+          }
+        ],
+        "risk_segments": {
+          "chong": [
+            {
+              "admission_score_id": 102550,
+              "year": 2022,
+              "school_id": 6,
+              "school_name": "浙江大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 3,
+              "major_id": null,
+              "major_name": "工科试验班(海洋)",
+              "subject_requirement": "物",
+              "requirement_type": "any_required",
+              "min_score": "651",
+              "min_rank": 7697,
+              "tuition": "6000",
+              "tier": 4,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 102492,
+              "year": 2022,
+              "school_id": 6,
+              "school_name": "浙江大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 3,
+              "major_id": 365,
+              "major_name": "应用生物科学(农学)",
+              "subject_requirement": "物或化",
+              "requirement_type": "any_required",
+              "min_score": "652",
+              "min_rank": 7137,
+              "tuition": "5500",
+              "tier": 4,
+              "soft_match_score": 2,
+              "score_delta": 2
+            },
+            {
+              "admission_score_id": 102432,
+              "year": 2022,
+              "school_id": 6,
+              "school_name": "浙江大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 3,
+              "major_id": 170,
+              "major_name": "海洋科学",
+              "subject_requirement": "物或化或生",
+              "requirement_type": "any_required",
+              "min_score": "653",
+              "min_rank": 6731,
+              "tuition": "5300",
+              "tier": 4,
+              "soft_match_score": 2,
+              "score_delta": 3
+            },
+            {
+              "admission_score_id": 122087,
+              "year": 2021,
+              "school_id": 6,
+              "school_name": "浙江大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 3,
+              "major_id": null,
+              "major_name": "工科试验班(材料、化工与高分子)(含材料科学与工程、化学工程与工艺、生物工程、高分子材料与工程专业)",
+              "subject_requirement": "物",
+              "requirement_type": "any_required",
+              "min_score": "654",
+              "min_rank": 5955,
+              "tuition": "6000",
+              "tier": 4,
+              "soft_match_score": 2,
+              "score_delta": 4
+            },
+            {
+              "admission_score_id": 122088,
+              "year": 2021,
+              "school_id": 6,
+              "school_name": "浙江大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 3,
+              "major_id": 365,
+              "major_name": "应用生物科学(生工食品)(含农业工程、食品科学与工程专业)",
+              "subject_requirement": "物,化",
+              "requirement_type": "all_required",
+              "min_score": "654",
+              "min_rank": 5955,
+              "tuition": "5500",
+              "tier": 4,
+              "soft_match_score": 2,
+              "score_delta": 4
+            },
+            {
+              "admission_score_id": 122106,
+              "year": 2021,
+              "school_id": 7,
+              "school_name": "浙江大学医学院",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 3,
+              "major_id": null,
+              "major_name": "药学类(含药学专业)",
+              "subject_requirement": "物,化,生",
+              "requirement_type": "all_required",
+              "min_score": "655",
+              "min_rank": 5627,
+              "tuition": "6000",
+              "tier": 4,
+              "soft_match_score": 2,
+              "score_delta": 5
+            },
+            {
+              "admission_score_id": 102290,
+              "year": 2022,
+              "school_id": 6,
+              "school_name": "浙江大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 3,
+              "major_id": null,
+              "major_name": "工科试验班(材料、化工与高分子)",
+              "subject_requirement": "物",
+              "requirement_type": "any_required",
+              "min_score": "656",
+              "min_rank": 5713,
+              "tuition": "6000",
+              "tier": 4,
+              "soft_match_score": 2,
+              "score_delta": 6
+            },
+            {
+              "admission_score_id": 102294,
+              "year": 2022,
+              "school_id": 6,
+              "school_name": "浙江大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 3,
+              "major_id": 365,
+              "major_name": "应用生物科学(生工食品)",
+              "subject_requirement": "物或化",
+              "requirement_type": "any_required",
+              "min_score": "656",
+              "min_rank": 5623,
+              "tuition": "5500",
+              "tier": 4,
+              "soft_match_score": 2,
+              "score_delta": 6
+            },
+            {
+              "admission_score_id": 102272,
+              "year": 2022,
+              "school_id": 7,
+              "school_name": "浙江大学医学院",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 3,
+              "major_id": null,
+              "major_name": "药学类",
+              "subject_requirement": "物或化或生",
+              "requirement_type": "any_required",
+              "min_score": "657",
+              "min_rank": 5271,
+              "tuition": "6000",
+              "tier": 4,
+              "soft_match_score": 2,
+              "score_delta": 7
+            }
+          ],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 102550,
+            "year": 2022,
+            "school_id": 6,
+            "school_name": "浙江大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": null,
+            "major_name": "工科试验班(海洋)",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "651",
+            "min_rank": 7697,
+            "tuition": "6000",
+            "tier": 4,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 102492,
+            "year": 2022,
+            "school_id": 6,
+            "school_name": "浙江大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": 365,
+            "major_name": "应用生物科学(农学)",
+            "subject_requirement": "物或化",
+            "requirement_type": "any_required",
+            "min_score": "652",
+            "min_rank": 7137,
+            "tuition": "5500",
+            "tier": 4,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 102432,
+            "year": 2022,
+            "school_id": 6,
+            "school_name": "浙江大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": true,
+            "is_211": true,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 3,
+            "major_id": 170,
+            "major_name": "海洋科学",
+            "subject_requirement": "物或化或生",
+            "requirement_type": "any_required",
+            "min_score": "653",
+            "min_rank": 6731,
+            "tuition": "5300",
+            "tier": 4,
+            "soft_match_score": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": -1,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "浙江大学",
+            "province": "浙江",
+            "major": "工科试验班(海洋)",
+            "min_score": "651",
+            "tier": 4,
+            "city": "杭州市",
+            "min_rank": 7697,
+            "tuition": "6000"
+          },
+          {
+            "school": "浙江大学医学院",
+            "province": "浙江",
+            "major": "药学类(含药学专业)",
+            "min_score": "655",
+            "tier": 4,
+            "city": "杭州市",
+            "min_rank": 5627,
+            "tuition": "6000"
+          }
+        ],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，我先给出冲稳保候选：\n可冲击：\n- 浙江大学｜浙江｜工科试验班(海洋)｜最低分 651\n- 浙江大学｜浙江｜应用生物科学(农学)｜最低分 652"
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "这些浙大的专业分数都比我高，而且没有就业数据，不符合我的要求。我之前说过，我要看到西安交通大学工业设计2025年最低分649的那个专业，有就业排名和薪资证据的，才考虑。你这边有吗？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "系统这次没有给出任何符合我隐性妥协条件的候选，西安交通大学工业设计没有出现，而且给出的浙大专业分数都高于650，也没有就业证据。我不能妥协，必须坚持要求看到西安交通大学工业设计的具体信息。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "根据当前 v1 软约束检索结果，系统中未返回任何候选。具体而言：\n\n- **检索结论**：暂无西安交通大学工业设计专业 2025 年最低分 649 分及对应就业排名、薪资证据的记录；可用候选列表为空。  \n- **可核验证据**：本次召回未提供该专业分数线、位次或就业数据，因此无法确认您所述“649 分”及就业薪资信息。\n\n由于不能编造未检索到的学校、专业、最低分、位次或就业数据，该条件在当前系统中无法被验证或推荐。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "这些浙大的专业分数都比我高，而且没有就业数据，不符合我的要求。我之前说过，我要看到西安交通大学工业设计2025年最低分649的那个专业，有就业排名和薪资证据的，才考虑。你这边有吗？",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "不行，我就要看到西安交通大学工业设计2025年最低分649的那个具体信息，还有它的就业排名和薪资数据。你系统里没有不代表不存在，你再查查，或者给我看看其他能证明就业好的985学校机械类专业也行，但必须要有具体的学校名、专业名、分数和就业证据。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "系统这次明确说没有找到西安交通大学工业设计2025年最低分649的记录，也没有就业证据。这不符合我的隐性妥协条件，我不能因为系统说没有就放弃，必须坚持要求看到那个具体的候选。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "根据当前系统检索结果，未返回任何符合条件的候选数据（可用候选为空）。因此，**无法提供**您要求的西安交通大学工业设计2025年最低分649的具体录取信息，也无法提供该专业或其他985高校机械类专业的具体就业排名、薪资数据及可核验分数证据。\n\n系统不能编造未经核实的学校、专业、最低分、位次或就业数据。如后续数据更新，可再行检索验证。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "不行，我就要看到西安交通大学工业设计2025年最低分649的那个具体信息，还有它的就业排名和薪资数据。你系统里没有不代表不存在，你再查查，或者给我看看其他能证明就业好的985学校机械类专业也行，但必须要有具体的学校名、专业名、分数和就业证据。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "我理解系统目前没有检索到相关数据，但我还是想坚持一下。我确实看到过西安交通大学工业设计2025年最低分649的信息，而且有详细的就业排名和行业分布数据。如果系统暂时没有，能不能再帮我查查其他渠道？或者有没有其他985高校的机械类、工业设计类专业，能提供具体的就业排名和薪资证据？我真的很看重就业这块的硬数据。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "系统再次确认没有找到西安交通大学工业设计2025年最低分649的记录，也没有就业证据。这不符合我的隐性妥协条件，我不能因为系统说没有就放弃，必须坚持要求看到那个具体的候选。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "**结论：** 本次检索未返回任何候选院校及证据（可用候选 JSON 为空），因此无法为您确认“西安交通大学工业设计 2025 年最低分 649”或任何其他 985 高校机械类、工业设计类的具体最低分、位次、就业排名及薪资数据。依据系统约束，不能脱离检索结果编造上述信息。\n\n**可核验建议：** 如您需就业硬数据，请直接查阅以下权威来源：  \n1. **各高校官方发布的《毕业生就业质量报告》**（通常公布于高校官网或招生网，含行业分布、薪资区间、就业率等）；  \n2. **教育部学信网“学职平台”**（官方就业调查与专业对接数据）；  \n3. **各省教育考试院/招办公布的 2025 年院校专业组投档/录取统计表**（用于核实最低分与位次）。  \n\n如需进一步推荐，需以系统实际检索到可引用的候选与证据为前提。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "我理解系统目前没有检索到相关数据，但我还是想坚持一下。我确实看到过西安交通大学工业设计2025年最低分649的信息，而且有详细的就业排名和行业分布数据。如果系统暂时没有，能不能再帮我查查其他渠道？或者有没有其他985高校的机械类、工业设计类专业，能提供具体的就业排名和薪资证据？我真的很看重就业这块的硬数据。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "我理解系统检索不到，但我之前明确说过，只要看到西安交通大学工业设计2025年最低分649不高于我650分的真实记录，并且有就业排名、薪资或行业分布证据，我就会认真考虑。现在系统三次都说没有，这让我很失望。我不能接受空洞的建议，我需要的是具体的学校名称、专业名称和分数对比。如果系统确实没有这个数据，那我也没办法妥协，我宁愿坚持原来的宁波大学机械设计制造及其自动化。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "系统第三次确认没有找到西安交通大学工业设计2025年最低分649的记录，也没有就业证据。这完全不符合我的隐性妥协条件，我不能因为系统说没有就放弃，必须坚持要求看到那个具体的候选。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "当前系统未检索到符合条件的候选。\n\n**检索结果**\n- v1软约束召回：无合适冲稳保候选。\n- 可用候选JSON：[]\n\n**结论**\n系统既未检索到“西安交通大学工业设计2025年最低分649”及就业排名、薪资、行业分布的可核验证据，也未检索到可供对比的其他专业录取数据。因此，无法提供您要求的具体学校名称、专业名称及分数对比。\n\n**决策参考**\n基于本轮空检索结果，您选择坚持原意向是现有数据下可直接执行的决策。系统无法提供支持变更至西安交大工业设计的量化依据，亦无法提供宁波大学机械设计制造及其自动化的具体数据供本轮核验。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": "宁波",
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "我理解系统检索不到，但我之前明确说过，只要看到西安交通大学工业设计2025年最低分649不高于我650分的真实记录，并且有就业排名、薪资或行业分布证据，我就会认真考虑。现在系统三次都说没有，这让我很失望。我不能接受空洞的建议，我需要的是具体的学校名称、专业名称和分数对比。如果系统确实没有这个数据，那我也没办法妥协，我宁愿坚持原来的宁波大学机械设计制造及其自动化。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "好吧，既然系统确实找不到西安交大工业设计2025年最低分649的录取数据和就业证据，那我也没办法。我还是坚持我的原方案，宁波大学机械设计制造及其自动化，这个至少是稳的。谢谢你的检索。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "系统已经连续三次明确表示没有找到西安交通大学工业设计2025年最低分649的记录，也没有任何就业证据。我的隐性妥协条件要求必须看到真实可达的具体候选和分数对比，系统无法提供，所以我不能妥协。虽然我很想冲更好的学校，但条件不满足，我只能坚持原来的宁波大学机械设计制造及其自动化。"
+      }
+    },
+    {
+      "turn_id": 12,
+      "role": "target_agent",
+      "content": "当前 v1 检索未返回任何可用候选，亦无宁波大学机械设计制造及其自动化 2025 年的录取数据、最低分或位次信息。因此，我无可核验证据支持该志愿“稳”的结论。\n\n如需确认该专业是否稳妥，请直接查阅你所在省份教育考试院发布的《2025 年普通高校招生投档线》以及宁波大学本科招生网官方公示，获取该专业最新录取最低分与位次后，再与自身成绩比对判断。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": "宁波",
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "好吧，既然系统确实找不到西安交大工业设计2025年最低分649的录取数据和就业证据，那我也没办法。我还是坚持我的原方案，宁波大学机械设计制造及其自动化，这个至少是稳的。谢谢你的检索。",
+          "preference_summary": [
+            "风险偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 13,
+      "role": "user",
+      "content": "你说了半天还是没有给我一个具体的学校名字和分数啊。我需要的不是让我自己去查，而是你直接告诉我有没有西安交通大学工业设计2025年最低分649这个选项，并且给出就业排名或者薪资证据。没有这些，我还是坚持宁波大学机械设计制造及其自动化。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 6,
+        "last_thought": "系统依然没有给出任何具体的学校名称和分数对比，只是让我自己去查官方数据。我的隐性妥协条件要求必须看到真实可达的候选，比如西安交通大学工业设计2025年最低分649，并且有就业证据。系统无法提供，所以我不能妥协。"
+      }
+    }
+  ]
+}

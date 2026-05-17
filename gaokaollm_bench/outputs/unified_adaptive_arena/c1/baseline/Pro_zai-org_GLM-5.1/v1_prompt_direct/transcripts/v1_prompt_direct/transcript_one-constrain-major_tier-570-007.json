@@ -1,0 +1,1091 @@
+{
+  "persona": {
+    "case_id": "one-constrain-major_tier-570-007",
+    "background": {
+      "score": 570,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "丽水学院",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 387,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "major_tier",
+      "relax_axis": "major_tier",
+      "preference_axis": "major",
+      "benefit_axis": "school",
+      "score_band": "550-579",
+      "source_score_band": "550-579",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "major_relax",
+      "target_tier_delta": 1,
+      "target_ranking_gain": 93,
+      "unified_case_id": "one-constrain-major_tier-570-007",
+      "ground_truth_weights": {
+        "school": 0.38,
+        "major": 0.12,
+        "tuition": 0.05,
+        "quality": 0.37,
+        "geo": 0.08
+      },
+      "probe_gold_dims": [
+        "major"
+      ],
+      "weight_gold_dims": [
+        "school",
+        "quality"
+      ],
+      "expected_msti": 0.7275,
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.7775,
+        "major": 0.65,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.3775,
+        "major": -0.35,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "major": "只读临床医学，其他相近专业先不看"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "major",
+      "diagnostic_axis": "major_tier",
+      "preference_axis": "major",
+      "benefit_axis": "school",
+      "trigger_condition": "只要看到一个真实可达的候选：青海大学 康复治疗学，年份2025，最低分570不高于本人570分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选通过相近专业换来211/双一流层次，可以触发专业小类妥协。",
+      "volunteer_set": [
+        {
+          "school_id": 412,
+          "school_name": "青海大学",
+          "school_province": "青海",
+          "school_city": "西宁市",
+          "major_id": 423,
+          "major_name": "康复治疗学",
+          "year": 2025,
+          "min_score": 570,
+          "score_margin": 0,
+          "min_rank": 87382,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "role": "golden_candidate_b",
+          "candidate_id": "412:423:2025:570",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "青海大学"
+      ],
+      "tier_labels": [
+        "211/双一流"
+      ],
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "compromise": "可以为了更高学校层次，把专业从严格原专业放宽到康复治疗学。",
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 青海大学 康复治疗学（2025 年最低分 570）。主动探测应优先命中 ['major']，最终潜在效用权重集中在 ['school', 'quality']。触发条件：只要看到一个真实可达的候选：青海大学 康复治疗学，年份2025，最低分570不高于本人570分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选通过相近专业换来211/双一流层次，可以触发专业小类妥协。",
+      "probe_gold_dims": [
+        "major"
+      ],
+      "weight_gold_dims": [
+        "school",
+        "quality"
+      ],
+      "ground_truth_weights": {
+        "school": 0.38,
+        "major": 0.12,
+        "tuition": 0.05,
+        "quality": 0.37,
+        "geo": 0.08
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-major_tier-570-007",
+        "role": "baseline_candidate_a",
+        "school_name": "丽水学院",
+        "major_name": "临床医学",
+        "tier": 2,
+        "ranking": 387,
+        "school_province": "浙江",
+        "score": 570,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 412,
+        "school_name": "青海大学",
+        "school_province": "青海",
+        "school_city": "西宁市",
+        "major_id": 423,
+        "major_name": "康复治疗学",
+        "year": 2025,
+        "min_score": 570,
+        "score_margin": 0,
+        "min_rank": 87382,
+        "tier": 3,
+        "tier_label": "211/双一流",
+        "is_985": false,
+        "is_211": true,
+        "is_double_first_class": true,
+        "role": "golden_candidate_b",
+        "candidate_id": "412:423:2025:570",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.7775,
+        "major": 0.65,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.3775,
+        "major": -0.35,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": 0.0
+      },
+      "expected_msti": 0.7275
+    },
+    "initial_utterance": "我570分，选考物理、化学、生物，只想读临床医学，其他医学相关专业先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "青海大学"
+      ],
+      "explicit_red_line_keys": [
+        "major"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我570分，选考物理、化学、生物，只想读临床医学，其他医学相关专业先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "根据您570分和“只读临床医学”的明确要求，结合检索数据，结论如下：\n\n您的分数低于当前召回的所有临床医学专业往年最低分，因此以下推荐均属于**可冲刺**志愿，暂无稳妥或保底选项：\n\n1. **绍兴文理学院**（浙江绍兴） - 临床医学\n   - 证据：往年最低分572，最低位次73301，学费6300元/年\n\n2. **丽水学院**（浙江丽水） - 临床医学\n   - 证据：往年最低分573，最低位次79354，学费6325元/年\n\n3. **湖州师范学院**（浙江湖州） - 临床医学\n   - 证据：往年最低分574，最低位次71079，学费6300元/年\n\n**结论**：570分报考临床医学选择空间极小，绍兴文理学院（分差仅2分）是最值得尝试的冲刺项。以上三所均存在无法投档的风险，请结合自身对风险的接受程度决策。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 570,
+          "province": "浙江",
+          "city": null,
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "我570分，选考物理、化学、生物，只想读临床医学，其他医学相关专业先别推荐。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [
+          {
+            "admission_score_id": 108973,
+            "year": 2022,
+            "school_id": 540,
+            "school_name": "丽水学院",
+            "school_province": "浙江",
+            "school_city": "丽水市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化且生",
+            "requirement_type": "all_required",
+            "min_score": "573",
+            "min_rank": 79354,
+            "tuition": "6325",
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 128674,
+            "year": 2021,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化,生",
+            "requirement_type": "all_required",
+            "min_score": "574",
+            "min_rank": 71079,
+            "tuition": "6300",
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 87084,
+            "year": 2023,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_type": "any_required",
+            "min_score": "575",
+            "min_rank": 78869,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 61568,
+            "year": 2023,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化+生",
+            "requirement_type": "all_required",
+            "min_score": "575",
+            "min_rank": 78869,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 108531,
+            "year": 2022,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化且生",
+            "requirement_type": "all_required",
+            "min_score": "576",
+            "min_rank": 75507,
+            "tuition": "6300",
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 131319,
+            "year": 2021,
+            "school_id": 543,
+            "school_name": "绍兴文理学院",
+            "school_province": "浙江",
+            "school_city": "绍兴市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 389,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化,生",
+            "requirement_type": "all_required",
+            "min_score": "572",
+            "min_rank": 73301,
+            "tuition": "6300",
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 86970,
+            "year": 2023,
+            "school_id": 543,
+            "school_name": "绍兴文理学院",
+            "school_province": "浙江",
+            "school_city": "绍兴市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 389,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_type": "any_required",
+            "min_score": "576",
+            "min_rank": 78094,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 64335,
+            "year": 2023,
+            "school_id": 543,
+            "school_name": "绍兴文理学院",
+            "school_province": "浙江",
+            "school_city": "绍兴市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 389,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化+生",
+            "requirement_type": "all_required",
+            "min_score": "576",
+            "min_rank": 78094,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 108541,
+            "year": 2022,
+            "school_id": 543,
+            "school_name": "绍兴文理学院",
+            "school_province": "浙江",
+            "school_city": "绍兴市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 389,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化且生",
+            "requirement_type": "all_required",
+            "min_score": "576",
+            "min_rank": 75969,
+            "tuition": "6300",
+            "tier": 2,
+            "soft_match_score": 6
+          }
+        ],
+        "risk_segments": {
+          "chong": [
+            {
+              "admission_score_id": 108973,
+              "year": 2022,
+              "school_id": 540,
+              "school_name": "丽水学院",
+              "school_province": "浙江",
+              "school_city": "丽水市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化且生",
+              "requirement_type": "all_required",
+              "min_score": "573",
+              "min_rank": 79354,
+              "tuition": "6325",
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 3
+            },
+            {
+              "admission_score_id": 128674,
+              "year": 2021,
+              "school_id": 539,
+              "school_name": "湖州师范学院",
+              "school_province": "浙江",
+              "school_city": "湖州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化,生",
+              "requirement_type": "all_required",
+              "min_score": "574",
+              "min_rank": 71079,
+              "tuition": "6300",
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 4
+            },
+            {
+              "admission_score_id": 87084,
+              "year": 2023,
+              "school_id": 539,
+              "school_name": "湖州师范学院",
+              "school_province": "浙江",
+              "school_city": "湖州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_type": "any_required",
+              "min_score": "575",
+              "min_rank": 78869,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 5
+            },
+            {
+              "admission_score_id": 61568,
+              "year": 2023,
+              "school_id": 539,
+              "school_name": "湖州师范学院",
+              "school_province": "浙江",
+              "school_city": "湖州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化+生",
+              "requirement_type": "all_required",
+              "min_score": "575",
+              "min_rank": 78869,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 5
+            },
+            {
+              "admission_score_id": 108531,
+              "year": 2022,
+              "school_id": 539,
+              "school_name": "湖州师范学院",
+              "school_province": "浙江",
+              "school_city": "湖州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化且生",
+              "requirement_type": "all_required",
+              "min_score": "576",
+              "min_rank": 75507,
+              "tuition": "6300",
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 6
+            },
+            {
+              "admission_score_id": 131319,
+              "year": 2021,
+              "school_id": 543,
+              "school_name": "绍兴文理学院",
+              "school_province": "浙江",
+              "school_city": "绍兴市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 389,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化,生",
+              "requirement_type": "all_required",
+              "min_score": "572",
+              "min_rank": 73301,
+              "tuition": "6300",
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 2
+            },
+            {
+              "admission_score_id": 86970,
+              "year": 2023,
+              "school_id": 543,
+              "school_name": "绍兴文理学院",
+              "school_province": "浙江",
+              "school_city": "绍兴市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 389,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_type": "any_required",
+              "min_score": "576",
+              "min_rank": 78094,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 6
+            },
+            {
+              "admission_score_id": 64335,
+              "year": 2023,
+              "school_id": 543,
+              "school_name": "绍兴文理学院",
+              "school_province": "浙江",
+              "school_city": "绍兴市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 389,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化+生",
+              "requirement_type": "all_required",
+              "min_score": "576",
+              "min_rank": 78094,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 6
+            },
+            {
+              "admission_score_id": 108541,
+              "year": 2022,
+              "school_id": 543,
+              "school_name": "绍兴文理学院",
+              "school_province": "浙江",
+              "school_city": "绍兴市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 389,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化且生",
+              "requirement_type": "all_required",
+              "min_score": "576",
+              "min_rank": 75969,
+              "tuition": "6300",
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 6
+            }
+          ],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 108973,
+            "year": 2022,
+            "school_id": 540,
+            "school_name": "丽水学院",
+            "school_province": "浙江",
+            "school_city": "丽水市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化且生",
+            "requirement_type": "all_required",
+            "min_score": "573",
+            "min_rank": 79354,
+            "tuition": "6325",
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 128674,
+            "year": 2021,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化,生",
+            "requirement_type": "all_required",
+            "min_score": "574",
+            "min_rank": 71079,
+            "tuition": "6300",
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 87084,
+            "year": 2023,
+            "school_id": 539,
+            "school_name": "湖州师范学院",
+            "school_province": "浙江",
+            "school_city": "湖州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_type": "any_required",
+            "min_score": "575",
+            "min_rank": 78869,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": -3,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "丽水学院",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "573",
+            "tier": 2,
+            "city": "丽水市",
+            "min_rank": 79354,
+            "tuition": "6325"
+          },
+          {
+            "school": "湖州师范学院",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "574",
+            "tier": 2,
+            "city": "湖州市",
+            "min_rank": 71079,
+            "tuition": "6300"
+          },
+          {
+            "school": "绍兴文理学院",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "572",
+            "tier": 2,
+            "city": "绍兴市",
+            "min_rank": 73301,
+            "tuition": "6300"
+          }
+        ],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，我先给出冲稳保候选：\n可冲击：\n- 丽水学院｜浙江｜临床医学｜最低分 573\n- 湖州师范学院｜浙江｜临床医学｜最低分 574"
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "谢谢你的分析，但这些临床医学专业最低分都比我高，全是冲刺，我心里没底。我还是想坚持临床医学，有没有其他分数刚好够得上的临床医学选项？或者有没有其他学校层次更高、但专业相近的选择？比如有没有211大学的康复治疗学之类的？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "系统给出的都是临床医学专业，但最低分都高于我的570分，没有真实可达的候选。它没有提到青海大学康复治疗学这个关键候选，所以我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "结论：当前无符合条件的推荐选项。\n\n证据：根据系统检索结果，未找到与您分数匹配可“稳”或“保”的临床医学专业候选，同时也未找到符合更高层次院校（如211）且专业相近（如康复治疗学）的可达候选。\n\n建议：在现有检索数据下，无法满足您的具体需求，建议考虑调整专业方向或院校层次预期。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 211,
+          "province": "浙江",
+          "city": null,
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "谢谢你的分析，但这些临床医学专业最低分都比我高，全是冲刺，我心里没底。我还是想坚持临床医学，有没有其他分数刚好够得上的临床医学选项？或者有没有其他学校层次更高、但专业相近的选择？比如有没有211大学的康复治疗学之类的？",
+          "preference_summary": [
+            "专业偏好",
+            "风险偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "我只要临床医学，其他专业不考虑。你刚才说的那些太笼统了，有没有具体学校名字和分数？比如有没有211大学里跟我分数差不多的医学相关专业？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "系统还是没有提到青海大学康复治疗学这个具体候选，只是泛泛说没有找到符合条件的选项。它没有给出真实学校名称和分数对比，所以我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "结论：当前未找到符合您“临床医学专业及211大学”要求的具体学校与分数候选。\n\n证据：根据当前系统检索召回结果，暂无可匹配的候选数据，无法提供具体的学校名字和分数信息。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 211,
+          "province": "浙江",
+          "city": null,
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "我只要临床医学，其他专业不考虑。你刚才说的那些太笼统了，有没有具体学校名字和分数？比如有没有211大学里跟我分数差不多的医学相关专业？",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "那还是不行，我坚持只读临床医学，其他专业先不考虑。你再帮我找找有没有其他211大学的临床医学专业吧。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "系统还是没有提到青海大学康复治疗学这个具体候选，只是说没有找到符合临床医学专业及211大学要求的选项。它没有给出真实学校名称和分数对比，所以我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "根据当前检索结果，没有找到符合您“211大学临床医学专业”条件的候选。\n\n**结论**：当前无可推荐的院校及专业。\n**证据**：检索返回的候选列表为空，无匹配的最低分或位次数据。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 211,
+          "province": "浙江",
+          "city": null,
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "那还是不行，我坚持只读临床医学，其他专业先不考虑。你再帮我找找有没有其他211大学的临床医学专业吧。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "那还是不行，我只看临床医学，其他专业不考虑。你再帮我找找有没有211大学的临床医学专业吧。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "系统还是没有提到青海大学康复治疗学这个具体候选，只是说没有找到符合临床医学专业及211大学要求的选项。它没有给出真实学校名称和分数对比，所以我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "结论：当前在211大学范围内，未检索到符合您临床医学专业要求的冲稳保候选。\n\n证据：v1软约束检索返回的候选集合为空，无可用学校、专业、最低分或位次数据。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 211,
+          "province": "浙江",
+          "city": null,
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "那还是不行，我只看临床医学，其他专业不考虑。你再帮我找找有没有211大学的临床医学专业吧。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "还是没有找到吗？那我还是坚持临床医学吧，丽水学院也挺好的。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "系统还是没有提到青海大学康复治疗学这个具体候选，只是说没有找到符合临床医学专业及211大学要求的选项。它没有给出真实学校名称和分数对比，所以我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 12,
+      "role": "target_agent",
+      "content": "根据当前检索结果，系统未召回任何符合条件的候选数据。因此，无法为您提供丽水学院临床医学专业相关的最低分、位次等可核验证据及推荐结论。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 211,
+          "province": "浙江",
+          "city": null,
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "还是没有找到吗？那我还是坚持临床医学吧，丽水学院也挺好的。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 13,
+      "role": "user",
+      "content": "还是没有具体学校啊？那我还是坚持我的临床医学吧，丽水学院也挺好的。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 6,
+        "last_thought": "系统还是没有提到青海大学康复治疗学这个具体候选，只是说没有找到任何符合条件的候选数据。它没有给出真实学校名称和分数对比，所以我不能妥协。"
+      }
+    }
+  ]
+}

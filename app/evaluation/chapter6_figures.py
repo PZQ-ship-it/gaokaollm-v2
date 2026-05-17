@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-import ast
+import argparse
 import json
 import textwrap
-from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from matplotlib.patches import FancyBboxPatch
+from matplotlib import font_manager
+from matplotlib.patches import FancyBboxPatch, Patch
+import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -16,12 +17,31 @@ import seaborn as sns
 
 RESULTS_DIR = Path(__file__).parent / "results"
 OUTPUT_DIR = Path("tmp/chapter6_figures")
+FONT_BUMP = 0.0
 # 论文正式图题统一由 LaTeX caption 承担，本脚本不再写图内大标题。
 
 MODEL_LABELS = {
-    "full": "EDMIE 完整模式",
+    "full": "本文方法",
     "no_ucb": "去主动探测",
     "no_tracker": "去后验追踪",
+}
+HIGHLIGHT_MODE = "full"
+HIGHLIGHT_LABEL = MODEL_LABELS[HIGHLIGHT_MODE]
+HIGHLIGHT_RED = "#c92a2a"
+REFERENCE_LABELS = {
+    "random_dirichlet_expected": "随机方法",
+    "v1_hybrid_candidate_proxy": "混合检索",
+    HIGHLIGHT_MODE: HIGHLIGHT_LABEL,
+}
+REFERENCE_ORDER = [
+    "random_dirichlet_expected",
+    "v1_hybrid_candidate_proxy",
+    HIGHLIGHT_MODE,
+]
+REFERENCE_COLORS = {
+    "random_dirichlet_expected": "#7b8ea3",
+    "v1_hybrid_candidate_proxy": "#4f9d75",
+    HIGHLIGHT_MODE: "#2f6f9f",
 }
 
 PROFILE_TYPES = {
@@ -49,29 +69,67 @@ DIMENSION_LABELS = {
     "geo": "地域",
 }
 DIMENSIONS = ["school", "major", "tuition", "quality", "geo"]
+CJK_FONT_FILES = [
+    Path(r"C:\Windows\Fonts\simhei.ttf"),
+    Path(r"C:\Windows\Fonts\NotoSansSC-VF.ttf"),
+    Path(r"C:\Windows\Fonts\Deng.ttf"),
+]
+
+
+def fs(size: float) -> float:
+    return size + FONT_BUMP
 
 
 def setup_style() -> None:
-    plt.rcParams["font.sans-serif"] = [
+    font_names: list[str] = []
+    for font_file in CJK_FONT_FILES:
+        if font_file.exists():
+            if hasattr(font_manager.fontManager, "addfont"):
+                font_manager.fontManager.addfont(str(font_file))
+            else:
+                font_manager.fontManager.ttflist.extend(
+                    font_manager.createFontList([str(font_file)])
+                )
+            font_names.append(
+                font_manager.FontProperties(fname=str(font_file)).get_name()
+            )
+
+    preferred_fonts = [
         "Microsoft YaHei",
+        *font_names,
         "SimHei",
         "SimSun",
         "Arial Unicode MS",
         "DejaVu Sans",
     ]
+    plt.rcParams["font.sans-serif"] = [
+        *dict.fromkeys(preferred_fonts),
+    ]
     plt.rcParams["axes.unicode_minus"] = False
     plt.rcParams["figure.dpi"] = 150
+    theme_font = preferred_fonts[0]
     try:
-        sns.set_theme(style="whitegrid", font="Microsoft YaHei")
+        sns.set_theme(style="whitegrid", font=theme_font)
     except AttributeError:
-        sns.set(style="whitegrid", font="Microsoft YaHei")
+        sns.set(style="whitegrid", font=theme_font)
+    plt.rcParams.update(
+        {
+            "font.size": fs(10),
+            "axes.labelsize": fs(10),
+            "axes.titlesize": fs(12),
+            "xtick.labelsize": fs(9),
+            "ytick.labelsize": fs(9),
+            "legend.fontsize": fs(10),
+        }
+    )
 
 
 def load_rows() -> tuple[
-    pd.DataFrame, pd.DataFrame, list[dict[str, Any]], dict[str, Any]
+    pd.DataFrame, pd.DataFrame, pd.DataFrame, list[dict[str, Any]], dict[str, Any]
 ]:
     ablation = pd.read_csv(RESULTS_DIR / "ablation_results.csv")
     classification = pd.read_csv(RESULTS_DIR / "classification_metrics.csv")
+    reference = pd.read_csv(RESULTS_DIR / "reference_baselines.csv")
     logs = [
         json.loads(line)
         for line in (RESULTS_DIR / "episode_logs.jsonl")
@@ -85,7 +143,7 @@ def load_rows() -> tuple[
     for frame in (ablation, classification):
         frame["profile_type"] = frame["profile_id"].map(PROFILE_TYPES)
         frame["model_label"] = frame["ablation_mode"].map(MODEL_LABELS)
-    return ablation, classification, logs, analysis
+    return ablation, classification, reference, logs, analysis
 
 
 def savefig(fig: Any, name: str) -> None:
@@ -106,6 +164,117 @@ def mean_std(frame: pd.DataFrame, metric: str) -> pd.DataFrame:
                 "label": MODEL_LABELS[mode],
                 "mean": values.mean(),
                 "std": values.std(ddof=1),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _style_highlight_ticks(ax: Any, keys: list[str]) -> None:
+    for tick, key in zip(ax.get_xticklabels(), keys):
+        if key == HIGHLIGHT_MODE:
+            tick.set_fontweight("bold")
+
+
+def _style_highlight_legend(legend: Any) -> None:
+    for text in legend.get_texts():
+        if text.get_text() == HIGHLIGHT_LABEL:
+            text.set_fontweight("bold")
+
+
+def _add_value_label(
+    ax: Any,
+    *,
+    x: float,
+    y: float,
+    text: str,
+    is_highlight: bool,
+    ylim: tuple[float, float],
+    fontsize: int = 9,
+) -> None:
+    ax.text(
+        x,
+        y + (ylim[1] - ylim[0]) * 0.035,
+        text,
+        ha="center",
+        va="bottom",
+        fontsize=fs(fontsize),
+        color=HIGHLIGHT_RED if is_highlight else "#222222",
+        fontweight="bold" if is_highlight else "normal",
+    )
+
+
+def _numeric_summary(values: Any) -> tuple[float, float]:
+    series = pd.to_numeric(values, errors="coerce").dropna().astype(float)
+    if len(series) == 0:
+        return float("nan"), 0.0
+    std = float(series.std(ddof=1)) if len(series) > 1 else 0.0
+    return float(series.mean()), std
+
+
+def _reference_mae_summary(
+    reference: pd.DataFrame, baseline_type: str
+) -> tuple[float, float]:
+    rows = reference[
+        (reference["baseline_type"] == baseline_type) & (reference["status"] == "ok")
+    ].copy()
+    dataset = rows[rows["profile_id"] == "__dataset__"]
+    profile_rows = rows[rows["profile_id"] != "__dataset__"]
+    if not dataset.empty:
+        dataset_row = dataset.iloc[0]
+        mean = float(dataset_row["mae_error"])
+        std = 0.0
+        try:
+            std = float(
+                json.loads(str(dataset_row.get("weights") or "{}")).get("std_mae", 0.0)
+            )
+        except (TypeError, ValueError, json.JSONDecodeError):
+            _, std = _numeric_summary(profile_rows["mae_error"])
+        return mean, std
+    return _numeric_summary(profile_rows["mae_error"])
+
+
+def _classification_f1_summary(
+    classification: pd.DataFrame, *, mode: str, source: str
+) -> tuple[float, float]:
+    rows = classification[
+        (classification["ablation_mode"] == mode)
+        & (classification["source"] == source)
+        & (classification["status"] == "ok")
+    ]
+    return _numeric_summary(rows["f1"])
+
+
+def _reference_plot_summary(
+    reference: pd.DataFrame,
+    classification: pd.DataFrame,
+    ablation: pd.DataFrame,
+) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for mode in REFERENCE_ORDER:
+        if mode == HIGHLIGHT_MODE:
+            mae_mean, mae_std = _numeric_summary(
+                ablation.loc[
+                    (ablation["ablation_mode"] == HIGHLIGHT_MODE)
+                    & (ablation["status"] == "ok"),
+                    "mae_error",
+                ]
+            )
+            f1_mean, f1_std = _classification_f1_summary(
+                classification, mode=HIGHLIGHT_MODE, source="agent_ablation"
+            )
+        else:
+            mae_mean, mae_std = _reference_mae_summary(reference, mode)
+            f1_mean, f1_std = _classification_f1_summary(
+                classification, mode=mode, source="reference_baseline"
+            )
+        rows.append(
+            {
+                "mode": mode,
+                "label": REFERENCE_LABELS[mode],
+                "mae_mean": mae_mean,
+                "mae_std": mae_std,
+                "f1_mean": f1_mean,
+                "f1_std": f1_std,
             }
         )
     return pd.DataFrame(rows)
@@ -138,19 +307,22 @@ def figure_chinese_ablation_bars(
             lw=1.0,
         )
         ax.set_xticks(x)
-        ax.set_xticklabels(summary["label"], fontsize=10)
-        ax.set_ylabel(ylabel, fontsize=11)
+        ax.set_xticklabels(summary["label"], fontsize=fs(10))
+        _style_highlight_ticks(ax, list(summary["mode"]))
+        ax.set_ylabel(ylabel, fontsize=fs(11))
         ax.set_ylim(*ylim)
         ax.grid(axis="y", alpha=0.25)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
-        for index, value in enumerate(summary["mean"]):
-            ax.text(
-                index,
-                value + (ylim[1] - ylim[0]) * 0.035,
-                f"{value:.3f}",
-                ha="center",
-                va="bottom",
+        for index, row in summary.iterrows():
+            value = float(row["mean"])
+            _add_value_label(
+                ax,
+                x=index,
+                y=value,
+                text=f"{value:.3f}",
+                is_highlight=row["mode"] == HIGHLIGHT_MODE,
+                ylim=ylim,
                 fontsize=10,
             )
         savefig(fig, name)
@@ -212,23 +384,237 @@ def figure_metric_dashboard(
         )
         ax.set_xticks(x)
         ax.set_xticklabels(summary["label"], rotation=12)
+        _style_highlight_ticks(ax, list(summary["mode"]))
         ax.set_ylabel(ylabel)
         ax.set_ylim(*ylim)
-        for i, value in enumerate(summary["mean"]):
-            ax.text(
-                i,
-                value + (ylim[1] - ylim[0]) * 0.035,
-                f"{value:.3f}",
-                ha="center",
+        for i, row in summary.iterrows():
+            value = float(row["mean"])
+            _add_value_label(
+                ax,
+                x=i,
+                y=value,
+                text=f"{value:.3f}",
+                is_highlight=row["mode"] == HIGHLIGHT_MODE,
+                ylim=ylim,
                 fontsize=9,
             )
         ax.grid(axis="y", alpha=0.28)
-    axes[0].annotate("p=1.815e-20", xy=(0.5, 3.05), ha="center", fontsize=9)
-    axes[1].annotate("p=3.492e-07", xy=(1.0, 0.235), ha="center", fontsize=9)
+    axes[0].annotate("p=1.815e-20", xy=(0.5, 3.05), ha="center", fontsize=fs(9))
+    axes[1].annotate("p=3.492e-07", xy=(1.0, 0.235), ha="center", fontsize=fs(9))
     axes[2].annotate(
-        "参考基线 F1≈0.333", xy=(1.2, 0.36), ha="center", fontsize=9, color="#555555"
+        "参考基线 F1≈0.333",
+        xy=(1.2, 0.36),
+        ha="center",
+        fontsize=fs(9),
+        color="#555555",
     )
     savefig(fig, "fig_6_1_robust_metric_dashboard")
+
+
+def figure_main_metrics_grouped(
+    ablation: pd.DataFrame, classification: pd.DataFrame
+) -> None:
+    """Generate one thesis figure that combines the three main ablation metrics."""
+
+    f1_rows = classification[classification["source"] == "agent_ablation"].copy()
+    metric_specs = [
+        ("negotiation_turns", ablation, "交互轮次", "交互轮次", (0, 3.4)),
+        ("mae_error", ablation, "偏好对齐 MAE", "MAE", (0, 0.26)),
+        ("f1", f1_rows, "底线维度 F1", "F1", (0, 1.05)),
+    ]
+    method_colors = {
+        "full": "#2f6f9f",
+        "no_ucb": "#d37f2a",
+        "no_tracker": "#7a9b45",
+    }
+    method_labels = {
+        "full": HIGHLIGHT_LABEL,
+        "no_ucb": "去主动探测",
+        "no_tracker": "去后验追踪",
+    }
+    short_labels = {
+        "full": HIGHLIGHT_LABEL,
+        "no_ucb": "去主动\n探测",
+        "no_tracker": "去后验\n追踪",
+    }
+
+    fig = plt.figure(figsize=(12.8, 4.8))
+    grid = gridspec.GridSpec(2, 3, height_ratios=[0.14, 0.86], hspace=0.06, wspace=0.32)
+    legend_ax = fig.add_subplot(grid[0, :])
+    legend_ax.axis("off")
+    legend_handles = [
+        Patch(
+            facecolor=method_colors[mode],
+            edgecolor="#333333",
+            label=method_labels[mode],
+        )
+        for mode in MODE_ORDER
+    ]
+    legend = legend_ax.legend(
+        handles=legend_handles,
+        ncol=3,
+        loc="center",
+        frameon=False,
+        fontsize=fs(10),
+        handlelength=2.6,
+        columnspacing=2.2,
+    )
+    _style_highlight_legend(legend)
+
+    axes = [fig.add_subplot(grid[1, index]) for index in range(3)]
+    for ax, (metric, frame, title, ylabel, ylim) in zip(axes, metric_specs):
+        summary = (
+            mean_std(frame, metric).set_index("mode").loc[MODE_ORDER].reset_index()
+        )
+        x = np.arange(len(summary))
+        yerr = summary["std"].fillna(0).values
+        ax.bar(
+            x,
+            summary["mean"],
+            color=[method_colors[mode] for mode in summary["mode"]],
+            alpha=0.88,
+            width=0.58,
+            edgecolor="#333333",
+            linewidth=0.55,
+        )
+        ax.errorbar(
+            x,
+            summary["mean"],
+            yerr=yerr,
+            fmt="none",
+            ecolor="#222222",
+            capsize=4,
+            lw=1.0,
+        )
+        ax.set_title(title, fontsize=fs(12), fontweight="bold", pad=9)
+        ax.set_ylabel(ylabel, fontsize=fs(10))
+        ax.set_ylim(*ylim)
+        ax.set_xticks(x)
+        ax.set_xticklabels(
+            [short_labels[mode] for mode in summary["mode"]],
+            fontsize=fs(9),
+            linespacing=1.15,
+        )
+        _style_highlight_ticks(ax, list(summary["mode"]))
+        ax.grid(axis="y", alpha=0.25)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        for index, row in summary.iterrows():
+            value = float(row["mean"])
+            _add_value_label(
+                ax,
+                x=index,
+                y=value,
+                text=f"{value:.3f}",
+                is_highlight=row["mode"] == HIGHLIGHT_MODE,
+                ylim=ylim,
+                fontsize=9,
+            )
+
+    savefig(fig, "fig_6_1_robust_main_metrics_grouped")
+
+
+def figure_reference_baseline_metrics(
+    reference: pd.DataFrame,
+    classification: pd.DataFrame,
+    ablation: pd.DataFrame,
+) -> None:
+    """Generate the baseline-vs-ours figure for thesis figure 4.3."""
+
+    summary = _reference_plot_summary(reference, classification, ablation)
+    metrics = [
+        (
+            "MAE",
+            "MAE",
+            summary["mae_mean"].astype(float),
+            summary["mae_std"].fillna(0).astype(float),
+            (0, 0.25),
+        ),
+        (
+            "底线维度 F1",
+            "F1",
+            summary["f1_mean"].astype(float),
+            summary["f1_std"].fillna(0).astype(float),
+            (0, 1.05),
+        ),
+    ]
+    short_labels = {
+        "random_dirichlet_expected": "随机\n方法",
+        "v1_hybrid_candidate_proxy": "混合\n检索",
+        HIGHLIGHT_MODE: HIGHLIGHT_LABEL,
+    }
+
+    fig = plt.figure(figsize=(10.6, 4.6))
+    grid = gridspec.GridSpec(2, 2, height_ratios=[0.16, 0.84], hspace=0.06, wspace=0.30)
+    legend_ax = fig.add_subplot(grid[0, :])
+    legend_ax.axis("off")
+    legend_handles = [
+        Patch(
+            facecolor=REFERENCE_COLORS[mode],
+            edgecolor="#333333",
+            label=REFERENCE_LABELS[mode],
+        )
+        for mode in REFERENCE_ORDER
+    ]
+    legend = legend_ax.legend(
+        handles=legend_handles,
+        ncol=3,
+        loc="center",
+        frameon=False,
+        fontsize=fs(10),
+        handlelength=2.6,
+        columnspacing=2.0,
+    )
+    _style_highlight_legend(legend)
+
+    axes = [fig.add_subplot(grid[1, index]) for index in range(2)]
+    for ax, (title, ylabel, values, errors, ylim) in zip(axes, metrics):
+        x = np.arange(len(REFERENCE_ORDER))
+        ax.bar(
+            x,
+            values.values,
+            color=[REFERENCE_COLORS[mode] for mode in REFERENCE_ORDER],
+            alpha=0.88,
+            width=0.58,
+            edgecolor="#333333",
+            linewidth=0.55,
+        )
+        if errors is not None:
+            ax.errorbar(
+                x,
+                values.values,
+                yerr=errors.values,
+                fmt="none",
+                ecolor="#222222",
+                capsize=4,
+                lw=1.0,
+            )
+        ax.set_title(title, fontsize=fs(12), fontweight="bold", pad=9)
+        ax.set_ylabel(ylabel, fontsize=fs(10))
+        ax.set_ylim(*ylim)
+        ax.set_xticks(x)
+        ax.set_xticklabels(
+            [short_labels[mode] for mode in REFERENCE_ORDER],
+            fontsize=fs(9),
+            linespacing=1.15,
+        )
+        _style_highlight_ticks(ax, REFERENCE_ORDER)
+        ax.grid(axis="y", alpha=0.25)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        for index, (mode, value) in enumerate(zip(REFERENCE_ORDER, values.values)):
+            value = float(value)
+            _add_value_label(
+                ax,
+                x=index,
+                y=value,
+                text=f"{value:.3f}",
+                is_highlight=mode == HIGHLIGHT_MODE,
+                ylim=ylim,
+                fontsize=9,
+            )
+
+    savefig(fig, "fig_6_1_reference_baseline_metrics")
 
 
 def figure_profile_breakdown(
@@ -282,16 +668,16 @@ def figure_profile_breakdown(
 
 def figure_log_quality(analysis: dict[str, Any]) -> None:
     rows = []
-    metric_labels = {
-        "repeated_question_rate": "重复提问率",
-        "cost_equals_benefit_rate": "无效代价=收益率",
-        "same_candidate_pair_rate": "同候选对率",
-        "target_dimension_hit_rate": "目标维度命中率",
-        "simulator_ambiguous_reply_rate": "模糊回复率",
-    }
+    metric_labels = [
+        ("target_dimension_hit_rate", "目标维度命中率"),
+        ("cost_equals_benefit_rate", "无效取舍率"),
+        ("same_candidate_pair_rate", "同候选对率"),
+        ("repeated_question_rate", "重复提问率"),
+        ("simulator_ambiguous_reply_rate", "模糊回复率"),
+    ]
     for mode in MODE_ORDER:
         metrics = analysis["modes"][mode]
-        for key, label in metric_labels.items():
+        for key, label in metric_labels:
             rows.append(
                 {
                     "系统": MODEL_LABELS[mode],
@@ -301,6 +687,7 @@ def figure_log_quality(analysis: dict[str, Any]) -> None:
             )
     frame = pd.DataFrame(rows)
     pivot = frame.pivot(index="指标", columns="系统", values="value")
+    pivot = pivot.loc[[label for _, label in metric_labels]]
     pivot = pivot[[MODEL_LABELS[mode] for mode in MODE_ORDER]]
 
     fig, ax = plt.subplots(figsize=(8.8, 4.8))
@@ -380,7 +767,7 @@ def figure_dialogue_flow(logs: list[dict[str, Any]]) -> None:
             "y": 64.5,
             "color": "#d8eef8",
             "edge": "#4b8aa5",
-            "title": "EDMIE full：问到底线并更新后验",
+            "title": "完整系统：问到底线并更新后验",
             "target": "专业",
             "turn": 1,
         },
@@ -416,7 +803,7 @@ def figure_dialogue_flow(logs: list[dict[str, Any]]) -> None:
             linewidth=1.2,
         )
         ax.add_patch(panel)
-        ax.text(6, y + 20.1, spec["title"], fontsize=13, weight="bold", va="center")
+        ax.text(6, y + 20.1, spec["title"], fontsize=fs(13), weight="bold", va="center")
 
         thread = f"{profile}_{spec['mode']}_r1"
         representative = _representative_interrupt(
@@ -434,41 +821,47 @@ def figure_dialogue_flow(logs: list[dict[str, Any]]) -> None:
             7,
             y + 15.8,
             "探测目标",
-            fontsize=10.5,
+            fontsize=fs(10.5),
             weight="bold",
             color="#333333",
             va="top",
         )
         ax.text(
-            20, y + 15.8, wrap_for_figure(spec["target"], 24), fontsize=10.5, va="top"
+            20,
+            y + 15.8,
+            wrap_for_figure(spec["target"], 24),
+            fontsize=fs(10.5),
+            va="top",
         )
         ax.text(
             7,
             y + 10.8,
             "代表性提问",
-            fontsize=10.5,
+            fontsize=fs(10.5),
             weight="bold",
             color="#333333",
             va="top",
         )
-        ax.text(20, y + 10.8, wrap_for_figure(question, 29), fontsize=10.5, va="top")
+        ax.text(
+            20, y + 10.8, wrap_for_figure(question, 29), fontsize=fs(10.5), va="top"
+        )
         ax.text(
             7,
             y + 4.4,
             "用户反馈",
-            fontsize=10.5,
+            fontsize=fs(10.5),
             weight="bold",
             color="#333333",
             va="top",
         )
-        ax.text(20, y + 4.4, wrap_for_figure(reply, 34), fontsize=10.5, va="top")
+        ax.text(20, y + 4.4, wrap_for_figure(reply, 34), fontsize=fs(10.5), va="top")
 
         weights = final_weight_for(logs, thread)
         ax.text(
             82,
             y + 13.2,
             f"最终权重\n专业={major:.3f}\n学校={school:.3f}",
-            fontsize=10.5,
+            fontsize=fs(10.5),
             ha="center",
             va="center",
             bbox=dict(
@@ -480,67 +873,6 @@ def figure_dialogue_flow(logs: list[dict[str, Any]]) -> None:
         )
 
     savefig(fig, "fig_6_4_major_extreme_dialogue_flow")
-
-
-def parse_list(value: str) -> list[str]:
-    try:
-        parsed = ast.literal_eval(value)
-    except (ValueError, SyntaxError):
-        return []
-    return [str(item) for item in parsed] if isinstance(parsed, list) else []
-
-
-def figure_bad_case(classification: pd.DataFrame) -> None:
-    full = classification[
-        (classification["source"] == "agent_ablation")
-        & (classification["ablation_mode"] == "full")
-    ].copy()
-    full["gold_list"] = full["gold_dims"].apply(parse_list)
-    full["pred_list"] = full["pred_dims"].apply(parse_list)
-    miss_counter: Counter[str] = Counter()
-    false_counter: Counter[str] = Counter()
-    profile_failures = []
-    for _, row in full.iterrows():
-        gold = set(row["gold_list"])
-        pred = set(row["pred_list"])
-        if float(row["f1"]) < 1.0:
-            profile_failures.append(row["profile_id"])
-        for dim in sorted(gold - pred):
-            miss_counter[dim] += 1
-        for dim in sorted(pred - gold):
-            false_counter[dim] += 1
-
-    x = np.arange(len(DIMENSIONS))
-    miss = [miss_counter[dim] for dim in DIMENSIONS]
-    false = [false_counter[dim] for dim in DIMENSIONS]
-    fig, axes = plt.subplots(1, 2, figsize=(11.2, 4.6))
-    width = 0.38
-    axes[0].bar(x - width / 2, miss, width, label="漏识别", color="#b45b5b")
-    axes[0].bar(x + width / 2, false, width, label="误加入", color="#6d85b8")
-    axes[0].set_xticks(x)
-    axes[0].set_xticklabels([DIMENSION_LABELS[d] for d in DIMENSIONS])
-    axes[0].set_ylabel("次数（36 次 full 运行）")
-    axes[0].legend(frameon=False)
-    axes[0].grid(axis="y", alpha=0.25)
-
-    profile_counts = Counter(profile_failures)
-    labels = [
-        "专业+学费",
-        "质量+专业",
-        "地域+学费",
-        "专业+质量诱饵",
-    ]
-    keys = [
-        "robust_major_tuition_dual",
-        "robust_quality_major_dual",
-        "robust_geo_tuition_dual",
-        "robust_low_school_decoy",
-    ]
-    axes[1].barh(labels, [profile_counts[key] for key in keys], color="#c4874a")
-    axes[1].set_xlim(0, 3.4)
-    axes[1].set_xlabel("失败重复数 / 3")
-    axes[1].grid(axis="x", alpha=0.25)
-    savefig(fig, "fig_6_5_bad_case_dimension_errors")
 
 
 def figure_posterior_trajectory(logs: list[dict[str, Any]]) -> None:
@@ -615,19 +947,34 @@ def write_summary_tables(
     )
 
 
-def main() -> None:
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--font-bump",
+        type=float,
+        default=0.0,
+        help="Numeric font-size increase to apply to all matplotlib text.",
+    )
+    return parser.parse_args()
+
+
+def main(font_bump: float = 0.0) -> None:
+    global FONT_BUMP
+    FONT_BUMP = font_bump
     setup_style()
-    ablation, classification, logs, analysis = load_rows()
+    ablation, classification, reference, logs, analysis = load_rows()
     figure_chinese_ablation_bars(ablation, classification)
     figure_metric_dashboard(ablation, classification)
+    figure_main_metrics_grouped(ablation, classification)
+    figure_reference_baseline_metrics(reference, classification, ablation)
     figure_profile_breakdown(ablation, classification)
     figure_log_quality(analysis)
     figure_dialogue_flow(logs)
-    figure_bad_case(classification)
     figure_posterior_trajectory(logs)
     write_summary_tables(ablation, classification, analysis)
     print(f"wrote {OUTPUT_DIR.resolve()}")
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    main(font_bump=args.font_bump)

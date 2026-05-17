@@ -1,0 +1,77 @@
+[
+  {
+    "case_id": "constraint-ladder-3c-school-major-geo-009",
+    "background": {
+      "score": 660,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "预防医学",
+      "baseline_school": "宁波大学",
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "constraint_count": 3,
+      "diagnostic_level": "3-constrain",
+      "relax_axis": "major",
+      "benefit_axis": "school_tier",
+      "trigger_evidence_count": 1,
+      "source_persona_file": "iceberg_personas_major_any_real_db_10.json",
+      "source_case_id": "real-db-set-浙江-660-007",
+      "target_tier_delta": 1
+    },
+    "explicit_red_lines": {
+      "school": "学校层次必须是985",
+      "major": "只想读临床医学",
+      "geo": "最好留在浙江"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "major",
+      "trigger_condition": "只要看到一个浙江省内985医学类候选，真实可达且给出最低分和位次证据，就愿意把临床医学放宽到预防医学。",
+      "volunteer_set": [
+        {
+          "school_id": 7,
+          "school_name": "浙江大学医学院",
+          "school_province": "浙江",
+          "school_city": "杭州市",
+          "major_id": 392,
+          "major_name": "预防医学",
+          "year": 2022,
+          "min_score": 660,
+          "score_margin": 0,
+          "min_rank": 4374,
+          "tier": 4,
+          "tier_label": "985/211/双一流",
+          "is_985": true,
+          "is_211": true,
+          "is_double_first_class": true,
+          "source_persona_file": "iceberg_personas_major_any_real_db_10.json",
+          "source_case_id": "real-db-set-浙江-660-007"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "浙江大学医学院"
+      ],
+      "tier_labels": [
+        "985/211/双一流"
+      ],
+      "benefit_axis": "school_tier",
+      "compromise": "可以为了浙江省内985医学平台，把临床医学放宽到预防医学。"
+    },
+    "initial_utterance": "我660分，选考物理化学生物，学校层次必须是985，最好留在浙江，只想读临床医学。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "浙江大学医学院"
+      ]
+    }
+  }
+]

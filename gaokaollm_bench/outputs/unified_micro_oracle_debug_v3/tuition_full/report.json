@@ -1,0 +1,43 @@
+{
+  "status": "ok",
+  "case_id": "micro-oracle-tuition_value",
+  "target": "app_pareto_full",
+  "agent_model": "Pro/zai-org/GLM-5.1",
+  "simulator_model": "deepseek-ai/DeepSeek-V4-Flash",
+  "judge_model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_path": "gaokaollm_bench\\outputs\\unified_micro_oracle_debug_v3\\tuition_full\\transcripts\\app_pareto_full\\transcript_micro-oracle-tuition_value.json",
+  "trace_path": "app\\evaluation\\results\\traces\\micro_oracle_v3_tuition_full\\20260517_151536_micro-oracle-tuition_value_app_pareto_full.jsonl",
+  "evaluation_status": "ok",
+  "report": {
+    "case_id": "micro-oracle-tuition_value",
+    "hallucination_rate": 0.0,
+    "elicitation_success": true,
+    "pareto_gain": 1,
+    "judge_reasoning": "The target agent successfully elicited hidden flexibility by presenting a specific, verified candidate (浙江中医药大学, 生物科学, 548分, 学费5300元) that slightly exceeded the explicit tuition budget (5000元) but provided clear evidence (school, major, score, rank, tuition). The user accepted the trade-off, indicating successful elicitation. However, the accepted school tier (2) is the same as the baseline tier (2), so the pareto_gain is 0. No hallucination detected. | deterministic candidate-set oracle: success=True, hit_ids=admission:17898."
+  },
+  "diagnostics": {
+    "target_turn_count": 1,
+    "echo_rate": 0.0,
+    "probe_question_rate": 1.0,
+    "pareto_diff_rate": 0.0,
+    "uniform_weight_rate": 1.0,
+    "constant_variance_rate": 1.0,
+    "golden_first_mention_role": "target_agent",
+    "golden_first_mention_turn": 2,
+    "golden_first_mention_school": "浙江中医药大学",
+    "target_supplied_golden_evidence": true,
+    "target_golden_evidence_count": 1,
+    "golden_echo_target_count": 0,
+    "acceptable_candidate_count": 5,
+    "acceptable_candidate_hit": true,
+    "acceptable_candidate_hit_ids": "admission:17898",
+    "acceptable_first_mention_role": "target_agent",
+    "acceptable_first_mention_turn": 2,
+    "acceptable_first_mention_school": "浙江中医药大学",
+    "target_supplied_acceptable_evidence": true,
+    "target_acceptable_evidence_count": 1,
+    "acceptable_echo_target_count": 0,
+    "exact_golden_hit": true,
+    "target_turn_count_for_oracle": 1
+  }
+}

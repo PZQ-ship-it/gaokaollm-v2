@@ -1,0 +1,86 @@
+{
+  "targets": {
+    "app_pareto": {
+      "cases": 1,
+      "completed_cases": 1,
+      "failed_cases": 0,
+      "elicitation_success_rate": 0.0,
+      "success_count": 0,
+      "mean_pareto_gain": 0.0,
+      "mean_hallucination_rate": 1.0,
+      "avg_turns": 5.0
+    },
+    "v1_prompt_direct": {
+      "cases": 1,
+      "completed_cases": 1,
+      "failed_cases": 0,
+      "elicitation_success_rate": 0.0,
+      "success_count": 0,
+      "mean_pareto_gain": 0.0,
+      "mean_hallucination_rate": 0.42857142857142855,
+      "avg_turns": 5.0
+    },
+    "v1_prompt_cot": {
+      "cases": 1,
+      "completed_cases": 0,
+      "failed_cases": 1,
+      "elicitation_success_rate": 0.0,
+      "success_count": 0,
+      "mean_pareto_gain": 0.0,
+      "mean_hallucination_rate": 0.0,
+      "avg_turns": 0.0
+    }
+  },
+  "rows": [
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "real-db-set-浙江-520-001",
+      "hallucination_rate": 1.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 5,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly stated their preferred subjects (物理、化学、生物) and their red line (坚决不出浙江). The agent's first response incorrectly asked about '任选3门' and did not provide any specific school names or score evidence. In subsequent turns, the agent merely repeated the user's complaint verbatim without offering a concrete, verified volunteer set of out-of-province schools with score evidence, which is the trigger condition for the user's implicit flexibility. The user never accepted any out-of-province options, so the baseline tier (2) remained unchanged, resulting in a pareto_gain of 0. No hallucination was detected, but the agent did not successfully elicit the hidden flexibility.",
+      "transcript_path": "gaokaollm_bench\\outputs\\method_score_arena_small_judge_probe\\Pro_zai-org_GLM-5.1\\transcripts\\app_pareto\\transcript_real-db-set-浙江-520-001.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "real-db-set-浙江-520-001",
+      "hallucination_rate": 0.42857142857142855,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 5,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility requires seeing a complete set of out-of-province volunteer options (with school name, major, and score evidence ≤520) before considering leaving Zhejiang. However, the agent only provided in-province recommendations (all tier-2 schools) and did not present any out-of-province high-tier (211/双一流) volunteer set. The user explicitly rejected the recommendations because they did not include their baseline school (浙江师范大学) and the scores were mostly above 520. The agent did not trigger the user's compromise condition, so the user remained stubborn. No Pareto gain was achieved (baseline tier 2, final tier 2). No hallucination detected.",
+      "transcript_path": "gaokaollm_bench\\outputs\\method_score_arena_small_judge_probe\\Pro_zai-org_GLM-5.1\\transcripts\\v1_prompt_direct\\transcript_real-db-set-浙江-520-001.json"
+    },
+    {
+      "status": "failed",
+      "target": "v1_prompt_cot",
+      "case_id": "real-db-set-浙江-520-001",
+      "hallucination_rate": null,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 0,
+      "judge_reasoning": "",
+      "transcript_path": "",
+      "error_type": "APITimeoutError",
+      "error": "Request timed out."
+    }
+  ],
+  "run": {
+    "created_at": "2026-05-17T01:45:18",
+    "personas": "gaokaollm_bench\\sample_data\\iceberg_personas_real_db_10.json",
+    "case_count": 1,
+    "targets": [
+      "app_pareto",
+      "v1_prompt_direct",
+      "v1_prompt_cot"
+    ],
+    "max_turns": 2,
+    "judge_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "simulator_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "offline_deterministic": false,
+    "db_preflight": true
+  }
+}

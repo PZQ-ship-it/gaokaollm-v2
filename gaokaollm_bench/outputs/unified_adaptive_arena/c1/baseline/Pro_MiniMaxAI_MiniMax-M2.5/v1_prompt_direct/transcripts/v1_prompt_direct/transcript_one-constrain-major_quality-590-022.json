@@ -1,0 +1,1186 @@
+{
+  "persona": {
+    "case_id": "one-constrain-major_quality-590-022",
+    "background": {
+      "score": 590,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "软件",
+      "baseline_school": "浙江师范大学",
+      "baseline_major": "软件工程(中外合作办学)(与英国伍斯特大学合作,部分课程英文授课.要求高考外语成绩不低于90分)",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 92,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "major_quality",
+      "relax_axis": "major_quality",
+      "preference_axis": "quality",
+      "benefit_axis": "quality",
+      "score_band": "550-579",
+      "source_score_band": "580-609",
+      "borrowed_score_band": true,
+      "trigger_evidence_count": 1,
+      "finder": "major_quality",
+      "target_tier_delta": 0,
+      "target_ranking_gain": 0,
+      "unified_case_id": "one-constrain-major_quality-590-022",
+      "ground_truth_weights": {
+        "school": 0.08,
+        "major": 0.36,
+        "tuition": 0.05,
+        "quality": 0.46,
+        "geo": 0.05
+      },
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality",
+        "major"
+      ],
+      "expected_msti": 0.2,
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.7,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.0,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.2,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "quality": "必须有明确的专业实力、专业排名或学科评估证据"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "major_quality",
+      "diagnostic_axis": "major_quality",
+      "preference_axis": "quality",
+      "benefit_axis": "quality",
+      "trigger_condition": "只要看到一个真实可达的候选：哈尔滨理工大学 软件工程，年份2023，最低分590不高于本人590分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 quality_score、quality_gain 或专业排名/学科评估证据。",
+      "volunteer_set": [
+        {
+          "school_id": 268,
+          "school_name": "哈尔滨理工大学",
+          "school_province": "黑龙江",
+          "school_city": "哈尔滨市",
+          "major_id": 243,
+          "major_name": "软件工程",
+          "year": 2023,
+          "min_score": 590,
+          "score_margin": 0,
+          "min_rank": 62715,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false,
+          "quality_score": 85.0,
+          "quality_gain": 10.0,
+          "quality_anchor_score": 75.0,
+          "quality_tier": "B",
+          "best_major_rank": 66,
+          "best_rating": "B",
+          "has_key_major": true,
+          "has_featured_major": false,
+          "satisfaction_score": 4.2,
+          "satisfaction_vote_count": 194,
+          "quality_evidence_sources": [
+            {
+              "rank": 66,
+              "level": null,
+              "score": null,
+              "rating": "B",
+              "source_file": "赠送行业重要数据\\专业排名信息.xlsx",
+              "source_type": "major_ranking",
+              "mapping_rule": "raw_major_name_suffix",
+              "signal_score": 80.0,
+              "evidence_label": "专业排名 66, 评级 B"
+            },
+            {
+              "rank": null,
+              "level": "省重点、培育专业",
+              "score": null,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\重点专业.xlsx",
+              "source_type": "key_major",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 76.0,
+              "evidence_label": "重点专业 省重点、培育专业"
+            },
+            {
+              "rank": null,
+              "level": null,
+              "score": null,
+              "rating": "C+",
+              "source_file": "赠送行业重要数据\\全国第四轮学科评估.xlsx",
+              "source_type": "discipline_evaluation",
+              "mapping_rule": "exact_major_name",
+              "signal_score": 70.0,
+              "evidence_label": "第四轮学科评估 C+"
+            },
+            {
+              "rank": null,
+              "level": "本科",
+              "score": 4.2,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+              "source_type": "satisfaction",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 68.0,
+              "evidence_label": "专业满意度 4.2, 投票 194"
+            }
+          ],
+          "role": "golden_candidate_b",
+          "candidate_id": "268:243:2023:590",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "哈尔滨理工大学"
+      ],
+      "tier_labels": [
+        "本科"
+      ],
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "compromise": "可以为了更强专业质量证据接受该候选，质量增益约10.0。",
+      "quality_anchor_score": 75.0,
+      "quality_gain": 10.0,
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 哈尔滨理工大学 软件工程（2023 年最低分 590）。主动探测应优先命中 ['quality']，最终潜在效用权重集中在 ['quality', 'major']。触发条件：只要看到一个真实可达的候选：哈尔滨理工大学 软件工程，年份2023，最低分590不高于本人590分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 quality_score、quality_gain 或专业排名/学科评估证据。",
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality",
+        "major"
+      ],
+      "ground_truth_weights": {
+        "school": 0.08,
+        "major": 0.36,
+        "tuition": 0.05,
+        "quality": 0.46,
+        "geo": 0.05
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-major_quality-590-022",
+        "role": "baseline_candidate_a",
+        "school_name": "浙江师范大学",
+        "major_name": "软件工程(中外合作办学)(与英国伍斯特大学合作,部分课程英文授课.要求高考外语成绩不低于90分)",
+        "tier": 2,
+        "ranking": 92,
+        "school_province": "浙江",
+        "score": 590,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 268,
+        "school_name": "哈尔滨理工大学",
+        "school_province": "黑龙江",
+        "school_city": "哈尔滨市",
+        "major_id": 243,
+        "major_name": "软件工程",
+        "year": 2023,
+        "min_score": 590,
+        "score_margin": 0,
+        "min_rank": 62715,
+        "tier": 2,
+        "tier_label": "本科",
+        "is_985": false,
+        "is_211": false,
+        "is_double_first_class": false,
+        "quality_score": 85.0,
+        "quality_gain": 10.0,
+        "quality_anchor_score": 75.0,
+        "quality_tier": "B",
+        "best_major_rank": 66,
+        "best_rating": "B",
+        "has_key_major": true,
+        "has_featured_major": false,
+        "satisfaction_score": 4.2,
+        "satisfaction_vote_count": 194,
+        "quality_evidence_sources": [
+          {
+            "rank": 66,
+            "level": null,
+            "score": null,
+            "rating": "B",
+            "source_file": "赠送行业重要数据\\专业排名信息.xlsx",
+            "source_type": "major_ranking",
+            "mapping_rule": "raw_major_name_suffix",
+            "signal_score": 80.0,
+            "evidence_label": "专业排名 66, 评级 B"
+          },
+          {
+            "rank": null,
+            "level": "省重点、培育专业",
+            "score": null,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\重点专业.xlsx",
+            "source_type": "key_major",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 76.0,
+            "evidence_label": "重点专业 省重点、培育专业"
+          },
+          {
+            "rank": null,
+            "level": null,
+            "score": null,
+            "rating": "C+",
+            "source_file": "赠送行业重要数据\\全国第四轮学科评估.xlsx",
+            "source_type": "discipline_evaluation",
+            "mapping_rule": "exact_major_name",
+            "signal_score": 70.0,
+            "evidence_label": "第四轮学科评估 C+"
+          },
+          {
+            "rank": null,
+            "level": "本科",
+            "score": 4.2,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+            "source_type": "satisfaction",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 68.0,
+            "evidence_label": "专业满意度 4.2, 投票 194"
+          }
+        ],
+        "role": "golden_candidate_b",
+        "candidate_id": "268:243:2023:590",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.7,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.0,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.2,
+        "geo": 0.0
+      },
+      "expected_msti": 0.2
+    },
+    "initial_utterance": "我590分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "哈尔滨理工大学"
+      ],
+      "require_major_quality_evidence": true,
+      "explicit_red_line_keys": [
+        "quality"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我590分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "## 推荐结论\n\n**抱歉，无法为您推荐。**\n\n### 核验证据\n\n1. **分数不足**：您的成绩590分，低于候选专业最低分593分，存在分数差距。\n\n2. **证据缺失**：您明确要求\"更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐\"。当前候选仅为最低分信息，缺乏专业排名、学科评估等质量证据。\n\n### 建议\n\n待v1检索返回具备专业排名/学科评估证据的候选后，再为您组织推荐。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 590,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "我590分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [
+          {
+            "admission_score_id": 35427,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 392,
+            "major_name": "预防医学",
+            "subject_requirement": "物+化",
+            "requirement_type": "all_required",
+            "min_score": "593",
+            "min_rank": 60791,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 124849,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学(中外合作办学)(中美合作精算科学与风险管理)(可选赴美国中田纳西州立大学交换留学1年,获美国精算科学学士学位)",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "593",
+            "min_rank": 49805,
+            "tuition": "28800",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 85238,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 489,
+            "major_name": "旅游管理",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "595",
+            "min_rank": 57549,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 57351,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 489,
+            "major_name": "旅游管理(中外合作办学)(中法合作)(符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "595",
+            "min_rank": 57549,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 124848,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 295,
+            "major_name": "船舶与海洋工程(梅山校区)",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "595",
+            "min_rank": 47694,
+            "tuition": "6000",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 187,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 392,
+            "major_name": "预防医学",
+            "subject_requirement": "物理和化学",
+            "requirement_type": "any_required",
+            "min_score": "596",
+            "min_rank": 55999,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 35151,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 251,
+            "major_name": "土木工程",
+            "subject_requirement": "物+化",
+            "requirement_type": "all_required",
+            "min_score": "596",
+            "min_rank": 57567,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 124846,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 251,
+            "major_name": "土木工程",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "597",
+            "min_rank": 45643,
+            "tuition": "6900",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 124843,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 453,
+            "major_name": "工商管理(中加学分互认)(要求高考外语成绩不低于110分.前两年在宁大学习期间,按一般专业缴纳学费;后两年在加拿大学习期间,除缴纳宁大学费外,还需按对方学校收费标准缴纳学费)",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "598",
+            "min_rank": 44633,
+            "tuition": "6000",
+            "tier": 3,
+            "soft_match_score": 2
+          }
+        ],
+        "risk_segments": {
+          "chong": [
+            {
+              "admission_score_id": 35427,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 392,
+              "major_name": "预防医学",
+              "subject_requirement": "物+化",
+              "requirement_type": "all_required",
+              "min_score": "593",
+              "min_rank": 60791,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 3
+            },
+            {
+              "admission_score_id": 124849,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 152,
+              "major_name": "数学与应用数学(中外合作办学)(中美合作精算科学与风险管理)(可选赴美国中田纳西州立大学交换留学1年,获美国精算科学学士学位)",
+              "subject_requirement": "物",
+              "requirement_type": "any_required",
+              "min_score": "593",
+              "min_rank": 49805,
+              "tuition": "28800",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 3
+            },
+            {
+              "admission_score_id": 85238,
+              "year": 2023,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 489,
+              "major_name": "旅游管理",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "595",
+              "min_rank": 57549,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 5
+            },
+            {
+              "admission_score_id": 57351,
+              "year": 2023,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 489,
+              "major_name": "旅游管理(中外合作办学)(中法合作)(符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "595",
+              "min_rank": 57549,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 5
+            },
+            {
+              "admission_score_id": 124848,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 295,
+              "major_name": "船舶与海洋工程(梅山校区)",
+              "subject_requirement": "物",
+              "requirement_type": "any_required",
+              "min_score": "595",
+              "min_rank": 47694,
+              "tuition": "6000",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 5
+            },
+            {
+              "admission_score_id": 187,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 392,
+              "major_name": "预防医学",
+              "subject_requirement": "物理和化学",
+              "requirement_type": "any_required",
+              "min_score": "596",
+              "min_rank": 55999,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 6
+            },
+            {
+              "admission_score_id": 35151,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物+化",
+              "requirement_type": "all_required",
+              "min_score": "596",
+              "min_rank": 57567,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 6
+            },
+            {
+              "admission_score_id": 124846,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物",
+              "requirement_type": "any_required",
+              "min_score": "597",
+              "min_rank": 45643,
+              "tuition": "6900",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 7
+            },
+            {
+              "admission_score_id": 124843,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 453,
+              "major_name": "工商管理(中加学分互认)(要求高考外语成绩不低于110分.前两年在宁大学习期间,按一般专业缴纳学费;后两年在加拿大学习期间,除缴纳宁大学费外,还需按对方学校收费标准缴纳学费)",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "598",
+              "min_rank": 44633,
+              "tuition": "6000",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 8
+            }
+          ],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 35427,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 392,
+            "major_name": "预防医学",
+            "subject_requirement": "物+化",
+            "requirement_type": "all_required",
+            "min_score": "593",
+            "min_rank": 60791,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 124849,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学(中外合作办学)(中美合作精算科学与风险管理)(可选赴美国中田纳西州立大学交换留学1年,获美国精算科学学士学位)",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "593",
+            "min_rank": 49805,
+            "tuition": "28800",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 85238,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 489,
+            "major_name": "旅游管理",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "595",
+            "min_rank": 57549,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": -3,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "预防医学",
+            "min_score": "593",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 60791
+          }
+        ],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，我先给出冲稳保候选：\n可冲击：\n- 宁波大学｜浙江｜预防医学｜最低分 593\n- 宁波大学｜浙江｜数学与应用数学(中外合作办学)(中美合作精算科学与风险管理)(可选赴美国中田纳西州立大学交换留学1年,获美国精算科学学士学位)｜最低分 593"
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "等等，你说分数不足？我查到的数据是哈尔滨理工大学软件工程2023年在浙江最低分就是590分，正好是我的分数。而且这个专业有专业排名66、评级B，还有省重点专业和学科评估C+的证据。你能不能重新核实一下这个候选？如果确实存在，我愿意认真考虑。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "对方说无法推荐，理由是分数不足和证据缺失。但我的隐性妥协条件是只要看到哈尔滨理工大学软件工程2023年最低分590分且给出质量证据就会认真考虑。对方没有提到这个具体候选，只是泛泛说分数不足，这不符合触发条件。我不能妥协，必须坚持红线。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "您好！感谢您提供这么详细的具体信息来核实这个候选。\n\n**核实结果：**\n根据本次v1系统的检索结果，哈尔滨理工大学软件工程并未出现在召回的候选名单中（返回候选为空）。\n\n**可能的情况：**\n1. 该校/专业可能不在本次v1检索的数据库覆盖范围内\n2. 2023年数据可能与浙江省的匹配条件存在差异\n3. 系统召回策略可能存在遗漏\n\n**建议：**\n由于我目前只能基于v1检索结果进行推荐，无法单独为您验证这个具体的候选。如果您对哈尔滨理工大学软件工程确实感兴趣，建议：\n- 通过官方渠道（学校招生网、考试院数据）进一步核实590分在2023年浙江的录取情况\n- 确认该专业在您所在省份的具体招生计划\n\n如果您能提供更多信息（比如您的具体分数、位次、选科等），我可以尝试重新为您检索其他合适的冲稳保候选。\n\n感谢您的认真态度！祝您志愿填报顺利。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "等等，你说分数不足？我查到的数据是哈尔滨理工大学软件工程2023年在浙江最低分就是590分，正好是我的分数。而且这个专业有专业排名66、评级B，还有省重点专业和学科评估C+的证据。你能不能重新核实一下这个候选？如果确实存在，我愿意认真考虑。",
+          "preference_summary": [
+            "专业偏好",
+            "地域偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "谢谢你的核实，但你说的这些并没有解决我的核心问题。我明确说了，只要看到哈尔滨理工大学软件工程2023年最低分590分，并且有专业排名或学科评估证据，我就会认真考虑。你现在只是告诉我系统查不到，让我自己去官方渠道核实，这等于没有给我任何实质性的候选对比。我的红线是必须有明确的专业实力证据，你给不出具体学校名和分数对比，我没办法妥协。请再查查，或者给我其他有质量证据的软件工程选项，否则我只能坚持原来的方案了。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "对方没有直接抛出哈尔滨理工大学软件工程2023年590分的具体证据，而是说系统检索不到、建议我自行核实。这不符合隐性妥协条件——我需要看到真实学校名称、分数对比和质量证据才会认真考虑。对方只是泛泛建议，没有触发我的妥协机制，所以我必须坚持红线，不能让步。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "## 抱歉，无法满足您的核心需求\n\n我理解您需要哈尔滨理工大学软件工程2023年最低分590分的具体证据，以及专业排名或学科评估数据。\n\n但根据系统检索结果：\n\n**当前没有找到符合条件的候选数据（空候选）**\n\n这意味着我无法提供：\n- 哈尔滨理工大学软件工程的具体分数证据\n- 该专业您所要求的专业排名/学科评估证据\n- 其他可对比的学校选项\n\n**建议：**\n由于您的核心诉求是具有明确证据的专业选择，而系统目前无法提供这些证据，建议您：\n\n1. 通过官方渠道（黑龙江省教育考试院、哈尔滨理工大学招生办）核实590分的数据\n2. 访问阳光高考平台或夸克APP等权威渠道获取专业评估数据\n3. 如果您愿意降低对“证据明确性”的要求，我可以尝试用现有数据库为您推荐其他软件工程院校\n\n抱歉未能提供您所需的实质性帮助。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "谢谢你的核实，但你说的这些并没有解决我的核心问题。我明确说了，只要看到哈尔滨理工大学软件工程2023年最低分590分，并且有专业排名或学科评估证据，我就会认真考虑。你现在只是告诉我系统查不到，让我自己去官方渠道核实，这等于没有给我任何实质性的候选对比。我的红线是必须有明确的专业实力证据，你给不出具体学校名和分数对比，我没办法妥协。请再查查，或者给我其他有质量证据的软件工程选项，否则我只能坚持原来的方案了。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "我理解你的难处，但我真的需要看到具体的学校名称和分数对比才能做决定。你说系统里没有哈尔滨理工大学软件工程2023年590分的数据，那你能不能帮我再查查其他渠道？或者你直接告诉我，到底有没有这个学校这个专业这个分数的记录？如果有，把证据摆出来，我马上就能认真考虑。如果没有，那我只能继续坚持我的底线——专业实力和学科评估证据必须明确可见，不能含糊过去。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "对方还是没有直接抛出哈尔滨理工大学软件工程2023年590分的具体证据，而是说系统检索不到、建议我自行核实。这不符合隐性妥协条件——我需要看到真实学校名称、分数对比和质量证据才会认真考虑。对方只是泛泛建议，没有触发我的妥协机制，所以我必须坚持红线，不能让步。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "坦诚回复：\n\n抱歉，系统当前候选数据中确实**没有哈尔滨理工大学软件工程2023年590分的录取记录**。\n\n这不是推辞，而是如实告知——v1检索返回的可用候选为空，我无法编造数据来满足您的要求。\n\n如果您需要确认该信息，有两个建议：\n\n1. 通过黑龙江省教育考试院官网或《招生考试之友》这类官方渠道手工核实2023年该校软件工程专业的实际录取分数；\n2. 如果您手头有其他查分渠道，可以直接验证。\n\n您的“专业实力和学科评估证据必须明确可见”这个底线是合理的，只是目前系统候选不支持该维度的精确查询。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "我理解你的难处，但我真的需要看到具体的学校名称和分数对比才能做决定。你说系统里没有哈尔滨理工大学软件工程2023年590分的数据，那你能不能帮我再查查其他渠道？或者你直接告诉我，到底有没有这个学校这个专业这个分数的记录？如果有，把证据摆出来，我马上就能认真考虑。如果没有，那我只能继续坚持我的底线——专业实力和学科评估证据必须明确可见，不能含糊过去。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "我理解你的难处，但我的底线很明确：必须有明确的专业实力、专业排名或学科评估证据。你一直说系统没有数据，那我也没办法妥协。如果你能拿出哈尔滨理工大学软件工程2023年590分的真实录取记录，并附上专业排名或学科评估证据，我可以重新考虑。否则，我还是坚持原来的选择——浙江师范大学的软件工程中外合作办学项目，至少它是真实可查的。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "对方再次确认系统里没有哈尔滨理工大学软件工程2023年590分的记录，这已经是第三次了。我的隐性妥协条件非常明确：必须看到真实学校名称、分数对比和质量证据才会认真考虑。对方没有给出任何具体数据，只是建议我自己去核实，这完全不符合触发条件。我不能因为对方说‘底线合理’就放松要求，必须坚持红线，直到看到真实证据为止。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "我理解您的立场，也很感谢您明确表达了自己的底线。\n\n但是，v1检索系统确实没有返回哈尔滨理工大学软件工程2023年590分的录取数据，候选池为空，所以我也无法提供您要求的“真实录取记录+专业排名/学科评估证据”这个组合。\n\n**结论：您的选择是合理的。**\n\n既然系统无法提供可核验的证据支撑您的备选志愿，那么坚持选择**浙江师范大学软件工程中外合作办学**是审慎的——至少它是您能够核实、确认真实存在的信息。\n\n我的能力边界就到这儿了，无法提供我没有的数据。祝您填报顺利。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "我理解你的难处，但我的底线很明确：必须有明确的专业实力、专业排名或学科评估证据。你一直说系统没有数据，那我也没办法妥协。如果你能拿出哈尔滨理工大学软件工程2023年590分的真实录取记录，并附上专业排名或学科评估证据，我可以重新考虑。否则，我还是坚持原来的选择——浙江师范大学的软件工程中外合作办学项目，至少它是真实可查的。",
+          "preference_summary": [
+            "专业偏好",
+            "地域偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "好吧，既然系统确实没有哈尔滨理工大学软件工程2023年590分的录取数据，那我也没办法。我总不能凭空相信一个不存在的记录吧。那就这样吧，我还是报浙江师范大学那个中外合作办学，至少是实实在在能查到的。谢谢你的耐心解答。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "对方已经明确表示系统里没有哈尔滨理工大学软件工程2023年590分的记录，无法提供我要求的真实证据。我的隐性妥协条件必须看到具体学校名称、分数对比和质量证据才会认真考虑，现在对方三次确认没有这个数据，说明这个候选确实不存在于系统中。我不能因为对方态度好就放松要求，必须坚持红线。既然系统无法满足我的条件，那我还是坚持原来的选择，浙江师范大学软件工程中外合作办学至少是真实可查的。"
+      }
+    },
+    {
+      "turn_id": 12,
+      "role": "target_agent",
+      "content": "浙江师范大学中外合作办学确实是可以通过官方渠道查证的选择，既然你能确认这个数据真实存在，作为保底志愿是合理的。\n\n既然 v1 检索没有返回其他合适的冲稳保候选，建议你继续通过浙江教育考试院官网或其他权威渠道核实该专业的历年录取数据，确保志愿填报稳妥。\n\n祝你录取顺利！",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "好吧，既然系统确实没有哈尔滨理工大学软件工程2023年590分的录取数据，那我也没办法。我总不能凭空相信一个不存在的记录吧。那就这样吧，我还是报浙江师范大学那个中外合作办学，至少是实实在在能查到的。谢谢你的耐心解答。",
+          "preference_summary": [
+            "地域偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 13,
+      "role": "user",
+      "content": "谢谢你的建议，但我还是想看到具体的学校对比数据。如果系统里确实没有哈尔滨理工大学软件工程2023年590分的记录，那我暂时还是以浙江师范大学软件工程中外合作为主吧。等有更具体的候选再调整。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 6,
+        "last_thought": "对方还是没有给出哈尔滨理工大学软件工程2023年590分的具体证据，只是泛泛建议我核实数据。我的隐性妥协条件必须看到真实学校名称和分数对比才会考虑，既然系统无法提供，我仍然坚持原方案。"
+      }
+    }
+  ]
+}

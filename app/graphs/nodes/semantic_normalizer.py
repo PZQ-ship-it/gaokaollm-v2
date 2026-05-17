@@ -11,6 +11,7 @@ from app.core.llm_client import (
     structured_timeout_seconds,
 )
 from app.schemas.state import AgentState
+from gaokaollm_bench.utils.trace import trace_event
 
 
 HIDDEN_FIELD_NAMES = {
@@ -135,6 +136,11 @@ async def semantic_normalizer_node(state: AgentState) -> dict[str, Any]:
     text = _latest_user_text(state)
     fallback = _fallback_intent(text)
     print("[semantic_normalizer] normalizing explicit user intent")
+    trace_event(
+        "semantic_normalizer",
+        "node_start",
+        {"latest_user_text": text, "fallback": fallback},
+    )
 
     if (
         os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1"
@@ -175,8 +181,10 @@ async def semantic_normalizer_node(state: AgentState) -> dict[str, Any]:
             )
             intent = fallback
 
-    return {
+    output = {
         "rewritten_query": intent["rewritten_query"],
         "intent_axes": list(intent.get("intent_axes") or []),
         "normalized_intent": intent,
     }
+    trace_event("semantic_normalizer", "node_end", output)
+    return output

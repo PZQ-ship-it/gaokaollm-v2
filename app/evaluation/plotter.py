@@ -23,6 +23,7 @@ REFERENCE_LABELS = {
 }
 CLASSIFICATION_LABELS = {
     **MODEL_LABELS,
+    "random_dirichlet_expected": "Random Dirichlet Baseline",
     "initial_query_llm": "Initial-query LLM Baseline",
     "v1_hybrid_candidate_proxy": "V1 Hybrid RAG Baseline",
 }

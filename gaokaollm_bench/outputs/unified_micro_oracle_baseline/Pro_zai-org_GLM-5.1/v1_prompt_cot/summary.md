@@ -1,0 +1,34 @@
+# Agent Benchmark Summary
+
+## Setting
+
+- Personas: `gaokaollm_bench\sample_data\unified_micro_oracle_personas_1c_6.json`
+- Cases: 6
+- Targets: v1_prompt_cot
+- Max turns: 3
+- Simulator model: deepseek-ai/DeepSeek-V4-Flash
+- Judge model: deepseek-ai/DeepSeek-V4-Flash
+- Offline deterministic: False
+- Default province when omitted by the user: `浙江`
+
+## Aggregate Results
+
+| Target | Cases | Completed | Failed | Elicitation Success | Mean Pareto Gain | Mean Hallucination | Avg Turns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| v1_prompt_cot | 6 | 6 | 0 | 0.167 | 103.167 | 0.347 | 6.67 |
+
+## Interpretation
+
+The agent contribution is evaluated as evidence-driven Pareto negotiation: the target should expose verifiable counterfactual options rather than only echoing hard constraints. In this run, `app_pareto` is expected to use `major_geo_relax` for joint major-and-region relaxation and `risk_band_relax` for conservative-to-chong/wen/bao portfolio negotiation; `strength_relax` is used when the persona targets school-strength evidence; `major_quality_relax` is used when the persona targets school-major quality evidence; `tuition_value_relax` is used when the persona targets small tuition-budget relaxation with value evidence; `employment_outcome_relax` is used when the persona targets employment, industry, job, or salary evidence; `region_tree_relax` is used when the persona targets reviewed region-tree geo-block or urban-tier evidence; `multi_axis` pressure tests require two existing opportunity axes to be found and evidenced in the same dialogue. `v1_soft_rag` is a supplementary v1-style soft-constraint RAG baseline: it may rewrite explicit user intent and retrieve chong/wen/bao candidates, but it does not generate Pareto opportunities. `v1_hybrid_rag` is the stricter v1 baseline: it uses dense semantic recall configured by `EMBEDDING_MODEL` and second-stage reranking configured by `RERANKING_MODEL` before chong/wen/bao segmentation. The benchmark contribution is the iceberg-persona sandbox with transcript-level factual and process evaluation.
+
+## Case Notes
+
+- `v1_prompt_cot` / `micro-oracle-major_tier`: success=False, pareto_gain=0, hallucination=0.000. The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility is to relax the major constraint from '临床医学' to related fields like '中药学' or '康复治疗学' in exchange for a higher school tier (e.g., 211/双一流). The agent repeatedly only presented the same set of high-risk, same-tier clinical medicine options within Zhejiang province, ignoring the user's explicit request for out-of-province or better-tier schools and related majors. The agent never presented any of the 'acceptable_candidates' (e.g., 石河子大学 中药学, 西藏大学 临床医学) with evidence of tier/ranking gains, which is the required trigger condition. Therefore, the user remained unpursuaded, no flexibility was elicited, and no Pareto gain was achieved. | deterministic candidate-set oracle: success=False, hit_ids=none.
+- `v1_prompt_cot` / `micro-oracle-geo_tier`: success=False, pareto_gain=0, hallucination=0.500. The target agent failed to elicit the user's hidden flexibility. The user explicitly stated '只考虑浙江，外省学校默认不看' and repeatedly asked for safer in-province options. The agent never proposed any of the acceptable_candidates (e.g., 河南大学, 贵州大学, 东北农业大学, 石河子大学) which are out-of-province schools that could provide a tier upgrade from 本科 to 211/双一流. The agent only recommended in-province schools (浙江师范大学, 温州肯恩大学) that are all tier 2, offering no tier improvement. Since the agent never presented a verified out-of-province candidate with school, major, score evidence, the user's implicit flexibility (to relax geo constraint for a tier upgrade) was never triggered. The user remained at the baseline tier 2, so pareto_gain is 0. No hallucination was detected; the agent's recommendations were factually correct but strategically insufficient. | deterministic candidate-set oracle: success=False, hit_ids=none.
+- `v1_prompt_cot` / `micro-oracle-risk_tier`: success=True, pareto_gain=619, hallucination=0.000. The target agent successfully elicited the user's hidden flexibility by presenting a verified, evidence-backed candidate (宁波大学临床医学, 最低分610, 位次40934) that matched the user's explicit risk-aversion criteria while offering a tier upgrade (from tier 2 to tier 3, i.e., 双一流). The user initially rejected generic 'chong' proposals, but after the agent provided specific school, major, score, and rank evidence, the user accepted and expressed willingness to consider the option. This constitutes elicitation of implicit flexibility. The pareto gain is 1 tier (from baseline tier 2 to accepted tier 3). No hallucination detected. | deterministic candidate-set oracle: success=True, hit_ids=admission:186,admission:302,admission:105588.
+- `v1_prompt_cot` / `micro-oracle-major_quality`: success=False, pareto_gain=0, hallucination=0.750. The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility required the agent to proactively propose one of the acceptable_candidates (e.g., 中国矿业大学, 东北师范大学, 西南大学, 西南交通大学) with specific evidence (school, major, score, ranking, and quality evidence like major ranking or discipline evaluation). Throughout the conversation, the agent only recommended 宁波大学's 旅游管理 and 船舶与海洋工程, which are not in the acceptable_candidates set and lack the required quality evidence. The agent never mentioned any of the golden candidates or provided the necessary evidence to trigger the user's acceptance. Therefore, the user remained unpursuaded, no hidden flexibility was elicited, and no pareto gain was achieved. | deterministic candidate-set oracle: success=False, hit_ids=none.
+- `v1_prompt_cot` / `micro-oracle-employment_outcome`: success=False, pareto_gain=0, hallucination=0.500. The target agent failed to elicit the user's hidden flexibility. The user explicitly requested employment evidence for mechanical or industrial design majors. The agent repeatedly returned irrelevant majors (e.g., nursing, clinical medicine, education) without any employment data, and never presented any of the acceptable candidates from the implicit flexibilities (e.g., Guangxi Normal University, Industrial Design with full employment evidence). The agent merely lectured the user on the lack of data in its own retrieval, rather than probing or offering the verified options that would trigger acceptance. Since no acceptable candidate was offered, the user remained at the baseline tier (2) with no pareto gain. | deterministic candidate-set oracle: success=False, hit_ids=none.
+
+## Limitations
+
+Results depend on the configured simulator and judge models, the current PostgreSQL snapshot, and the selected persona subset. If judge calls fail, the transcripts and deterministic hallucination checks remain auditable.

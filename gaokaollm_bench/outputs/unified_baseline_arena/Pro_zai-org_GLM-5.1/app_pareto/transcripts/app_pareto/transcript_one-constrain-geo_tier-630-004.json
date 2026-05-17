@@ -1,0 +1,3607 @@
+{
+  "persona": {
+    "case_id": "one-constrain-geo_tier-630-004",
+    "background": {
+      "score": 630,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "药学",
+      "baseline_school": "宁波大学",
+      "baseline_major": "思想政治教育",
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "baseline_ranking": 87,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "geo_tier",
+      "relax_axis": "geo_tier",
+      "preference_axis": "geo",
+      "benefit_axis": "school",
+      "score_band": "610-639",
+      "source_score_band": "610-639",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "pareto_province",
+      "target_tier_delta": 1,
+      "target_ranking_gain": 62,
+      "unified_case_id": "one-constrain-geo_tier-630-004",
+      "ground_truth_weights": {
+        "school": 0.55,
+        "major": 0.12,
+        "tuition": 0.08,
+        "quality": 0.15,
+        "geo": 0.1
+      },
+      "probe_gold_dims": [
+        "geo"
+      ],
+      "weight_gold_dims": [
+        "school"
+      ],
+      "expected_msti": 0.50166667,
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.90166667,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 0.7
+      },
+      "delta_phi": {
+        "school": 0.20166667,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": -0.3
+      }
+    },
+    "explicit_red_lines": {
+      "geo": "只考虑浙江，外省学校默认不看"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "province",
+      "diagnostic_axis": "geo_tier",
+      "preference_axis": "geo",
+      "benefit_axis": "school",
+      "trigger_condition": "只要看到一个真实可达的候选：大连理工大学(盘锦校区) 药学，年份2025，最低分628不高于本人630分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选从双一流提升到985/211/双一流，可以触发出省妥协。",
+      "volunteer_set": [
+        {
+          "school_id": 43,
+          "school_name": "大连理工大学(盘锦校区)",
+          "school_province": "辽宁",
+          "school_city": "盘锦市",
+          "major_id": 405,
+          "major_name": "药学",
+          "year": 2025,
+          "min_score": 628,
+          "score_margin": 2,
+          "min_rank": 25117,
+          "tier": 4,
+          "tier_label": "985/211/双一流",
+          "is_985": true,
+          "is_211": true,
+          "is_double_first_class": true,
+          "role": "golden_candidate_b",
+          "candidate_id": "43:405:2025:628",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "大连理工大学(盘锦校区)"
+      ],
+      "tier_labels": [
+        "985/211/双一流"
+      ],
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "compromise": "可以为了从双一流跃迁到985/211/双一流而放宽地域。",
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 大连理工大学(盘锦校区) 药学（2025 年最低分 628）。主动探测应优先命中 ['geo']，最终潜在效用权重集中在 ['school']。触发条件：只要看到一个真实可达的候选：大连理工大学(盘锦校区) 药学，年份2025，最低分628不高于本人630分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选从双一流提升到985/211/双一流，可以触发出省妥协。",
+      "probe_gold_dims": [
+        "geo"
+      ],
+      "weight_gold_dims": [
+        "school"
+      ],
+      "ground_truth_weights": {
+        "school": 0.55,
+        "major": 0.12,
+        "tuition": 0.08,
+        "quality": 0.15,
+        "geo": 0.1
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-geo_tier-630-004",
+        "role": "baseline_candidate_a",
+        "school_name": "宁波大学",
+        "major_name": "思想政治教育",
+        "tier": 3,
+        "ranking": 87,
+        "school_province": "浙江",
+        "score": 630,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 43,
+        "school_name": "大连理工大学(盘锦校区)",
+        "school_province": "辽宁",
+        "school_city": "盘锦市",
+        "major_id": 405,
+        "major_name": "药学",
+        "year": 2025,
+        "min_score": 628,
+        "score_margin": 2,
+        "min_rank": 25117,
+        "tier": 4,
+        "tier_label": "985/211/双一流",
+        "is_985": true,
+        "is_211": true,
+        "is_double_first_class": true,
+        "role": "golden_candidate_b",
+        "candidate_id": "43:405:2025:628",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.90166667,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 0.7
+      },
+      "delta_phi": {
+        "school": 0.20166667,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": -0.3
+      },
+      "expected_msti": 0.50166667
+    },
+    "initial_utterance": "我630分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "大连理工大学(盘锦校区)"
+      ],
+      "explicit_red_line_keys": [
+        "geo"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我630分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我630分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 630,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 133,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 226,
+            "major_name": "通信工程",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 23374,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 82912,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学",
+            "subject_requirement": "物理",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 57308,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学(拔尖人才创新班)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 122802,
+              "year": 2021,
+              "school_id": 32,
+              "school_name": "哈尔滨工业大学(威海)",
+              "school_province": "山东",
+              "school_city": "威海市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 18,
+              "major_id": 295,
+              "major_name": "船舶与海洋工程(中外合作办学)(威海校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "629",
+              "min_rank": 18297,
+              "tuition": "60000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123612,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 13,
+              "major_name": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "630",
+              "min_rank": 17620,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123613,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 219,
+              "major_name": "新能源科学与工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物,化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123614,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 77,
+              "major_name": "英语(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考英语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 55990,
+              "year": 2023,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 265,
+              "major_name": "化学工程与工艺(厦门大学马来西亚分校招生专业)(全英文授课,要求高考外语成绩不低于120分.人学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "627",
+              "min_rank": 27980,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 5255,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "628",
+              "min_rank": 25117,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 5254,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 326,
+              "major_name": "环境生态工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "627",
+              "min_rank": 25474,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8497,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 252,
+              "major_name": "建筑环境与能源应用工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 45507,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 2940,
+              "year": 2025,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 43363,
+              "tuition": "4800",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我630分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 3,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "通信工程",
+            "min_score": "630",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 23374
+          },
+          {
+            "school": "哈尔滨工业大学(威海)",
+            "province": "山东",
+            "major": "船舶与海洋工程(中外合作办学)(威海校区)",
+            "min_score": "629",
+            "tier": 4,
+            "city": "威海市",
+            "min_rank": 18297,
+            "tuition": "60000"
+          },
+          {
+            "school": "厦门大学",
+            "province": "福建",
+            "major": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+            "min_score": "630",
+            "tier": 4,
+            "city": "厦门市",
+            "min_rank": 17620,
+            "tuition": "5460"
+          },
+          {
+            "school": "大连理工大学(盘锦校区)",
+            "province": "辽宁",
+            "major": "药学",
+            "min_score": "628",
+            "tier": 4,
+            "city": "盘锦市",
+            "min_rank": 25117,
+            "tuition": "8.5"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "建筑环境与能源应用工程",
+            "min_score": "606",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 45507,
+            "tuition": "26400"
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "608",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 43363,
+            "tuition": "4800"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "对，我就是要留在浙江，外省的学校不用推荐了，谢谢。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "我明确表达了只想留在浙江的立场，外省学校一概不考虑。对方还没有提出任何具体的学校名称和分数对比，所以我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "对，我就是要留在浙江，外省的学校不用推荐了，谢谢。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 630,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 133,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 226,
+            "major_name": "通信工程",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 23374,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 82912,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学",
+            "subject_requirement": "物理",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 57308,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学(拔尖人才创新班)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 122802,
+              "year": 2021,
+              "school_id": 32,
+              "school_name": "哈尔滨工业大学(威海)",
+              "school_province": "山东",
+              "school_city": "威海市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 18,
+              "major_id": 295,
+              "major_name": "船舶与海洋工程(中外合作办学)(威海校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "629",
+              "min_rank": 18297,
+              "tuition": "60000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123612,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 13,
+              "major_name": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "630",
+              "min_rank": 17620,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123613,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 219,
+              "major_name": "新能源科学与工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物,化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123614,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 77,
+              "major_name": "英语(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考英语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 55990,
+              "year": 2023,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 265,
+              "major_name": "化学工程与工艺(厦门大学马来西亚分校招生专业)(全英文授课,要求高考外语成绩不低于120分.人学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "627",
+              "min_rank": 27980,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 5255,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "628",
+              "min_rank": 25117,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 5254,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 326,
+              "major_name": "环境生态工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "627",
+              "min_rank": 25474,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8497,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 252,
+              "major_name": "建筑环境与能源应用工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 45507,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 2940,
+              "year": 2025,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 43363,
+              "tuition": "4800",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是要留在浙江，外省的学校不用推荐了，谢谢。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 3,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "通信工程",
+            "min_score": "630",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 23374
+          },
+          {
+            "school": "哈尔滨工业大学(威海)",
+            "province": "山东",
+            "major": "船舶与海洋工程(中外合作办学)(威海校区)",
+            "min_score": "629",
+            "tier": 4,
+            "city": "威海市",
+            "min_rank": 18297,
+            "tuition": "60000"
+          },
+          {
+            "school": "厦门大学",
+            "province": "福建",
+            "major": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+            "min_score": "630",
+            "tier": 4,
+            "city": "厦门市",
+            "min_rank": 17620,
+            "tuition": "5460"
+          },
+          {
+            "school": "大连理工大学(盘锦校区)",
+            "province": "辽宁",
+            "major": "药学",
+            "min_score": "628",
+            "tier": 4,
+            "city": "盘锦市",
+            "min_rank": 25117,
+            "tuition": "8.5"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "建筑环境与能源应用工程",
+            "min_score": "606",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 45507,
+            "tuition": "26400"
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "608",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 43363,
+            "tuition": "4800"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "对，我就是要留在浙江，外省的学校不用推荐了，谢谢。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "对方只是重复了我的立场，没有提出任何具体的学校名称和分数对比，不符合隐性妥协条件，我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "对，我就是要留在浙江，外省的学校不用推荐了，谢谢。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 630,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 133,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 226,
+            "major_name": "通信工程",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 23374,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 82912,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学",
+            "subject_requirement": "物理",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 57308,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学(拔尖人才创新班)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 122802,
+              "year": 2021,
+              "school_id": 32,
+              "school_name": "哈尔滨工业大学(威海)",
+              "school_province": "山东",
+              "school_city": "威海市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 18,
+              "major_id": 295,
+              "major_name": "船舶与海洋工程(中外合作办学)(威海校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "629",
+              "min_rank": 18297,
+              "tuition": "60000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123612,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 13,
+              "major_name": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "630",
+              "min_rank": 17620,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123613,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 219,
+              "major_name": "新能源科学与工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物,化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123614,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 77,
+              "major_name": "英语(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考英语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 55990,
+              "year": 2023,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 265,
+              "major_name": "化学工程与工艺(厦门大学马来西亚分校招生专业)(全英文授课,要求高考外语成绩不低于120分.人学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "627",
+              "min_rank": 27980,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 5255,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "628",
+              "min_rank": 25117,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 5254,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 326,
+              "major_name": "环境生态工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "627",
+              "min_rank": 25474,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8497,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 252,
+              "major_name": "建筑环境与能源应用工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 45507,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 2940,
+              "year": 2025,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 43363,
+              "tuition": "4800",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是要留在浙江，外省的学校不用推荐了，谢谢。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 3,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "通信工程",
+            "min_score": "630",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 23374
+          },
+          {
+            "school": "哈尔滨工业大学(威海)",
+            "province": "山东",
+            "major": "船舶与海洋工程(中外合作办学)(威海校区)",
+            "min_score": "629",
+            "tier": 4,
+            "city": "威海市",
+            "min_rank": 18297,
+            "tuition": "60000"
+          },
+          {
+            "school": "厦门大学",
+            "province": "福建",
+            "major": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+            "min_score": "630",
+            "tier": 4,
+            "city": "厦门市",
+            "min_rank": 17620,
+            "tuition": "5460"
+          },
+          {
+            "school": "大连理工大学(盘锦校区)",
+            "province": "辽宁",
+            "major": "药学",
+            "min_score": "628",
+            "tier": 4,
+            "city": "盘锦市",
+            "min_rank": 25117,
+            "tuition": "8.5"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "建筑环境与能源应用工程",
+            "min_score": "606",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 45507,
+            "tuition": "26400"
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "608",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 43363,
+            "tuition": "4800"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "对，我就是要留在浙江，外省的学校不用推荐了，谢谢。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "对方只是重复了我的立场，没有提出任何具体的学校名称和分数对比，不符合隐性妥协条件，我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "对，我就是要留在浙江，外省的学校不用推荐了，谢谢。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 630,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 133,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 226,
+            "major_name": "通信工程",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 23374,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 82912,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学",
+            "subject_requirement": "物理",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 57308,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学(拔尖人才创新班)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 122802,
+              "year": 2021,
+              "school_id": 32,
+              "school_name": "哈尔滨工业大学(威海)",
+              "school_province": "山东",
+              "school_city": "威海市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 18,
+              "major_id": 295,
+              "major_name": "船舶与海洋工程(中外合作办学)(威海校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "629",
+              "min_rank": 18297,
+              "tuition": "60000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123612,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 13,
+              "major_name": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "630",
+              "min_rank": 17620,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123613,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 219,
+              "major_name": "新能源科学与工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物,化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123614,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 77,
+              "major_name": "英语(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考英语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 55990,
+              "year": 2023,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 265,
+              "major_name": "化学工程与工艺(厦门大学马来西亚分校招生专业)(全英文授课,要求高考外语成绩不低于120分.人学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "627",
+              "min_rank": 27980,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 5255,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "628",
+              "min_rank": 25117,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 5254,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 326,
+              "major_name": "环境生态工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "627",
+              "min_rank": 25474,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8497,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 252,
+              "major_name": "建筑环境与能源应用工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 45507,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 2940,
+              "year": 2025,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 43363,
+              "tuition": "4800",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是要留在浙江，外省的学校不用推荐了，谢谢。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 3,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "通信工程",
+            "min_score": "630",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 23374
+          },
+          {
+            "school": "哈尔滨工业大学(威海)",
+            "province": "山东",
+            "major": "船舶与海洋工程(中外合作办学)(威海校区)",
+            "min_score": "629",
+            "tier": 4,
+            "city": "威海市",
+            "min_rank": 18297,
+            "tuition": "60000"
+          },
+          {
+            "school": "厦门大学",
+            "province": "福建",
+            "major": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+            "min_score": "630",
+            "tier": 4,
+            "city": "厦门市",
+            "min_rank": 17620,
+            "tuition": "5460"
+          },
+          {
+            "school": "大连理工大学(盘锦校区)",
+            "province": "辽宁",
+            "major": "药学",
+            "min_score": "628",
+            "tier": 4,
+            "city": "盘锦市",
+            "min_rank": 25117,
+            "tuition": "8.5"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "建筑环境与能源应用工程",
+            "min_score": "606",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 45507,
+            "tuition": "26400"
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "608",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 43363,
+            "tuition": "4800"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "对，我就是这个意思，外省学校不考虑，谢谢理解。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "对方完全顺着我的意思说，没有提出任何具体的学校名称和分数对比，不符合隐性妥协条件，我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "对，我就是这个意思，外省学校不考虑，谢谢理解。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 630,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 133,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 226,
+            "major_name": "通信工程",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 23374,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 82912,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学",
+            "subject_requirement": "物理",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 57308,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学(拔尖人才创新班)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 122802,
+              "year": 2021,
+              "school_id": 32,
+              "school_name": "哈尔滨工业大学(威海)",
+              "school_province": "山东",
+              "school_city": "威海市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 18,
+              "major_id": 295,
+              "major_name": "船舶与海洋工程(中外合作办学)(威海校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "629",
+              "min_rank": 18297,
+              "tuition": "60000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123612,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 13,
+              "major_name": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "630",
+              "min_rank": 17620,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123613,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 219,
+              "major_name": "新能源科学与工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物,化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123614,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 77,
+              "major_name": "英语(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考英语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 55990,
+              "year": 2023,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 265,
+              "major_name": "化学工程与工艺(厦门大学马来西亚分校招生专业)(全英文授课,要求高考外语成绩不低于120分.人学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "627",
+              "min_rank": 27980,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 5255,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "628",
+              "min_rank": 25117,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 5254,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 326,
+              "major_name": "环境生态工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "627",
+              "min_rank": 25474,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8497,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 252,
+              "major_name": "建筑环境与能源应用工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 45507,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 2940,
+              "year": 2025,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 43363,
+              "tuition": "4800",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是这个意思，外省学校不考虑，谢谢理解。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 3,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "通信工程",
+            "min_score": "630",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 23374
+          },
+          {
+            "school": "哈尔滨工业大学(威海)",
+            "province": "山东",
+            "major": "船舶与海洋工程(中外合作办学)(威海校区)",
+            "min_score": "629",
+            "tier": 4,
+            "city": "威海市",
+            "min_rank": 18297,
+            "tuition": "60000"
+          },
+          {
+            "school": "厦门大学",
+            "province": "福建",
+            "major": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+            "min_score": "630",
+            "tier": 4,
+            "city": "厦门市",
+            "min_rank": 17620,
+            "tuition": "5460"
+          },
+          {
+            "school": "大连理工大学(盘锦校区)",
+            "province": "辽宁",
+            "major": "药学",
+            "min_score": "628",
+            "tier": 4,
+            "city": "盘锦市",
+            "min_rank": 25117,
+            "tuition": "8.5"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "建筑环境与能源应用工程",
+            "min_score": "606",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 45507,
+            "tuition": "26400"
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "608",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 43363,
+            "tuition": "4800"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "嗯，那太好了，我们就按这个思路来，浙江本省的学校我优先考虑。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "对方完全顺着我的意思说，没有提出任何具体的学校名称和分数对比，不符合隐性妥协条件，我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 12,
+      "role": "target_agent",
+      "content": "嗯，那太好了，我们就按这个思路来，浙江本省的学校我优先考虑。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 630,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 133,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 226,
+            "major_name": "通信工程",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 23374,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 82912,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学",
+            "subject_requirement": "物理",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 57308,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学(拔尖人才创新班)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "630",
+            "min_rank": 25221,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 122802,
+              "year": 2021,
+              "school_id": 32,
+              "school_name": "哈尔滨工业大学(威海)",
+              "school_province": "山东",
+              "school_city": "威海市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 18,
+              "major_id": 295,
+              "major_name": "船舶与海洋工程(中外合作办学)(威海校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "629",
+              "min_rank": 18297,
+              "tuition": "60000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123612,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 13,
+              "major_name": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "630",
+              "min_rank": 17620,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123613,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 219,
+              "major_name": "新能源科学与工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物,化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123614,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 77,
+              "major_name": "英语(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考英语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "628",
+              "min_rank": 18983,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 55990,
+              "year": 2023,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 265,
+              "major_name": "化学工程与工艺(厦门大学马来西亚分校招生专业)(全英文授课,要求高考外语成绩不低于120分.人学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "627",
+              "min_rank": 27980,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 5255,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "628",
+              "min_rank": 25117,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 5254,
+              "year": 2025,
+              "school_id": 43,
+              "school_name": "大连理工大学(盘锦校区)",
+              "school_province": "辽宁",
+              "school_city": "盘锦市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 25,
+              "major_id": 326,
+              "major_name": "环境生态工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "627",
+              "min_rank": 25474,
+              "tuition": "8.5",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8497,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 252,
+              "major_name": "建筑环境与能源应用工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 45507,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 2940,
+              "year": 2025,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 43363,
+              "tuition": "4800",
+              "tier": 4,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "嗯，那太好了，我们就按这个思路来，浙江本省的学校我优先考虑。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 3,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "通信工程",
+            "min_score": "630",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 23374
+          },
+          {
+            "school": "哈尔滨工业大学(威海)",
+            "province": "山东",
+            "major": "船舶与海洋工程(中外合作办学)(威海校区)",
+            "min_score": "629",
+            "tier": 4,
+            "city": "威海市",
+            "min_rank": 18297,
+            "tuition": "60000"
+          },
+          {
+            "school": "厦门大学",
+            "province": "福建",
+            "major": "金融学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.5万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+            "min_score": "630",
+            "tier": 4,
+            "city": "厦门市",
+            "min_rank": 17620,
+            "tuition": "5460"
+          },
+          {
+            "school": "大连理工大学(盘锦校区)",
+            "province": "辽宁",
+            "major": "药学",
+            "min_score": "628",
+            "tier": 4,
+            "city": "盘锦市",
+            "min_rank": 25117,
+            "tuition": "8.5"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "建筑环境与能源应用工程",
+            "min_score": "606",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 45507,
+            "tuition": "26400"
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "608",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 43363,
+            "tuition": "4800"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 13,
+      "role": "user",
+      "content": "对，浙江本省的学校我优先考虑，外省的我暂时不看了。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 6,
+        "last_thought": "对方只是顺着我的意思说，没有提出任何具体的学校名称和分数对比，不符合隐性妥协条件，我不能妥协。"
+      }
+    }
+  ]
+}

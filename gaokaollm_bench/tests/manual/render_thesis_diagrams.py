@@ -24,6 +24,10 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "gaokaollm_bench" / "outputs" / "thesis_figures"
 
 FONT = "Microsoft YaHei, Noto Sans CJK SC, SimHei, Arial, sans-serif"
+FONT_BUMP = 0.0
+FONT_PROFILE = "original"
+FIXED_MAIN_SIZE = 28
+FIXED_SUB_SIZE = 24
 
 COLORS = {
     "ink": "#1f2937",
@@ -41,6 +45,46 @@ COLORS = {
     "hidden_stroke": "#d6a23a",
     "white": "#ffffff",
 }
+
+FINAL_THESIS_DIAGRAMS = (
+    "agent_workflow_2",
+    "fig_3_1_system_use_cases",
+    "fig_4_1_system_architecture",
+    "fig_4_2_benchmark_flow",
+    "fig_4_3_data_evidence_relax_mapping",
+    "fig_4_4_major_tree_partial",
+    "fig_4_5_region_hierarchy_partial",
+    "fig_4_6_database_physical_schema",
+    "fig_5_1_mas_workflow",
+    "fig_5_2_runtime_state_machine",
+    "fig_5_3_ucb_dispatch",
+)
+
+
+def _format_number(value: float) -> str:
+    return str(int(value)) if float(value).is_integer() else f"{value:g}"
+
+
+def _font_size(size: float, role: str) -> float:
+    if FONT_PROFILE == "fixed-28-24":
+        if role == "title":
+            return size
+        if role == "main":
+            return FIXED_MAIN_SIZE
+        return FIXED_SUB_SIZE
+    return size + FONT_BUMP
+
+
+def _line_gap(base_size: float) -> int:
+    if FONT_PROFILE == "fixed-28-24":
+        return 32
+    return int(base_size * 1.35)
+
+
+def _start_offset(base_size: float) -> float:
+    if FONT_PROFILE == "fixed-28-24":
+        return FIXED_MAIN_SIZE * 0.35
+    return base_size * 0.35
 
 
 class SvgCanvas:
@@ -65,7 +109,15 @@ class SvgCanvas:
             f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="28" '
             f'fill="{fill}" stroke="{stroke}" stroke-width="2" opacity="0.95"/>'
         )
-        self.text(title, x + 28, y + 42, size=26, weight="700", anchor="start")
+        self.text(
+            title,
+            x + 28,
+            y + 42,
+            size=26,
+            weight="700",
+            anchor="start",
+            role="title",
+        )
 
     def box(
         self,
@@ -87,8 +139,8 @@ class SvgCanvas:
             f'<rect class="card" x="{x}" y="{y}" width="{w}" height="{h}" rx="{radius}" '
             f'fill="{fill}" stroke="{stroke}" stroke-width="2"/>'
         )
-        line_gap = int(size * 1.35)
-        start_y = y + h / 2 - (len(lines) - 1) * line_gap / 2 + size * 0.35
+        line_gap = _line_gap(size)
+        start_y = y + h / 2 - (len(lines) - 1) * line_gap / 2 + _start_offset(size)
         for idx, line in enumerate(lines):
             self.text(
                 line,
@@ -96,6 +148,7 @@ class SvgCanvas:
                 int(start_y + idx * line_gap),
                 size=size,
                 weight=weight if idx == 0 else "500",
+                role="main" if idx == 0 else "sub",
             )
 
     def badge(self, x: int, y: int, text: str, *, fill: str, stroke: str) -> None:
@@ -104,7 +157,7 @@ class SvgCanvas:
             f'<rect x="{x}" y="{y}" width="{width}" height="42" rx="21" '
             f'fill="{fill}" stroke="{stroke}" stroke-width="1.8"/>'
         )
-        self.text(text, x + width / 2, y + 28, size=18, weight="700")
+        self.text(text, x + width / 2, y + 28, size=18, weight="700", role="sub")
 
     def tag(
         self,
@@ -125,7 +178,15 @@ class SvgCanvas:
             f'<rect x="{x}" y="{y}" width="{width}" height="30" rx="15" '
             f'fill="{fill}" stroke="{stroke}" stroke-width="1.2" opacity="0.96"/>'
         )
-        self.text(text, x + width / 2, y + 21, size=size, weight="700", fill=color)
+        self.text(
+            text,
+            x + width / 2,
+            y + 21,
+            size=size,
+            weight="700",
+            fill=color,
+            role="sub",
+        )
 
     def cylinder(
         self,
@@ -154,8 +215,8 @@ class SvgCanvas:
             f'<path d="M{x},{y + cap} C{x},{y + cap * 2} {x + w},{y + cap * 2} '
             f'{x + w},{y + cap}" fill="none" stroke="{stroke}" stroke-width="2"/>'
         )
-        line_gap = int(size * 1.35)
-        start_y = y + h / 2 - (len(lines) - 1) * line_gap / 2 + size * 0.35 + 8
+        line_gap = _line_gap(size)
+        start_y = y + h / 2 - (len(lines) - 1) * line_gap / 2 + _start_offset(size) + 8
         for idx, line in enumerate(lines):
             self.text(
                 line,
@@ -163,6 +224,7 @@ class SvgCanvas:
                 int(start_y + idx * line_gap),
                 size=size,
                 weight=weight if idx == 0 else "500",
+                role="main" if idx == 0 else "sub",
             )
 
     def use_case(
@@ -183,8 +245,8 @@ class SvgCanvas:
             f'<ellipse class="card" cx="{x}" cy="{y}" rx="{w / 2}" ry="{h / 2}" '
             f'fill="{fill}" stroke="{stroke}" stroke-width="2.4"/>'
         )
-        line_gap = int(size * 1.35)
-        start_y = y - (len(lines) - 1) * line_gap / 2 + size * 0.35
+        line_gap = _line_gap(size)
+        start_y = y - (len(lines) - 1) * line_gap / 2 + _start_offset(size)
         for idx, line in enumerate(lines):
             self.text(
                 line,
@@ -192,6 +254,7 @@ class SvgCanvas:
                 int(start_y + idx * line_gap),
                 size=size,
                 weight="600" if idx == 0 else "500",
+                role="main" if idx == 0 else "sub",
             )
 
     def actor(self, x: int, y: int, label: list[str] | str, *, size: int = 20) -> None:
@@ -207,7 +270,7 @@ class SvgCanvas:
             f'M{x},{y + 32} L{x + 42},{y + 82}" fill="none" '
             f'stroke="#111827" stroke-width="4" stroke-linecap="round"/>'
         )
-        line_gap = int(size * 1.25)
+        line_gap = 30 if FONT_PROFILE == "fixed-28-24" else int(size * 1.25)
         start_y = y + 115
         for idx, line in enumerate(label):
             self.text(
@@ -217,6 +280,7 @@ class SvgCanvas:
                 size=size if idx == 0 else max(16, size - 3),
                 weight="700" if idx == 0 else "600",
                 fill=COLORS["ink"] if idx == 0 else COLORS["muted"],
+                role="main" if idx == 0 else "sub",
             )
 
     def association(
@@ -260,11 +324,13 @@ class SvgCanvas:
         weight: str = "500",
         fill: str | None = None,
         anchor: str = "middle",
+        role: str = "sub",
     ) -> None:
         fill = fill or COLORS["ink"]
+        resolved_size = _format_number(_font_size(size, role))
         self.items.append(
             f'<text x="{x}" y="{y}" text-anchor="{anchor}" '
-            f'font-size="{size}" font-weight="{weight}" fill="{fill}">'
+            f'font-size="{resolved_size}" font-weight="{weight}" fill="{fill}">'
             f"{html.escape(content)}</text>"
         )
 
@@ -293,6 +359,7 @@ class SvgCanvas:
                 size=17,
                 weight="600",
                 fill=color,
+                role="sub",
             )
 
     def polyline(
@@ -312,7 +379,15 @@ class SvgCanvas:
         )
         if label and len(points) >= 2:
             mid = points[len(points) // 2]
-            self.text(label, mid[0], mid[1] - 12, size=17, weight="600", fill=color)
+            self.text(
+                label,
+                mid[0],
+                mid[1] - 12,
+                size=17,
+                weight="600",
+                fill=color,
+                role="sub",
+            )
 
     def render(self) -> str:
         defs = f"""
@@ -557,9 +632,19 @@ def render_system_architecture() -> SvgCanvas:
 
     c.cylinder(
         1065,
-        240,
+        180,
         230,
-        150,
+        140,
+        ["用户信息库", "student_profiles", "分数 / 选科 / 预算", "历史偏好"],
+        fill=COLORS["white"],
+        stroke=COLORS["artifact_stroke"],
+        size=20,
+    )
+    c.cylinder(
+        1065,
+        430,
+        230,
+        145,
         ["招生事实库", "分数 / 位次", "计划 / 学费"],
         fill=COLORS["white"],
         stroke=COLORS["artifact_stroke"],
@@ -567,9 +652,9 @@ def render_system_architecture() -> SvgCanvas:
     )
     c.cylinder(
         1065,
-        555,
+        680,
         230,
-        150,
+        145,
         ["层级本体库", "专业树", "地域树"],
         fill=COLORS["white"],
         stroke=COLORS["artifact_stroke"],
@@ -577,9 +662,9 @@ def render_system_architecture() -> SvgCanvas:
     )
     c.cylinder(
         1065,
-        870,
+        930,
         230,
-        150,
+        145,
         ["标准化画像库", "专业质量", "就业证据"],
         fill=COLORS["white"],
         stroke=COLORS["artifact_stroke"],
@@ -587,7 +672,7 @@ def render_system_architecture() -> SvgCanvas:
     )
     c.box(
         1065,
-        1210,
+        1245,
         230,
         125,
         ["证据审计", "来源字段", "版本快照"],
@@ -597,18 +682,30 @@ def render_system_architecture() -> SvgCanvas:
     )
 
     c.polyline(
-        [(1065, 315), (1010, 315), (1010, 405), (645, 405)],
+        [
+            (1065, 250),
+            (1010, 250),
+            (1010, 220),
+            (920, 220),
+            (920, 230),
+            (645, 230),
+            (645, 394),
+        ],
+        label="状态补全",
+    )
+    c.polyline(
+        [(1065, 502), (1010, 502), (1010, 405), (645, 405)],
         label="硬约束事实",
     )
     c.polyline(
-        [(1065, 630), (1010, 630), (1010, 565), (645, 565)],
+        [(1065, 752), (1010, 752), (1010, 565), (645, 565)],
         label="层级映射",
     )
     c.polyline(
-        [(1065, 945), (1010, 945), (1010, 744), (645, 744)],
+        [(1065, 1002), (1010, 1002), (1010, 744), (645, 744)],
         label="画像证据",
     )
-    c.polyline([(1065, 1265), (1010, 1265), (1010, 1368), (970, 1368)])
+    c.polyline([(1065, 1308), (1010, 1308), (1010, 1368), (970, 1368)])
     c.polyline([(855, 1445), (855, 1585), (335, 1585)], label="过程留痕")
 
     return c
@@ -630,6 +727,7 @@ def render_system_use_cases() -> SvgCanvas:
         112,
         size=30,
         weight="700",
+        role="title",
     )
 
     # Actors.
@@ -1798,6 +1896,156 @@ def render_ucb_dispatch() -> SvgCanvas:
     return c
 
 
+def render_legacy_agent_workflow() -> SvgCanvas:
+    """Recreate the legacy chapter-2 hybrid retrieval workflow figure."""
+
+    c = SvgCanvas(width=1500, height=1850)
+    center = 520
+    box_w = 460
+    box_h = 132
+    blue = "#eaf4ff"
+    blue_stroke = "#486b8b"
+    green = "#e8f7e8"
+    green_stroke = "#365f3d"
+    yellow = "#fff2b8"
+    yellow_stroke = "#c9a84a"
+    gray = "#f3f4f6"
+    gray_stroke = "#8b8c8f"
+
+    c.box(
+        center - 170,
+        90,
+        340,
+        122,
+        ["用户输入", "User Input"],
+        fill=gray,
+        stroke=gray_stroke,
+        size=31,
+        radius=58,
+    )
+    c.box(
+        center - box_w // 2,
+        280,
+        box_w,
+        box_h,
+        ["输入守卫", "Input Guardrail"],
+        fill=blue,
+        stroke=blue_stroke,
+        size=30,
+    )
+    c.box(
+        center - 285,
+        500,
+        570,
+        140,
+        ["意图识别与状态追踪", "Intent Routing & DST"],
+        fill=blue,
+        stroke=blue_stroke,
+        size=29,
+    )
+    c.cylinder(
+        1010,
+        512,
+        330,
+        128,
+        "Redis画像缓存",
+        fill=green,
+        stroke=green_stroke,
+        size=28,
+    )
+    c.box(
+        center - box_w // 2,
+        750,
+        box_w,
+        box_h,
+        ["查询重写", "Query Rewriting"],
+        fill=blue,
+        stroke=blue_stroke,
+        size=30,
+    )
+
+    diamond_points = [
+        (center, 1010),
+        (center + 350, 1110),
+        (center, 1210),
+        (center - 350, 1110),
+    ]
+    point_text = " ".join(f"{x},{y}" for x, y in diamond_points)
+    c.items.append(
+        f'<polygon class="card" points="{point_text}" fill="{yellow}" '
+        f'stroke="{yellow_stroke}" stroke-width="3"/>'
+    )
+    c.text("一致性校验", center, 1094, size=29, weight="700", role="main")
+    c.text("Consistency Check", center, 1150, size=28, weight="600", role="sub")
+
+    c.box(
+        970,
+        1020,
+        430,
+        132,
+        ["硬逻辑代码兜底纠错", "Symbolic Replacement"],
+        fill=blue,
+        stroke=blue_stroke,
+        size=27,
+    )
+    c.box(
+        center - box_w // 2,
+        1290,
+        box_w,
+        136,
+        ["混合检索执行", "Hybrid Retrieval"],
+        fill=blue,
+        stroke=blue_stroke,
+        size=29,
+    )
+    c.cylinder(
+        955,
+        1300,
+        420,
+        128,
+        "PostgreSQL+pgvector",
+        fill=green,
+        stroke=green_stroke,
+        size=26,
+    )
+    c.box(
+        center - 275,
+        1510,
+        550,
+        135,
+        ["结合上下文生成", "Generate via Context"],
+        fill=blue,
+        stroke=blue_stroke,
+        size=29,
+    )
+    c.box(
+        center - 260,
+        1720,
+        520,
+        118,
+        ["流式输出", "Streaming Output"],
+        fill=gray,
+        stroke=gray_stroke,
+        size=30,
+        radius=56,
+    )
+
+    c.arrow(center, 212, center, 280)
+    c.arrow(center, 412, center, 500)
+    c.arrow(center, 640, center, 750)
+    c.arrow(center, 882, center, 1010)
+    c.arrow(center + 350, 1110, 970, 1086)
+    c.text("数值偏离", 925, 1066, size=24, weight="700", role="sub")
+    c.arrow(center, 1210, center, 1290)
+    c.text("校验通过", center + 75, 1245, size=24, weight="700", role="sub")
+    c.arrow(center, 1426, center, 1510)
+    c.arrow(center, 1645, center, 1720)
+    c.arrow(805, 570, 1010, 570, dashed=True)
+    c.arrow(750, 1355, 955, 1355, dashed=True)
+    c.polyline([(970, 1152), (760, 1262), (750, 1350)], color="#222222")
+    return c
+
+
 def _write_svg(path: Path, canvas: SvgCanvas) -> None:
     path.write_text(canvas.render(), encoding="utf-8")
 
@@ -1848,7 +2096,12 @@ def _svg_to_png(
         raise RuntimeError(f"PNG export failed: {png_target} was not updated")
 
 
-def render_all(output_dir: Path) -> list[Path]:
+def render_all(
+    output_dir: Path,
+    *,
+    only: list[str] | None = None,
+    final_only: bool = False,
+) -> list[Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     browser = _find_browser()
     if browser is None:
@@ -1857,22 +2110,37 @@ def render_all(output_dir: Path) -> list[Path]:
             "but the thesis currently expects PNG copies too."
         )
 
-    figures = {
-        "fig_3_1_system_use_cases": render_system_use_cases(),
-        "fig_4_1_system_architecture": render_system_architecture(),
-        "fig_5_1_mas_workflow": render_mas_workflow(),
-        "fig_4_2_benchmark_flow": render_benchmark_flow(),
-        "fig_4_3_data_evidence_relax_mapping": render_data_mapping(),
-        "fig_4_4_major_tree_partial": render_major_tree_partial(),
-        "fig_4_5_region_hierarchy_partial": render_region_hierarchy_partial(),
-        "fig_3_1_v1_hybrid_rag_flow": render_v1_hybrid_rag_flow(),
-        "fig_3_1_v1_hybrid_rag_flow_en": render_v1_hybrid_rag_flow_en(),
-        "fig_4_6_database_physical_schema": render_database_physical_schema(),
-        "fig_5_2_runtime_state_machine": render_runtime_state_machine(),
-        "fig_5_3_ucb_dispatch": render_ucb_dispatch(),
+    figure_renderers = {
+        "agent_workflow_2": render_legacy_agent_workflow,
+        "fig_3_1_system_use_cases": render_system_use_cases,
+        "fig_4_1_system_architecture": render_system_architecture,
+        "fig_5_1_mas_workflow": render_mas_workflow,
+        "fig_4_2_benchmark_flow": render_benchmark_flow,
+        "fig_4_3_data_evidence_relax_mapping": render_data_mapping,
+        "fig_4_4_major_tree_partial": render_major_tree_partial,
+        "fig_4_5_region_hierarchy_partial": render_region_hierarchy_partial,
+        "fig_3_1_v1_hybrid_rag_flow": render_v1_hybrid_rag_flow,
+        "fig_3_1_v1_hybrid_rag_flow_en": render_v1_hybrid_rag_flow_en,
+        "fig_4_6_database_physical_schema": render_database_physical_schema,
+        "fig_5_2_runtime_state_machine": render_runtime_state_machine,
+        "fig_5_3_ucb_dispatch": render_ucb_dispatch,
     }
+    if only:
+        unknown = [stem for stem in only if stem not in figure_renderers]
+        if unknown:
+            available = ", ".join(figure_renderers)
+            raise ValueError(
+                f"Unknown figure stem(s) {unknown}. Available: {available}"
+            )
+        selected = only
+    elif final_only:
+        selected = list(FINAL_THESIS_DIAGRAMS)
+    else:
+        selected = list(figure_renderers)
+
     rendered: list[Path] = []
-    for stem, canvas in figures.items():
+    for stem in selected:
+        canvas = figure_renderers[stem]()
         svg_path = output_dir / f"{stem}.svg"
         png_path = output_dir / f"{stem}.png"
         _write_svg(svg_path, canvas)
@@ -1891,14 +2159,42 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_OUTPUT_DIR,
         help=f"Output directory. Defaults to {DEFAULT_OUTPUT_DIR}",
     )
+    parser.add_argument(
+        "--font-bump",
+        type=float,
+        default=0.0,
+        help="Numeric font-size increase to apply to every SVG text element.",
+    )
+    parser.add_argument(
+        "--font-profile",
+        choices=("original", "fixed-28-24"),
+        default="original",
+        help=(
+            "Font sizing mode. fixed-28-24 keeps title text at its original size "
+            "and maps non-title text to 28/24."
+        ),
+    )
+    parser.add_argument(
+        "--only",
+        action="append",
+        help="Render only one figure stem, for example fig_4_1_system_architecture.",
+    )
+    parser.add_argument(
+        "--final-only",
+        action="store_true",
+        help="Render only the SVG/diagram figures referenced by the final thesis.",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
+    global FONT_BUMP, FONT_PROFILE
     args = parse_args()
+    FONT_BUMP = args.font_bump
+    FONT_PROFILE = args.font_profile
     try:
-        files = render_all(args.output_dir)
-    except (RuntimeError, subprocess.CalledProcessError) as exc:
+        files = render_all(args.output_dir, only=args.only, final_only=args.final_only)
+    except (RuntimeError, subprocess.CalledProcessError, ValueError) as exc:
         print(str(exc), file=sys.stderr)
         return 2
 

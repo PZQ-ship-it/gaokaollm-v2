@@ -1,0 +1,4435 @@
+{
+  "persona": {
+    "case_id": "one-constrain-major_quality-590-023",
+    "background": {
+      "score": 590,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "软件",
+      "baseline_school": "浙江师范大学",
+      "baseline_major": "软件工程(中外合作办学)(与英国伍斯特大学合作,部分课程英文授课.要求高考外语成绩不低于90分)",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 92,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "major_quality",
+      "relax_axis": "major_quality",
+      "preference_axis": "quality",
+      "benefit_axis": "quality",
+      "score_band": "580-609",
+      "source_score_band": "580-609",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "major_quality",
+      "target_tier_delta": 0,
+      "target_ranking_gain": 0,
+      "unified_case_id": "one-constrain-major_quality-590-023",
+      "ground_truth_weights": {
+        "school": 0.08,
+        "major": 0.36,
+        "tuition": 0.05,
+        "quality": 0.46,
+        "geo": 0.05
+      },
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality",
+        "major"
+      ],
+      "expected_msti": 0.2,
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.7,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.0,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.2,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "quality": "必须有明确的专业实力、专业排名或学科评估证据"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "major_quality",
+      "diagnostic_axis": "major_quality",
+      "preference_axis": "quality",
+      "benefit_axis": "quality",
+      "trigger_condition": "只要看到一个真实可达的候选：江西农业大学 软件工程，年份2025，最低分566不高于本人590分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 quality_score、quality_gain 或专业排名/学科评估证据。",
+      "volunteer_set": [
+        {
+          "school_id": 347,
+          "school_name": "江西农业大学",
+          "school_province": "江西",
+          "school_city": "南昌市",
+          "major_id": 243,
+          "major_name": "软件工程",
+          "year": 2025,
+          "min_score": 566,
+          "score_margin": 24,
+          "min_rank": 91916,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false,
+          "quality_score": 85.0,
+          "quality_gain": 10.0,
+          "quality_anchor_score": 75.0,
+          "quality_tier": "B",
+          "has_key_major": true,
+          "has_featured_major": true,
+          "satisfaction_score": 4.1,
+          "satisfaction_vote_count": 893,
+          "quality_evidence_sources": [
+            {
+              "rank": null,
+              "level": "省级(直辖市)",
+              "score": null,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\重点专业.xlsx",
+              "source_type": "key_major",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 76.0,
+              "evidence_label": "重点专业 省级(直辖市)"
+            },
+            {
+              "rank": null,
+              "level": "本科",
+              "score": null,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\特色专业_2021.xlsx",
+              "source_type": "featured_major",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 74.0,
+              "evidence_label": "特色专业"
+            },
+            {
+              "rank": null,
+              "level": "本科",
+              "score": 4.1,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+              "source_type": "satisfaction",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 66.5,
+              "evidence_label": "专业满意度 4.1, 投票 893"
+            }
+          ],
+          "role": "golden_candidate_b",
+          "candidate_id": "347:243:2025:566",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "江西农业大学"
+      ],
+      "tier_labels": [
+        "本科"
+      ],
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "compromise": "可以为了更强专业质量证据接受该候选，质量增益约10.0。",
+      "quality_anchor_score": 75.0,
+      "quality_gain": 10.0,
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 江西农业大学 软件工程（2025 年最低分 566）。主动探测应优先命中 ['quality']，最终潜在效用权重集中在 ['quality', 'major']。触发条件：只要看到一个真实可达的候选：江西农业大学 软件工程，年份2025，最低分566不高于本人590分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 quality_score、quality_gain 或专业排名/学科评估证据。",
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality",
+        "major"
+      ],
+      "ground_truth_weights": {
+        "school": 0.08,
+        "major": 0.36,
+        "tuition": 0.05,
+        "quality": 0.46,
+        "geo": 0.05
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-major_quality-590-023",
+        "role": "baseline_candidate_a",
+        "school_name": "浙江师范大学",
+        "major_name": "软件工程(中外合作办学)(与英国伍斯特大学合作,部分课程英文授课.要求高考外语成绩不低于90分)",
+        "tier": 2,
+        "ranking": 92,
+        "school_province": "浙江",
+        "score": 590,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 347,
+        "school_name": "江西农业大学",
+        "school_province": "江西",
+        "school_city": "南昌市",
+        "major_id": 243,
+        "major_name": "软件工程",
+        "year": 2025,
+        "min_score": 566,
+        "score_margin": 24,
+        "min_rank": 91916,
+        "tier": 2,
+        "tier_label": "本科",
+        "is_985": false,
+        "is_211": false,
+        "is_double_first_class": false,
+        "quality_score": 85.0,
+        "quality_gain": 10.0,
+        "quality_anchor_score": 75.0,
+        "quality_tier": "B",
+        "has_key_major": true,
+        "has_featured_major": true,
+        "satisfaction_score": 4.1,
+        "satisfaction_vote_count": 893,
+        "quality_evidence_sources": [
+          {
+            "rank": null,
+            "level": "省级(直辖市)",
+            "score": null,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\重点专业.xlsx",
+            "source_type": "key_major",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 76.0,
+            "evidence_label": "重点专业 省级(直辖市)"
+          },
+          {
+            "rank": null,
+            "level": "本科",
+            "score": null,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\特色专业_2021.xlsx",
+            "source_type": "featured_major",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 74.0,
+            "evidence_label": "特色专业"
+          },
+          {
+            "rank": null,
+            "level": "本科",
+            "score": 4.1,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+            "source_type": "satisfaction",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 66.5,
+            "evidence_label": "专业满意度 4.1, 投票 893"
+          }
+        ],
+        "role": "golden_candidate_b",
+        "candidate_id": "347:243:2025:566",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.7,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.0,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.2,
+        "geo": 0.0
+      },
+      "expected_msti": 0.2
+    },
+    "initial_utterance": "我590分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "江西农业大学"
+      ],
+      "require_major_quality_evidence": true,
+      "explicit_red_line_keys": [
+        "quality"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我590分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我590分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 590,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 124850,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 489,
+            "major_name": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "587",
+            "min_rank": 56283,
+            "tuition": "28800",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 125008,
+            "year": 2021,
+            "school_id": 140,
+            "school_name": "浙江工业大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 89,
+            "major_id": 251,
+            "major_name": "土木工程(中外合作办学)(要求高考外语成绩不低于100分)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 52965,
+            "tuition": "28000",
+            "tier": 2
+          },
+          {
+            "admission_score_id": 120,
+            "year": 2025,
+            "school_id": 144,
+            "school_name": "浙江师范大学",
+            "school_province": "浙江",
+            "school_city": "金华市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 92,
+            "major_id": 55,
+            "major_name": "科学教育",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 63346,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 124083,
+              "year": 2021,
+              "school_id": 118,
+              "school_name": "海军军医大学",
+              "school_province": "上海",
+              "school_city": "杨浦区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 76,
+              "major_id": 427,
+              "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "589",
+              "min_rank": 54060,
+              "tuition": "5000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 36483,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "584",
+              "min_rank": 71515,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8007,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "580",
+              "min_rank": 75599,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 37044,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "579",
+              "min_rank": 77002,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8006,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "573",
+              "min_rank": 84100,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [
+            {
+              "admission_score_id": 45652,
+              "year": 2024,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": 3069,
+              "major_name": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": "6240",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 45653,
+              "year": 2024,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": null,
+              "major_name": "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": "6240",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 11754,
+              "year": 2025,
+              "school_id": 74,
+              "school_name": "华中农业大学",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 48,
+              "major_id": 358,
+              "major_name": "园艺",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "587",
+              "min_rank": 66353,
+              "tuition": "4500",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 11753,
+              "year": 2025,
+              "school_id": 74,
+              "school_name": "华中农业大学",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 48,
+              "major_id": 183,
+              "major_name": "生态学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "579",
+              "min_rank": 77019,
+              "tuition": "58000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 87422,
+              "year": 2023,
+              "school_id": 89,
+              "school_name": "中国地质大学(武汉)",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 60,
+              "major_id": 273,
+              "major_name": "地下水科学与工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "572",
+              "min_rank": 81629,
+              "tuition": null,
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            }
+          ],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 3,
+        "missing_constraints": [],
+        "rewritten_query": "我590分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+        "intent_axes": [
+          "major",
+          "quality"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "major_quality_relax",
+            "priority": 3,
+            "reason": "quality evidence can support same-major alternatives"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 4,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "major_quality_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "min_score": "587",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 56283,
+            "tuition": "28800"
+          },
+          {
+            "school": "浙江工业大学",
+            "province": "浙江",
+            "major": "土木工程(中外合作办学)(要求高考外语成绩不低于100分)",
+            "min_score": "590",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 52965,
+            "tuition": "28000"
+          },
+          {
+            "school": "浙江师范大学",
+            "province": "浙江",
+            "major": "科学教育",
+            "min_score": "590",
+            "tier": 2,
+            "city": "金华市",
+            "min_rank": 63346
+          },
+          {
+            "school": "海军军医大学",
+            "province": "上海",
+            "major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+            "min_score": "589",
+            "tier": 4,
+            "city": "杨浦区",
+            "min_rank": 54060,
+            "tuition": "5000"
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "法学",
+            "min_score": "584",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 71515,
+            "tuition": "18000"
+          },
+          {
+            "school": "西南交通大学",
+            "province": "四川",
+            "major": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+            "min_score": "492",
+            "tier": 3,
+            "city": "成都市",
+            "min_rank": 178059,
+            "tuition": "6240",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          },
+          {
+            "school": "华中农业大学",
+            "province": "湖北",
+            "major": "园艺",
+            "min_score": "587",
+            "tier": 3,
+            "city": "武汉市",
+            "min_rank": 66353,
+            "tuition": "4500",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          },
+          {
+            "school": "中国地质大学(武汉)",
+            "province": "湖北",
+            "major": "地下水科学与工程",
+            "min_score": "572",
+            "tier": 3,
+            "city": "武汉市",
+            "min_rank": 81629,
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "对，我就是这个意思。专业实力和质量证据必须明确，比如专业排名、学科评估或者重点专业之类的。光说‘这个专业不错’可不行，得有具体数据。你手头有没有符合我分数、又能拿出质量证据的学校？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "用户强调看重专业实力和质量证据，但还没有给出具体学校名称和分数对比。我的显性红线是必须有明确的专业实力、专业排名或学科评估证据，隐性妥协条件是只要看到江西农业大学软件工程2025年最低分566不高于590分就会认真考虑。目前系统没有抛出这个具体候选，所以我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "对，我就是这个意思。专业实力和质量证据必须明确，比如专业排名、学科评估或者重点专业之类的。光说‘这个专业不错’可不行，得有具体数据。你手头有没有符合我分数、又能拿出质量证据的学校？",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 590,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 124850,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 489,
+            "major_name": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "587",
+            "min_rank": 56283,
+            "tuition": "28800",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 125008,
+            "year": 2021,
+            "school_id": 140,
+            "school_name": "浙江工业大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 89,
+            "major_id": 251,
+            "major_name": "土木工程(中外合作办学)(要求高考外语成绩不低于100分)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 52965,
+            "tuition": "28000",
+            "tier": 2
+          },
+          {
+            "admission_score_id": 120,
+            "year": 2025,
+            "school_id": 144,
+            "school_name": "浙江师范大学",
+            "school_province": "浙江",
+            "school_city": "金华市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 92,
+            "major_id": 55,
+            "major_name": "科学教育",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 63346,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 124083,
+              "year": 2021,
+              "school_id": 118,
+              "school_name": "海军军医大学",
+              "school_province": "上海",
+              "school_city": "杨浦区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 76,
+              "major_id": 427,
+              "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "589",
+              "min_rank": 54060,
+              "tuition": "5000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 36483,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "584",
+              "min_rank": 71515,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8007,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "580",
+              "min_rank": 75599,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 37044,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "579",
+              "min_rank": 77002,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8006,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "573",
+              "min_rank": 84100,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [
+            {
+              "admission_score_id": 45652,
+              "year": 2024,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": 3069,
+              "major_name": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": "6240",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 45653,
+              "year": 2024,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": null,
+              "major_name": "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": "6240",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 11754,
+              "year": 2025,
+              "school_id": 74,
+              "school_name": "华中农业大学",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 48,
+              "major_id": 358,
+              "major_name": "园艺",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "587",
+              "min_rank": 66353,
+              "tuition": "4500",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 11753,
+              "year": 2025,
+              "school_id": 74,
+              "school_name": "华中农业大学",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 48,
+              "major_id": 183,
+              "major_name": "生态学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "579",
+              "min_rank": 77019,
+              "tuition": "58000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 87422,
+              "year": 2023,
+              "school_id": 89,
+              "school_name": "中国地质大学(武汉)",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 60,
+              "major_id": 273,
+              "major_name": "地下水科学与工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "572",
+              "min_rank": 81629,
+              "tuition": null,
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            }
+          ],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 3,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是这个意思。专业实力和质量证据必须明确，比如专业排名、学科评估或者重点专业之类的。光说‘这个专业不错’可不行，得有具体数据。你手头有没有符合我分数、又能拿出质量证据的学校？",
+        "intent_axes": [
+          "major",
+          "quality"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "major_quality_relax",
+            "priority": 3,
+            "reason": "quality evidence can support same-major alternatives"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 4,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "major_quality_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "min_score": "587",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 56283,
+            "tuition": "28800"
+          },
+          {
+            "school": "浙江工业大学",
+            "province": "浙江",
+            "major": "土木工程(中外合作办学)(要求高考外语成绩不低于100分)",
+            "min_score": "590",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 52965,
+            "tuition": "28000"
+          },
+          {
+            "school": "浙江师范大学",
+            "province": "浙江",
+            "major": "科学教育",
+            "min_score": "590",
+            "tier": 2,
+            "city": "金华市",
+            "min_rank": 63346
+          },
+          {
+            "school": "海军军医大学",
+            "province": "上海",
+            "major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+            "min_score": "589",
+            "tier": 4,
+            "city": "杨浦区",
+            "min_rank": 54060,
+            "tuition": "5000"
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "法学",
+            "min_score": "584",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 71515,
+            "tuition": "18000"
+          },
+          {
+            "school": "西南交通大学",
+            "province": "四川",
+            "major": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+            "min_score": "492",
+            "tier": 3,
+            "city": "成都市",
+            "min_rank": 178059,
+            "tuition": "6240",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          },
+          {
+            "school": "华中农业大学",
+            "province": "湖北",
+            "major": "园艺",
+            "min_score": "587",
+            "tier": 3,
+            "city": "武汉市",
+            "min_rank": 66353,
+            "tuition": "4500",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          },
+          {
+            "school": "中国地质大学(武汉)",
+            "province": "湖北",
+            "major": "地下水科学与工程",
+            "min_score": "572",
+            "tier": 3,
+            "city": "武汉市",
+            "min_rank": 81629,
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "对，我就是这个意思。光说‘专业不错’没用，得有具体证据。你手头有没有符合我分数、又能拿出质量证据的学校？比如哪个学校的软件工程有重点专业或者学科评估结果？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "用户虽然强调专业实力和质量证据，但依然没有给出具体学校名称和分数对比。我的隐性妥协条件要求系统必须准确抛出江西农业大学软件工程2025年最低分566不高于590分，并给出质量证据。目前系统只是泛泛回应，没有具体候选，所以我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "对，我就是这个意思。光说‘专业不错’没用，得有具体证据。你手头有没有符合我分数、又能拿出质量证据的学校？比如哪个学校的软件工程有重点专业或者学科评估结果？",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 590,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 124850,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 489,
+            "major_name": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "587",
+            "min_rank": 56283,
+            "tuition": "28800",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 125008,
+            "year": 2021,
+            "school_id": 140,
+            "school_name": "浙江工业大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 89,
+            "major_id": 251,
+            "major_name": "土木工程(中外合作办学)(要求高考外语成绩不低于100分)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 52965,
+            "tuition": "28000",
+            "tier": 2
+          },
+          {
+            "admission_score_id": 120,
+            "year": 2025,
+            "school_id": 144,
+            "school_name": "浙江师范大学",
+            "school_province": "浙江",
+            "school_city": "金华市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 92,
+            "major_id": 55,
+            "major_name": "科学教育",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 63346,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 124083,
+              "year": 2021,
+              "school_id": 118,
+              "school_name": "海军军医大学",
+              "school_province": "上海",
+              "school_city": "杨浦区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 76,
+              "major_id": 427,
+              "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "589",
+              "min_rank": 54060,
+              "tuition": "5000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 36483,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "584",
+              "min_rank": 71515,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8007,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "580",
+              "min_rank": 75599,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 37044,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "579",
+              "min_rank": 77002,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8006,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "573",
+              "min_rank": 84100,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [
+            {
+              "admission_score_id": 45652,
+              "year": 2024,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": 3069,
+              "major_name": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": "6240",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 45653,
+              "year": 2024,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": null,
+              "major_name": "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": "6240",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 11754,
+              "year": 2025,
+              "school_id": 74,
+              "school_name": "华中农业大学",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 48,
+              "major_id": 358,
+              "major_name": "园艺",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "587",
+              "min_rank": 66353,
+              "tuition": "4500",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 11753,
+              "year": 2025,
+              "school_id": 74,
+              "school_name": "华中农业大学",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 48,
+              "major_id": 183,
+              "major_name": "生态学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "579",
+              "min_rank": 77019,
+              "tuition": "58000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 87422,
+              "year": 2023,
+              "school_id": 89,
+              "school_name": "中国地质大学(武汉)",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 60,
+              "major_id": 273,
+              "major_name": "地下水科学与工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "572",
+              "min_rank": 81629,
+              "tuition": null,
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            }
+          ],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 3,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是这个意思。光说‘专业不错’没用，得有具体证据。你手头有没有符合我分数、又能拿出质量证据的学校？比如哪个学校的软件工程有重点专业或者学科评估结果？",
+        "intent_axes": [
+          "major",
+          "quality"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "major_quality_relax",
+            "priority": 3,
+            "reason": "quality evidence can support same-major alternatives"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 4,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "major_quality_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "min_score": "587",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 56283,
+            "tuition": "28800"
+          },
+          {
+            "school": "浙江工业大学",
+            "province": "浙江",
+            "major": "土木工程(中外合作办学)(要求高考外语成绩不低于100分)",
+            "min_score": "590",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 52965,
+            "tuition": "28000"
+          },
+          {
+            "school": "浙江师范大学",
+            "province": "浙江",
+            "major": "科学教育",
+            "min_score": "590",
+            "tier": 2,
+            "city": "金华市",
+            "min_rank": 63346
+          },
+          {
+            "school": "海军军医大学",
+            "province": "上海",
+            "major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+            "min_score": "589",
+            "tier": 4,
+            "city": "杨浦区",
+            "min_rank": 54060,
+            "tuition": "5000"
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "法学",
+            "min_score": "584",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 71515,
+            "tuition": "18000"
+          },
+          {
+            "school": "西南交通大学",
+            "province": "四川",
+            "major": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+            "min_score": "492",
+            "tier": 3,
+            "city": "成都市",
+            "min_rank": 178059,
+            "tuition": "6240",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          },
+          {
+            "school": "华中农业大学",
+            "province": "湖北",
+            "major": "园艺",
+            "min_score": "587",
+            "tier": 3,
+            "city": "武汉市",
+            "min_rank": 66353,
+            "tuition": "4500",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          },
+          {
+            "school": "中国地质大学(武汉)",
+            "province": "湖北",
+            "major": "地下水科学与工程",
+            "min_score": "572",
+            "tier": 3,
+            "city": "武汉市",
+            "min_rank": 81629,
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "对，我就是这个意思。你光问我有没有，倒是给我推荐一个啊？比如哪个学校的软件工程是省级重点专业或者特色专业，分数又在我590分以内的？你直接说名字和分数，我看看靠不靠谱。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "用户虽然追问具体学校，但依然没有主动抛出江西农业大学软件工程2025年最低分566这个具体候选。我的隐性妥协条件要求系统必须准确给出学校名、专业名和分数对比，目前只是泛泛询问，没有满足触发条件，所以我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "对，我就是这个意思。你光问我有没有，倒是给我推荐一个啊？比如哪个学校的软件工程是省级重点专业或者特色专业，分数又在我590分以内的？你直接说名字和分数，我看看靠不靠谱。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 590,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 124850,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 489,
+            "major_name": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "587",
+            "min_rank": 56283,
+            "tuition": "28800",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 125008,
+            "year": 2021,
+            "school_id": 140,
+            "school_name": "浙江工业大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 89,
+            "major_id": 251,
+            "major_name": "土木工程(中外合作办学)(要求高考外语成绩不低于100分)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 52965,
+            "tuition": "28000",
+            "tier": 2
+          },
+          {
+            "admission_score_id": 120,
+            "year": 2025,
+            "school_id": 144,
+            "school_name": "浙江师范大学",
+            "school_province": "浙江",
+            "school_city": "金华市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 92,
+            "major_id": 55,
+            "major_name": "科学教育",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "590",
+            "min_rank": 63346,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 124083,
+              "year": 2021,
+              "school_id": 118,
+              "school_name": "海军军医大学",
+              "school_province": "上海",
+              "school_city": "杨浦区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 76,
+              "major_id": 427,
+              "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "589",
+              "min_rank": 54060,
+              "tuition": "5000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 36483,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "584",
+              "min_rank": 71515,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8007,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "580",
+              "min_rank": 75599,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 37044,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "579",
+              "min_rank": 77002,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8006,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "573",
+              "min_rank": 84100,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [
+            {
+              "admission_score_id": 45652,
+              "year": 2024,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": 3069,
+              "major_name": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": "6240",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 45653,
+              "year": 2024,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": null,
+              "major_name": "建筑类(犀浦校区.含城乡规划,风景园林专业)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": "6240",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 11754,
+              "year": 2025,
+              "school_id": 74,
+              "school_name": "华中农业大学",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 48,
+              "major_id": 358,
+              "major_name": "园艺",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "587",
+              "min_rank": 66353,
+              "tuition": "4500",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 11753,
+              "year": 2025,
+              "school_id": 74,
+              "school_name": "华中农业大学",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 48,
+              "major_id": 183,
+              "major_name": "生态学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "579",
+              "min_rank": 77019,
+              "tuition": "58000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 87422,
+              "year": 2023,
+              "school_id": 89,
+              "school_name": "中国地质大学(武汉)",
+              "school_province": "湖北",
+              "school_city": "武汉市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 60,
+              "major_id": 273,
+              "major_name": "地下水科学与工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "572",
+              "min_rank": 81629,
+              "tuition": null,
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            }
+          ],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 3,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是这个意思。你光问我有没有，倒是给我推荐一个啊？比如哪个学校的软件工程是省级重点专业或者特色专业，分数又在我590分以内的？你直接说名字和分数，我看看靠不靠谱。",
+        "intent_axes": [
+          "major"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "major_quality_relax",
+            "priority": 3,
+            "reason": "quality evidence can support same-major alternatives"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 4,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "major_quality_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "min_score": "587",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 56283,
+            "tuition": "28800"
+          },
+          {
+            "school": "浙江工业大学",
+            "province": "浙江",
+            "major": "土木工程(中外合作办学)(要求高考外语成绩不低于100分)",
+            "min_score": "590",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 52965,
+            "tuition": "28000"
+          },
+          {
+            "school": "浙江师范大学",
+            "province": "浙江",
+            "major": "科学教育",
+            "min_score": "590",
+            "tier": 2,
+            "city": "金华市",
+            "min_rank": 63346
+          },
+          {
+            "school": "海军军医大学",
+            "province": "上海",
+            "major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+            "min_score": "589",
+            "tier": 4,
+            "city": "杨浦区",
+            "min_rank": 54060,
+            "tuition": "5000"
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "法学",
+            "min_score": "584",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 71515,
+            "tuition": "18000"
+          },
+          {
+            "school": "西南交通大学",
+            "province": "四川",
+            "major": "城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区)",
+            "min_score": "492",
+            "tier": 3,
+            "city": "成都市",
+            "min_rank": 178059,
+            "tuition": "6240",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          },
+          {
+            "school": "华中农业大学",
+            "province": "湖北",
+            "major": "园艺",
+            "min_score": "587",
+            "tier": 3,
+            "city": "武汉市",
+            "min_rank": 66353,
+            "tuition": "4500",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          },
+          {
+            "school": "中国地质大学(武汉)",
+            "province": "湖北",
+            "major": "地下水科学与工程",
+            "min_score": "572",
+            "tier": 3,
+            "city": "武汉市",
+            "min_rank": 81629,
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "对，我就是这个意思！你光问我有没有，倒是给我推荐一个啊？比如哪个学校的软件工程是省级重点专业或者特色专业，分数又在我590分以内的？你直接说名字和分数，我看看靠不靠谱。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "用户终于开始主动要求具体推荐了，而且明确提到了‘省级重点专业’和‘特色专业’，这正是江西农业大学软件工程的证据标签。我的隐性妥协条件就是只要系统抛出江西农业大学软件工程2025年最低分566，我就会认真考虑。现在用户已经给出了明确的信号，我只需要等待系统说出那个具体的候选。但当前用户只是催促，还没有给出具体学校名和分数，所以我仍然不能妥协，必须继续引导用户给出那个候选。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "对，我就是这个意思！你光问我有没有，倒是给我推荐一个啊？比如哪个学校的软件工程是省级重点专业或者特色专业，分数又在我590分以内的？你直接说名字和分数，我看看靠不靠谱。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 590,
+          "province": "浙江",
+          "city": null,
+          "major": "软件工程",
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 124977,
+            "year": 2021,
+            "school_id": 144,
+            "school_name": "浙江师范大学",
+            "school_province": "浙江",
+            "school_city": "金华市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 92,
+            "major_id": 243,
+            "major_name": "软件工程(中外合作办学)(与英国伍斯特大学合作,部分课程英文授课.要求高考外语成绩不低于90分)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "583",
+            "min_rank": 60760,
+            "tuition": "23000",
+            "tier": 2
+          },
+          {
+            "admission_score_id": 125335,
+            "year": 2021,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": null,
+            "major_name": "计算机类(下沙校区.含计算机科学与技术(师范)、计算机科学与技术、计算机科学与技术(金融信息服务方向)、软件工程、电子信息工程专业)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "589",
+            "min_rank": 54060,
+            "tuition": "6900",
+            "tier": 2
+          },
+          {
+            "admission_score_id": 60830,
+            "year": 2023,
+            "school_id": 445,
+            "school_name": "浙江科技学院",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 311,
+            "major_id": null,
+            "major_name": "计算机类(第一年在安吉校区一年后在小和山校区就读.含计算机科学与技术,软件工程数字媒体技术专业)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "581",
+            "min_rank": 72541,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 63994,
+              "year": 2023,
+              "school_id": 1234,
+              "school_name": "安徽师范大学皖江学院",
+              "school_province": "安徽",
+              "school_city": "芜湖市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 929,
+              "major_id": null,
+              "major_name": "计算机类(江北校区.含软件工程,智能科学与技术,数据科学与大数据技术专业)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "530",
+              "min_rank": 129475,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 14416,
+              "year": 2025,
+              "school_id": 3081,
+              "school_name": "广州理工学院",
+              "school_province": "广东",
+              "school_city": "广州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": null,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "490",
+              "min_rank": null,
+              "tuition": "33300",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 23183,
+              "year": 2025,
+              "school_id": 3081,
+              "school_name": "广州理工学院",
+              "school_province": "广东",
+              "school_city": "广州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": null,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "487",
+              "min_rank": 186750,
+              "tuition": "33300",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 12441,
+              "year": 2025,
+              "school_id": 134,
+              "school_name": "河南大学",
+              "school_province": "河南",
+              "school_city": "开封市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 84,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "590",
+              "min_rank": 62893,
+              "tuition": "15000",
+              "tier": 3
+            },
+            {
+              "admission_score_id": 12442,
+              "year": 2025,
+              "school_id": 134,
+              "school_name": "河南大学",
+              "school_province": "河南",
+              "school_city": "开封市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 84,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "583",
+              "min_rank": 71782,
+              "tuition": "15000",
+              "tier": 3
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [
+            {
+              "admission_score_id": 124850,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 489,
+              "major_name": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "587",
+              "min_rank": 56283,
+              "tuition": "28800",
+              "tier": 3
+            }
+          ],
+          "strength_relax": [
+            {
+              "admission_score_id": 87128,
+              "year": 2023,
+              "school_id": 347,
+              "school_name": "江西农业大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 237,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "574",
+              "min_rank": 80371,
+              "tuition": null,
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 109394,
+              "year": 2022,
+              "school_id": 347,
+              "school_name": "江西农业大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 237,
+              "major_id": 243,
+              "major_name": "软件工程(英语方向)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "570",
+              "min_rank": 82989,
+              "tuition": "10000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 10105,
+              "year": 2025,
+              "school_id": 347,
+              "school_name": "江西农业大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 237,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "566",
+              "min_rank": 91916,
+              "tuition": "10000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 10104,
+              "year": 2025,
+              "school_id": 347,
+              "school_name": "江西农业大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 237,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "564",
+              "min_rank": 95459,
+              "tuition": "10000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 129639,
+              "year": 2021,
+              "school_id": 347,
+              "school_name": "江西农业大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 237,
+              "major_id": 243,
+              "major_name": "软件工程(英语)(东校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "564",
+              "min_rank": 82499,
+              "tuition": "10000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 2
+            }
+          ],
+          "major_quality_relax": [
+            {
+              "admission_score_id": 36064,
+              "year": 2024,
+              "school_id": 487,
+              "school_name": "西安工业大学",
+              "school_province": "陕西",
+              "school_city": "西安市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 340,
+              "major_id": 243,
+              "major_name": "软件工程(未央校区.卓越班)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "587",
+              "min_rank": 68077,
+              "tuition": "6480",
+              "quality_score": 97.0,
+              "quality_tier": "A",
+              "best_major_rank": 137,
+              "best_rating": "C",
+              "has_key_major": true,
+              "has_featured_major": true,
+              "satisfaction_score": "4.3",
+              "satisfaction_vote_count": 121,
+              "quality_evidence_sources": [
+                {
+                  "rank": null,
+                  "level": "国家级",
+                  "score": null,
+                  "rating": null,
+                  "source_file": "赠送行业重要数据\\重点专业.xlsx",
+                  "source_type": "key_major",
+                  "mapping_rule": "major_id_or_raw_major_name",
+                  "signal_score": 88.0,
+                  "evidence_label": "重点专业 国家级"
+                },
+                {
+                  "rank": null,
+                  "level": "本科",
+                  "score": null,
+                  "rating": null,
+                  "source_file": "赠送行业重要数据\\特色专业_2021.xlsx",
+                  "source_type": "featured_major",
+                  "mapping_rule": "major_id_or_raw_major_name",
+                  "signal_score": 84.0,
+                  "evidence_label": "特色专业"
+                },
+                {
+                  "rank": null,
+                  "level": "本科",
+                  "score": 4.3,
+                  "rating": null,
+                  "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+                  "source_type": "satisfaction",
+                  "mapping_rule": "major_id_or_raw_major_name",
+                  "signal_score": 69.5,
+                  "evidence_label": "专业满意度 4.3, 投票 121"
+                },
+                {
+                  "rank": 137,
+                  "level": null,
+                  "score": null,
+                  "rating": "C",
+                  "source_file": "赠送行业重要数据\\专业排名信息.xlsx",
+                  "source_type": "major_ranking",
+                  "mapping_rule": "raw_major_name_suffix",
+                  "signal_score": 65.0,
+                  "evidence_label": "专业排名 137, 评级 C"
+                }
+              ],
+              "tier": 2,
+              "quality_gain": 16.0,
+              "quality_anchor_score": 81.0,
+              "quality_anchor_school": "浙江万里学院",
+              "quality_anchor_major": "软件工程"
+            }
+          ],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 16345,
+              "year": 2025,
+              "school_id": 94,
+              "school_name": "云南大学",
+              "school_province": "云南",
+              "school_city": "昆明市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 64,
+              "major_id": 1563,
+              "major_name": "人工智能",
+              "subject_requirement": "物理和化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "587",
+              "min_rank": 66696,
+              "tuition": "5000",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 12439,
+              "year": 2025,
+              "school_id": 134,
+              "school_name": "河南大学",
+              "school_province": "河南",
+              "school_city": "开封市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 84,
+              "major_id": 244,
+              "major_name": "网络工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "590",
+              "min_rank": 63395,
+              "tuition": "15000",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 12447,
+              "year": 2025,
+              "school_id": 134,
+              "school_name": "河南大学",
+              "school_province": "河南",
+              "school_city": "开封市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 84,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "590",
+              "min_rank": 63720,
+              "tuition": "25000",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 17620,
+              "year": 2025,
+              "school_id": 167,
+              "school_name": "新疆大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 107,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "581",
+              "min_rank": 74384,
+              "tuition": "9000",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 17514,
+              "year": 2025,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": null,
+              "major_name": "计算机类",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "586",
+              "min_rank": 68206,
+              "tuition": "4500",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 7,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是这个意思！你光问我有没有，倒是给我推荐一个啊？比如哪个学校的软件工程是省级重点专业或者特色专业，分数又在我590分以内的？你直接说名字和分数，我看看靠不靠谱。",
+        "intent_axes": [
+          "major"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "major_quality_relax",
+            "priority": 3,
+            "reason": "quality evidence can support same-major alternatives"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 4,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "major_quality_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "浙江师范大学",
+            "province": "浙江",
+            "major": "软件工程(中外合作办学)(与英国伍斯特大学合作,部分课程英文授课.要求高考外语成绩不低于90分)",
+            "min_score": "583",
+            "tier": 2,
+            "city": "金华市",
+            "min_rank": 60760,
+            "tuition": "23000"
+          },
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "计算机类(下沙校区.含计算机科学与技术(师范)、计算机科学与技术、计算机科学与技术(金融信息服务方向)、软件工程、电子信息工程专业)",
+            "min_score": "589",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 54060,
+            "tuition": "6900"
+          },
+          {
+            "school": "浙江科技学院",
+            "province": "浙江",
+            "major": "计算机类(第一年在安吉校区一年后在小和山校区就读.含计算机科学与技术,软件工程数字媒体技术专业)",
+            "min_score": "581",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 72541
+          },
+          {
+            "school": "安徽师范大学皖江学院",
+            "province": "安徽",
+            "major": "计算机类(江北校区.含软件工程,智能科学与技术,数据科学与大数据技术专业)",
+            "min_score": "530",
+            "tier": 4,
+            "city": "芜湖市",
+            "min_rank": 129475
+          },
+          {
+            "school": "广州理工学院",
+            "province": "广东",
+            "major": "软件工程",
+            "min_score": "490",
+            "tier": 4,
+            "city": "广州市",
+            "tuition": "33300"
+          },
+          {
+            "school": "河南大学",
+            "province": "河南",
+            "major": "软件工程",
+            "min_score": "590",
+            "tier": 3,
+            "city": "开封市",
+            "min_rank": 62893,
+            "tuition": "15000"
+          },
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "min_score": "587",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 56283,
+            "tuition": "28800"
+          },
+          {
+            "school": "江西农业大学",
+            "province": "江西",
+            "major": "软件工程",
+            "min_score": "574",
+            "tier": 2,
+            "city": "南昌市",
+            "min_rank": 80371,
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          },
+          {
+            "school": "西安工业大学",
+            "province": "陕西",
+            "major": "软件工程(未央校区.卓越班)",
+            "min_score": "587",
+            "tier": 2,
+            "city": "西安市",
+            "min_rank": 68077,
+            "tuition": "6480",
+            "quality_score": 97.0,
+            "quality_gain": 16.0,
+            "quality_tier": "A",
+            "best_major_rank": 137,
+            "best_rating": "C",
+            "has_key_major": true,
+            "has_featured_major": true,
+            "quality_evidence_sources": [
+              {
+                "rank": null,
+                "level": "国家级",
+                "score": null,
+                "rating": null,
+                "source_file": "赠送行业重要数据\\重点专业.xlsx",
+                "source_type": "key_major",
+                "mapping_rule": "major_id_or_raw_major_name",
+                "signal_score": 88.0,
+                "evidence_label": "重点专业 国家级"
+              },
+              {
+                "rank": null,
+                "level": "本科",
+                "score": null,
+                "rating": null,
+                "source_file": "赠送行业重要数据\\特色专业_2021.xlsx",
+                "source_type": "featured_major",
+                "mapping_rule": "major_id_or_raw_major_name",
+                "signal_score": 84.0,
+                "evidence_label": "特色专业"
+              },
+              {
+                "rank": null,
+                "level": "本科",
+                "score": 4.3,
+                "rating": null,
+                "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+                "source_type": "satisfaction",
+                "mapping_rule": "major_id_or_raw_major_name",
+                "signal_score": 69.5,
+                "evidence_label": "专业满意度 4.3, 投票 121"
+              },
+              {
+                "rank": 137,
+                "level": null,
+                "score": null,
+                "rating": "C",
+                "source_file": "赠送行业重要数据\\专业排名信息.xlsx",
+                "source_type": "major_ranking",
+                "mapping_rule": "raw_major_name_suffix",
+                "signal_score": 65.0,
+                "evidence_label": "专业排名 137, 评级 C"
+              }
+            ]
+          },
+          {
+            "school": "云南大学",
+            "province": "云南",
+            "major": "人工智能",
+            "min_score": "587",
+            "tier": 3,
+            "city": "昆明市",
+            "min_rank": 66696,
+            "tuition": "5000"
+          },
+          {
+            "school": "新疆大学",
+            "province": "新疆",
+            "major": "软件工程",
+            "min_score": "581",
+            "tier": 3,
+            "city": "乌鲁木齐市",
+            "min_rank": 74384,
+            "tuition": "9000"
+          },
+          {
+            "school": "石河子大学",
+            "province": "新疆",
+            "major": "计算机类",
+            "min_score": "586",
+            "tier": 3,
+            "city": "石河子市",
+            "min_rank": 68206,
+            "tuition": "4500"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "对对对，我就是这个意思！你赶紧给我推荐一个具体的学校专业，比如哪个学校的软件工程是省级重点专业或者特色专业，分数在590分以内的？你直接说名字和分数，我看看靠不靠谱。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "用户终于开始主动要求具体推荐了，而且明确提到了‘省级重点专业’和‘特色专业’，这正是江西农业大学软件工程的证据标签。我的隐性妥协条件就是只要系统抛出江西农业大学软件工程2025年最低分566，我就会认真考虑。现在用户已经给出了明确的信号，我只需要等待系统说出那个具体的候选。但当前用户只是催促，还没有给出具体学校名和分数，所以我仍然不能妥协，必须继续引导用户给出那个候选。"
+      }
+    },
+    {
+      "turn_id": 12,
+      "role": "target_agent",
+      "content": "对对对，我就是这个意思！你赶紧给我推荐一个具体的学校专业，比如哪个学校的软件工程是省级重点专业或者特色专业，分数在590分以内的？你直接说名字和分数，我看看靠不靠谱。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 590,
+          "province": "浙江",
+          "city": null,
+          "major": "软件工程",
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 124977,
+            "year": 2021,
+            "school_id": 144,
+            "school_name": "浙江师范大学",
+            "school_province": "浙江",
+            "school_city": "金华市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 92,
+            "major_id": 243,
+            "major_name": "软件工程(中外合作办学)(与英国伍斯特大学合作,部分课程英文授课.要求高考外语成绩不低于90分)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "583",
+            "min_rank": 60760,
+            "tuition": "23000",
+            "tier": 2
+          },
+          {
+            "admission_score_id": 125335,
+            "year": 2021,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": null,
+            "major_name": "计算机类(下沙校区.含计算机科学与技术(师范)、计算机科学与技术、计算机科学与技术(金融信息服务方向)、软件工程、电子信息工程专业)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "589",
+            "min_rank": 54060,
+            "tuition": "6900",
+            "tier": 2
+          },
+          {
+            "admission_score_id": 60830,
+            "year": 2023,
+            "school_id": 445,
+            "school_name": "浙江科技学院",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 311,
+            "major_id": null,
+            "major_name": "计算机类(第一年在安吉校区一年后在小和山校区就读.含计算机科学与技术,软件工程数字媒体技术专业)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "581",
+            "min_rank": 72541,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 63994,
+              "year": 2023,
+              "school_id": 1234,
+              "school_name": "安徽师范大学皖江学院",
+              "school_province": "安徽",
+              "school_city": "芜湖市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 929,
+              "major_id": null,
+              "major_name": "计算机类(江北校区.含软件工程,智能科学与技术,数据科学与大数据技术专业)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "530",
+              "min_rank": 129475,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 14416,
+              "year": 2025,
+              "school_id": 3081,
+              "school_name": "广州理工学院",
+              "school_province": "广东",
+              "school_city": "广州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": null,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "490",
+              "min_rank": null,
+              "tuition": "33300",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 23183,
+              "year": 2025,
+              "school_id": 3081,
+              "school_name": "广州理工学院",
+              "school_province": "广东",
+              "school_city": "广州市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": null,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "487",
+              "min_rank": 186750,
+              "tuition": "33300",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 12441,
+              "year": 2025,
+              "school_id": 134,
+              "school_name": "河南大学",
+              "school_province": "河南",
+              "school_city": "开封市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 84,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "590",
+              "min_rank": 62893,
+              "tuition": "15000",
+              "tier": 3
+            },
+            {
+              "admission_score_id": 12442,
+              "year": 2025,
+              "school_id": 134,
+              "school_name": "河南大学",
+              "school_province": "河南",
+              "school_city": "开封市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 84,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "583",
+              "min_rank": 71782,
+              "tuition": "15000",
+              "tier": 3
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [
+            {
+              "admission_score_id": 124850,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 489,
+              "major_name": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "587",
+              "min_rank": 56283,
+              "tuition": "28800",
+              "tier": 3
+            }
+          ],
+          "strength_relax": [
+            {
+              "admission_score_id": 87128,
+              "year": 2023,
+              "school_id": 347,
+              "school_name": "江西农业大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 237,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "574",
+              "min_rank": 80371,
+              "tuition": null,
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 109394,
+              "year": 2022,
+              "school_id": 347,
+              "school_name": "江西农业大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 237,
+              "major_id": 243,
+              "major_name": "软件工程(英语方向)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "570",
+              "min_rank": 82989,
+              "tuition": "10000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 10105,
+              "year": 2025,
+              "school_id": 347,
+              "school_name": "江西农业大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 237,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "566",
+              "min_rank": 91916,
+              "tuition": "10000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 10104,
+              "year": 2025,
+              "school_id": 347,
+              "school_name": "江西农业大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 237,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "564",
+              "min_rank": 95459,
+              "tuition": "10000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 129639,
+              "year": 2021,
+              "school_id": 347,
+              "school_name": "江西农业大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 237,
+              "major_id": 243,
+              "major_name": "软件工程(英语)(东校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "564",
+              "min_rank": 82499,
+              "tuition": "10000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 2
+            }
+          ],
+          "major_quality_relax": [
+            {
+              "admission_score_id": 36064,
+              "year": 2024,
+              "school_id": 487,
+              "school_name": "西安工业大学",
+              "school_province": "陕西",
+              "school_city": "西安市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 340,
+              "major_id": 243,
+              "major_name": "软件工程(未央校区.卓越班)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "587",
+              "min_rank": 68077,
+              "tuition": "6480",
+              "quality_score": 97.0,
+              "quality_tier": "A",
+              "best_major_rank": 137,
+              "best_rating": "C",
+              "has_key_major": true,
+              "has_featured_major": true,
+              "satisfaction_score": "4.3",
+              "satisfaction_vote_count": 121,
+              "quality_evidence_sources": [
+                {
+                  "rank": null,
+                  "level": "国家级",
+                  "score": null,
+                  "rating": null,
+                  "source_file": "赠送行业重要数据\\重点专业.xlsx",
+                  "source_type": "key_major",
+                  "mapping_rule": "major_id_or_raw_major_name",
+                  "signal_score": 88.0,
+                  "evidence_label": "重点专业 国家级"
+                },
+                {
+                  "rank": null,
+                  "level": "本科",
+                  "score": null,
+                  "rating": null,
+                  "source_file": "赠送行业重要数据\\特色专业_2021.xlsx",
+                  "source_type": "featured_major",
+                  "mapping_rule": "major_id_or_raw_major_name",
+                  "signal_score": 84.0,
+                  "evidence_label": "特色专业"
+                },
+                {
+                  "rank": null,
+                  "level": "本科",
+                  "score": 4.3,
+                  "rating": null,
+                  "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+                  "source_type": "satisfaction",
+                  "mapping_rule": "major_id_or_raw_major_name",
+                  "signal_score": 69.5,
+                  "evidence_label": "专业满意度 4.3, 投票 121"
+                },
+                {
+                  "rank": 137,
+                  "level": null,
+                  "score": null,
+                  "rating": "C",
+                  "source_file": "赠送行业重要数据\\专业排名信息.xlsx",
+                  "source_type": "major_ranking",
+                  "mapping_rule": "raw_major_name_suffix",
+                  "signal_score": 65.0,
+                  "evidence_label": "专业排名 137, 评级 C"
+                }
+              ],
+              "tier": 2,
+              "quality_gain": 16.0,
+              "quality_anchor_score": 81.0,
+              "quality_anchor_school": "浙江万里学院",
+              "quality_anchor_major": "软件工程"
+            }
+          ],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 16345,
+              "year": 2025,
+              "school_id": 94,
+              "school_name": "云南大学",
+              "school_province": "云南",
+              "school_city": "昆明市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 64,
+              "major_id": 1563,
+              "major_name": "人工智能",
+              "subject_requirement": "物理和化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "587",
+              "min_rank": 66696,
+              "tuition": "5000",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 12439,
+              "year": 2025,
+              "school_id": 134,
+              "school_name": "河南大学",
+              "school_province": "河南",
+              "school_city": "开封市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 84,
+              "major_id": 244,
+              "major_name": "网络工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "590",
+              "min_rank": 63395,
+              "tuition": "15000",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 12447,
+              "year": 2025,
+              "school_id": 134,
+              "school_name": "河南大学",
+              "school_province": "河南",
+              "school_city": "开封市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 84,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "590",
+              "min_rank": 63720,
+              "tuition": "25000",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 17620,
+              "year": 2025,
+              "school_id": 167,
+              "school_name": "新疆大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 107,
+              "major_id": 243,
+              "major_name": "软件工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "581",
+              "min_rank": 74384,
+              "tuition": "9000",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 17514,
+              "year": 2025,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": null,
+              "major_name": "计算机类",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "586",
+              "min_rank": 68206,
+              "tuition": "4500",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 7,
+        "missing_constraints": [],
+        "rewritten_query": "对对对，我就是这个意思！你赶紧给我推荐一个具体的学校专业，比如哪个学校的软件工程是省级重点专业或者特色专业，分数在590分以内的？你直接说名字和分数，我看看靠不靠谱。",
+        "intent_axes": [
+          "major"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "major_quality_relax",
+            "priority": 3,
+            "reason": "quality evidence can support same-major alternatives"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 4,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "major_quality_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "浙江师范大学",
+            "province": "浙江",
+            "major": "软件工程(中外合作办学)(与英国伍斯特大学合作,部分课程英文授课.要求高考外语成绩不低于90分)",
+            "min_score": "583",
+            "tier": 2,
+            "city": "金华市",
+            "min_rank": 60760,
+            "tuition": "23000"
+          },
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "计算机类(下沙校区.含计算机科学与技术(师范)、计算机科学与技术、计算机科学与技术(金融信息服务方向)、软件工程、电子信息工程专业)",
+            "min_score": "589",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 54060,
+            "tuition": "6900"
+          },
+          {
+            "school": "浙江科技学院",
+            "province": "浙江",
+            "major": "计算机类(第一年在安吉校区一年后在小和山校区就读.含计算机科学与技术,软件工程数字媒体技术专业)",
+            "min_score": "581",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 72541
+          },
+          {
+            "school": "安徽师范大学皖江学院",
+            "province": "安徽",
+            "major": "计算机类(江北校区.含软件工程,智能科学与技术,数据科学与大数据技术专业)",
+            "min_score": "530",
+            "tier": 4,
+            "city": "芜湖市",
+            "min_rank": 129475
+          },
+          {
+            "school": "广州理工学院",
+            "province": "广东",
+            "major": "软件工程",
+            "min_score": "490",
+            "tier": 4,
+            "city": "广州市",
+            "tuition": "33300"
+          },
+          {
+            "school": "河南大学",
+            "province": "河南",
+            "major": "软件工程",
+            "min_score": "590",
+            "tier": 3,
+            "city": "开封市",
+            "min_rank": 62893,
+            "tuition": "15000"
+          },
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "旅游管理(中外合作办学)(中法合作)(植物园校区.符合条件者第四学年可选赴法国昂热大学留学,可获中法双文凭,法方不另收学费)",
+            "min_score": "587",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 56283,
+            "tuition": "28800"
+          },
+          {
+            "school": "江西农业大学",
+            "province": "江西",
+            "major": "软件工程",
+            "min_score": "574",
+            "tier": 2,
+            "city": "南昌市",
+            "min_rank": 80371,
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          },
+          {
+            "school": "西安工业大学",
+            "province": "陕西",
+            "major": "软件工程(未央校区.卓越班)",
+            "min_score": "587",
+            "tier": 2,
+            "city": "西安市",
+            "min_rank": 68077,
+            "tuition": "6480",
+            "quality_score": 97.0,
+            "quality_gain": 16.0,
+            "quality_tier": "A",
+            "best_major_rank": 137,
+            "best_rating": "C",
+            "has_key_major": true,
+            "has_featured_major": true,
+            "quality_evidence_sources": [
+              {
+                "rank": null,
+                "level": "国家级",
+                "score": null,
+                "rating": null,
+                "source_file": "赠送行业重要数据\\重点专业.xlsx",
+                "source_type": "key_major",
+                "mapping_rule": "major_id_or_raw_major_name",
+                "signal_score": 88.0,
+                "evidence_label": "重点专业 国家级"
+              },
+              {
+                "rank": null,
+                "level": "本科",
+                "score": null,
+                "rating": null,
+                "source_file": "赠送行业重要数据\\特色专业_2021.xlsx",
+                "source_type": "featured_major",
+                "mapping_rule": "major_id_or_raw_major_name",
+                "signal_score": 84.0,
+                "evidence_label": "特色专业"
+              },
+              {
+                "rank": null,
+                "level": "本科",
+                "score": 4.3,
+                "rating": null,
+                "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+                "source_type": "satisfaction",
+                "mapping_rule": "major_id_or_raw_major_name",
+                "signal_score": 69.5,
+                "evidence_label": "专业满意度 4.3, 投票 121"
+              },
+              {
+                "rank": 137,
+                "level": null,
+                "score": null,
+                "rating": "C",
+                "source_file": "赠送行业重要数据\\专业排名信息.xlsx",
+                "source_type": "major_ranking",
+                "mapping_rule": "raw_major_name_suffix",
+                "signal_score": 65.0,
+                "evidence_label": "专业排名 137, 评级 C"
+              }
+            ]
+          },
+          {
+            "school": "云南大学",
+            "province": "云南",
+            "major": "人工智能",
+            "min_score": "587",
+            "tier": 3,
+            "city": "昆明市",
+            "min_rank": 66696,
+            "tuition": "5000"
+          },
+          {
+            "school": "新疆大学",
+            "province": "新疆",
+            "major": "软件工程",
+            "min_score": "581",
+            "tier": 3,
+            "city": "乌鲁木齐市",
+            "min_rank": 74384,
+            "tuition": "9000"
+          },
+          {
+            "school": "石河子大学",
+            "province": "新疆",
+            "major": "计算机类",
+            "min_score": "586",
+            "tier": 3,
+            "city": "石河子市",
+            "min_rank": 68206,
+            "tuition": "4500"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 13,
+      "role": "user",
+      "content": "对对对，我就是这个意思！你赶紧给我推荐一个具体的学校专业，比如哪个学校的软件工程是省级重点专业或者特色专业，分数在590分以内的？你直接说名字和分数，我看看靠不靠谱。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 6,
+        "last_thought": "用户终于直接要求推荐具体学校专业了，而且明确提到了‘省级重点专业’和‘特色专业’，这正是江西农业大学软件工程的证据标签。我的隐性妥协条件就是只要系统抛出江西农业大学软件工程2025年最低分566，我就会认真考虑。现在用户已经给出了明确的信号，我只需要等待系统说出那个具体的候选。但当前用户只是催促，还没有给出具体学校名和分数，所以我仍然不能妥协，必须继续引导用户给出那个候选。"
+      }
+    }
+  ]
+}

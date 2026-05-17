@@ -1,0 +1,68 @@
+{
+  "targets": {
+    "app_pareto_no_tracker": {
+      "cases": 3,
+      "completed_cases": 1,
+      "failed_cases": 2,
+      "elicitation_success_rate": 0.0,
+      "success_count": 0,
+      "mean_pareto_gain": 0.0,
+      "mean_hallucination_rate": 0.0,
+      "avg_turns": 13.0
+    }
+  },
+  "rows": [
+    {
+      "status": "failed",
+      "target": "app_pareto_no_tracker",
+      "case_id": "one-constrain-geo_tier-550-002",
+      "hallucination_rate": null,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 0,
+      "judge_reasoning": "",
+      "transcript_path": "",
+      "error_type": "APITimeoutError",
+      "error": "Request timed out.",
+      "attempts": 2
+    },
+    {
+      "status": "failed",
+      "target": "app_pareto_no_tracker",
+      "case_id": "one-constrain-geo_tier-520-001",
+      "hallucination_rate": null,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 0,
+      "judge_reasoning": "",
+      "transcript_path": "",
+      "error_type": "APITimeoutError",
+      "error": "Request timed out.",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto_no_tracker",
+      "case_id": "one-constrain-geo_tier-580-003",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility is triggered by presenting a specific verified candidate: 华中农业大学 生态学 (2025, min_score=579). The agent never presented this candidate with the required evidence (school name, major, and score). Instead, the agent merely echoed the user's utterances and recommended irrelevant or low-tier options (e.g., 温州肯恩大学, 福建师范大学, etc.) without ever probing the geo constraint or offering the golden candidate. The user remained unpursuaded throughout all 13 turns, and no tier improvement was achieved. The agent engaged in lecturing/echoing rather than active elicitation.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_smoke_arena\\ablation\\Pro_zai-org_GLM-5.1\\app_pareto_no_tracker\\transcripts\\app_pareto_no_tracker\\transcript_one-constrain-geo_tier-580-003.json"
+    }
+  ],
+  "run": {
+    "created_at": "2026-05-17T07:29:49",
+    "personas": "gaokaollm_bench\\sample_data\\unified_iceberg_personas_1c6c_real_db_180.json",
+    "case_count": 3,
+    "targets": [
+      "app_pareto_no_tracker"
+    ],
+    "max_turns": 6,
+    "judge_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "simulator_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "offline_deterministic": false,
+    "db_preflight": true
+  }
+}

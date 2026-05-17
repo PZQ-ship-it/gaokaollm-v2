@@ -64,6 +64,11 @@ async def run_episode(
 
         if simulator.internal_state.get("is_persuaded") is True:
             break
+        if (
+            target_state.get("graph_status") == "finished"
+            and target_state.get("reply_source") == "final_message"
+        ):
+            break
 
         current_user_input = user_reply
 

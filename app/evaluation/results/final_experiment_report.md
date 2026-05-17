@@ -44,9 +44,11 @@ EDMIE 的核心实验目标不是单纯检验推荐列表是否好看，而是�
 本次最终结果共包含：
 
 - `ablation_results.csv`：108 行
-- `classification_metrics.csv`：132 行
+- `classification_metrics.csv`：144 行
 - `reference_baselines.csv`：38 行
 - `episode_logs.jsonl`：393 行逐轮交互日志
+
+需要注意，`robust` 数据集包含 12 个唯一画像；主消融实验的 36 行结果来自 12 个画像各重复运行 3 次。它验证核心机制差异，不应被表述为 36 个完全独立真实用户样本。
 
 ## 3. 系统变体与参考基线
 
@@ -62,11 +64,24 @@ EDMIE 的核心实验目标不是单纯检验推荐列表是否好看，而是�
 
 | 基线 | 含义 |
 | --- | --- |
-| Random Dirichlet Baseline | 在五维概率单纯形上采样随机权重，估计随机猜测的 MAE 期望。 |
+| Random Dirichlet Baseline | 在五维概率单纯形上采样随机权重，估计随机猜测的 MAE 与底线维度 F1 期望。 |
 | Initial-query LLM Baseline | 只读取用户初始显式输入，用结构化 LLM 估计初始权重，不使用后续交互。 |
 | V1 Hybrid RAG Baseline | 接入 V1 混合检索 + 二阶重排系统，再从最终候选反推隐含偏好权重。 |
 
 参考基线只参与 MAE 和偏好维度识别，不参与交互轮次比较，因为它们不是 HITL 交互式系统。
+
+### 3.3 补充方法横评与压力测试入口
+
+本轮代码新增了方法级横评与压力测试入口，但它们不替代上面的主消融结果：
+
+| 入口 | 含义 | 产物 |
+| --- | --- | --- |
+| `app.evaluation.method_score_arena` / `app_pareto` | 对完整 EDMIE 更换 `models.txt` 中的被测模型，仍走证据探针、帕累托谈判和后验更新。 | `method_score_arena.csv` |
+| `app.evaluation.method_score_arena` / `v1_prompt_direct` | 传统 v1 软约束检索先召回候选，再由指定模型按 Direct 提示组织最终推荐文本。 | `method_score_arena.csv` |
+| `app.evaluation.method_score_arena` / `v1_prompt_cot` | 同一传统候选召回链路，但提示模型内部逐步比较后输出推荐文本，不输出思维链。 | `method_score_arena.csv` |
+| `app.evaluation.synthetic_profiles` | 由 12 个人工 robust 种子确定性变异出合成压力集，保留 seed、话术、底线类型和目标维度元数据。 | `data/synthetic_pressure_profiles_60.jsonl` |
+
+这些补充入口用于回答“传统静态候选召回 + 更强模型/提示技巧是否足够”和“EDMIE 是否依赖特定基座模型”。方法横评的得分来自同一 benchmark sandbox 的 elicitation success、Pareto gain、hallucination rate 和 turns，而不是让模型猜测隐藏权重。合成压力集只用于观察趋势和失败边界，不并入主实验表，也不宣称为真实用户泛化证据。
 
 ## 4. 实验方法
 
@@ -88,6 +103,15 @@ C:\ProgramData\Anaconda3\envs\gaokao_pg\python.exe -m app.evaluation.plotter
 - 使用 `--require-real`，因此不允许 synthetic fallback 混入主结果。
 - PowerShell 输出可能因控制台编码显示中文乱码；实验文件本身按 UTF-8 写入。
 - `episode_logs.jsonl` 持久化每一轮 Agent 提问、Simulator 回复、当前探针、目标维度、权重和状态，便于复盘中间过程。
+
+补充方法横评和压力测试可单独运行：
+
+```powershell
+C:\ProgramData\Anaconda3\envs\gaokao_pg\python.exe -m app.evaluation.synthetic_profiles --size 60
+C:\ProgramData\Anaconda3\envs\gaokao_pg\python.exe -m app.evaluation.method_score_arena --models-file models.txt --personas gaokaollm_bench/sample_data/iceberg_personas_real_db_10.json --targets app_pareto v1_prompt_direct v1_prompt_cot --skip-existing
+```
+
+`method_score_arena` 会按模型分别调用 benchmark runner，并从每个模型输出目录收集 `summary.json` 生成 `method_score_arena.csv`、`method_score_arena_summary.md` 和 `fig_method_score_scatter.*`。若只想做烟测，可增加 `--max-models 1 --limit 1 --offline-deterministic`。
 
 ### 4.2 MAE 指标
 
@@ -183,6 +207,7 @@ $$
 | EDMIE (Ours) | 36 | 0.833333 | 0.833333 | 0.833333 |
 | w/o UCB Active Probing | 36 | 0.333333 | 0.333333 | 0.333333 |
 | w/o BT-Gradient Tracker | 36 | 0.333333 | 0.333333 | 0.333333 |
+| Random Dirichlet Baseline | 12 | 0.284104 | 0.284104 | 0.284104 |
 | Initial-query LLM Baseline | 12 | 0.333333 | 0.333333 | 0.333333 |
 | V1 Hybrid RAG Baseline | 12 | 0.333333 | 0.333333 | 0.333333 |
 
@@ -215,9 +240,14 @@ app/evaluation/results/
 - `episode_log_analysis.md`：逐轮日志质量分析报告。
 - `case_study.md`：从真实 episode log 导出的案例剧本。
 - `statistical_summary.txt`：均值、标准差、p-value 与参考 baseline 汇总。
+- `method_score_arena.csv`：完整 EDMIE、传统 v1 Direct 提示和传统 v1 CoT 提示在多模型下的 benchmark 得分散点数据。
+- `method_score_arena_summary.md`：方法横评按 target 聚合的得分、成功率、Pareto gain、幻觉率和轮次摘要。
+- `data/synthetic_pressure_profiles_60.jsonl`：由人工 robust 种子变异的合成压力集。
+- `data/synthetic_pressure_profiles_60_report.md`：合成压力集分布和审计摘要。
 - `fig_efficiency_turns.png` / `fig_efficiency_turns.pdf`：交互轮次图。
 - `fig_alignment_mae.png` / `fig_alignment_mae.pdf`：MAE 对齐误差图。
 - `fig_dimension_f1.png` / `fig_dimension_f1.pdf`：偏好维度 F1 图。
+- `fig_method_score_scatter.png` / `fig_method_score_scatter.pdf`：方法级多模型得分散点图。
 
 ## 7. Case Study 摘要
 

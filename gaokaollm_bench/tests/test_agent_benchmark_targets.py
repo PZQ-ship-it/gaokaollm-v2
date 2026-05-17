@@ -4,8 +4,10 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from langgraph.types import Command
 
 import gaokaollm_bench.sandbox.v1_hybrid_rag as v1_hybrid_module
+from gaokaollm_bench.constrains.enums import ConversationRole
 from gaokaollm_bench.evaluator.deterministic_judge import check_hallucination
 from gaokaollm_bench.evaluator.llm_as_a_judge import evaluate_process
 from gaokaollm_bench.data_gen.generate_personas import (
@@ -26,6 +28,8 @@ from gaokaollm_bench.sandbox.v1_hybrid_rag import (
     load_default_bge_m3_embedder,
 )
 from gaokaollm_bench.schemas import IcebergPersona
+from gaokaollm_bench.schemas import ConversationTurn, EvalReport, Transcript
+from gaokaollm_bench.simulator.user_agent import SimulatorStep, UserSimulator
 from gaokaollm_bench.tests.manual.agent_benchmark_run import (
     RunConfig,
     TARGET_V1_HYBRID_RAG,
@@ -46,8 +50,19 @@ from gaokaollm_bench.tests.manual.agent_benchmark_run import (
     write_summary_files,
     build_target,
     target_requires_db,
+    apply_golden_leakage_veto,
+)
+from gaokaollm_bench.evaluator.candidate_set_oracle import (
+    evaluate_candidate_set_oracle,
+    valid_probe_metrics_from_turns,
+)
+from app.graphs.nodes.radar import (
+    _ucb_tie_break_order,
+    select_ucb_dimension,
+    target_probe_for_dimension,
 )
 from app.graphs.nodes.negotiator import _fallback_reply_v2
+from app.schemas.state import DEFAULT_IMPLICIT_WEIGHTS, DEFAULT_WEIGHT_VARIANCE
 
 
 class FakeGraph:
@@ -134,6 +149,65 @@ class FakeGraph:
             "score_waste": 10,
             "missing_constraints": [],
         }
+
+
+class FakeInterruptGraph:
+    def __init__(self):
+        self.payloads = []
+        self.values = {}
+
+    async def ainvoke(self, payload, config):
+        self.payloads.append(payload)
+        if len(self.payloads) == 1:
+            assert payload["messages"][0].content == "物化生，600分必须在北京读临床"
+            self.values = {
+                "messages": [SimpleNamespace(content="不应当取这个复读消息")],
+                "constraints": {"score": 600},
+                "implicit_weights": {
+                    "school": 0.2,
+                    "major": 0.2,
+                    "tuition": 0.2,
+                    "quality": 0.2,
+                    "geo": 0.2,
+                },
+                "weight_variance": {
+                    "school": 1.0,
+                    "major": 1.0,
+                    "tuition": 1.0,
+                    "quality": 1.0,
+                    "geo": 1.0,
+                },
+                "ucb_target_dimension": "major",
+                "latest_pareto_diff": {"school": 0.3, "major": -0.2},
+            }
+            return {
+                "__interrupt__": [
+                    SimpleNamespace(value="选项A：留京；选项B：山东大学最低分598。")
+                ]
+            }
+
+        assert isinstance(payload, Command)
+        self.values = {
+            **self.values,
+            "implicit_weights": {
+                "school": 0.35,
+                "major": 0.25,
+                "tuition": 0.1,
+                "quality": 0.2,
+                "geo": 0.1,
+            },
+            "weight_variance": {
+                "school": 0.7,
+                "major": 0.8,
+                "tuition": 1.0,
+                "quality": 0.9,
+                "geo": 0.9,
+            },
+        }
+        return {"__interrupt__": [SimpleNamespace(value="第二轮选项A/选项B问题")]}
+
+    def get_state(self, config):
+        return SimpleNamespace(values=self.values, tasks=[])
 
 
 class FakeRiskGraph:
@@ -975,6 +1049,373 @@ async def test_app_graph_target_agent_preserves_auditable_state():
     assert state["recommended_schools"][0]["school"] == "北京学院"
     assert state["recommended_schools"][1]["school"] == "山东大学"
     assert state["recommended_schools"][2]["school"] == "西南交通大学"
+
+
+@pytest.mark.asyncio
+async def test_app_graph_target_agent_uses_interrupt_resume():
+    graph = FakeInterruptGraph()
+    target = AppGraphTargetAgent(thread_id="case-thread", graph=graph)
+
+    reply, state = await target.chat("物化生，600分必须在北京读临床")
+    assert reply == "选项A：留京；选项B：山东大学最低分598。"
+    assert state["reply_source"] == "result_interrupt"
+    assert state["graph_status"] == "interrupted"
+    assert state["awaiting_resume"] is True
+    assert state["latest_pareto_diff"] == {"school": 0.3, "major": -0.2}
+
+    second_reply, second_state = await target.chat("我可以考虑山东大学")
+    assert isinstance(graph.payloads[1], Command)
+    assert second_reply == "第二轮选项A/选项B问题"
+    assert second_state["implicit_weights"]["school"] == 0.35
+
+
+def test_user_simulator_blocks_hidden_candidate_leakage():
+    persona = IcebergPersona(
+        case_id="leak-case",
+        background={"score": 600},
+        explicit_red_lines={"geo": "只看浙江"},
+        implicit_flexibilities={
+            "volunteer_set": [
+                {
+                    "school_name": "山东大学",
+                    "major_name": "临床医学",
+                    "min_score": 598,
+                }
+            ]
+        },
+        initial_utterance="我600分，只看浙江。",
+        process_milestones={},
+    )
+    simulator = UserSimulator(persona, llm_client=object())
+    leaked = SimulatorStep(
+        thought="我想主动说答案",
+        is_persuaded=True,
+        utterance="如果有山东大学临床医学最低分598这种候选，我就接受。",
+    )
+
+    guarded = simulator._apply_leakage_guard(leaked, "我理解你想留在浙江。")
+
+    assert guarded.is_persuaded is False
+    assert "山东大学" not in guarded.utterance
+    assert "598" not in guarded.utterance
+    assert "真实学校" in guarded.utterance
+
+
+def test_golden_leakage_veto_rejects_user_first_mention():
+    persona = IcebergPersona(
+        case_id="veto-case",
+        background={"score": 600},
+        explicit_red_lines={"geo": "只看浙江"},
+        implicit_flexibilities={
+            "volunteer_set": [
+                {
+                    "school_name": "山东大学",
+                    "major_name": "临床医学",
+                    "min_score": 598,
+                }
+            ]
+        },
+        initial_utterance="我600分，只看浙江。",
+        process_milestones={},
+    )
+    transcript = Transcript(
+        persona=persona,
+        turns=[
+            ConversationTurn(
+                turn_id=1,
+                role=ConversationRole.USER,
+                content="我600分，只看浙江。",
+                internal_state={},
+            ),
+            ConversationTurn(
+                turn_id=2,
+                role=ConversationRole.TARGET_AGENT,
+                content="请给我更具体的信息。",
+                internal_state={},
+            ),
+            ConversationTurn(
+                turn_id=3,
+                role=ConversationRole.USER,
+                content="比如山东大学临床医学最低分598这种我才会考虑。",
+                internal_state={},
+            ),
+            ConversationTurn(
+                turn_id=4,
+                role=ConversationRole.TARGET_AGENT,
+                content="比如山东大学临床医学最低分598这种我才会考虑。",
+                internal_state={},
+            ),
+        ],
+    )
+    report = EvalReport(
+        case_id="veto-case",
+        hallucination_rate=0.0,
+        elicitation_success=True,
+        pareto_gain=1,
+        judge_reasoning="raw judge success",
+    )
+
+    vetoed = apply_golden_leakage_veto(report, transcript)
+
+    assert vetoed.elicitation_success is False
+    assert vetoed.pareto_gain == 0
+    assert "deterministic veto" in vetoed.judge_reasoning
+
+
+def test_candidate_set_oracle_accepts_non_exemplar_reachable_candidate():
+    persona = IcebergPersona(
+        case_id="candidate-set-case",
+        background={"score": 600},
+        explicit_red_lines={"geo": "只看浙江"},
+        implicit_flexibilities={
+            "diagnostic_axis": "geo_tier",
+            "acceptable_candidates": [
+                {
+                    "candidate_id": "exemplar",
+                    "school_name": "山东大学",
+                    "major_name": "临床医学",
+                    "min_score": 598,
+                    "tier_delta": 1,
+                },
+                {
+                    "candidate_id": "alt",
+                    "school_name": "吉林大学",
+                    "major_name": "临床医学",
+                    "min_score": 596,
+                    "tier_delta": 1,
+                },
+            ],
+            "golden_candidate_b": {
+                "candidate_id": "exemplar",
+                "school_name": "山东大学",
+                "major_name": "临床医学",
+                "min_score": 598,
+            },
+            "acceptance_predicate": {
+                "oracle_type": "reachable_candidate_set",
+                "required_evidence": ["school_score"],
+                "gain_fields": ["tier_delta"],
+            },
+        },
+        initial_utterance="我600分，只看浙江。",
+        process_milestones={},
+    )
+    transcript = Transcript(
+        persona=persona,
+        turns=[
+            ConversationTurn(
+                turn_id=1,
+                role=ConversationRole.USER,
+                content="我600分，只看浙江。",
+                internal_state={},
+            ),
+            ConversationTurn(
+                turn_id=2,
+                role=ConversationRole.TARGET_AGENT,
+                content="如果放宽地域，可以看吉林大学临床医学，2024年最低分596，学校层级明显更高。",
+                internal_state={},
+            ),
+        ],
+    )
+    report = EvalReport(
+        case_id="candidate-set-case",
+        hallucination_rate=0.0,
+        elicitation_success=False,
+        pareto_gain=0,
+        judge_reasoning="raw judge miss",
+    )
+
+    judged = evaluate_candidate_set_oracle(report, transcript)
+
+    assert judged.elicitation_success is True
+    assert judged.pareto_gain == 1
+    assert "candidate-set oracle" in judged.judge_reasoning
+
+
+def test_candidate_set_oracle_vetoes_user_first_candidate():
+    persona = IcebergPersona(
+        case_id="candidate-set-veto",
+        background={"score": 600},
+        explicit_red_lines={"geo": "只看浙江"},
+        implicit_flexibilities={
+            "diagnostic_axis": "geo_tier",
+            "acceptable_candidates": [
+                {
+                    "candidate_id": "alt",
+                    "school_name": "吉林大学",
+                    "major_name": "临床医学",
+                    "min_score": 596,
+                    "tier_delta": 1,
+                },
+            ],
+            "acceptance_predicate": {
+                "oracle_type": "reachable_candidate_set",
+                "required_evidence": ["school_score"],
+                "gain_fields": ["tier_delta"],
+            },
+        },
+        initial_utterance="我600分，只看浙江。",
+        process_milestones={},
+    )
+    transcript = Transcript(
+        persona=persona,
+        turns=[
+            ConversationTurn(
+                turn_id=1,
+                role=ConversationRole.USER,
+                content="如果有吉林大学临床医学最低分596这种，我可以考虑。",
+                internal_state={},
+            ),
+            ConversationTurn(
+                turn_id=2,
+                role=ConversationRole.TARGET_AGENT,
+                content="吉林大学临床医学最低分596，可以考虑。",
+                internal_state={},
+            ),
+        ],
+    )
+    report = EvalReport(
+        case_id="candidate-set-veto",
+        hallucination_rate=0.0,
+        elicitation_success=True,
+        pareto_gain=1,
+        judge_reasoning="raw judge success",
+    )
+
+    judged = evaluate_candidate_set_oracle(report, transcript)
+
+    assert judged.elicitation_success is False
+    assert judged.pareto_gain == 0
+
+
+def test_valid_probe_metrics_accepts_dim_or_probe_key():
+    turns = [
+        {
+            "role": "target_agent",
+            "internal_state": {
+                "selected_probe_dim": "tuition",
+                "probe_plan": [{"probe": "tuition_value_relax"}],
+            },
+        },
+        {
+            "role": "target_agent",
+            "internal_state": {
+                "selected_probe_dim": "geo",
+                "probe_plan": [{"probe": "major_geo_relax"}],
+            },
+        },
+    ]
+
+    metrics = valid_probe_metrics_from_turns(
+        turns,
+        acceptable_dims=["geo", "school"],
+        acceptable_keys=["region_tree_relax", "major_geo_relax"],
+    )
+
+    assert metrics["first_valid_probe_turn"] == 2
+    assert metrics["valid_probe_hit_count"] == 1
+    assert metrics["valid_probe_hit_rate"] == 0.5
+    assert metrics["covered_valid_probe_dims"] == "geo"
+    assert metrics["covered_valid_probe_keys"] == "major_geo_relax"
+
+
+def test_ucb_tie_break_prefers_region_intent_over_default_budget():
+    state = {
+        "intent_axes": ["region"],
+        "normalized_intent": {"intent_axes": ["region"]},
+        "constraints": {"province": "浙江", "budget": 100000},
+        "implicit_weights": {
+            "school": 0.2,
+            "major": 0.2,
+            "tuition": 0.2,
+            "quality": 0.2,
+            "geo": 0.2,
+        },
+        "weight_variance": {
+            "school": 1.0,
+            "major": 1.0,
+            "tuition": 1.0,
+            "quality": 1.0,
+            "geo": 1.0,
+        },
+    }
+
+    assert _ucb_tie_break_order(state)[0] == "geo"
+    assert select_ucb_dimension(state)[0] == "geo"
+
+
+def test_ucb_tie_break_ignores_default_budget_without_intent():
+    state = {
+        "intent_axes": [],
+        "normalized_intent": {"intent_axes": []},
+        "constraints": {"province": "浙江", "budget": 100000},
+    }
+
+    assert _ucb_tie_break_order(state) == [
+        "school",
+        "major",
+        "tuition",
+        "quality",
+        "geo",
+    ]
+
+
+def test_ucb_tie_break_prefers_real_budget_over_soft_major_intent():
+    state = {
+        "intent_axes": ["major", "tuition"],
+        "normalized_intent": {"intent_axes": ["major", "tuition"]},
+        "constraints": {"province": "浙江", "major": None, "budget": 5000},
+        "implicit_weights": {
+            "school": 0.2,
+            "major": 0.2,
+            "tuition": 0.2,
+            "quality": 0.2,
+            "geo": 0.2,
+        },
+        "weight_variance": {
+            "school": 1.0,
+            "major": 1.0,
+            "tuition": 1.0,
+            "quality": 1.0,
+            "geo": 1.0,
+        },
+    }
+
+    assert select_ucb_dimension(state)[0] == "tuition"
+    assert target_probe_for_dimension("tuition", state) == "tuition_value_relax"
+
+
+def test_ucb_probe_mapping_uses_risk_and_employment_specific_probes():
+    risk_state = {
+        "intent_axes": ["major", "risk"],
+        "constraints": {
+            "province": "浙江",
+            "major": "临床医学",
+            "risk_preference": "conservative",
+            "budget": 100000,
+        },
+        "implicit_weights": DEFAULT_IMPLICIT_WEIGHTS,
+        "weight_variance": DEFAULT_WEIGHT_VARIANCE,
+    }
+    employment_state = {
+        "intent_axes": ["major", "employment"],
+        "constraints": {
+            "province": "浙江",
+            "major": None,
+            "employment_preference": "employment_outcome",
+            "budget": 100000,
+        },
+        "implicit_weights": DEFAULT_IMPLICIT_WEIGHTS,
+        "weight_variance": DEFAULT_WEIGHT_VARIANCE,
+    }
+
+    assert select_ucb_dimension(risk_state)[0] == "school"
+    assert target_probe_for_dimension("school", risk_state) == "risk_band_relax"
+    assert select_ucb_dimension(employment_state)[0] == "quality"
+    assert (
+        target_probe_for_dimension("quality", employment_state)
+        == "employment_outcome_relax"
+    )
 
 
 @pytest.mark.asyncio

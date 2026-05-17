@@ -164,6 +164,36 @@ def classification_row(
     }
 
 
+def classification_row_from_metrics(
+    profile: IcebergProfile,
+    ablation_mode: str,
+    repeat: int | str,
+    source: str,
+    weights: dict[str, Any] | None,
+    metrics: dict[str, Any],
+    *,
+    status: str = "ok",
+    error_message: str = "",
+) -> dict[str, Any]:
+    safe_weights = dict(weights or {})
+    gold = metrics.get("gold_dims") or gold_dimensions(profile)
+    pred = metrics.get("pred_dims") or ()
+    return {
+        "profile_id": profile.profile_id,
+        "ablation_mode": ablation_mode,
+        "repeat": repeat,
+        "source": source,
+        "precision": float(metrics.get("precision", 0.0)),
+        "recall": float(metrics.get("recall", 0.0)),
+        "f1": float(metrics.get("f1", 0.0)),
+        "gold_dims": _json_dumps(list(gold)),
+        "pred_dims": _json_dumps(list(pred)),
+        "weights": _json_dumps(safe_weights),
+        "status": status,
+        "error_message": error_message,
+    }
+
+
 def classification_rows_from_reference_rows(
     reference_rows: list[dict[str, Any]],
     dataset: list[IcebergProfile],
@@ -172,13 +202,28 @@ def classification_rows_from_reference_rows(
     rows: list[dict[str, Any]] = []
     for row in reference_rows:
         baseline_type = str(row.get("baseline_type") or "")
-        if not baseline_type or baseline_type == RANDOM_BASELINE:
+        if not baseline_type:
             continue
         profile_id = str(row.get("profile_id") or "")
         if profile_id == "__dataset__" or profile_id not in profile_map:
             continue
         status = str(row.get("status") or "ok")
         weights = _json_loads_dict(row.get("weights", ""))
+        if baseline_type == RANDOM_BASELINE:
+            metrics = _random_expected_metrics(profile_map[profile_id], weights)
+            rows.append(
+                classification_row_from_metrics(
+                    profile_map[profile_id],
+                    baseline_type,
+                    "",
+                    REFERENCE_SOURCE,
+                    weights,
+                    metrics,
+                    status=status,
+                    error_message=str(row.get("error_message") or ""),
+                )
+            )
+            continue
         rows.append(
             classification_row(
                 profile_map[profile_id],
@@ -191,6 +236,23 @@ def classification_rows_from_reference_rows(
             )
         )
     return rows
+
+
+def _random_expected_metrics(
+    profile: IcebergProfile,
+    metadata: dict[str, Any],
+) -> dict[str, Any]:
+    """Return stored expected random-baseline PRF metrics for one profile."""
+
+    expected_f1 = _safe_float(metadata.get("expected_f1"), 0.0)
+    gold = gold_dimensions(profile)
+    return {
+        "precision": expected_f1,
+        "recall": expected_f1,
+        "f1": expected_f1,
+        "gold_dims": gold,
+        "pred_dims": (),
+    }
 
 
 def read_classification_metrics(path: str | Path) -> list[dict[str, Any]]:

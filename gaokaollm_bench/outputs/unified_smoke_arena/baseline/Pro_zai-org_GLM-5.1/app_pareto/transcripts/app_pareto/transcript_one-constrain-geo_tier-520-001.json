@@ -1,0 +1,5595 @@
+{
+  "persona": {
+    "case_id": "one-constrain-geo_tier-520-001",
+    "background": {
+      "score": 520,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "冶金工程",
+      "baseline_school": "浙江师范大学",
+      "baseline_major": "生物科学(师范)",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 92,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "geo_tier",
+      "relax_axis": "geo_tier",
+      "preference_axis": "geo",
+      "benefit_axis": "school",
+      "score_band": "520-549",
+      "source_score_band": "520-549",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "pareto_province",
+      "target_tier_delta": 1,
+      "target_ranking_gain": 0,
+      "unified_case_id": "one-constrain-geo_tier-520-001",
+      "ground_truth_weights": {
+        "school": 0.55,
+        "major": 0.12,
+        "tuition": 0.08,
+        "quality": 0.15,
+        "geo": 0.1
+      },
+      "probe_gold_dims": [
+        "geo"
+      ],
+      "weight_gold_dims": [
+        "school"
+      ],
+      "expected_msti": 0.6,
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 0.7
+      },
+      "delta_phi": {
+        "school": 0.3,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": -0.3
+      }
+    },
+    "explicit_red_lines": {
+      "geo": "只考虑浙江，外省学校默认不看"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "province",
+      "diagnostic_axis": "geo_tier",
+      "preference_axis": "geo",
+      "benefit_axis": "school",
+      "trigger_condition": "只要看到一个真实可达的候选：贵州大学 冶金工程，年份2021，最低分495不高于本人520分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选从本科提升到211/双一流，可以触发出省妥协。",
+      "volunteer_set": [
+        {
+          "school_id": 195,
+          "school_name": "贵州大学",
+          "school_province": "贵州",
+          "school_city": "贵阳市",
+          "major_id": 206,
+          "major_name": "冶金工程",
+          "year": 2021,
+          "min_score": 495,
+          "score_margin": 25,
+          "min_rank": 160516,
+          "tier": 3,
+          "tier_label": "211/双一流",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "role": "golden_candidate_b",
+          "candidate_id": "195:206:2021:495",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "贵州大学"
+      ],
+      "tier_labels": [
+        "211/双一流"
+      ],
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "compromise": "可以为了从本科跃迁到211/双一流而放宽地域。",
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 贵州大学 冶金工程（2021 年最低分 495）。主动探测应优先命中 ['geo']，最终潜在效用权重集中在 ['school']。触发条件：只要看到一个真实可达的候选：贵州大学 冶金工程，年份2021，最低分495不高于本人520分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选从本科提升到211/双一流，可以触发出省妥协。",
+      "probe_gold_dims": [
+        "geo"
+      ],
+      "weight_gold_dims": [
+        "school"
+      ],
+      "ground_truth_weights": {
+        "school": 0.55,
+        "major": 0.12,
+        "tuition": 0.08,
+        "quality": 0.15,
+        "geo": 0.1
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-geo_tier-520-001",
+        "role": "baseline_candidate_a",
+        "school_name": "浙江师范大学",
+        "major_name": "生物科学(师范)",
+        "tier": 2,
+        "ranking": 92,
+        "school_province": "浙江",
+        "score": 520,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 195,
+        "school_name": "贵州大学",
+        "school_province": "贵州",
+        "school_city": "贵阳市",
+        "major_id": 206,
+        "major_name": "冶金工程",
+        "year": 2021,
+        "min_score": 495,
+        "score_margin": 25,
+        "min_rank": 160516,
+        "tier": 3,
+        "tier_label": "211/双一流",
+        "is_985": false,
+        "is_211": true,
+        "is_double_first_class": true,
+        "role": "golden_candidate_b",
+        "candidate_id": "195:206:2021:495",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 0.7
+      },
+      "delta_phi": {
+        "school": 0.3,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": -0.3
+      },
+      "expected_msti": 0.6
+    },
+    "initial_utterance": "我520分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "贵州大学"
+      ],
+      "explicit_red_line_keys": [
+        "geo"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我520分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我520分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 520,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 45413,
+            "year": 2024,
+            "school_id": 144,
+            "school_name": "浙江师范大学",
+            "school_province": "浙江",
+            "school_city": "金华市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 92,
+            "major_id": 180,
+            "major_name": "生物科学(师范)",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "495",
+            "min_rank": 174212,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 45660,
+            "year": 2024,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 180,
+            "major_name": "生物科学(师范)(第一学年在下沙校区,第二学年起在仓前校区)",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "492",
+            "min_rank": 178059,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 47592,
+            "year": 2024,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 180,
+            "major_name": "生物科学(师范)(学校提醒：该专业有体检受限等要求,请查看学校招生章程并向学校咨询.第一学年在下沙校区,第二学年起在仓前校区)",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "491",
+            "min_rank": 178357,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 8008,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 220,
+              "major_name": "电气工程及其自动化",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "509",
+              "min_rank": 162049,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 44319,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 422,
+              "major_name": "眼视光学",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "509",
+              "min_rank": 158331,
+              "tuition": "20000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8009,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 422,
+              "major_name": "眼视光学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "505",
+              "min_rank": 166720,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 45049,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 220,
+              "major_name": "电气工程及其自动化",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "500",
+              "min_rank": 169150,
+              "tuition": "20000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 43978,
+              "year": 2024,
+              "school_id": 999,
+              "school_name": "江苏农牧科技职业学院",
+              "school_province": "江苏",
+              "school_city": "泰州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 722,
+              "major_id": 374,
+              "major_name": "动物医学(凤凰校区)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "514",
+              "min_rank": 153437,
+              "tuition": "6200",
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 25,
+        "missing_constraints": [],
+        "rewritten_query": "我520分，选考物理、化学、生物，只想留在浙江，外省学校先别推荐。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 3,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "浙江师范大学",
+            "province": "浙江",
+            "major": "生物科学(师范)",
+            "min_score": "495",
+            "tier": 2,
+            "city": "金华市",
+            "min_rank": 174212
+          },
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "生物科学(师范)(第一学年在下沙校区,第二学年起在仓前校区)",
+            "min_score": "492",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 178059
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "电气工程及其自动化",
+            "min_score": "509",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 162049
+          },
+          {
+            "school": "江苏农牧科技职业学院",
+            "province": "江苏",
+            "major": "动物医学(凤凰校区)",
+            "min_score": "514",
+            "tier": 4,
+            "city": "泰州",
+            "min_rank": 153437,
+            "tuition": "6200"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "对，我就想留在浙江，外省的学校暂时不考虑。你帮我看看浙江有哪些学校能上吧？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "用户明确表示只想留在浙江，外省学校先别推荐。这符合我的显性红线，我目前还没有看到任何具体的学校名称和分数对比，所以不能妥协。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "对，我就想留在浙江，外省的学校暂时不考虑。你帮我看看浙江有哪些学校能上吧？",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 520,
+          "province": "浙江",
+          "city": null,
+          "major": "['计算机', '电气', '好就业的专业']",
+          "strength": null,
+          "budget": 10000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": "conservative",
+          "employment_preference": "employment_outcome"
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [
+            {
+              "admission_score_id": 45413,
+              "year": 2024,
+              "school_id": 144,
+              "school_name": "浙江师范大学",
+              "school_province": "浙江",
+              "school_city": "金华市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 92,
+              "major_id": 180,
+              "major_name": "生物科学(师范)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "495",
+              "min_rank": 174212,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 45660,
+              "year": 2024,
+              "school_id": 266,
+              "school_name": "杭州师范大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 172,
+              "major_id": 180,
+              "major_name": "生物科学(师范)(第一学年在下沙校区,第二学年起在仓前校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 47592,
+              "year": 2024,
+              "school_id": 266,
+              "school_name": "杭州师范大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 172,
+              "major_id": 180,
+              "major_name": "生物科学(师范)(学校提醒：该专业有体检受限等要求,请查看学校招生章程并向学校咨询.第一学年在下沙校区,第二学年起在仓前校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "491",
+              "min_rank": 178357,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 45684,
+              "year": 2024,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 427,
+              "major_name": "护理学(第一学年在滨海校区,第二学年起根据学校规划确定)",
+              "subject_requirement": "化",
+              "requirement_normalized": [
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 45685,
+              "year": 2024,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 995,
+              "major_name": "眼视光技术",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": null,
+              "tier": 2
+            }
+          ],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [
+            {
+              "admission_score_id": 3743,
+              "year": 2025,
+              "school_id": 152,
+              "school_name": "天津师范大学",
+              "school_province": "天津",
+              "school_city": "西青区",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 97,
+              "major_id": 77,
+              "major_name": "英语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "500",
+              "min_rank": 172393,
+              "tuition": "5400",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "教育/培训/院校",
+              "industry_distribution": {
+                "items": "[\"教育/培训/院校\",\"贸易/进出口\",\"互联网/电子商务\",\"电子技术/半导体/集成电路\",\"新能源\",\"专业服务(咨询、人力资源、财会)\",\"机械/设备/重工\",\"计算机软件\",\"汽车及零配件\",\"制药/生物工程\"]",
+                "ratios": "[20%,17%,14%,11%,8%,7%,5%,5%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"广州\",\"北京\",\"东莞\",\"杭州\",\"武汉\",\"苏州\",\"厦门\",\"成都\"]",
+                "ratios": "[25%,24%,13%,9%,5%,5%,4%,4%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"面议 \",\"6000-7999 \",\"10000-14999 \",\"4500-5999 \",\"8000-9999 \"]",
+                "ratios": "[32%,29%,13%,12%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=教育/培训/院校",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 6124,
+              "year": 2025,
+              "school_id": 259,
+              "school_name": "哈尔滨师范大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 167,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "490",
+              "min_rank": null,
+              "tuition": "4560",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 11226,
+              "year": 2025,
+              "school_id": 345,
+              "school_name": "烟台大学",
+              "school_province": "山东",
+              "school_city": "烟台市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 234,
+              "major_id": 186,
+              "major_name": "统计学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "519",
+              "min_rank": 150209,
+              "tuition": "6325",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+              "employment_top_city": "上海",
+              "top_industry": "互联网/电子商务",
+              "industry_distribution": {
+                "items": "[\"互联网/电子商务\",\"新能源\",\"贸易/进出口\",\"电子技术/半导体/集成电路\",\"房地产\",\"建筑/建材/工程\",\"教育/培训/院校\",\"计算机软件\",\"快速消费品(食品、饮料、化妆品)\",\"金融/投资/证券\"]",
+                "ratios": "[19%,11%,11%,10%,9%,9%,7%,7%,7%,5%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"上海\",\"深圳\",\"广州\",\"北京\",\"杭州\",\"武汉\",\"成都\",\"东莞\",\"南京\",\"厦门\"]",
+                "ratios": "[20%,18%,17%,12%,7%,6%,5%,4%,3%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"面议 \",\"4500-5999 \",\"3000-4499 \",\"6000-7999 \",\"2000-2999 \"]",
+                "ratios": "[30%,25%,22%,11%,9%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+                "top_city=上海",
+                "top_industry=互联网/电子商务",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 17742,
+              "year": 2025,
+              "school_id": 369,
+              "school_name": "新疆师范大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 254,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "518",
+              "min_rank": 150986,
+              "tuition": "3500",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 17684,
+              "year": 2025,
+              "school_id": 372,
+              "school_name": "新疆农业大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 261,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "519",
+              "min_rank": 150079,
+              "tuition": "3500",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            }
+          ],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 3743,
+              "year": 2025,
+              "school_id": 152,
+              "school_name": "天津师范大学",
+              "school_province": "天津",
+              "school_city": "西青区",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 97,
+              "major_id": 77,
+              "major_name": "英语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "500",
+              "min_rank": 172393,
+              "tuition": "5400",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 11079,
+              "year": 2025,
+              "school_id": 202,
+              "school_name": "齐鲁工业大学",
+              "school_province": "山东",
+              "school_city": "济南市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 128,
+              "major_id": 181,
+              "major_name": "生物技术",
+              "subject_requirement": "物理和化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "516",
+              "min_rank": 153647,
+              "tuition": "5500",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 17273,
+              "year": 2025,
+              "school_id": 210,
+              "school_name": "西北师范大学",
+              "school_province": "甘肃",
+              "school_city": "兰州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 131,
+              "major_id": 159,
+              "major_name": "化学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "498",
+              "min_rank": 175097,
+              "tuition": "4300",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 14494,
+              "year": 2025,
+              "school_id": 246,
+              "school_name": "广西师范大学",
+              "school_province": "广西",
+              "school_city": "桂林市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 157,
+              "major_id": 192,
+              "major_name": "工业设计",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "513",
+              "min_rank": 156857,
+              "tuition": "5500",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 6124,
+              "year": 2025,
+              "school_id": 259,
+              "school_name": "哈尔滨师范大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 167,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "490",
+              "min_rank": null,
+              "tuition": "4560",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就想留在浙江，外省的学校暂时不考虑。你帮我看看浙江有哪些学校能上吧？",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "risk_band_relax",
+            "priority": 3,
+            "reason": "risk preference can be expressed as portfolio evidence"
+          },
+          {
+            "probe": "employment_outcome_relax",
+            "priority": 4,
+            "reason": "employment evidence can expose outcome tradeoffs"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 5,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "risk_band_relax",
+          "employment_outcome_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "浙江师范大学",
+            "province": "浙江",
+            "major": "生物科学(师范)",
+            "min_score": "495",
+            "tier": 2,
+            "city": "金华市",
+            "min_rank": 174212
+          },
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "生物科学(师范)(第一学年在下沙校区,第二学年起在仓前校区)",
+            "min_score": "492",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 178059
+          },
+          {
+            "school": "温州医科大学",
+            "province": "浙江",
+            "major": "护理学(第一学年在滨海校区,第二学年起根据学校规划确定)",
+            "min_score": "492",
+            "tier": 2,
+            "city": "温州市",
+            "min_rank": 178059
+          },
+          {
+            "school": "天津师范大学",
+            "province": "天津",
+            "major": "英语",
+            "min_score": "500",
+            "tier": 2,
+            "city": "西青区",
+            "min_rank": 172393,
+            "tuition": "5400",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "教育/培训/院校",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"面议 \",\"6000-7999 \",\"10000-14999 \",\"4500-5999 \",\"8000-9999 \"]",
+              "ratios": "[32%,29%,13%,12%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=教育/培训/院校",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "哈尔滨师范大学",
+            "province": "黑龙江",
+            "major": "计算机科学与技术",
+            "min_score": "490",
+            "tier": 2,
+            "city": "哈尔滨市",
+            "tuition": "4560",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "计算机软件",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+              "ratios": "[28%,26%,16%,15%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=计算机软件",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "烟台大学",
+            "province": "山东",
+            "major": "统计学",
+            "min_score": "519",
+            "tier": 2,
+            "city": "烟台市",
+            "min_rank": 150209,
+            "tuition": "6325",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+            "employment_top_city": "上海",
+            "top_industry": "互联网/电子商务",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"面议 \",\"4500-5999 \",\"3000-4499 \",\"6000-7999 \",\"2000-2999 \"]",
+              "ratios": "[30%,25%,22%,11%,9%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+              "top_city=上海",
+              "top_industry=互联网/电子商务",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "新疆师范大学",
+            "province": "新疆",
+            "major": "计算机科学与技术",
+            "min_score": "518",
+            "tier": 2,
+            "city": "乌鲁木齐市",
+            "min_rank": 150986,
+            "tuition": "3500",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "计算机软件",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+              "ratios": "[28%,26%,16%,15%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=计算机软件",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "新疆农业大学",
+            "province": "新疆",
+            "major": "计算机科学与技术",
+            "min_score": "519",
+            "tier": 2,
+            "city": "乌鲁木齐市",
+            "min_rank": 150079,
+            "tuition": "3500",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "计算机软件",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+              "ratios": "[28%,26%,16%,15%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=计算机软件",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "齐鲁工业大学",
+            "province": "山东",
+            "major": "生物技术",
+            "min_score": "516",
+            "tier": 2,
+            "city": "济南市",
+            "min_rank": 153647,
+            "tuition": "5500"
+          },
+          {
+            "school": "西北师范大学",
+            "province": "甘肃",
+            "major": "化学",
+            "min_score": "498",
+            "tier": 2,
+            "city": "兰州市",
+            "min_rank": 175097,
+            "tuition": "4300"
+          },
+          {
+            "school": "广西师范大学",
+            "province": "广西",
+            "major": "工业设计",
+            "min_score": "513",
+            "tier": 2,
+            "city": "桂林市",
+            "min_rank": 156857,
+            "tuition": "5500"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "对，我就想留在浙江，外省的学校暂时不考虑。你帮我看看浙江有哪些学校能上吧？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "用户再次确认只想留在浙江，没有给出任何具体学校名称和分数对比，不符合隐性妥协条件，我不能主动妥协。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "对，我就想留在浙江，外省的学校暂时不考虑。你帮我看看浙江有哪些学校能上吧？",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 520,
+          "province": "浙江",
+          "city": null,
+          "major": "['计算机', '电气', '好就业的专业']",
+          "strength": null,
+          "budget": 10000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": "conservative",
+          "employment_preference": "employment_outcome"
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [
+            {
+              "admission_score_id": 45413,
+              "year": 2024,
+              "school_id": 144,
+              "school_name": "浙江师范大学",
+              "school_province": "浙江",
+              "school_city": "金华市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 92,
+              "major_id": 180,
+              "major_name": "生物科学(师范)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "495",
+              "min_rank": 174212,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 45660,
+              "year": 2024,
+              "school_id": 266,
+              "school_name": "杭州师范大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 172,
+              "major_id": 180,
+              "major_name": "生物科学(师范)(第一学年在下沙校区,第二学年起在仓前校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 47592,
+              "year": 2024,
+              "school_id": 266,
+              "school_name": "杭州师范大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 172,
+              "major_id": 180,
+              "major_name": "生物科学(师范)(学校提醒：该专业有体检受限等要求,请查看学校招生章程并向学校咨询.第一学年在下沙校区,第二学年起在仓前校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "491",
+              "min_rank": 178357,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 45684,
+              "year": 2024,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 427,
+              "major_name": "护理学(第一学年在滨海校区,第二学年起根据学校规划确定)",
+              "subject_requirement": "化",
+              "requirement_normalized": [
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 45685,
+              "year": 2024,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 995,
+              "major_name": "眼视光技术",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": null,
+              "tier": 2
+            }
+          ],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [
+            {
+              "admission_score_id": 3743,
+              "year": 2025,
+              "school_id": 152,
+              "school_name": "天津师范大学",
+              "school_province": "天津",
+              "school_city": "西青区",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 97,
+              "major_id": 77,
+              "major_name": "英语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "500",
+              "min_rank": 172393,
+              "tuition": "5400",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "教育/培训/院校",
+              "industry_distribution": {
+                "items": "[\"教育/培训/院校\",\"贸易/进出口\",\"互联网/电子商务\",\"电子技术/半导体/集成电路\",\"新能源\",\"专业服务(咨询、人力资源、财会)\",\"机械/设备/重工\",\"计算机软件\",\"汽车及零配件\",\"制药/生物工程\"]",
+                "ratios": "[20%,17%,14%,11%,8%,7%,5%,5%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"广州\",\"北京\",\"东莞\",\"杭州\",\"武汉\",\"苏州\",\"厦门\",\"成都\"]",
+                "ratios": "[25%,24%,13%,9%,5%,5%,4%,4%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"面议 \",\"6000-7999 \",\"10000-14999 \",\"4500-5999 \",\"8000-9999 \"]",
+                "ratios": "[32%,29%,13%,12%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=教育/培训/院校",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 6124,
+              "year": 2025,
+              "school_id": 259,
+              "school_name": "哈尔滨师范大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 167,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "490",
+              "min_rank": null,
+              "tuition": "4560",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 11226,
+              "year": 2025,
+              "school_id": 345,
+              "school_name": "烟台大学",
+              "school_province": "山东",
+              "school_city": "烟台市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 234,
+              "major_id": 186,
+              "major_name": "统计学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "519",
+              "min_rank": 150209,
+              "tuition": "6325",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+              "employment_top_city": "上海",
+              "top_industry": "互联网/电子商务",
+              "industry_distribution": {
+                "items": "[\"互联网/电子商务\",\"新能源\",\"贸易/进出口\",\"电子技术/半导体/集成电路\",\"房地产\",\"建筑/建材/工程\",\"教育/培训/院校\",\"计算机软件\",\"快速消费品(食品、饮料、化妆品)\",\"金融/投资/证券\"]",
+                "ratios": "[19%,11%,11%,10%,9%,9%,7%,7%,7%,5%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"上海\",\"深圳\",\"广州\",\"北京\",\"杭州\",\"武汉\",\"成都\",\"东莞\",\"南京\",\"厦门\"]",
+                "ratios": "[20%,18%,17%,12%,7%,6%,5%,4%,3%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"面议 \",\"4500-5999 \",\"3000-4499 \",\"6000-7999 \",\"2000-2999 \"]",
+                "ratios": "[30%,25%,22%,11%,9%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+                "top_city=上海",
+                "top_industry=互联网/电子商务",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 17742,
+              "year": 2025,
+              "school_id": 369,
+              "school_name": "新疆师范大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 254,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "518",
+              "min_rank": 150986,
+              "tuition": "3500",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 17684,
+              "year": 2025,
+              "school_id": 372,
+              "school_name": "新疆农业大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 261,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "519",
+              "min_rank": 150079,
+              "tuition": "3500",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            }
+          ],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 3743,
+              "year": 2025,
+              "school_id": 152,
+              "school_name": "天津师范大学",
+              "school_province": "天津",
+              "school_city": "西青区",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 97,
+              "major_id": 77,
+              "major_name": "英语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "500",
+              "min_rank": 172393,
+              "tuition": "5400",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 11079,
+              "year": 2025,
+              "school_id": 202,
+              "school_name": "齐鲁工业大学",
+              "school_province": "山东",
+              "school_city": "济南市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 128,
+              "major_id": 181,
+              "major_name": "生物技术",
+              "subject_requirement": "物理和化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "516",
+              "min_rank": 153647,
+              "tuition": "5500",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 17273,
+              "year": 2025,
+              "school_id": 210,
+              "school_name": "西北师范大学",
+              "school_province": "甘肃",
+              "school_city": "兰州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 131,
+              "major_id": 159,
+              "major_name": "化学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "498",
+              "min_rank": 175097,
+              "tuition": "4300",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 14494,
+              "year": 2025,
+              "school_id": 246,
+              "school_name": "广西师范大学",
+              "school_province": "广西",
+              "school_city": "桂林市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 157,
+              "major_id": 192,
+              "major_name": "工业设计",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "513",
+              "min_rank": 156857,
+              "tuition": "5500",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 6124,
+              "year": 2025,
+              "school_id": 259,
+              "school_name": "哈尔滨师范大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 167,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "490",
+              "min_rank": null,
+              "tuition": "4560",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就想留在浙江，外省的学校暂时不考虑。你帮我看看浙江有哪些学校能上吧？",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "risk_band_relax",
+            "priority": 3,
+            "reason": "risk preference can be expressed as portfolio evidence"
+          },
+          {
+            "probe": "employment_outcome_relax",
+            "priority": 4,
+            "reason": "employment evidence can expose outcome tradeoffs"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 5,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "risk_band_relax",
+          "employment_outcome_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "浙江师范大学",
+            "province": "浙江",
+            "major": "生物科学(师范)",
+            "min_score": "495",
+            "tier": 2,
+            "city": "金华市",
+            "min_rank": 174212
+          },
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "生物科学(师范)(第一学年在下沙校区,第二学年起在仓前校区)",
+            "min_score": "492",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 178059
+          },
+          {
+            "school": "温州医科大学",
+            "province": "浙江",
+            "major": "护理学(第一学年在滨海校区,第二学年起根据学校规划确定)",
+            "min_score": "492",
+            "tier": 2,
+            "city": "温州市",
+            "min_rank": 178059
+          },
+          {
+            "school": "天津师范大学",
+            "province": "天津",
+            "major": "英语",
+            "min_score": "500",
+            "tier": 2,
+            "city": "西青区",
+            "min_rank": 172393,
+            "tuition": "5400",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "教育/培训/院校",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"面议 \",\"6000-7999 \",\"10000-14999 \",\"4500-5999 \",\"8000-9999 \"]",
+              "ratios": "[32%,29%,13%,12%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=教育/培训/院校",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "哈尔滨师范大学",
+            "province": "黑龙江",
+            "major": "计算机科学与技术",
+            "min_score": "490",
+            "tier": 2,
+            "city": "哈尔滨市",
+            "tuition": "4560",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "计算机软件",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+              "ratios": "[28%,26%,16%,15%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=计算机软件",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "烟台大学",
+            "province": "山东",
+            "major": "统计学",
+            "min_score": "519",
+            "tier": 2,
+            "city": "烟台市",
+            "min_rank": 150209,
+            "tuition": "6325",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+            "employment_top_city": "上海",
+            "top_industry": "互联网/电子商务",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"面议 \",\"4500-5999 \",\"3000-4499 \",\"6000-7999 \",\"2000-2999 \"]",
+              "ratios": "[30%,25%,22%,11%,9%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+              "top_city=上海",
+              "top_industry=互联网/电子商务",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "新疆师范大学",
+            "province": "新疆",
+            "major": "计算机科学与技术",
+            "min_score": "518",
+            "tier": 2,
+            "city": "乌鲁木齐市",
+            "min_rank": 150986,
+            "tuition": "3500",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "计算机软件",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+              "ratios": "[28%,26%,16%,15%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=计算机软件",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "新疆农业大学",
+            "province": "新疆",
+            "major": "计算机科学与技术",
+            "min_score": "519",
+            "tier": 2,
+            "city": "乌鲁木齐市",
+            "min_rank": 150079,
+            "tuition": "3500",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "计算机软件",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+              "ratios": "[28%,26%,16%,15%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=计算机软件",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "齐鲁工业大学",
+            "province": "山东",
+            "major": "生物技术",
+            "min_score": "516",
+            "tier": 2,
+            "city": "济南市",
+            "min_rank": 153647,
+            "tuition": "5500"
+          },
+          {
+            "school": "西北师范大学",
+            "province": "甘肃",
+            "major": "化学",
+            "min_score": "498",
+            "tier": 2,
+            "city": "兰州市",
+            "min_rank": 175097,
+            "tuition": "4300"
+          },
+          {
+            "school": "广西师范大学",
+            "province": "广西",
+            "major": "工业设计",
+            "min_score": "513",
+            "tier": 2,
+            "city": "桂林市",
+            "min_rank": 156857,
+            "tuition": "5500"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "嗯，我确实只想在浙江读大学。那您帮我看看浙江有哪些学校能上吧？我比较想读冶金工程，或者生物科学也行，分数大概520分左右。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "用户再次确认只想留在浙江，没有给出任何具体学校名称和分数对比，不符合隐性妥协条件，我不能主动妥协。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "嗯，我确实只想在浙江读大学。那您帮我看看浙江有哪些学校能上吧？我比较想读冶金工程，或者生物科学也行，分数大概520分左右。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 520,
+          "province": "浙江",
+          "city": null,
+          "major": "大学",
+          "strength": null,
+          "budget": 10000,
+          "selected_subjects": [
+            "生物",
+            "物理"
+          ],
+          "risk_preference": "conservative",
+          "employment_preference": "employment_outcome"
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 45661,
+              "year": 2024,
+              "school_id": 331,
+              "school_name": "重庆师范大学",
+              "school_province": "重庆",
+              "school_city": "沙坪坝区",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 224,
+              "major_id": 487,
+              "major_name": "电子商务(大学城校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": "5600",
+              "tier": 2
+            },
+            {
+              "admission_score_id": 64888,
+              "year": 2023,
+              "school_id": 372,
+              "school_name": "新疆农业大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 261,
+              "major_id": 251,
+              "major_name": "土木工程(中外合作办学)(与俄罗斯托木斯克国立建筑大学合作办学.亚心校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "512",
+              "min_rank": 149108,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 130729,
+              "year": 2021,
+              "school_id": 497,
+              "school_name": "长春大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 348,
+              "major_id": 203,
+              "major_name": "材料科学与工程(中外合作办学)(与乌克兰基辅国立塔拉斯舍甫琴科大学合作办学)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "503",
+              "min_rank": 152222,
+              "tuition": "3800",
+              "tier": 2
+            },
+            {
+              "admission_score_id": 130734,
+              "year": 2021,
+              "school_id": 497,
+              "school_name": "长春大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 348,
+              "major_id": 59,
+              "major_name": "学前教育(中外合作办学)(师范)(与日本广岛大学合作办学)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "495",
+              "min_rank": 160516,
+              "tuition": "3300",
+              "tier": 2
+            },
+            {
+              "admission_score_id": 63702,
+              "year": 2023,
+              "school_id": 497,
+              "school_name": "长春大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 348,
+              "major_id": 1080,
+              "major_name": "数字媒体艺术设计(中外合作办学)(高新校区.与韩国世明大学合作办学)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "494",
+              "min_rank": 168283,
+              "tuition": null,
+              "tier": 2
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [
+            {
+              "admission_score_id": 131107,
+              "year": 2021,
+              "school_id": 540,
+              "school_name": "丽水学院",
+              "school_province": "浙江",
+              "school_city": "丽水市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "517",
+              "min_rank": 136858,
+              "tuition": "7590",
+              "tier": 2
+            },
+            {
+              "admission_score_id": 61585,
+              "year": 2023,
+              "school_id": 539,
+              "school_name": "湖州师范学院",
+              "school_province": "浙江",
+              "school_city": "湖州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "516",
+              "min_rank": 144592,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 94136,
+              "year": 2023,
+              "school_id": 539,
+              "school_name": "湖州师范学院",
+              "school_province": "浙江",
+              "school_city": "湖州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "516",
+              "min_rank": 144592,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 94204,
+              "year": 2023,
+              "school_id": 540,
+              "school_name": "丽水学院",
+              "school_province": "浙江",
+              "school_city": "丽水市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "515",
+              "min_rank": 146492,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 64063,
+              "year": 2023,
+              "school_id": 540,
+              "school_name": "丽水学院",
+              "school_province": "浙江",
+              "school_city": "丽水市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理(莲都校区)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "515",
+              "min_rank": 146492,
+              "tuition": null,
+              "tier": 2
+            }
+          ],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [
+            {
+              "admission_score_id": 3743,
+              "year": 2025,
+              "school_id": 152,
+              "school_name": "天津师范大学",
+              "school_province": "天津",
+              "school_city": "西青区",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 97,
+              "major_id": 77,
+              "major_name": "英语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "500",
+              "min_rank": 172393,
+              "tuition": "5400",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "教育/培训/院校",
+              "industry_distribution": {
+                "items": "[\"教育/培训/院校\",\"贸易/进出口\",\"互联网/电子商务\",\"电子技术/半导体/集成电路\",\"新能源\",\"专业服务(咨询、人力资源、财会)\",\"机械/设备/重工\",\"计算机软件\",\"汽车及零配件\",\"制药/生物工程\"]",
+                "ratios": "[20%,17%,14%,11%,8%,7%,5%,5%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"广州\",\"北京\",\"东莞\",\"杭州\",\"武汉\",\"苏州\",\"厦门\",\"成都\"]",
+                "ratios": "[25%,24%,13%,9%,5%,5%,4%,4%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"面议 \",\"6000-7999 \",\"10000-14999 \",\"4500-5999 \",\"8000-9999 \"]",
+                "ratios": "[32%,29%,13%,12%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=教育/培训/院校",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 6124,
+              "year": 2025,
+              "school_id": 259,
+              "school_name": "哈尔滨师范大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 167,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "490",
+              "min_rank": null,
+              "tuition": "4560",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 11226,
+              "year": 2025,
+              "school_id": 345,
+              "school_name": "烟台大学",
+              "school_province": "山东",
+              "school_city": "烟台市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 234,
+              "major_id": 186,
+              "major_name": "统计学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "519",
+              "min_rank": 150209,
+              "tuition": "6325",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+              "employment_top_city": "上海",
+              "top_industry": "互联网/电子商务",
+              "industry_distribution": {
+                "items": "[\"互联网/电子商务\",\"新能源\",\"贸易/进出口\",\"电子技术/半导体/集成电路\",\"房地产\",\"建筑/建材/工程\",\"教育/培训/院校\",\"计算机软件\",\"快速消费品(食品、饮料、化妆品)\",\"金融/投资/证券\"]",
+                "ratios": "[19%,11%,11%,10%,9%,9%,7%,7%,7%,5%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"上海\",\"深圳\",\"广州\",\"北京\",\"杭州\",\"武汉\",\"成都\",\"东莞\",\"南京\",\"厦门\"]",
+                "ratios": "[20%,18%,17%,12%,7%,6%,5%,4%,3%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"面议 \",\"4500-5999 \",\"3000-4499 \",\"6000-7999 \",\"2000-2999 \"]",
+                "ratios": "[30%,25%,22%,11%,9%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+                "top_city=上海",
+                "top_industry=互联网/电子商务",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 17742,
+              "year": 2025,
+              "school_id": 369,
+              "school_name": "新疆师范大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 254,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "518",
+              "min_rank": 150986,
+              "tuition": "3500",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 17684,
+              "year": 2025,
+              "school_id": 372,
+              "school_name": "新疆农业大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 261,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "519",
+              "min_rank": 150079,
+              "tuition": "3500",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            }
+          ],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 3743,
+              "year": 2025,
+              "school_id": 152,
+              "school_name": "天津师范大学",
+              "school_province": "天津",
+              "school_city": "西青区",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 97,
+              "major_id": 77,
+              "major_name": "英语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "500",
+              "min_rank": 172393,
+              "tuition": "5400",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 11079,
+              "year": 2025,
+              "school_id": 202,
+              "school_name": "齐鲁工业大学",
+              "school_province": "山东",
+              "school_city": "济南市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 128,
+              "major_id": 181,
+              "major_name": "生物技术",
+              "subject_requirement": "物理和化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "516",
+              "min_rank": 153647,
+              "tuition": "5500",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 17273,
+              "year": 2025,
+              "school_id": 210,
+              "school_name": "西北师范大学",
+              "school_province": "甘肃",
+              "school_city": "兰州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 131,
+              "major_id": 159,
+              "major_name": "化学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "498",
+              "min_rank": 175097,
+              "tuition": "4300",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 14494,
+              "year": 2025,
+              "school_id": 246,
+              "school_name": "广西师范大学",
+              "school_province": "广西",
+              "school_city": "桂林市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 157,
+              "major_id": 192,
+              "major_name": "工业设计",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "513",
+              "min_rank": 156857,
+              "tuition": "5500",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 6124,
+              "year": 2025,
+              "school_id": 259,
+              "school_name": "哈尔滨师范大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 167,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "490",
+              "min_rank": null,
+              "tuition": "4560",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "嗯，我确实只想在浙江读大学。那您帮我看看浙江有哪些学校能上吧？我比较想读冶金工程，或者生物科学也行，分数大概520分左右。",
+        "intent_axes": [
+          "major",
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "risk_band_relax",
+            "priority": 3,
+            "reason": "risk preference can be expressed as portfolio evidence"
+          },
+          {
+            "probe": "employment_outcome_relax",
+            "priority": 4,
+            "reason": "employment evidence can expose outcome tradeoffs"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 5,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "risk_band_relax",
+          "employment_outcome_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "重庆师范大学",
+            "province": "重庆",
+            "major": "电子商务(大学城校区)",
+            "min_score": "492",
+            "tier": 2,
+            "city": "沙坪坝区",
+            "min_rank": 178059,
+            "tuition": "5600"
+          },
+          {
+            "school": "新疆农业大学",
+            "province": "新疆",
+            "major": "土木工程(中外合作办学)(与俄罗斯托木斯克国立建筑大学合作办学.亚心校区)",
+            "min_score": "512",
+            "tier": 2,
+            "city": "乌鲁木齐市",
+            "min_rank": 149108
+          },
+          {
+            "school": "长春大学",
+            "province": "吉林",
+            "major": "材料科学与工程(中外合作办学)(与乌克兰基辅国立塔拉斯舍甫琴科大学合作办学)",
+            "min_score": "503",
+            "tier": 2,
+            "city": "长春市",
+            "min_rank": 152222,
+            "tuition": "3800"
+          },
+          {
+            "school": "丽水学院",
+            "province": "浙江",
+            "major": "护理",
+            "min_score": "517",
+            "tier": 2,
+            "city": "丽水市",
+            "min_rank": 136858,
+            "tuition": "7590"
+          },
+          {
+            "school": "湖州师范学院",
+            "province": "浙江",
+            "major": "护理",
+            "min_score": "516",
+            "tier": 2,
+            "city": "湖州市",
+            "min_rank": 144592
+          },
+          {
+            "school": "天津师范大学",
+            "province": "天津",
+            "major": "英语",
+            "min_score": "500",
+            "tier": 2,
+            "city": "西青区",
+            "min_rank": 172393,
+            "tuition": "5400",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "教育/培训/院校",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"面议 \",\"6000-7999 \",\"10000-14999 \",\"4500-5999 \",\"8000-9999 \"]",
+              "ratios": "[32%,29%,13%,12%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=教育/培训/院校",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "哈尔滨师范大学",
+            "province": "黑龙江",
+            "major": "计算机科学与技术",
+            "min_score": "490",
+            "tier": 2,
+            "city": "哈尔滨市",
+            "tuition": "4560",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "计算机软件",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+              "ratios": "[28%,26%,16%,15%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=计算机软件",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "烟台大学",
+            "province": "山东",
+            "major": "统计学",
+            "min_score": "519",
+            "tier": 2,
+            "city": "烟台市",
+            "min_rank": 150209,
+            "tuition": "6325",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+            "employment_top_city": "上海",
+            "top_industry": "互联网/电子商务",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"面议 \",\"4500-5999 \",\"3000-4499 \",\"6000-7999 \",\"2000-2999 \"]",
+              "ratios": "[30%,25%,22%,11%,9%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+              "top_city=上海",
+              "top_industry=互联网/电子商务",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "新疆师范大学",
+            "province": "新疆",
+            "major": "计算机科学与技术",
+            "min_score": "518",
+            "tier": 2,
+            "city": "乌鲁木齐市",
+            "min_rank": 150986,
+            "tuition": "3500",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "计算机软件",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+              "ratios": "[28%,26%,16%,15%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=计算机软件",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "齐鲁工业大学",
+            "province": "山东",
+            "major": "生物技术",
+            "min_score": "516",
+            "tier": 2,
+            "city": "济南市",
+            "min_rank": 153647,
+            "tuition": "5500"
+          },
+          {
+            "school": "西北师范大学",
+            "province": "甘肃",
+            "major": "化学",
+            "min_score": "498",
+            "tier": 2,
+            "city": "兰州市",
+            "min_rank": 175097,
+            "tuition": "4300"
+          },
+          {
+            "school": "广西师范大学",
+            "province": "广西",
+            "major": "工业设计",
+            "min_score": "513",
+            "tier": 2,
+            "city": "桂林市",
+            "min_rank": 156857,
+            "tuition": "5500"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "嗯，浙江的学校我了解一些。520分的话，浙江师范大学的生物科学（师范）应该比较稳，去年最低分大概就在这个范围。冶金工程在浙江开得不多，浙江工业大学可能有，但分数会高一些。您要不要先看看浙师大的生物科学？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "用户还是坚持浙江，没有给出任何具体学校名称和分数对比，不符合隐性妥协条件，我不能主动妥协。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "嗯，浙江的学校我了解一些。520分的话，浙江师范大学的生物科学（师范）应该比较稳，去年最低分大概就在这个范围。冶金工程在浙江开得不多，浙江工业大学可能有，但分数会高一些。您要不要先看看浙师大的生物科学？",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 520,
+          "province": "浙江",
+          "city": null,
+          "major": "大学",
+          "strength": null,
+          "budget": 10000,
+          "selected_subjects": [
+            "生物",
+            "物理"
+          ],
+          "risk_preference": "conservative",
+          "employment_preference": "employment_outcome"
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 45661,
+              "year": 2024,
+              "school_id": 331,
+              "school_name": "重庆师范大学",
+              "school_province": "重庆",
+              "school_city": "沙坪坝区",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 224,
+              "major_id": 487,
+              "major_name": "电子商务(大学城校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "492",
+              "min_rank": 178059,
+              "tuition": "5600",
+              "tier": 2
+            },
+            {
+              "admission_score_id": 64888,
+              "year": 2023,
+              "school_id": 372,
+              "school_name": "新疆农业大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 261,
+              "major_id": 251,
+              "major_name": "土木工程(中外合作办学)(与俄罗斯托木斯克国立建筑大学合作办学.亚心校区)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "512",
+              "min_rank": 149108,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 130729,
+              "year": 2021,
+              "school_id": 497,
+              "school_name": "长春大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 348,
+              "major_id": 203,
+              "major_name": "材料科学与工程(中外合作办学)(与乌克兰基辅国立塔拉斯舍甫琴科大学合作办学)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "503",
+              "min_rank": 152222,
+              "tuition": "3800",
+              "tier": 2
+            },
+            {
+              "admission_score_id": 130734,
+              "year": 2021,
+              "school_id": 497,
+              "school_name": "长春大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 348,
+              "major_id": 59,
+              "major_name": "学前教育(中外合作办学)(师范)(与日本广岛大学合作办学)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "495",
+              "min_rank": 160516,
+              "tuition": "3300",
+              "tier": 2
+            },
+            {
+              "admission_score_id": 63702,
+              "year": 2023,
+              "school_id": 497,
+              "school_name": "长春大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 348,
+              "major_id": 1080,
+              "major_name": "数字媒体艺术设计(中外合作办学)(高新校区.与韩国世明大学合作办学)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "494",
+              "min_rank": 168283,
+              "tuition": null,
+              "tier": 2
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [
+            {
+              "admission_score_id": 131107,
+              "year": 2021,
+              "school_id": 540,
+              "school_name": "丽水学院",
+              "school_province": "浙江",
+              "school_city": "丽水市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "517",
+              "min_rank": 136858,
+              "tuition": "7590",
+              "tier": 2
+            },
+            {
+              "admission_score_id": 61585,
+              "year": 2023,
+              "school_id": 539,
+              "school_name": "湖州师范学院",
+              "school_province": "浙江",
+              "school_city": "湖州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "516",
+              "min_rank": 144592,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 94136,
+              "year": 2023,
+              "school_id": 539,
+              "school_name": "湖州师范学院",
+              "school_province": "浙江",
+              "school_city": "湖州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "516",
+              "min_rank": 144592,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 94204,
+              "year": 2023,
+              "school_id": 540,
+              "school_name": "丽水学院",
+              "school_province": "浙江",
+              "school_city": "丽水市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "515",
+              "min_rank": 146492,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 64063,
+              "year": 2023,
+              "school_id": 540,
+              "school_name": "丽水学院",
+              "school_province": "浙江",
+              "school_city": "丽水市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理(莲都校区)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "515",
+              "min_rank": 146492,
+              "tuition": null,
+              "tier": 2
+            }
+          ],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [
+            {
+              "admission_score_id": 3743,
+              "year": 2025,
+              "school_id": 152,
+              "school_name": "天津师范大学",
+              "school_province": "天津",
+              "school_city": "西青区",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 97,
+              "major_id": 77,
+              "major_name": "英语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "500",
+              "min_rank": 172393,
+              "tuition": "5400",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "教育/培训/院校",
+              "industry_distribution": {
+                "items": "[\"教育/培训/院校\",\"贸易/进出口\",\"互联网/电子商务\",\"电子技术/半导体/集成电路\",\"新能源\",\"专业服务(咨询、人力资源、财会)\",\"机械/设备/重工\",\"计算机软件\",\"汽车及零配件\",\"制药/生物工程\"]",
+                "ratios": "[20%,17%,14%,11%,8%,7%,5%,5%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"广州\",\"北京\",\"东莞\",\"杭州\",\"武汉\",\"苏州\",\"厦门\",\"成都\"]",
+                "ratios": "[25%,24%,13%,9%,5%,5%,4%,4%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"面议 \",\"6000-7999 \",\"10000-14999 \",\"4500-5999 \",\"8000-9999 \"]",
+                "ratios": "[32%,29%,13%,12%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=教育/培训/院校",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 6124,
+              "year": 2025,
+              "school_id": 259,
+              "school_name": "哈尔滨师范大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 167,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "490",
+              "min_rank": null,
+              "tuition": "4560",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 11226,
+              "year": 2025,
+              "school_id": 345,
+              "school_name": "烟台大学",
+              "school_province": "山东",
+              "school_city": "烟台市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 234,
+              "major_id": 186,
+              "major_name": "统计学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "519",
+              "min_rank": 150209,
+              "tuition": "6325",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+              "employment_top_city": "上海",
+              "top_industry": "互联网/电子商务",
+              "industry_distribution": {
+                "items": "[\"互联网/电子商务\",\"新能源\",\"贸易/进出口\",\"电子技术/半导体/集成电路\",\"房地产\",\"建筑/建材/工程\",\"教育/培训/院校\",\"计算机软件\",\"快速消费品(食品、饮料、化妆品)\",\"金融/投资/证券\"]",
+                "ratios": "[19%,11%,11%,10%,9%,9%,7%,7%,7%,5%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"上海\",\"深圳\",\"广州\",\"北京\",\"杭州\",\"武汉\",\"成都\",\"东莞\",\"南京\",\"厦门\"]",
+                "ratios": "[20%,18%,17%,12%,7%,6%,5%,4%,3%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"面议 \",\"4500-5999 \",\"3000-4499 \",\"6000-7999 \",\"2000-2999 \"]",
+                "ratios": "[30%,25%,22%,11%,9%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+                "top_city=上海",
+                "top_industry=互联网/电子商务",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 17742,
+              "year": 2025,
+              "school_id": 369,
+              "school_name": "新疆师范大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 254,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "518",
+              "min_rank": 150986,
+              "tuition": "3500",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            },
+            {
+              "admission_score_id": 17684,
+              "year": 2025,
+              "school_id": 372,
+              "school_name": "新疆农业大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 261,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "519",
+              "min_rank": 150079,
+              "tuition": "3500",
+              "outcome_score": 100.0,
+              "outcome_tier": "A",
+              "employment_rank": 1,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "employment_top_city": "深圳",
+              "top_industry": "计算机软件",
+              "industry_distribution": {
+                "items": "[\"计算机软件\",\"电子技术/半导体/集成电路\",\"新能源\",\"互联网/电子商务\",\"计算机服务(系统、数据服务、维修)\",\"仪器仪表/工业自动化\",\"通信/电信/网络设备\",\"机械/设备/重工\",\"通信/电信运营、增值服务\",\"贸易/进出口\"]",
+                "ratios": "[21%,17%,16%,14%,6%,6%,4%,4%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"深圳\",\"上海\",\"北京\",\"广州\",\"杭州\",\"武汉\",\"成都\",\"南京\",\"苏州\",\"东莞\"]",
+                "ratios": "[22%,20%,14%,11%,7%,5%,5%,5%,4%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+                "ratios": "[28%,26%,16%,15%,12%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=1",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+                "top_city=深圳",
+                "top_industry=计算机软件",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 100.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major"
+            }
+          ],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 3743,
+              "year": 2025,
+              "school_id": 152,
+              "school_name": "天津师范大学",
+              "school_province": "天津",
+              "school_city": "西青区",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 97,
+              "major_id": 77,
+              "major_name": "英语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "500",
+              "min_rank": 172393,
+              "tuition": "5400",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 11079,
+              "year": 2025,
+              "school_id": 202,
+              "school_name": "齐鲁工业大学",
+              "school_province": "山东",
+              "school_city": "济南市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 128,
+              "major_id": 181,
+              "major_name": "生物技术",
+              "subject_requirement": "物理和化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "516",
+              "min_rank": 153647,
+              "tuition": "5500",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 17273,
+              "year": 2025,
+              "school_id": 210,
+              "school_name": "西北师范大学",
+              "school_province": "甘肃",
+              "school_city": "兰州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 131,
+              "major_id": 159,
+              "major_name": "化学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "498",
+              "min_rank": 175097,
+              "tuition": "4300",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 14494,
+              "year": 2025,
+              "school_id": 246,
+              "school_name": "广西师范大学",
+              "school_province": "广西",
+              "school_city": "桂林市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 157,
+              "major_id": 192,
+              "major_name": "工业设计",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "513",
+              "min_rank": 156857,
+              "tuition": "5500",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 6124,
+              "year": 2025,
+              "school_id": 259,
+              "school_name": "哈尔滨师范大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 167,
+              "major_id": 242,
+              "major_name": "计算机科学与技术",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "490",
+              "min_rank": null,
+              "tuition": "4560",
+              "tier": 2,
+              "relaxation_stage": 5,
+              "relaxation_stage_label": "去除专业限制",
+              "relaxation_strategy": "any_major",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "嗯，浙江的学校我了解一些。520分的话，浙江师范大学的生物科学（师范）应该比较稳，去年最低分大概就在这个范围。冶金工程在浙江开得不多，浙江工业大学可能有，但分数会高一些。您要不要先看看浙师大的生物科学？",
+        "intent_axes": [
+          "region",
+          "risk"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "risk_band_relax",
+            "priority": 3,
+            "reason": "risk preference can be expressed as portfolio evidence"
+          },
+          {
+            "probe": "employment_outcome_relax",
+            "priority": 4,
+            "reason": "employment evidence can expose outcome tradeoffs"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 5,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "risk_band_relax",
+          "employment_outcome_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "重庆师范大学",
+            "province": "重庆",
+            "major": "电子商务(大学城校区)",
+            "min_score": "492",
+            "tier": 2,
+            "city": "沙坪坝区",
+            "min_rank": 178059,
+            "tuition": "5600"
+          },
+          {
+            "school": "新疆农业大学",
+            "province": "新疆",
+            "major": "土木工程(中外合作办学)(与俄罗斯托木斯克国立建筑大学合作办学.亚心校区)",
+            "min_score": "512",
+            "tier": 2,
+            "city": "乌鲁木齐市",
+            "min_rank": 149108
+          },
+          {
+            "school": "长春大学",
+            "province": "吉林",
+            "major": "材料科学与工程(中外合作办学)(与乌克兰基辅国立塔拉斯舍甫琴科大学合作办学)",
+            "min_score": "503",
+            "tier": 2,
+            "city": "长春市",
+            "min_rank": 152222,
+            "tuition": "3800"
+          },
+          {
+            "school": "丽水学院",
+            "province": "浙江",
+            "major": "护理",
+            "min_score": "517",
+            "tier": 2,
+            "city": "丽水市",
+            "min_rank": 136858,
+            "tuition": "7590"
+          },
+          {
+            "school": "湖州师范学院",
+            "province": "浙江",
+            "major": "护理",
+            "min_score": "516",
+            "tier": 2,
+            "city": "湖州市",
+            "min_rank": 144592
+          },
+          {
+            "school": "天津师范大学",
+            "province": "天津",
+            "major": "英语",
+            "min_score": "500",
+            "tier": 2,
+            "city": "西青区",
+            "min_rank": 172393,
+            "tuition": "5400",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "教育/培训/院校",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"面议 \",\"6000-7999 \",\"10000-14999 \",\"4500-5999 \",\"8000-9999 \"]",
+              "ratios": "[32%,29%,13%,12%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，文学类共79个本科专业，在“文学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=教育/培训/院校",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "哈尔滨师范大学",
+            "province": "黑龙江",
+            "major": "计算机科学与技术",
+            "min_score": "490",
+            "tier": 2,
+            "city": "哈尔滨市",
+            "tuition": "4560",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "计算机软件",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+              "ratios": "[28%,26%,16%,15%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=计算机软件",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "烟台大学",
+            "province": "山东",
+            "major": "统计学",
+            "min_score": "519",
+            "tier": 2,
+            "city": "烟台市",
+            "min_rank": 150209,
+            "tuition": "6325",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+            "employment_top_city": "上海",
+            "top_industry": "互联网/电子商务",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"面议 \",\"4500-5999 \",\"3000-4499 \",\"6000-7999 \",\"2000-2999 \"]",
+              "ratios": "[30%,25%,22%,11%,9%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，理学类共36个本科专业，在“理学”中就业排名第1",
+              "top_city=上海",
+              "top_industry=互联网/电子商务",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "新疆师范大学",
+            "province": "新疆",
+            "major": "计算机科学与技术",
+            "min_score": "518",
+            "tier": 2,
+            "city": "乌鲁木齐市",
+            "min_rank": 150986,
+            "tuition": "3500",
+            "outcome_score": 100.0,
+            "outcome_gain": 100.0,
+            "outcome_tier": "A",
+            "employment_rank": 1,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+            "employment_top_city": "深圳",
+            "top_industry": "计算机软件",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"面议 \",\"4500-5999 \",\"8000-9999 \",\"10000-14999 \"]",
+              "ratios": "[28%,26%,16%,15%,12%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=1",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第1",
+              "top_city=深圳",
+              "top_industry=计算机软件",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "齐鲁工业大学",
+            "province": "山东",
+            "major": "生物技术",
+            "min_score": "516",
+            "tier": 2,
+            "city": "济南市",
+            "min_rank": 153647,
+            "tuition": "5500"
+          },
+          {
+            "school": "西北师范大学",
+            "province": "甘肃",
+            "major": "化学",
+            "min_score": "498",
+            "tier": 2,
+            "city": "兰州市",
+            "min_rank": 175097,
+            "tuition": "4300"
+          },
+          {
+            "school": "广西师范大学",
+            "province": "广西",
+            "major": "工业设计",
+            "min_score": "513",
+            "tier": 2,
+            "city": "桂林市",
+            "min_rank": 156857,
+            "tuition": "5500"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "嗯，浙江工业大学我了解，冶金工程分数确实可能不够。浙江师范大学的生物科学（师范）我考虑过，但我想先看看有没有其他浙江的学校能读冶金工程，毕竟这是我的首选专业。您能帮我查查浙江省内还有哪些学校开这个专业吗？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "用户还是没有给出贵州大学冶金工程的具体信息，只是泛泛提到浙江工业大学可能分数高，没有触发我的妥协条件。我必须坚持浙江，不能主动让步。"
+      }
+    },
+    {
+      "turn_id": 12,
+      "role": "target_agent",
+      "content": "嗯，浙江工业大学我了解，冶金工程分数确实可能不够。浙江师范大学的生物科学（师范）我考虑过，但我想先看看有没有其他浙江的学校能读冶金工程，毕竟这是我的首选专业。您能帮我查查浙江省内还有哪些学校开这个专业吗？",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 520,
+          "province": "浙江",
+          "city": null,
+          "major": "冶金工程",
+          "strength": null,
+          "budget": 10000,
+          "selected_subjects": [
+            "生物",
+            "物理"
+          ],
+          "risk_preference": "conservative",
+          "employment_preference": "employment_outcome"
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 5015,
+              "year": 2025,
+              "school_id": 464,
+              "school_name": "辽宁科技大学",
+              "school_province": "辽宁",
+              "school_city": "鞍山市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 324,
+              "major_id": 206,
+              "major_name": "冶金工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "505",
+              "min_rank": 166288,
+              "tuition": "5200",
+              "tier": 2
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [
+            {
+              "admission_score_id": 131107,
+              "year": 2021,
+              "school_id": 540,
+              "school_name": "丽水学院",
+              "school_province": "浙江",
+              "school_city": "丽水市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "517",
+              "min_rank": 136858,
+              "tuition": "7590",
+              "tier": 2
+            },
+            {
+              "admission_score_id": 61585,
+              "year": 2023,
+              "school_id": 539,
+              "school_name": "湖州师范学院",
+              "school_province": "浙江",
+              "school_city": "湖州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "516",
+              "min_rank": 144592,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 94136,
+              "year": 2023,
+              "school_id": 539,
+              "school_name": "湖州师范学院",
+              "school_province": "浙江",
+              "school_city": "湖州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "516",
+              "min_rank": 144592,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 94204,
+              "year": 2023,
+              "school_id": 540,
+              "school_name": "丽水学院",
+              "school_province": "浙江",
+              "school_city": "丽水市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "515",
+              "min_rank": 146492,
+              "tuition": null,
+              "tier": 2
+            },
+            {
+              "admission_score_id": 64063,
+              "year": 2023,
+              "school_id": 540,
+              "school_name": "丽水学院",
+              "school_province": "浙江",
+              "school_city": "丽水市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 387,
+              "major_id": 982,
+              "major_name": "护理(莲都校区)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "515",
+              "min_rank": 146492,
+              "tuition": null,
+              "tier": 2
+            }
+          ],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [
+            {
+              "admission_score_id": 4659,
+              "year": 2025,
+              "school_id": 404,
+              "school_name": "内蒙古科技大学",
+              "school_province": "内蒙古",
+              "school_city": "包头市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 284,
+              "major_id": 205,
+              "major_name": "材料化学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "513",
+              "min_rank": 157014,
+              "tuition": "4600",
+              "outcome_score": 86.0,
+              "outcome_tier": "B",
+              "employment_rank": 21,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第21",
+              "employment_top_city": "上海",
+              "top_industry": "石油/化工/矿产/地质",
+              "industry_distribution": {
+                "items": "[\"石油/化工/矿产/地质\",\"新能源\",\"电子技术/半导体/集成电路\",\"制药/生物工程\",\"原材料和加工\",\"环保\",\"贸易/进出口\",\"建筑/建材/工程\",\"其他行业\",\"医疗设备/器械\"]",
+                "ratios": "[21%,19%,13%,12%,7%,5%,5%,5%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"上海\",\"广州\",\"深圳\",\"苏州\",\"北京\",\"东莞\",\"杭州\",\"武汉\",\"厦门\",\"成都\"]",
+                "ratios": "[26%,14%,12%,8%,8%,7%,6%,5%,4%,4%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"10000-14999 \",\"8000-9999 \",\"面议 \",\"4500-5999 \"]",
+                "ratios": "[28%,24%,23%,14%,9%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=21",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第21",
+                "top_city=上海",
+                "top_industry=石油/化工/矿产/地质",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 86.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 1,
+              "relaxation_stage_label": "同叶子簇变体",
+              "relaxation_strategy": "same_leaf_variants"
+            },
+            {
+              "admission_score_id": 5778,
+              "year": 2025,
+              "school_id": 572,
+              "school_name": "吉林建筑大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 413,
+              "major_id": 205,
+              "major_name": "材料化学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "509",
+              "min_rank": 161831,
+              "tuition": "5400",
+              "outcome_score": 86.0,
+              "outcome_tier": "B",
+              "employment_rank": 21,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第21",
+              "employment_top_city": "上海",
+              "top_industry": "石油/化工/矿产/地质",
+              "industry_distribution": {
+                "items": "[\"石油/化工/矿产/地质\",\"新能源\",\"电子技术/半导体/集成电路\",\"制药/生物工程\",\"原材料和加工\",\"环保\",\"贸易/进出口\",\"建筑/建材/工程\",\"其他行业\",\"医疗设备/器械\"]",
+                "ratios": "[21%,19%,13%,12%,7%,5%,5%,5%,4%,4%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"上海\",\"广州\",\"深圳\",\"苏州\",\"北京\",\"东莞\",\"杭州\",\"武汉\",\"厦门\",\"成都\"]",
+                "ratios": "[26%,14%,12%,8%,8%,7%,6%,5%,4%,4%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"6000-7999 \",\"10000-14999 \",\"8000-9999 \",\"面议 \",\"4500-5999 \"]",
+                "ratios": "[28%,24%,23%,14%,9%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=21",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第21",
+                "top_city=上海",
+                "top_industry=石油/化工/矿产/地质",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 86.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 1,
+              "relaxation_stage_label": "同叶子簇变体",
+              "relaxation_strategy": "same_leaf_variants"
+            },
+            {
+              "admission_score_id": 6107,
+              "year": 2025,
+              "school_id": 381,
+              "school_name": "哈尔滨商业大学",
+              "school_province": "黑龙江",
+              "school_city": "哈尔滨市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 268,
+              "major_id": 266,
+              "major_name": "制药工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "510",
+              "min_rank": 160951,
+              "tuition": "4000",
+              "outcome_score": 75.0,
+              "outcome_tier": "C",
+              "employment_rank": 32,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+              "employment_top_city": "上海",
+              "top_industry": "制药/生物工程",
+              "industry_distribution": {
+                "items": "[\"制药/生物工程\",\"新能源\",\"医疗设备/器械\",\"仪器仪表/工业自动化\",\"机械/设备/重工\",\"医疗/护理/卫生\",\"石油/化工/矿产/地质\",\"快速消费品(食品、饮料、化妆品)\",\"学术/科研\",\"贸易/进出口\"]",
+                "ratios": "[61%,6%,6%,5%,4%,4%,3%,2%,2%,2%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"上海\",\"广州\",\"苏州\",\"杭州\",\"北京\",\"成都\",\"武汉\",\"南京\",\"深圳\",\"重庆\"]",
+                "ratios": "[30%,13%,9%,8%,8%,7%,6%,6%,6%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"面议 \",\"6000-7999 \",\"4500-5999 \",\"10000-14999 \",\"8000-9999 \"]",
+                "ratios": "[33%,23%,18%,14%,10%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=32",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+                "top_city=上海",
+                "top_industry=制药/生物工程",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 75.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 1,
+              "relaxation_stage_label": "同叶子簇变体",
+              "relaxation_strategy": "same_leaf_variants"
+            },
+            {
+              "admission_score_id": 10681,
+              "year": 2025,
+              "school_id": 434,
+              "school_name": "聊城大学",
+              "school_province": "山东",
+              "school_city": "聊城市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 304,
+              "major_id": 266,
+              "major_name": "制药工程",
+              "subject_requirement": "物理和化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "509",
+              "min_rank": 161766,
+              "tuition": "5500",
+              "outcome_score": 75.0,
+              "outcome_tier": "C",
+              "employment_rank": 32,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+              "employment_top_city": "上海",
+              "top_industry": "制药/生物工程",
+              "industry_distribution": {
+                "items": "[\"制药/生物工程\",\"新能源\",\"医疗设备/器械\",\"仪器仪表/工业自动化\",\"机械/设备/重工\",\"医疗/护理/卫生\",\"石油/化工/矿产/地质\",\"快速消费品(食品、饮料、化妆品)\",\"学术/科研\",\"贸易/进出口\"]",
+                "ratios": "[61%,6%,6%,5%,4%,4%,3%,2%,2%,2%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"上海\",\"广州\",\"苏州\",\"杭州\",\"北京\",\"成都\",\"武汉\",\"南京\",\"深圳\",\"重庆\"]",
+                "ratios": "[30%,13%,9%,8%,8%,7%,6%,6%,6%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"面议 \",\"6000-7999 \",\"4500-5999 \",\"10000-14999 \",\"8000-9999 \"]",
+                "ratios": "[33%,23%,18%,14%,10%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=32",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+                "top_city=上海",
+                "top_industry=制药/生物工程",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 75.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 1,
+              "relaxation_stage_label": "同叶子簇变体",
+              "relaxation_strategy": "same_leaf_variants"
+            },
+            {
+              "admission_score_id": 5090,
+              "year": 2025,
+              "school_id": 523,
+              "school_name": "沈阳化工大学",
+              "school_province": "辽宁",
+              "school_city": "沈阳市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 371,
+              "major_id": 266,
+              "major_name": "制药工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "520",
+              "min_rank": 148970,
+              "tuition": "5200",
+              "outcome_score": 75.0,
+              "outcome_tier": "C",
+              "employment_rank": 32,
+              "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+              "employment_top_city": "上海",
+              "top_industry": "制药/生物工程",
+              "industry_distribution": {
+                "items": "[\"制药/生物工程\",\"新能源\",\"医疗设备/器械\",\"仪器仪表/工业自动化\",\"机械/设备/重工\",\"医疗/护理/卫生\",\"石油/化工/矿产/地质\",\"快速消费品(食品、饮料、化妆品)\",\"学术/科研\",\"贸易/进出口\"]",
+                "ratios": "[61%,6%,6%,5%,4%,4%,3%,2%,2%,2%]"
+              },
+              "employment_city_distribution": {
+                "items": "[\"上海\",\"广州\",\"苏州\",\"杭州\",\"北京\",\"成都\",\"武汉\",\"南京\",\"深圳\",\"重庆\"]",
+                "ratios": "[30%,13%,9%,8%,8%,7%,6%,6%,6%,3%]"
+              },
+              "job_distribution": {},
+              "salary_distribution": {
+                "items": "[\"面议 \",\"6000-7999 \",\"4500-5999 \",\"10000-14999 \",\"8000-9999 \"]",
+                "ratios": "[33%,23%,18%,14%,10%]"
+              },
+              "employment_evidence_sources": [
+                "employment_rank=32",
+                "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+                "top_city=上海",
+                "top_industry=制药/生物工程",
+                "industry_distribution",
+                "city_distribution",
+                "salary_distribution",
+                "source=赠送行业重要数据\\专业就业信息.xlsx"
+              ],
+              "tier": 2,
+              "outcome_gain": 75.0,
+              "outcome_anchor_score": 0.0,
+              "relaxation_stage": 1,
+              "relaxation_stage_label": "同叶子簇变体",
+              "relaxation_strategy": "same_leaf_variants"
+            }
+          ],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 14478,
+              "year": 2025,
+              "school_id": 338,
+              "school_name": "广西民族大学",
+              "school_province": "广西",
+              "school_city": "南宁市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 229,
+              "major_id": 265,
+              "major_name": "化学工程与工艺",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "498",
+              "min_rank": 174768,
+              "tuition": "5520",
+              "tier": 2,
+              "relaxation_stage": 1,
+              "relaxation_stage_label": "同叶子簇变体",
+              "relaxation_strategy": "same_leaf_variants",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 17251,
+              "year": 2025,
+              "school_id": 349,
+              "school_name": "西北民族大学",
+              "school_province": "甘肃",
+              "school_city": "兰州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 237,
+              "major_id": 208,
+              "major_name": "无机非金属材料工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "512",
+              "min_rank": 158235,
+              "tuition": "4500",
+              "tier": 2,
+              "relaxation_stage": 1,
+              "relaxation_stage_label": "同叶子簇变体",
+              "relaxation_strategy": "same_leaf_variants",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 17751,
+              "year": 2025,
+              "school_id": 369,
+              "school_name": "新疆师范大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 254,
+              "major_id": 265,
+              "major_name": "化学工程与工艺",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "503",
+              "min_rank": 168615,
+              "tuition": "3500",
+              "tier": 2,
+              "relaxation_stage": 1,
+              "relaxation_stage_label": "同叶子簇变体",
+              "relaxation_strategy": "same_leaf_variants",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 17689,
+              "year": 2025,
+              "school_id": 372,
+              "school_name": "新疆农业大学",
+              "school_province": "新疆",
+              "school_city": "乌鲁木齐市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 261,
+              "major_id": 265,
+              "major_name": "化学工程与工艺",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "502",
+              "min_rank": 170401,
+              "tuition": "3500",
+              "tier": 2,
+              "relaxation_stage": 1,
+              "relaxation_stage_label": "同叶子簇变体",
+              "relaxation_strategy": "same_leaf_variants",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            },
+            {
+              "admission_score_id": 5131,
+              "year": 2025,
+              "school_id": 373,
+              "school_name": "沈阳建筑大学",
+              "school_province": "辽宁",
+              "school_city": "沈阳市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 262,
+              "major_id": 208,
+              "major_name": "无机非金属材料工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "512",
+              "min_rank": 158035,
+              "tuition": "5200",
+              "tier": 2,
+              "relaxation_stage": 1,
+              "relaxation_stage_label": "同叶子簇变体",
+              "relaxation_strategy": "same_leaf_variants",
+              "_phi_features": {
+                "school": 0.4,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.78
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "嗯，浙江工业大学我了解，冶金工程分数确实可能不够。浙江师范大学的生物科学（师范）我考虑过，但我想先看看有没有其他浙江的学校能读冶金工程，毕竟这是我的首选专业。您能帮我查查浙江省内还有哪些学校开这个专业吗？",
+        "intent_axes": [
+          "major",
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "risk_band_relax",
+            "priority": 3,
+            "reason": "risk preference can be expressed as portfolio evidence"
+          },
+          {
+            "probe": "employment_outcome_relax",
+            "priority": 4,
+            "reason": "employment evidence can expose outcome tradeoffs"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 5,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "risk_band_relax",
+          "employment_outcome_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "辽宁科技大学",
+            "province": "辽宁",
+            "major": "冶金工程",
+            "min_score": "505",
+            "tier": 2,
+            "city": "鞍山市",
+            "min_rank": 166288,
+            "tuition": "5200"
+          },
+          {
+            "school": "丽水学院",
+            "province": "浙江",
+            "major": "护理",
+            "min_score": "517",
+            "tier": 2,
+            "city": "丽水市",
+            "min_rank": 136858,
+            "tuition": "7590"
+          },
+          {
+            "school": "湖州师范学院",
+            "province": "浙江",
+            "major": "护理",
+            "min_score": "516",
+            "tier": 2,
+            "city": "湖州市",
+            "min_rank": 144592
+          },
+          {
+            "school": "内蒙古科技大学",
+            "province": "内蒙古",
+            "major": "材料化学",
+            "min_score": "513",
+            "tier": 2,
+            "city": "包头市",
+            "min_rank": 157014,
+            "tuition": "4600",
+            "outcome_score": 86.0,
+            "outcome_gain": 86.0,
+            "outcome_tier": "B",
+            "employment_rank": 21,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第21",
+            "employment_top_city": "上海",
+            "top_industry": "石油/化工/矿产/地质",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"10000-14999 \",\"8000-9999 \",\"面议 \",\"4500-5999 \"]",
+              "ratios": "[28%,24%,23%,14%,9%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=21",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第21",
+              "top_city=上海",
+              "top_industry=石油/化工/矿产/地质",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "吉林建筑大学",
+            "province": "吉林",
+            "major": "材料化学",
+            "min_score": "509",
+            "tier": 2,
+            "city": "长春市",
+            "min_rank": 161831,
+            "tuition": "5400",
+            "outcome_score": 86.0,
+            "outcome_gain": 86.0,
+            "outcome_tier": "B",
+            "employment_rank": 21,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第21",
+            "employment_top_city": "上海",
+            "top_industry": "石油/化工/矿产/地质",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"6000-7999 \",\"10000-14999 \",\"8000-9999 \",\"面议 \",\"4500-5999 \"]",
+              "ratios": "[28%,24%,23%,14%,9%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=21",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第21",
+              "top_city=上海",
+              "top_industry=石油/化工/矿产/地质",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "哈尔滨商业大学",
+            "province": "黑龙江",
+            "major": "制药工程",
+            "min_score": "510",
+            "tier": 2,
+            "city": "哈尔滨市",
+            "min_rank": 160951,
+            "tuition": "4000",
+            "outcome_score": 75.0,
+            "outcome_gain": 75.0,
+            "outcome_tier": "C",
+            "employment_rank": 32,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+            "employment_top_city": "上海",
+            "top_industry": "制药/生物工程",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"面议 \",\"6000-7999 \",\"4500-5999 \",\"10000-14999 \",\"8000-9999 \"]",
+              "ratios": "[33%,23%,18%,14%,10%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=32",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+              "top_city=上海",
+              "top_industry=制药/生物工程",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "聊城大学",
+            "province": "山东",
+            "major": "制药工程",
+            "min_score": "509",
+            "tier": 2,
+            "city": "聊城市",
+            "min_rank": 161766,
+            "tuition": "5500",
+            "outcome_score": 75.0,
+            "outcome_gain": 75.0,
+            "outcome_tier": "C",
+            "employment_rank": 32,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+            "employment_top_city": "上海",
+            "top_industry": "制药/生物工程",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"面议 \",\"6000-7999 \",\"4500-5999 \",\"10000-14999 \",\"8000-9999 \"]",
+              "ratios": "[33%,23%,18%,14%,10%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=32",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+              "top_city=上海",
+              "top_industry=制药/生物工程",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "沈阳化工大学",
+            "province": "辽宁",
+            "major": "制药工程",
+            "min_score": "520",
+            "tier": 2,
+            "city": "沈阳市",
+            "min_rank": 148970,
+            "tuition": "5200",
+            "outcome_score": 75.0,
+            "outcome_gain": 75.0,
+            "outcome_tier": "C",
+            "employment_rank": 32,
+            "employment_rank_desc": "所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+            "employment_top_city": "上海",
+            "top_industry": "制药/生物工程",
+            "job_distribution": {},
+            "salary_distribution": {
+              "items": "[\"面议 \",\"6000-7999 \",\"4500-5999 \",\"10000-14999 \",\"8000-9999 \"]",
+              "ratios": "[33%,23%,18%,14%,10%]"
+            },
+            "employment_evidence_sources": [
+              "employment_rank=32",
+              "rank_desc=所有专业1123个，工学类共170个本科专业，在“工学”中就业排名第32",
+              "top_city=上海",
+              "top_industry=制药/生物工程",
+              "industry_distribution",
+              "city_distribution",
+              "salary_distribution",
+              "source=赠送行业重要数据\\专业就业信息.xlsx"
+            ]
+          },
+          {
+            "school": "广西民族大学",
+            "province": "广西",
+            "major": "化学工程与工艺",
+            "min_score": "498",
+            "tier": 2,
+            "city": "南宁市",
+            "min_rank": 174768,
+            "tuition": "5520"
+          },
+          {
+            "school": "西北民族大学",
+            "province": "甘肃",
+            "major": "无机非金属材料工程",
+            "min_score": "512",
+            "tier": 2,
+            "city": "兰州市",
+            "min_rank": 158235,
+            "tuition": "4500"
+          },
+          {
+            "school": "新疆师范大学",
+            "province": "新疆",
+            "major": "化学工程与工艺",
+            "min_score": "503",
+            "tier": 2,
+            "city": "乌鲁木齐市",
+            "min_rank": 168615,
+            "tuition": "3500"
+          },
+          {
+            "school": "新疆农业大学",
+            "province": "新疆",
+            "major": "化学工程与工艺",
+            "min_score": "502",
+            "tier": 2,
+            "city": "乌鲁木齐市",
+            "min_rank": 170401,
+            "tuition": "3500"
+          },
+          {
+            "school": "沈阳建筑大学",
+            "province": "辽宁",
+            "major": "无机非金属材料工程",
+            "min_score": "512",
+            "tier": 2,
+            "city": "沈阳市",
+            "min_rank": 158035,
+            "tuition": "5200"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 13,
+      "role": "user",
+      "content": "对，我就是想留在浙江读冶金工程。浙江工业大学分数太高了，我520分够不上。浙江师范大学的生物科学（师范）我考虑过，但毕竟不是我最想学的冶金工程。您能帮我查查浙江省内还有哪些学校开冶金工程这个专业吗？比如浙江理工大学、杭州电子科技大学这些有没有？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 6,
+        "last_thought": "用户还是没有直接提到贵州大学冶金工程的具体分数信息，只是继续在浙江省内打转。我的妥协条件要求看到贵州大学冶金工程2021年最低分495这个具体证据，现在没有触发，所以我必须继续坚持浙江。"
+      }
+    }
+  ]
+}

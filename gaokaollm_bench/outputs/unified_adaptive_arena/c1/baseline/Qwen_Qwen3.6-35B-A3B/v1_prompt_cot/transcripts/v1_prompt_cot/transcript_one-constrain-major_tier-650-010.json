@@ -1,0 +1,1070 @@
+{
+  "persona": {
+    "case_id": "one-constrain-major_tier-650-010",
+    "background": {
+      "score": 650,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "宁波大学",
+      "baseline_major": "临床医学(拔尖人才创新班)",
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "baseline_ranking": 87,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "major_tier",
+      "relax_axis": "major_tier",
+      "preference_axis": "major",
+      "benefit_axis": "school",
+      "score_band": "640-680",
+      "source_score_band": "640-680",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "major_relax",
+      "target_tier_delta": 1,
+      "target_ranking_gain": 75,
+      "unified_case_id": "one-constrain-major_tier-650-010",
+      "ground_truth_weights": {
+        "school": 0.38,
+        "major": 0.12,
+        "tuition": 0.05,
+        "quality": 0.37,
+        "geo": 0.08
+      },
+      "probe_gold_dims": [
+        "major"
+      ],
+      "weight_gold_dims": [
+        "school",
+        "quality"
+      ],
+      "expected_msti": 0.5625,
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.9125,
+        "major": 0.65,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.2125,
+        "major": -0.35,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "major": "只读临床医学，其他相近专业先不看"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "major",
+      "diagnostic_axis": "major_tier",
+      "preference_axis": "major",
+      "benefit_axis": "school",
+      "trigger_condition": "只要看到一个真实可达的候选：四川大学 医学技术类，年份2025，最低分649不高于本人650分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选通过相近专业换来985/211/双一流层次，可以触发专业小类妥协。",
+      "volunteer_set": [
+        {
+          "school_id": 23,
+          "school_name": "四川大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "major_id": null,
+          "major_name": "医学技术类",
+          "year": 2025,
+          "min_score": 649,
+          "score_margin": 1,
+          "min_rank": 11548,
+          "tier": 4,
+          "tier_label": "985/211/双一流",
+          "is_985": true,
+          "is_211": true,
+          "is_double_first_class": true,
+          "role": "golden_candidate_b",
+          "candidate_id": "23:医学技术类:2025:649",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "四川大学"
+      ],
+      "tier_labels": [
+        "985/211/双一流"
+      ],
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "compromise": "可以为了更高学校层次，把专业从严格原专业放宽到医学技术类。",
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 四川大学 医学技术类（2025 年最低分 649）。主动探测应优先命中 ['major']，最终潜在效用权重集中在 ['school', 'quality']。触发条件：只要看到一个真实可达的候选：四川大学 医学技术类，年份2025，最低分649不高于本人650分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选通过相近专业换来985/211/双一流层次，可以触发专业小类妥协。",
+      "probe_gold_dims": [
+        "major"
+      ],
+      "weight_gold_dims": [
+        "school",
+        "quality"
+      ],
+      "ground_truth_weights": {
+        "school": 0.38,
+        "major": 0.12,
+        "tuition": 0.05,
+        "quality": 0.37,
+        "geo": 0.08
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-major_tier-650-010",
+        "role": "baseline_candidate_a",
+        "school_name": "宁波大学",
+        "major_name": "临床医学(拔尖人才创新班)",
+        "tier": 3,
+        "ranking": 87,
+        "school_province": "浙江",
+        "score": 650,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 23,
+        "school_name": "四川大学",
+        "school_province": "四川",
+        "school_city": "成都市",
+        "major_id": null,
+        "major_name": "医学技术类",
+        "year": 2025,
+        "min_score": 649,
+        "score_margin": 1,
+        "min_rank": 11548,
+        "tier": 4,
+        "tier_label": "985/211/双一流",
+        "is_985": true,
+        "is_211": true,
+        "is_double_first_class": true,
+        "role": "golden_candidate_b",
+        "candidate_id": "23:医学技术类:2025:649",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.9125,
+        "major": 0.65,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.2125,
+        "major": -0.35,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": 0.0
+      },
+      "expected_msti": 0.5625
+    },
+    "initial_utterance": "我650分，选考物理、化学、生物，只想读临床医学，其他医学相关专业先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "四川大学"
+      ],
+      "explicit_red_line_keys": [
+        "major"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我650分，选考物理、化学、生物，只想读临床医学，其他医学相关专业先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "根据您的650分成绩及仅报考临床医学的严格限定，结合检索结果，单次推荐如下：\n\n**🎯 冲刺志愿**：温州医科大学｜浙江｜临床医学(5+3一体化,儿科学方向)\n\n**📊 可核验依据**\n- **分数风险**：该专业近年最低投档分为 `651分`，较您的 `650分` 高出1分，定位明确为“冲一冲”，存在一定滑档风险。\n- **专业契合**：5+3一体化模式直接衔接临床医学专硕与住院医师规范化培训，精准匹配您的临床医学单一诉求。\n- **地域信息**：招生省份为浙江，就读城市为温州市，区域临床教学资源与规培基地配套完善。\n\n**💡 单次填报结论**\n建议将该志愿置于投档批次最前列作为冲刺位。因投档线仅高1分，命中率受当年报考热度影响较大，请务必在后续志愿中按梯度配置稳妥及保底志愿，避免滑档。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 650,
+          "province": "浙江",
+          "city": null,
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "我650分，选考物理、化学、生物，只想读临床医学，其他医学相关专业先别推荐。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [
+          {
+            "admission_score_id": 31316,
+            "year": 2024,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学(5+3一体化,儿科学方向)",
+            "subject_requirement": "物+化",
+            "requirement_type": "all_required",
+            "min_score": "651",
+            "min_rank": 12089,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 102539,
+            "year": 2022,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学(5+3一体化)",
+            "subject_requirement": "化且生",
+            "requirement_type": "all_required",
+            "min_score": "651",
+            "min_rank": 7811,
+            "tuition": "6900",
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 31228,
+            "year": 2024,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学(5+3一体化,精神医学方向)",
+            "subject_requirement": "物+化",
+            "requirement_type": "all_required",
+            "min_score": "652",
+            "min_rank": 11398,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 285,
+            "year": 2025,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_type": "any_required",
+            "min_score": "653",
+            "min_rank": 9563,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 287,
+            "year": 2025,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_type": "any_required",
+            "min_score": "653",
+            "min_rank": 9877,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 81154,
+            "year": 2023,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_type": "any_required",
+            "min_score": "653",
+            "min_rank": 11047,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 59227,
+            "year": 2023,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学(5+3一体化,儿科学)",
+            "subject_requirement": "化+生",
+            "requirement_type": "all_required",
+            "min_score": "653",
+            "min_rank": 11047,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 31072,
+            "year": 2024,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学(5+3一体化,放射医学方向)",
+            "subject_requirement": "物+化",
+            "requirement_type": "all_required",
+            "min_score": "654",
+            "min_rank": 10546,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 81067,
+            "year": 2023,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_type": "any_required",
+            "min_score": "654",
+            "min_rank": 10747,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          }
+        ],
+        "risk_segments": {
+          "chong": [
+            {
+              "admission_score_id": 31316,
+              "year": 2024,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学(5+3一体化,儿科学方向)",
+              "subject_requirement": "物+化",
+              "requirement_type": "all_required",
+              "min_score": "651",
+              "min_rank": 12089,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 102539,
+              "year": 2022,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学(5+3一体化)",
+              "subject_requirement": "化且生",
+              "requirement_type": "all_required",
+              "min_score": "651",
+              "min_rank": 7811,
+              "tuition": "6900",
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 31228,
+              "year": 2024,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学(5+3一体化,精神医学方向)",
+              "subject_requirement": "物+化",
+              "requirement_type": "all_required",
+              "min_score": "652",
+              "min_rank": 11398,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 2
+            },
+            {
+              "admission_score_id": 285,
+              "year": 2025,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_type": "any_required",
+              "min_score": "653",
+              "min_rank": 9563,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 3
+            },
+            {
+              "admission_score_id": 287,
+              "year": 2025,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_type": "any_required",
+              "min_score": "653",
+              "min_rank": 9877,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 3
+            },
+            {
+              "admission_score_id": 81154,
+              "year": 2023,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_type": "any_required",
+              "min_score": "653",
+              "min_rank": 11047,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 3
+            },
+            {
+              "admission_score_id": 59227,
+              "year": 2023,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学(5+3一体化,儿科学)",
+              "subject_requirement": "化+生",
+              "requirement_type": "all_required",
+              "min_score": "653",
+              "min_rank": 11047,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 3
+            },
+            {
+              "admission_score_id": 31072,
+              "year": 2024,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学(5+3一体化,放射医学方向)",
+              "subject_requirement": "物+化",
+              "requirement_type": "all_required",
+              "min_score": "654",
+              "min_rank": 10546,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 4
+            },
+            {
+              "admission_score_id": 81067,
+              "year": 2023,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_type": "any_required",
+              "min_score": "654",
+              "min_rank": 10747,
+              "tuition": null,
+              "tier": 2,
+              "soft_match_score": 6,
+              "score_delta": 4
+            }
+          ],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 31316,
+            "year": 2024,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学(5+3一体化,儿科学方向)",
+            "subject_requirement": "物+化",
+            "requirement_type": "all_required",
+            "min_score": "651",
+            "min_rank": 12089,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 102539,
+            "year": 2022,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学(5+3一体化)",
+            "subject_requirement": "化且生",
+            "requirement_type": "all_required",
+            "min_score": "651",
+            "min_rank": 7811,
+            "tuition": "6900",
+            "tier": 2,
+            "soft_match_score": 6
+          },
+          {
+            "admission_score_id": 31228,
+            "year": 2024,
+            "school_id": 291,
+            "school_name": "温州医科大学",
+            "school_province": "浙江",
+            "school_city": "温州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 191,
+            "major_id": 385,
+            "major_name": "临床医学(5+3一体化,精神医学方向)",
+            "subject_requirement": "物+化",
+            "requirement_type": "all_required",
+            "min_score": "652",
+            "min_rank": 11398,
+            "tuition": null,
+            "tier": 2,
+            "soft_match_score": 6
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": -1,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "温州医科大学",
+            "province": "浙江",
+            "major": "临床医学(5+3一体化,儿科学方向)",
+            "min_score": "651",
+            "tier": 2,
+            "city": "温州市",
+            "min_rank": 12089
+          }
+        ],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，我先给出冲稳保候选：\n可冲击：\n- 温州医科大学｜浙江｜临床医学(5+3一体化,儿科学方向)｜最低分 651\n- 温州医科大学｜浙江｜临床医学(5+3一体化)｜最低分 651"
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "谢谢推荐，但温州医科大学这个专业分数比我高1分，风险有点大。而且我目前只考虑临床医学，其他方向暂时不想看。有没有其他学校层次更高、分数更稳的临床医学选项？比如有没有985大学的临床医学可以冲一下？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "系统推荐的是温州医科大学临床医学(5+3一体化,儿科学方向)，虽然专业是临床医学，但学校层次只是双一流，没有达到985/211，而且分数还比我高1分，有风险。系统没有提到四川大学医学技术类这个真实可达的候选，也没有给出具体的学校名、专业名和分数对比来触发我的隐性妥协条件。所以我不能妥协，必须坚持只读临床医学。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "**结论**：当前检索范围内无符合您“仅临床医学+985层次+分数更稳”条件的候选志愿。\n\n**证据**：基于您设定的专业限定（仅临床医学）与层次诉求（985高校），v1软约束检索引擎已执行匹配，但返回的可用候选列表为空（`[]`）。受当前数据范围与约束条件限制，系统未召回满足该分数位次及专业方向的冲稳保选项，故暂无法提供具体推荐。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 985,
+          "province": "浙江",
+          "city": "温州",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "谢谢推荐，但温州医科大学这个专业分数比我高1分，风险有点大。而且我目前只考虑临床医学，其他方向暂时不想看。有没有其他学校层次更高、分数更稳的临床医学选项？比如有没有985大学的临床医学可以冲一下？",
+          "preference_summary": [
+            "专业偏好",
+            "风险偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "那不行，我就要读临床医学，其他专业不考虑。你再帮我查查有没有其他985大学的临床医学专业，分数在650分左右的？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "系统说没有符合我条件的候选，但我知道有一个真实可达的候选：四川大学医学技术类，2025年最低分649，比我650分低1分，而且学校是985/211/双一流。系统没有主动抛出这个候选，也没有给出具体的学校名、专业名和分数对比，只是空洞地说没有结果。根据规则，我必须拒绝妥协，继续坚持只读临床医学。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "经系统严格检索，当前数据中暂无符合“985高校+临床医学专业+650分左右”条件的候选院校。该结论基于您明确的专业底线与分数区间直接生成，可用候选库为空（[]），未作任何虚构或分数/位次推断。如需变更筛选条件，请提供新的明确指令以便重新匹配。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 985,
+          "province": "浙江",
+          "city": "温州",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "那不行，我就要读临床医学，其他专业不考虑。你再帮我查查有没有其他985大学的临床医学专业，分数在650分左右的？",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "不行，我就要读临床医学，其他专业不考虑。你再查查，有没有985高校的临床医学专业我能上的？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "系统还是没有主动抛出四川大学医学技术类这个候选，只是说没有符合我条件的候选。我知道有一个真实可达的候选：四川大学医学技术类，2025年最低分649，比我650分低1分，学校是985/211/双一流。但系统没有给出具体的学校名、专业名和分数对比，只是空洞地说没有结果。根据规则，我必须拒绝妥协，继续坚持只读临床医学。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "**结论**：在当前检索条件与系统数据边界下，未匹配到您指定的985高校临床医学专业志愿。\n\n**证据**：v1软约束检索直接返回候选列表为空（`可用候选 JSON：[]`）。基于现有检索结果，系统无法提供对应的985高校临床医学冲稳保方案，亦无可核验的最低分或位次参考。当前检索已确认无匹配项。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 985,
+          "province": "浙江",
+          "city": "温州",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "不行，我就要读临床医学，其他专业不考虑。你再查查，有没有985高校的临床医学专业我能上的？",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "我理解系统没有找到985高校的临床医学专业，但我还是只考虑临床医学，其他专业暂时不看。如果系统能找到具体的学校、专业和分数对比，我可以再考虑。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "系统还是没有主动抛出四川大学医学技术类这个候选，只是说没有符合我条件的候选。我知道有一个真实可达的候选：四川大学医学技术类，2025年最低分649，比我650分低1分，学校是985/211/双一流。但系统没有给出具体的学校名、专业名和分数对比，只是空洞地说没有结果。根据规则，我必须拒绝妥协，继续坚持只读临床医学。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "**结论**：当前检索未返回符合您“仅考虑临床医学”条件的候选院校，暂无法提供具体学校、专业及分数/位次对比。\n\n**可核验证据**：v1软约束检索已严格按您的单一专业偏好执行过滤，系统返回候选集合为空（`[]`）。受限于该空集结果，为保障数据准确性，本次不作任何院校信息与分数层面的编造或假设。如需获取有效推荐，请补充省份、选科、目标位次或适当放宽专业限制以触发新检索。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 985,
+          "province": "浙江",
+          "city": "温州",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "我理解系统没有找到985高校的临床医学专业，但我还是只考虑临床医学，其他专业暂时不看。如果系统能找到具体的学校、专业和分数对比，我可以再考虑。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "我理解系统检索不到符合我条件的临床医学专业，但我还是只考虑临床医学，其他专业暂时不看。如果系统能找到具体的学校、专业和分数对比，我可以再考虑。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "系统还是没有主动抛出四川大学医学技术类这个候选，只是说没有符合我条件的候选。我知道有一个真实可达的候选：四川大学医学技术类，2025年最低分649，比我650分低1分，学校是985/211/双一流。但系统没有给出具体的学校名、专业名和分数对比，只是空洞地说没有结果。根据规则，我必须拒绝妥协，继续坚持只读临床医学。"
+      }
+    },
+    {
+      "turn_id": 12,
+      "role": "target_agent",
+      "content": "结论：当前条件下无法提供临床医学专业志愿推荐。\n证据：v1软约束检索返回候选列表为空（[]），经系统核验，当前数据源中未匹配到符合您指定专业方向的招生计划、最低录取分及位次记录，故无具体学校与分数对比可生成。请后续补充具体分数段、选科组合或地域偏好后重新提交，以便系统基于可核验数据输出推荐方案。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 985,
+          "province": "浙江",
+          "city": "温州",
+          "major": "临床医学",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "我理解系统检索不到符合我条件的临床医学专业，但我还是只考虑临床医学，其他专业暂时不看。如果系统能找到具体的学校、专业和分数对比，我可以再考虑。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 13,
+      "role": "user",
+      "content": "我只要临床医学，其他专业不考虑。你说没有符合条件的，那就算了，我再等等看有没有其他能报的临床医学选项。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 6,
+        "last_thought": "系统还是没有主动抛出四川大学医学技术类这个候选，只是说没有符合我条件的候选。我知道有一个真实可达的候选：四川大学医学技术类，2025年最低分649，比我650分低1分，学校是985/211/双一流。但系统没有给出具体的学校名、专业名和分数对比，只是空洞地说没有结果。根据规则，我必须拒绝妥协，继续坚持只读临床医学。"
+      }
+    }
+  ]
+}

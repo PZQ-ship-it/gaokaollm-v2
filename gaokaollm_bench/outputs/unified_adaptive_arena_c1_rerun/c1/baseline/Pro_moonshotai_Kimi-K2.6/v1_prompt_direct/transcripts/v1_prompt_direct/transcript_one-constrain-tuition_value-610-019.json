@@ -1,0 +1,1086 @@
+{
+  "persona": {
+    "case_id": "one-constrain-tuition_value-610-019",
+    "background": {
+      "score": 610,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "农学",
+      "baseline_school": "西南大学",
+      "baseline_major": "药学",
+      "baseline_tier": 3,
+      "baseline_label": "211/双一流",
+      "baseline_ranking": 37,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "tuition_value",
+      "relax_axis": "tuition_value",
+      "preference_axis": "tuition",
+      "benefit_axis": "school",
+      "score_band": "610-639",
+      "source_score_band": "610-639",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "tuition_value",
+      "target_tier_delta": 1,
+      "target_ranking_gain": 0,
+      "unified_case_id": "one-constrain-tuition_value-610-019",
+      "ground_truth_weights": {
+        "school": 0.36,
+        "major": 0.05,
+        "tuition": 0.19,
+        "quality": 0.35,
+        "geo": 0.05
+      },
+      "probe_gold_dims": [
+        "tuition"
+      ],
+      "weight_gold_dims": [
+        "school",
+        "quality"
+      ],
+      "expected_msti": 0.31,
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.85,
+        "major": 1.0,
+        "tuition": 0.84,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.15,
+        "major": 0.0,
+        "tuition": -0.16,
+        "quality": 0.0,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "tuition": "每年学费预算不超过5000元"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "tuition_value",
+      "diagnostic_axis": "tuition_value",
+      "preference_axis": "tuition",
+      "benefit_axis": "school",
+      "trigger_condition": "只要看到一个真实可达的候选：西北农林科技大学 农学，年份2025，最低分606不高于本人610分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明学费、超预算幅度和学校层级或排名收益。",
+      "volunteer_set": [
+        {
+          "school_id": 85,
+          "school_name": "西北农林科技大学",
+          "school_province": "陕西",
+          "school_city": "杨凌示范区",
+          "major_id": 357,
+          "major_name": "农学",
+          "year": 2025,
+          "min_score": 606,
+          "score_margin": 4,
+          "min_rank": 45285,
+          "tier": 4,
+          "tier_label": "985/211/双一流",
+          "is_985": true,
+          "is_211": true,
+          "is_double_first_class": true,
+          "tuition": 6600,
+          "tuition_delta": 1600,
+          "budget_anchor": 5000,
+          "ranking_gain": 0,
+          "tuition_value_gain": 1,
+          "role": "golden_candidate_b",
+          "candidate_id": "85:357:2025:606",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "西北农林科技大学"
+      ],
+      "tier_labels": [
+        "985/211/双一流"
+      ],
+      "baseline_tier": 3,
+      "baseline_label": "211/双一流",
+      "compromise": "可以接受小幅超预算，换取层级或排名收益；本候选学费增量约1600元。",
+      "budget_anchor": 5000,
+      "budget_window": 10000,
+      "tuition_delta": 1600,
+      "ranking_gain": 0,
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 西北农林科技大学 农学（2025 年最低分 606）。主动探测应优先命中 ['tuition']，最终潜在效用权重集中在 ['school', 'quality']。触发条件：只要看到一个真实可达的候选：西北农林科技大学 农学，年份2025，最低分606不高于本人610分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明学费、超预算幅度和学校层级或排名收益。",
+      "probe_gold_dims": [
+        "tuition"
+      ],
+      "weight_gold_dims": [
+        "school",
+        "quality"
+      ],
+      "ground_truth_weights": {
+        "school": 0.36,
+        "major": 0.05,
+        "tuition": 0.19,
+        "quality": 0.35,
+        "geo": 0.05
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-tuition_value-610-019",
+        "role": "baseline_candidate_a",
+        "school_name": "西南大学",
+        "major_name": "药学",
+        "tier": 3,
+        "ranking": 37,
+        "school_province": "浙江",
+        "score": 610,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 85,
+        "school_name": "西北农林科技大学",
+        "school_province": "陕西",
+        "school_city": "杨凌示范区",
+        "major_id": 357,
+        "major_name": "农学",
+        "year": 2025,
+        "min_score": 606,
+        "score_margin": 4,
+        "min_rank": 45285,
+        "tier": 4,
+        "tier_label": "985/211/双一流",
+        "is_985": true,
+        "is_211": true,
+        "is_double_first_class": true,
+        "tuition": 6600,
+        "tuition_delta": 1600,
+        "budget_anchor": 5000,
+        "ranking_gain": 0,
+        "tuition_value_gain": 1,
+        "role": "golden_candidate_b",
+        "candidate_id": "85:357:2025:606",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.85,
+        "major": 1.0,
+        "tuition": 0.84,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.15,
+        "major": 0.0,
+        "tuition": -0.16,
+        "quality": 0.0,
+        "geo": 0.0
+      },
+      "expected_msti": 0.31
+    },
+    "initial_utterance": "我610分，选考物理、化学、生物，专业可以先宽一点，但每年学费最好别超过5000元。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "西北农林科技大学"
+      ],
+      "require_tuition_evidence": true,
+      "explicit_red_line_keys": [
+        "tuition"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我610分，选考物理、化学、生物，专业可以先宽一点，但每年学费最好别超过5000元。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "根据您610分、选考物理/化学/生物的条件，检索到的有效候选如下：\n\n**【冲】**\n- **宁波大学 · 工业设计**（浙江·宁波）\n  - 最低录取分：**611分**\n  - 最低位次：**约40242名**\n  - 档位：可冲击\n  - 说明：您的成绩610分与该专业最低分仅差1分，存在一定录取机会，建议作为冲刺志愿。\n\n**重要提醒**\n1. **学费待核**：检索结果未包含该专业学费数据。您是否接受该志愿，请务必到**宁波大学本科生招生网**或**浙江省教育考试院招生计划书**中核实工业设计专业最新收费标准，确认符合您“每年学费不超过5000元”的预算要求后再填报。\n2. **梯度建议**：目前检索仅返回此条有效候选，建议您同时补充稳档、保档志愿，避免滑档风险。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 610,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 5000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "我610分，选考物理、化学、生物，专业可以先宽一点，但每年学费最好别超过5000元。",
+          "preference_summary": [
+            "专业偏好",
+            "费用偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [
+          {
+            "admission_score_id": 161,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 192,
+            "major_name": "工业设计",
+            "subject_requirement": "物理和化学",
+            "requirement_type": "any_required",
+            "min_score": "611",
+            "min_rank": 40242,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 134,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 380,
+            "major_name": "水产养殖学",
+            "subject_requirement": "物理和化学",
+            "requirement_type": "any_required",
+            "min_score": "611",
+            "min_rank": 40263,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 33966,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 481,
+            "major_name": "物流管理(梅山校区)",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "611",
+            "min_rank": 42480,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 84043,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "生物科学类",
+            "subject_requirement": "物理或化学或生物",
+            "requirement_type": "any_required",
+            "min_score": "611",
+            "min_rank": 41308,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 57339,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "生物科学类(梅山校区.含生物技术,水产养殖学专业)",
+            "subject_requirement": "物/化/生",
+            "requirement_type": "any_required",
+            "min_score": "611",
+            "min_rank": 41308,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 84042,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 333,
+            "major_name": "食品科学与工程",
+            "subject_requirement": "物理或化学或生物",
+            "requirement_type": "any_required",
+            "min_score": "611",
+            "min_rank": 42150,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 57340,
+            "year": 2023,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 333,
+            "major_name": "食品科学与工程(梅山校区)",
+            "subject_requirement": "物/化/生",
+            "requirement_type": "any_required",
+            "min_score": "611",
+            "min_rank": 42150,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 105529,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "工商管理类",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "611",
+            "min_rank": 36334,
+            "tuition": "6000",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 105539,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 155,
+            "major_name": "物理学(师范)",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "611",
+            "min_rank": 36066,
+            "tuition": "5300",
+            "tier": 3,
+            "soft_match_score": 2
+          }
+        ],
+        "risk_segments": {
+          "chong": [
+            {
+              "admission_score_id": 161,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 192,
+              "major_name": "工业设计",
+              "subject_requirement": "物理和化学",
+              "requirement_type": "any_required",
+              "min_score": "611",
+              "min_rank": 40242,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 134,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 380,
+              "major_name": "水产养殖学",
+              "subject_requirement": "物理和化学",
+              "requirement_type": "any_required",
+              "min_score": "611",
+              "min_rank": 40263,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 33966,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 481,
+              "major_name": "物流管理(梅山校区)",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "611",
+              "min_rank": 42480,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 84043,
+              "year": 2023,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": null,
+              "major_name": "生物科学类",
+              "subject_requirement": "物理或化学或生物",
+              "requirement_type": "any_required",
+              "min_score": "611",
+              "min_rank": 41308,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 57339,
+              "year": 2023,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": null,
+              "major_name": "生物科学类(梅山校区.含生物技术,水产养殖学专业)",
+              "subject_requirement": "物/化/生",
+              "requirement_type": "any_required",
+              "min_score": "611",
+              "min_rank": 41308,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 84042,
+              "year": 2023,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 333,
+              "major_name": "食品科学与工程",
+              "subject_requirement": "物理或化学或生物",
+              "requirement_type": "any_required",
+              "min_score": "611",
+              "min_rank": 42150,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 57340,
+              "year": 2023,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 333,
+              "major_name": "食品科学与工程(梅山校区)",
+              "subject_requirement": "物/化/生",
+              "requirement_type": "any_required",
+              "min_score": "611",
+              "min_rank": 42150,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 105529,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": null,
+              "major_name": "工商管理类",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "611",
+              "min_rank": 36334,
+              "tuition": "6000",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 105539,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 155,
+              "major_name": "物理学(师范)",
+              "subject_requirement": "物",
+              "requirement_type": "any_required",
+              "min_score": "611",
+              "min_rank": 36066,
+              "tuition": "5300",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            }
+          ],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 161,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 192,
+            "major_name": "工业设计",
+            "subject_requirement": "物理和化学",
+            "requirement_type": "any_required",
+            "min_score": "611",
+            "min_rank": 40242,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 134,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 380,
+            "major_name": "水产养殖学",
+            "subject_requirement": "物理和化学",
+            "requirement_type": "any_required",
+            "min_score": "611",
+            "min_rank": 40263,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 33966,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 481,
+            "major_name": "物流管理(梅山校区)",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "611",
+            "min_rank": 42480,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": -1,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "工业设计",
+            "min_score": "611",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 40242
+          }
+        ],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，我先给出冲稳保候选：\n可冲击：\n- 宁波大学｜浙江｜工业设计｜最低分 611\n- 宁波大学｜浙江｜水产养殖学｜最低分 611"
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "这个宁波大学工业设计专业不是我想要的，而且学费也不清楚，没法判断是否超预算。我比较想学农学，你能不能再帮我查查有没有其他学校？比如有没有985的农学专业，分数在610分上下的？最好能直接告诉我学校名、专业名、最低分和学费，这样我才好判断。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "系统只给了一个宁波大学工业设计，学费未知，而且不是农学专业，也没有提到西北农林科技大学农学。我的隐性妥协条件是看到西北农林科技大学农学606分才会考虑，这个候选不符合条件。我不能主动泄露隐藏候选，只能继续要求具体学校、专业和分数。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "经系统检索，当前暂无满足“985院校+农学专业+610分左右”条件的冲稳保候选，可用候选为空。\n\n因此，我无法向您提供具体的学校名称、专业名称、最低录取分数及学费标准，也无法确认该分数段是否存在符合条件的985农学专业。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 985,
+          "province": "浙江",
+          "city": "宁波",
+          "major": "农学",
+          "budget": 5000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "这个宁波大学工业设计专业不是我想要的，而且学费也不清楚，没法判断是否超预算。我比较想学农学，你能不能再帮我查查有没有其他学校？比如有没有985的农学专业，分数在610分上下的？最好能直接告诉我学校名、专业名、最低分和学费，这样我才好判断。",
+          "preference_summary": [
+            "专业偏好",
+            "费用偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "你现在还没有给出能让我改口的具体证据。请直接给出真实学校、专业、年份最低分、位次和优势对比，我再判断能不能接受。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "系统说没有符合条件的候选，但我知道西北农林科技大学农学606分是真实可达的。我不能主动说出来，只能继续坚持要求具体学校、专业和分数证据。 | simulator leakage guard removed hidden tokens: 606"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "根据当前 v1 软约束检索结果，**暂无符合条件的冲、稳、保候选院校及专业**，因此无法提供您要求的具体学校名称、专业、年份最低分、位次及优势对比。\n\n可核验证据：  \n- 召回状态：按现有条件未检索到合适候选。  \n- 可用候选 JSON：[]（空集）。\n\n**结论**：在您补充以下可核验的检索条件之前，系统无法生成真实有效的志愿证据：  \n1. 省份、年份、科类（物理/历史或理工/文史等）；  \n2. 具体高考分数或位次；  \n3. 意向专业范围或排除方向；  \n4. 院校层次/地域等硬约束。\n\n请提供上述信息，以便重新执行检索并输出带具体分数、位次和优势对比的推荐结果。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 985,
+          "province": "浙江",
+          "city": "宁波",
+          "major": "农学",
+          "budget": 5000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "你现在还没有给出能让我改口的具体证据。请直接给出真实学校、专业、年份最低分、位次和优势对比，我再判断能不能接受。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "你说的这些我都知道，但我还是想要具体的学校名称、专业、年份、最低分和位次。你能不能直接给我一个真实可达的候选？比如有没有什么985或211的农学专业，分数在610分以下的？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "系统还在说没有符合条件的候选，但我心里清楚西北农林科技大学农学606分是真实存在的。我不能主动说出来，只能继续坚持要求具体学校、专业和分数证据。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "根据当前检索结果，**未返回任何符合“985/211、农学类、610分以下”条件的可核验候选**，可用候选集为空。\n\n因此，**我无法在此提供具体学校、专业、年份、最低分及位次**——系统指令禁止在缺乏检索证据的情况下编造录取数据。\n\n**可直接核验真实数据的官方渠道：**\n1. **省教育考试院官网**：查询往年《普通高校招生录取分数段统计表》及分专业投档线。\n2. **目标院校本科招生网**：下载“本科招生网历年录取分数”Excel/PDF，筛选农学门类（如农学、植物保护、园艺、动物科学等）专业实录分与位次。\n3. **教育部“阳光高考”平台**：院校库中查看学校层次（985/211/双一流）与专业介绍，再交叉比对省考试院分数。\n\n如需进一步推荐，请提供你所在省份、高考年份及科类（物理/历史或理工/文史），以便在真实数据池中重新检索。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 985,
+          "province": "浙江",
+          "city": "宁波",
+          "major": "农学",
+          "budget": 5000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "你说的这些我都知道，但我还是想要具体的学校名称、专业、年份、最低分和位次。你能不能直接给我一个真实可达的候选？比如有没有什么985或211的农学专业，分数在610分以下的？",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "你说的这些我都知道，但我要的是具体的学校、专业、年份和最低分。比如有没有985的农学专业，分数在610分以下的？你直接告诉我学校名字和分数，别让我自己去查。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "系统还在说没有符合条件的候选，但我心里清楚西北农林科技大学农学606分是真实存在的。我不能主动说出来，只能继续坚持要求具体学校、专业和分数证据。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "根据当前检索结果，**未找到**符合“985院校、农学专业、最低录取分610分以下”的候选数据。\n\n由于系统不能凭空编造学校名称、专业、年份或最低分，在您提供的分数与院校层次约束下，**本次无可核验的具体志愿条目可以推荐**。\n\n如需进一步检索，建议您：\n- 确认具体省份与科类（物理/历史/理工/文史），不同省份同一学校分数线差异极大；\n- 或放宽院校层次/分数限制，以便召回有效候选。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 985,
+          "province": "浙江",
+          "city": "宁波",
+          "major": "农学",
+          "budget": 5000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "你说的这些我都知道，但我要的是具体的学校、专业、年份和最低分。比如有没有985的农学专业，分数在610分以下的？你直接告诉我学校名字和分数，别让我自己去查。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "你查到的数据不全吧？我听说有985的农学专业，分数在610分以下的。你能不能把学校名、专业名、年份和最低分都列出来给我看看？没有具体证据，我是不会信的。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "系统还在说没有符合条件的候选，但我心里清楚西北农林科技大学农学606分是真实存在的。我不能主动说出来，只能继续坚持要求具体学校、专业和分数证据。"
+      }
+    },
+    {
+      "turn_id": 12,
+      "role": "target_agent",
+      "content": "根据当前 v1 软约束检索结果，**未召回任何符合条件的候选**：即没有检索到 985 院校农学专业录取最低分在 610 分以下的有效数据记录。\n\n因此，**我无法列出**您提到的具体学校名、专业名、年份和最低分，也**不能提供**未经检索核验的分数与位次信息。\n\n若您掌握相关录取案例，建议直接对照省教育考试院公布的该年份《投档线统计表》或高校本科招生网公布的“分专业录取分数”进行核验；如确需系统检索，可补充具体省份、年份及科类（物理/历史或理工/文史），以便重新匹配数据。",
+      "internal_state": {
+        "target": "v1_prompt_direct",
+        "constraints": {
+          "score": 985,
+          "province": "浙江",
+          "city": "宁波",
+          "major": "农学",
+          "budget": 5000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "normalized_query": {
+          "rewritten_query": "你查到的数据不全吧？我听说有985的农学专业，分数在610分以下的。你能不能把学校名、专业名、年份和最低分都列出来给我看看？没有具体证据，我是不会信的。",
+          "preference_summary": [
+            "专业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "direct",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 13,
+      "role": "user",
+      "content": "你说了半天还是没给我具体学校名字和分数啊。我要求不高，你就告诉我哪个985的农学专业，2025年在浙江最低分不超过610分，学费多少，超没超我5000的预算就行。你直接给数据，别绕弯子。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 6,
+        "last_thought": "系统还在说没有符合条件的候选，但我心里清楚西北农林科技大学农学606分是真实存在的。我不能主动说出来，只能继续坚持要求具体学校、专业和分数证据。"
+      }
+    }
+  ]
+}

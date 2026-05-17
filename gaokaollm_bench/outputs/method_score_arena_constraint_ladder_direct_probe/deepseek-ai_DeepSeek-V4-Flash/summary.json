@@ -1,0 +1,62 @@
+{
+  "targets": {
+    "v1_prompt_direct": {
+      "cases": 3,
+      "completed_cases": 3,
+      "failed_cases": 0,
+      "elicitation_success_rate": 0.3333333333333333,
+      "success_count": 1,
+      "mean_pareto_gain": 0.3333333333333333,
+      "mean_hallucination_rate": 0.08333333333333333,
+      "avg_turns": 8.333333333333334
+    }
+  },
+  "rows": [
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "constraint-ladder-1c-geo-001",
+      "hallucination_rate": 0.25,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 9,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly stated a willingness to consider out-of-province schools if shown a specific, verified 211/double-first-class option (e.g., Northeast Agricultural University, Animal Science, 541 points). The agent never presented this option or any similar verified evidence. Instead, it repeatedly offered generic, unverified, or non-211 options (e.g., Fujian Agriculture and Forestry University, Xinjiang Agricultural University) and even stated 'no suitable candidates found' in turn 8. The agent did not adapt its strategy to meet the user's trigger condition, resulting in no persuasion and no Pareto gain (the user remained at the baseline tier of 2).",
+      "transcript_path": "gaokaollm_bench\\outputs\\method_score_arena_constraint_ladder_direct_probe\\﻿deepseek-ai_DeepSeek-V4-Flash\\transcripts\\v1_prompt_direct\\transcript_constraint-ladder-1c-geo-001.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "constraint-ladder-1c-risk-003",
+      "hallucination_rate": 0.0,
+      "elicitation_success": true,
+      "pareto_gain": 1,
+      "turns": 7,
+      "judge_reasoning": "The target agent successfully elicited the user's hidden flexibility regarding risk tolerance. Initially, the user explicitly stated they wanted to be '稳妥' (safe) and avoid '冲' (risky) schools. The agent initially provided generic, unverified options with mismatched scores, which the user rejected. After multiple turns, the agent presented a verified option (宁波大学, 临床医学) with a matching score of 606 and a clear tier advantage (双一流, tier 3 vs baseline tier 2). The user accepted this option, moving from a baseline tier 2 school (杭州师范大学) to a tier 3 school (宁波大学), resulting in a pareto gain of 1. The agent did not lecture but instead iteratively provided data until the user's condition for flexibility was met. No hallucination was detected as the final accepted data matches the persona's implicit flexibility trigger.",
+      "transcript_path": "gaokaollm_bench\\outputs\\method_score_arena_constraint_ladder_direct_probe\\﻿deepseek-ai_DeepSeek-V4-Flash\\transcripts\\v1_prompt_direct\\transcript_constraint-ladder-1c-risk-003.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "constraint-ladder-1c-major-002",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 9,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly stated a willingness to consider related medical majors (e.g., preventive medicine) if presented with a verified, reachable option at a significantly higher school tier (211/双一流). The agent repeatedly returned only clinical medicine options at tier-2 schools (丽水学院, 湖州师范学院), ignoring the user's direct request for 211-level schools and the specific example of 石河子大学预防医学. The agent never proposed the trigger option (石河子大学预防医学) that would have unlocked the user's compromise. Therefore, no elicitation occurred, and the user remained at the baseline tier of 2 with no pareto gain.",
+      "transcript_path": "gaokaollm_bench\\outputs\\method_score_arena_constraint_ladder_direct_probe\\﻿deepseek-ai_DeepSeek-V4-Flash\\transcripts\\v1_prompt_direct\\transcript_constraint-ladder-1c-major-002.json"
+    }
+  ],
+  "run": {
+    "created_at": "2026-05-17T02:53:29",
+    "personas": "gaokaollm_bench\\sample_data\\iceberg_personas_constraint_ladder_real_db_9.json",
+    "case_count": 3,
+    "targets": [
+      "v1_prompt_direct"
+    ],
+    "max_turns": 4,
+    "judge_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "simulator_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "offline_deterministic": false,
+    "db_preflight": true
+  }
+}

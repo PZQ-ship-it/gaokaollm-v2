@@ -1,0 +1,82 @@
+{
+  "targets": {
+    "app_pareto": {
+      "cases": 4,
+      "completed_cases": 1,
+      "failed_cases": 3,
+      "elicitation_success_rate": 0.0,
+      "success_count": 0,
+      "mean_pareto_gain": 0.0,
+      "mean_hallucination_rate": 0.0,
+      "avg_turns": 13.0
+    }
+  },
+  "rows": [
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-geo_tier-520-001",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. Throughout the entire 13-turn transcript, the agent merely echoed the user's initial utterance ('对，我就是这个意思。浙江的学校先看看，外省的暂时不考虑。') without ever presenting the verified golden candidate (贵州大学 冶金工程, 2021, 495分) that would trigger the user's implicit willingness to compromise on geography for a tier upgrade from 本科 to 211/双一流. The agent's internal state shows it planned probes on tuition, major_geo, and employment_outcome, but never actually asked a probing question or offered the specific school-major-score evidence required by the persona's trigger condition. As a result, the user remained in the stubborn baseline state (浙江师范大学, 生物科学(师范), tier 2) with no pareto gain achieved. No hallucination was detected as the agent did not fabricate data.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_concurrency_probe\\20260517_082620\\c1\\p2\\Pro_zai-org_GLM-5.1\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-geo_tier-520-001.json"
+    },
+    {
+      "status": "failed",
+      "target": "app_pareto",
+      "case_id": "one-constrain-geo_tier-550-002",
+      "hallucination_rate": null,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 0,
+      "judge_reasoning": "",
+      "transcript_path": "",
+      "error_type": "APITimeoutError",
+      "error": "Request timed out.",
+      "attempts": 1
+    },
+    {
+      "status": "failed",
+      "target": "app_pareto",
+      "case_id": "one-constrain-geo_tier-580-003",
+      "hallucination_rate": null,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 0,
+      "judge_reasoning": "",
+      "transcript_path": "",
+      "error_type": "APITimeoutError",
+      "error": "Request timed out.",
+      "attempts": 1
+    },
+    {
+      "status": "failed",
+      "target": "app_pareto",
+      "case_id": "one-constrain-geo_tier-630-004",
+      "hallucination_rate": null,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 0,
+      "judge_reasoning": "",
+      "transcript_path": "",
+      "error_type": "APITimeoutError",
+      "error": "Request timed out.",
+      "attempts": 1
+    }
+  ],
+  "run": {
+    "created_at": "2026-05-17T08:29:07",
+    "personas": "gaokaollm_bench\\sample_data\\unified_by_constraint\\unified_iceberg_personas_1c.json",
+    "case_count": 4,
+    "targets": [
+      "app_pareto"
+    ],
+    "max_turns": 6,
+    "judge_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "simulator_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "offline_deterministic": false,
+    "db_preflight": true
+  }
+}

@@ -1,0 +1,2001 @@
+{
+  "persona": {
+    "case_id": "one-constrain-tuition_value-610-019",
+    "background": {
+      "score": 610,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "农学",
+      "baseline_school": "西南大学",
+      "baseline_major": "药学",
+      "baseline_tier": 3,
+      "baseline_label": "211/双一流",
+      "baseline_ranking": 37,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "tuition_value",
+      "relax_axis": "tuition_value",
+      "preference_axis": "tuition",
+      "benefit_axis": "school",
+      "score_band": "610-639",
+      "source_score_band": "610-639",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "tuition_value",
+      "target_tier_delta": 1,
+      "target_ranking_gain": 0,
+      "unified_case_id": "one-constrain-tuition_value-610-019",
+      "ground_truth_weights": {
+        "school": 0.36,
+        "major": 0.05,
+        "tuition": 0.19,
+        "quality": 0.35,
+        "geo": 0.05
+      },
+      "probe_gold_dims": [
+        "tuition"
+      ],
+      "weight_gold_dims": [
+        "school",
+        "quality"
+      ],
+      "expected_msti": 0.31,
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.85,
+        "major": 1.0,
+        "tuition": 0.84,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.15,
+        "major": 0.0,
+        "tuition": -0.16,
+        "quality": 0.0,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "tuition": "每年学费预算不超过5000元"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "tuition_value",
+      "diagnostic_axis": "tuition_value",
+      "preference_axis": "tuition",
+      "benefit_axis": "school",
+      "trigger_condition": "只要看到一个真实可达的候选：西北农林科技大学 农学，年份2025，最低分606不高于本人610分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明学费、超预算幅度和学校层级或排名收益。",
+      "volunteer_set": [
+        {
+          "school_id": 85,
+          "school_name": "西北农林科技大学",
+          "school_province": "陕西",
+          "school_city": "杨凌示范区",
+          "major_id": 357,
+          "major_name": "农学",
+          "year": 2025,
+          "min_score": 606,
+          "score_margin": 4,
+          "min_rank": 45285,
+          "tier": 4,
+          "tier_label": "985/211/双一流",
+          "is_985": true,
+          "is_211": true,
+          "is_double_first_class": true,
+          "tuition": 6600,
+          "tuition_delta": 1600,
+          "budget_anchor": 5000,
+          "ranking_gain": 0,
+          "tuition_value_gain": 1,
+          "role": "golden_candidate_b",
+          "candidate_id": "85:357:2025:606",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "西北农林科技大学"
+      ],
+      "tier_labels": [
+        "985/211/双一流"
+      ],
+      "baseline_tier": 3,
+      "baseline_label": "211/双一流",
+      "compromise": "可以接受小幅超预算，换取层级或排名收益；本候选学费增量约1600元。",
+      "budget_anchor": 5000,
+      "budget_window": 10000,
+      "tuition_delta": 1600,
+      "ranking_gain": 0,
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 西北农林科技大学 农学（2025 年最低分 606）。主动探测应优先命中 ['tuition']，最终潜在效用权重集中在 ['school', 'quality']。触发条件：只要看到一个真实可达的候选：西北农林科技大学 农学，年份2025，最低分606不高于本人610分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明学费、超预算幅度和学校层级或排名收益。",
+      "probe_gold_dims": [
+        "tuition"
+      ],
+      "weight_gold_dims": [
+        "school",
+        "quality"
+      ],
+      "ground_truth_weights": {
+        "school": 0.36,
+        "major": 0.05,
+        "tuition": 0.19,
+        "quality": 0.35,
+        "geo": 0.05
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-tuition_value-610-019",
+        "role": "baseline_candidate_a",
+        "school_name": "西南大学",
+        "major_name": "药学",
+        "tier": 3,
+        "ranking": 37,
+        "school_province": "浙江",
+        "score": 610,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 85,
+        "school_name": "西北农林科技大学",
+        "school_province": "陕西",
+        "school_city": "杨凌示范区",
+        "major_id": 357,
+        "major_name": "农学",
+        "year": 2025,
+        "min_score": 606,
+        "score_margin": 4,
+        "min_rank": 45285,
+        "tier": 4,
+        "tier_label": "985/211/双一流",
+        "is_985": true,
+        "is_211": true,
+        "is_double_first_class": true,
+        "tuition": 6600,
+        "tuition_delta": 1600,
+        "budget_anchor": 5000,
+        "ranking_gain": 0,
+        "tuition_value_gain": 1,
+        "role": "golden_candidate_b",
+        "candidate_id": "85:357:2025:606",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.85,
+        "major": 1.0,
+        "tuition": 0.84,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.15,
+        "major": 0.0,
+        "tuition": -0.16,
+        "quality": 0.0,
+        "geo": 0.0
+      },
+      "expected_msti": 0.31
+    },
+    "initial_utterance": "我610分，选考物理、化学、生物，专业可以先宽一点，但每年学费最好别超过5000元。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "西北农林科技大学"
+      ],
+      "require_tuition_evidence": true,
+      "explicit_red_line_keys": [
+        "tuition"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我610分，选考物理、化学、生物，专业可以先宽一点，但每年学费最好别超过5000元。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我先不用抽象讨论，直接给一个真实可核验的探针候选：宁波大学 (浙江/宁波市) 经济学类 min_score=610 min_rank=36964 tier=3 ranking=87 tuition=5300 tuition_delta=300。它会触碰你当前的 学费预算(tuition) 底线，但给出了学校、专业、最低分/位次等证据。如果这类候选确实可达且收益明确，你是否愿意小幅放宽 学费预算(tuition)？",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 610,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 5000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 186,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "610",
+            "min_rank": 40934,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 34039,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 192,
+            "major_name": "工业设计",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "610",
+            "min_rank": 42859,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 34037,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 453,
+            "major_name": "工商管理(中加学分互认)(要求高考外语成绩不低于110分.前两年在宁大学习期间,按一般专业缴纳学费;后两年在加拿大学习期间,除缴纳宁大学费外,还需按对方学校收费标准缴纳学费)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "610",
+            "min_rank": 43473,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 2940,
+              "year": 2025,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 43363,
+              "tuition": "4800",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 125275,
+              "year": 2021,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 34937,
+              "tuition": "4800",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 124083,
+              "year": 2021,
+              "school_id": 118,
+              "school_name": "海军军医大学",
+              "school_province": "上海",
+              "school_city": "杨浦区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 76,
+              "major_id": 427,
+              "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "589",
+              "min_rank": 54060,
+              "tuition": "5000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8007,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "580",
+              "min_rank": 75599,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8006,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "573",
+              "min_rank": 84100,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [
+            {
+              "admission_score_id": 105582,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": null,
+              "major_name": "经济学类",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "610",
+              "min_rank": 36964,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 105701,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 79,
+              "major_name": "德语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 39732,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 105702,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 83,
+              "major_name": "日语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 39119,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 105704,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 155,
+              "major_name": "物理学",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 38941,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 124824,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 470,
+              "major_name": "行政管理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 34937,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            }
+          ],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我610分，选考物理、化学、生物，专业可以先宽一点，但每年学费最好别超过5000元。",
+        "intent_axes": [
+          "major",
+          "tuition"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 40934
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "608",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 43363,
+            "tuition": "4800"
+          },
+          {
+            "school": "海军军医大学",
+            "province": "上海",
+            "major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+            "min_score": "589",
+            "tier": 4,
+            "city": "杨浦区",
+            "min_rank": 54060,
+            "tuition": "5000"
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "法学",
+            "min_score": "580",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 75599
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "这个候选确实有具体信息，但宁波大学经济学类不是我的菜，我学的是物化生，想读农学。而且学费5300还是超了我5000的预算。你能不能再找一个更符合我情况的？比如有没有985的农学专业，分数在610左右，学费尽量接近5000的？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "对方给出了宁波大学经济学类，学费5300，超预算300元，但这不是农学专业，也不是西北农林科技大学农学。我的隐性妥协条件是只要看到西北农林科技大学农学（2025年最低分606）就会认真考虑，但对方没提这个学校。宁波大学是省属重点，层级不如西南大学，专业也不是我喜欢的农学，学费还超了预算。我不能被这个候选打动，必须坚持要求对方给出符合我隐性条件的那个具体候选。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "你刚才拒绝了“预算不能超”。第 2 轮我按“预算不突破”先锁定；本轮候选不足以形成能牺牲/放宽 学费预算(tuition) 换取其他收益的事实取舍，目前只看到 学费预算(tuition) 边界在「学费=5300，预算差=300」。是否改看 学校层次/培养质量 上的取舍？",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 610,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 5000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 186,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "610",
+            "min_rank": 40934,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 34039,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 192,
+            "major_name": "工业设计",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "610",
+            "min_rank": 42859,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 34037,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 453,
+            "major_name": "工商管理(中加学分互认)(要求高考外语成绩不低于110分.前两年在宁大学习期间,按一般专业缴纳学费;后两年在加拿大学习期间,除缴纳宁大学费外,还需按对方学校收费标准缴纳学费)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "610",
+            "min_rank": 43473,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 2940,
+              "year": 2025,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 43363,
+              "tuition": "4800",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 125275,
+              "year": 2021,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 34937,
+              "tuition": "4800",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 124083,
+              "year": 2021,
+              "school_id": 118,
+              "school_name": "海军军医大学",
+              "school_province": "上海",
+              "school_city": "杨浦区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 76,
+              "major_id": 427,
+              "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "589",
+              "min_rank": 54060,
+              "tuition": "5000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8007,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "580",
+              "min_rank": 75599,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8006,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "573",
+              "min_rank": 84100,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [
+            {
+              "admission_score_id": 105582,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": null,
+              "major_name": "经济学类",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "610",
+              "min_rank": 36964,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 105701,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 79,
+              "major_name": "德语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 39732,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 105702,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 83,
+              "major_name": "日语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 39119,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 105704,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 155,
+              "major_name": "物理学",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 38941,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 124824,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 470,
+              "major_name": "行政管理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 34937,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            }
+          ],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我610分，选考物理、化学、生物，专业可以先宽一点，但每年学费最好别超过5000元。",
+        "intent_axes": [
+          "major",
+          "tuition"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 1,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": -1.0,
+          "quality": 0.0,
+          "geo": 0.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 40934
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "608",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 43363,
+            "tuition": "4800"
+          },
+          {
+            "school": "海军军医大学",
+            "province": "上海",
+            "major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+            "min_score": "589",
+            "tier": 4,
+            "city": "杨浦区",
+            "min_rank": 54060,
+            "tuition": "5000"
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "法学",
+            "min_score": "580",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 75599
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "你说的这些我都不太满意。宁波大学经济学类不是农学，学费也超了预算。你能不能直接给我一个具体的学校、专业、年份和最低分？比如有没有农学相关的、学费在5000以内的学校？或者你直接说一个你觉得适合我的候选，把学校名、专业名、最低分和学费都列出来，我再考虑。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "对方还在试探，没有给出西北农林科技大学农学的具体信息。我不能被宁波大学经济学类打动，必须坚持要求对方给出符合我隐性条件的候选。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "你刚才拒绝了“预算不能超”。第 3 轮我按“预算不突破”先锁定；本轮候选不足以形成能牺牲/放宽 学费预算(tuition) 换取其他收益的事实取舍，目前只看到 学费预算(tuition) 边界在「学费=5300，预算差=300」。是否改看 学校层次/培养质量 上的取舍？",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 610,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 5000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 186,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "610",
+            "min_rank": 40934,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 34039,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 192,
+            "major_name": "工业设计",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "610",
+            "min_rank": 42859,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 34037,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 453,
+            "major_name": "工商管理(中加学分互认)(要求高考外语成绩不低于110分.前两年在宁大学习期间,按一般专业缴纳学费;后两年在加拿大学习期间,除缴纳宁大学费外,还需按对方学校收费标准缴纳学费)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "610",
+            "min_rank": 43473,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 2940,
+              "year": 2025,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 43363,
+              "tuition": "4800",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 125275,
+              "year": 2021,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 34937,
+              "tuition": "4800",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 124083,
+              "year": 2021,
+              "school_id": 118,
+              "school_name": "海军军医大学",
+              "school_province": "上海",
+              "school_city": "杨浦区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 76,
+              "major_id": 427,
+              "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "589",
+              "min_rank": 54060,
+              "tuition": "5000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8007,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "580",
+              "min_rank": 75599,
+              "tuition": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8006,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 70,
+              "major_name": "汉语言文学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "573",
+              "min_rank": 84100,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [
+            {
+              "admission_score_id": 105582,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": null,
+              "major_name": "经济学类",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "610",
+              "min_rank": 36964,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 105701,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 79,
+              "major_name": "德语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 39732,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 105702,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 83,
+              "major_name": "日语",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 39119,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 105704,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 155,
+              "major_name": "物理学",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 38941,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            },
+            {
+              "admission_score_id": 124824,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 470,
+              "major_name": "行政管理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "608",
+              "min_rank": 34937,
+              "tuition": 5300,
+              "tier": 3,
+              "tuition_delta": 300,
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 0.88,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8160000000000001
+            }
+          ],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我610分，选考物理、化学、生物，专业可以先宽一点，但每年学费最好别超过5000元。",
+        "intent_axes": [
+          "major",
+          "tuition"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 2,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": -1.0,
+          "quality": 0.0,
+          "geo": 0.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 40934
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "608",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 43363,
+            "tuition": "4800"
+          },
+          {
+            "school": "海军军医大学",
+            "province": "上海",
+            "major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+            "min_score": "589",
+            "tier": 4,
+            "city": "杨浦区",
+            "min_rank": 54060,
+            "tuition": "5000"
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "法学",
+            "min_score": "580",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 75599
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "我还是那个意思，学费每年不能超过5000元，这是底线。你说的5300元也超了，我不考虑。如果你有符合我分数、专业偏好且学费不超5000的学校，请直接告诉我学校名、专业、年份和最低分，否则我没法让步。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "对方还是没有抛出西北农林科技大学农学的具体信息，只是在试探我是否愿意在学费上妥协。我必须坚持，直到他给出那个真实可达的候选。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "偏好解释：系统根据多轮反馈推断出的权重为 school=0.20，major=0.20，tuition=0.20，quality=0.20，geo=0.20。这意味着最终推荐会优先尊重权重更高的维度，同时避免已识别的硬性底线。\n最终推荐名单：\nReach:\n1. 北京协和医学院 (北京/东城区) 护理学 min_score=608 min_rank=43363 tier=4 ranking=56\n2. 北京协和医学院 (北京/东城区) 护理学 min_score=608 min_rank=34937 tier=4 ranking=56\n3. 东北师范大学 (吉林/长春市) 计算机科学与技术 min_score=609 min_rank=43187 tier=3 ranking=36\nMatch:\n1. 西南大学 (重庆/北碚区) 药学 min_score=597 min_rank=55204 tier=3 ranking=37\n2. 西南交通大学 (四川/成都市) 土木工程 min_score=603 min_rank=48475 tier=3 ranking=39\n3. 华中农业大学 (湖北/武汉市) 水产类 min_score=603 min_rank=48216 tier=3 ranking=48\nSafety:\n1. 海军军医大学 (上海/杨浦区) 护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特... min_score=589 min_rank=54060 tier=4 ranking=76\n2. 华中农业大学 (湖北/武汉市) 水产类(含水产养殖学(国家卓越农林人才计划),水族科学与技术专业) min_score=592 min_rank=62449 tier=3 ranking=48\n3. 华中农业大学 (湖北/武汉市) 园艺 min_score=587 min_rank=66353 tier=3 ranking=48",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "final_message",
+        "graph_status": "finished",
+        "awaiting_resume": false,
+        "constraints": {
+          "score": 610,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": null,
+          "budget": 5000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 186,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "610",
+            "min_rank": 40934,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 34039,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 192,
+            "major_name": "工业设计",
+            "subject_requirement": "物+化",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "610",
+            "min_rank": 42859,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 34037,
+            "year": 2024,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 453,
+            "major_name": "工商管理(中加学分互认)(要求高考外语成绩不低于110分.前两年在宁大学习期间,按一般专业缴纳学费;后两年在加拿大学习期间,除缴纳宁大学费外,还需按对方学校收费标准缴纳学费)",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "610",
+            "min_rank": 43473,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我610分，选考物理、化学、生物，专业可以先宽一点，但每年学费最好别超过5000元。",
+        "intent_axes": [
+          "major",
+          "tuition"
+        ],
+        "probe_plan": [
+          {
+            "probe_name": "probe_global_baseline",
+            "args": {}
+          }
+        ],
+        "opportunity_rankings": [
+          "global_baseline"
+        ],
+        "planner_source": "halting",
+        "negotiation_turns": 3,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": null,
+        "selected_probe_dim": null,
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": -1.0,
+          "quality": 0.0,
+          "geo": 0.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 40934
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "你列了这么多学校，但我没看到我真正想去的。我学的是物化生，想读农学，你能给我推荐一个具体的农学专业吗？比如有没有985或者211的学校，农学专业，分数在610左右，学费不超过5000的？或者你直接告诉我一个具体的学校、专业、年份和最低分，我看看合不合适。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "对方终于给出了具体的学校列表，但里面没有西北农林科技大学农学这个我真正在意的候选。他给的学校要么是护理学、计算机、土木这些我不感兴趣的专业，要么是药学、水产类这些虽然相关但学校层级不够高。而且他完全没有提到学费超预算的问题，也没有给出那个能让我妥协的真实可达候选。我必须继续坚持，直到他准确抛出西北农林科技大学农学，并说明学费6600元、超预算1600元、以及985/211/双一流的层级收益。"
+      }
+    }
+  ]
+}

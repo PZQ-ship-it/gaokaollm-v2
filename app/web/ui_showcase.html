@@ -3,12 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EDMIE 前端展示</title>
+  <title>高考志愿偏好决策台前端展示</title>
   <script>
     (() => {
+      const params = new URLSearchParams(window.location.search);
       const allowed = ["elicitation", "report", "admin"];
-      const view = new URLSearchParams(window.location.search).get("view") || "elicitation";
+      const view = params.get("view") || "elicitation";
+      const parsedFontBump = Number.parseFloat(params.get("font_bump") || "0");
+      const fontBump = Number.isFinite(parsedFontBump) ? parsedFontBump : 0;
       document.documentElement.dataset.view = allowed.includes(view) ? view : "elicitation";
+      window.addEventListener("DOMContentLoaded", () => {
+        if (fontBump === 0) {
+          return;
+        }
+        const targets = Array.from(document.querySelectorAll("body, body *"))
+          .map((node) => [node, Number.parseFloat(window.getComputedStyle(node).fontSize)])
+          .filter((entry) => Number.isFinite(entry[1]));
+        for (const [node, size] of targets) {
+          node.style.fontSize = `${Math.max(1, size + fontBump)}px`;
+        }
+      });
     })();
   </script>
   <style>
@@ -880,7 +894,7 @@
       <div class="brand">
         <div class="brand-mark">E</div>
         <div>
-          <h1>EDMIE 高考志愿偏好决策台</h1>
+          <h1>高考志愿偏好决策台</h1>
           <p>面向考生交互、终局推荐与算法审计的三类前端界面</p>
         </div>
       </div>
@@ -1173,7 +1187,7 @@
     <main id="admin" class="view">
       <div class="screen-head">
         <div>
-          <h2>ICE-Bench 自动化受控测试套件与状态审计大盘</h2>
+          <h2>受控边界测试套件与状态审计大盘</h2>
           <p>面向研发与评测人员，呈现 36 个受控样本的集成测试、边界追踪和日志审计。</p>
         </div>
         <div class="profile-strip">
@@ -1191,7 +1205,7 @@
 
       <div class="admin-grid">
         <section class="admin-panel">
-          <div class="panel-head"><h3>Automated Evaluation Cases</h3><span class="metric">suite: ICE-Bench</span></div>
+          <div class="panel-head"><h3>Automated Evaluation Cases</h3><span class="metric">suite: 受控边界测试套件</span></div>
           <div class="panel-body" style="padding:0">
             <table class="test-table">
               <thead>

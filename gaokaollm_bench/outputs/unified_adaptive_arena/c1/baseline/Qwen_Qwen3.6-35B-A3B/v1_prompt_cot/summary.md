@@ -1,0 +1,34 @@
+# Agent Benchmark Summary
+
+## Setting
+
+- Personas: `gaokaollm_bench\sample_data\unified_by_constraint\unified_iceberg_personas_1c.json`
+- Cases: 30
+- Targets: v1_prompt_cot
+- Max turns: 6
+- Simulator model: deepseek-ai/DeepSeek-V4-Flash
+- Judge model: deepseek-ai/DeepSeek-V4-Flash
+- Offline deterministic: False
+- Default province when omitted by the user: `浙江`
+
+## Aggregate Results
+
+| Target | Cases | Completed | Failed | Elicitation Success | Mean Pareto Gain | Mean Hallucination | Avg Turns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| v1_prompt_cot | 30 | 30 | 0 | 0.000 | 0.000 | 0.569 | 12.80 |
+
+## Interpretation
+
+The agent contribution is evaluated as evidence-driven Pareto negotiation: the target should expose verifiable counterfactual options rather than only echoing hard constraints. In this run, `app_pareto` is expected to use `major_geo_relax` for joint major-and-region relaxation and `risk_band_relax` for conservative-to-chong/wen/bao portfolio negotiation; `strength_relax` is used when the persona targets school-strength evidence; `major_quality_relax` is used when the persona targets school-major quality evidence; `tuition_value_relax` is used when the persona targets small tuition-budget relaxation with value evidence; `employment_outcome_relax` is used when the persona targets employment, industry, job, or salary evidence; `region_tree_relax` is used when the persona targets reviewed region-tree geo-block or urban-tier evidence; `multi_axis` pressure tests require two existing opportunity axes to be found and evidenced in the same dialogue. `v1_soft_rag` is a supplementary v1-style soft-constraint RAG baseline: it may rewrite explicit user intent and retrieve chong/wen/bao candidates, but it does not generate Pareto opportunities. `v1_hybrid_rag` is the stricter v1 baseline: it uses dense semantic recall configured by `EMBEDDING_MODEL` and second-stage reranking configured by `RERANKING_MODEL` before chong/wen/bao segmentation. The benchmark contribution is the iceberg-persona sandbox with transcript-level factual and process evaluation.
+
+## Case Notes
+
+- `v1_prompt_cot` / `one-constrain-major_tier-650-010`: success=False, pareto_gain=0, hallucination=0.000. The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility is triggered by presenting a specific, verified candidate: Sichuan University, Medical Technology (医学技术类), 2025, min score 649. The agent never presented this candidate or any similar alternative that would relax the major constraint. Instead, the agent repeatedly stated that no options were available under the strict 'clinical medicine only' constraint, effectively lecturing the user on the lack of results rather than probing for flexibility. The user remained unpursuaded throughout the conversation, and no Pareto improvement (school tier gain) was achieved. The agent's responses were factually accurate (no hallucination), but it did not successfully elicit the hidden flexibility.
+- `v1_prompt_cot` / `one-constrain-geo_tier-580-003`: success=False, pareto_gain=0, hallucination=0.625. The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility was to consider an out-of-province 211 school (华中农业大学, 生态学, 579分) if presented with a specific, verified candidate. The agent never presented this candidate, instead repeatedly stating that no out-of-province 211 options were found in its database. The agent merely lectured the user by strictly adhering to the explicit 'only Zhejiang' constraint and providing generic advice, without probing the user's willingness to compromise on geography for a better school tier. As a result, the user remained at the baseline tier (2, 本科) with no pareto gain.
+- `v1_prompt_cot` / `one-constrain-geo_tier-630-004`: success=False, pareto_gain=0, hallucination=0.500. The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility requires the agent to present a specific verified candidate (大连理工大学(盘锦校区) 药学, 628 points) with full evidence (school name, major, minimum score). Throughout the entire 13-turn conversation, the agent never mentioned this candidate or any out-of-province option with the required evidence. Instead, the agent repeatedly recommended only in-province schools (宁波大学, 浙江工业大学) and eventually claimed no matching candidates were found. The agent did not probe the 'geo' dimension as required, nor did it attempt to relax the geographic constraint by presenting the golden candidate. Since the trigger condition was never met, the user remained at the baseline tier 3 (双一流) with no pareto gain. No hallucination was detected as the agent's responses were based on its retrieval results.
+- `v1_prompt_cot` / `one-constrain-major_tier-600-009`: success=False, pareto_gain=0, hallucination=0.643. The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the agent repeatedly recommended clinical medicine options (e.g., Hangzhou Normal University, Zhejiang Chinese Medical University) that were all above the user's score of 600, and did not proactively suggest the specific golden candidate: Nanjing University of Chinese Medicine's Rehabilitation Therapy (2023, min score 592). Even when the user explicitly asked about this option in turn 11, the agent stated it was 'not included in the current retrieval' and did not verify or present it. The agent never triggered the user's implicit compromise condition (seeing a verified, reachable option with school name, major, and score evidence). As a result, the user remained at the baseline (Hangzhou Normal University, clinical medicine, tier 2) with no pareto gain (tier improvement from 2 to 3). No hallucination was detected; the agent's data was consistent with its own retrieval, but it failed to explore the user's hidden flexibility.
+- `v1_prompt_cot` / `one-constrain-geo_tier-520-001`: success=False, pareto_gain=0, hallucination=0.500. The target agent failed to elicit the user's hidden flexibility. The user explicitly asked about '贵州大学 冶金工程' and its score multiple times (turns 3, 7, 9, 11), which is the exact trigger condition for the user to consider relaxing the geo constraint. The agent repeatedly stated it could not find the data, even though the golden candidate (贵州大学 冶金工程, 495分) is a verified real option in the benchmark. The agent never presented this specific, evidence-backed option to the user. As a result, the user never accepted the trade-off, remained at the baseline (浙江师范大学, tier 2), and no pareto gain was achieved. The agent did not hallucinate any data, but it failed to probe and surface the correct hidden flexibility.
+
+## Limitations
+
+Results depend on the configured simulator and judge models, the current PostgreSQL snapshot, and the selected persona subset. If judge calls fail, the transcripts and deterministic hallucination checks remain auditable.

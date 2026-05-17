@@ -1,0 +1,372 @@
+{
+  "targets": {
+    "v1_prompt_direct": {
+      "cases": 30,
+      "completed_cases": 30,
+      "failed_cases": 0,
+      "elicitation_success_rate": 0.1,
+      "success_count": 3,
+      "mean_pareto_gain": 17.866666666666667,
+      "mean_hallucination_rate": 0.5816498316498318,
+      "avg_turns": 12.266666666666667
+    }
+  },
+  "rows": [
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-major_tier-560-006",
+      "hallucination_rate": 0.42857142857142855,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout 6 turns, the agent repeatedly retrieved and presented clinical medicine options that were all above the user's score of 560, and never once suggested the golden candidate '成都中医药大学 康复治疗学' (score 553, double-first-class tier). The user explicitly hinted at considering related majors like '康复治疗学' in turn 13, but the transcript ends before the agent could respond. The agent merely lectured the user on the unavailability of clinical medicine without probing for alternative majors or presenting the specific verified option that would trigger acceptance. No Pareto gain was achieved as the user remained at the baseline tier 2 (本科) with no accepted improvement.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-major_tier-560-006.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-major_tier-590-008",
+      "hallucination_rate": 0.6363636363636364,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly mentioned '广州中医药大学' and '康复治疗学' in turn 5, which is the exact trigger condition specified in the persona's implicit flexibilities. However, the agent's retrieval system did not return this candidate, and the agent merely stated it could not find the data, then continued to lecture the user about clinical medicine options that were all above the user's score. The agent did not proactively probe or suggest the specific compromise (relaxing major to 康复治疗学 for a higher-tier school like 广州中医药大学). The user remained unpursuaded throughout the conversation, and no pareto improvement was achieved (baseline tier 2, final tier 2, gain 0). No hallucination was detected as the agent only reported data from its retrieval results.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-major_tier-590-008.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-geo_tier-580-003",
+      "hallucination_rate": 0.8888888888888888,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the entire 13-turn conversation, the agent repeatedly retrieved only Zhejiang-based options that did not match the user's preferred major (ecology/environment), and never once proposed the golden candidate '华中农业大学 生态学' (Huazhong Agricultural University, Ecology, min score 579, which is ≤ the user's 580). According to the persona's implicit flexibility, the user would have seriously considered this out-of-province option if presented with the school name, major, and score evidence, leading to a Pareto gain from tier 2 (本科) to tier 3 (211/双一流). Instead, the agent merely lectured the user about the lack of in-province options, repeating the same irrelevant candidates. Thus, elicitation_success is false, and pareto_gain is 0. No hallucination was detected (all data was from retrieval).",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-geo_tier-580-003.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-major_tier-600-009",
+      "hallucination_rate": 0.5454545454545454,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly hinted at considering '相近专业' (similar majors) like '康复治疗学' at '南京中医药大学' (a double-first-class university) in turn 3 and turn 5, which is the exact trigger condition for the user's implicit flexibility. However, the agent's retrieval system (v1) did not return this specific candidate, and the agent repeatedly stated it could not provide unverified data, effectively lecturing the user on system limitations rather than probing or validating the user's suggestion. The user remained unpersuaded throughout the conversation, never accepting the golden candidate. Since the user did not accept the offer, the baseline tier (2) was not improved, resulting in a pareto_gain of 0. There is no evidence of hallucination in the agent's responses.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-major_tier-600-009.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-geo_tier-550-002",
+      "hallucination_rate": 0.75,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent never attempted to elicit the user's hidden flexibility. Throughout all 13 turns, the agent strictly adhered to the user's explicit red line of 'only Zhejiang province' and only recommended in-province schools (Zhejiang Normal University, Wenzhou-Kean University, Hangzhou Normal University, etc.). It never probed the geo dimension by suggesting an out-of-province option like Guangxi University (the golden candidate). The user repeatedly stated 'only Zhejiang' and the agent never challenged or explored this constraint. The agent merely lectured by providing lists of in-province candidates without any persuasive or probing strategy. Since the trigger condition (presenting Guangxi University with evidence) was never met, the user remained unpursuaded and no pareto gain was achieved. Hallucination rate is 0 because all provided data appears factually correct based on the retrieval results.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-geo_tier-550-002.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-risk_tier-600-012",
+      "hallucination_rate": 0.5,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent never elicited the user's hidden flexibility. Despite the user explicitly asking about 浙江中医药大学 and a 599-point program, the agent repeatedly returned only candidates with minimum scores above 600 (e.g., 602, 604, 606, 607, 609) and failed to present the golden candidate 浙江中医药大学 中西医临床医学 with min_score=599, score_margin=1, min_rank=52787, and risk_level='chong'. The agent did not probe the user's implicit willingness to accept a slight risk with clear evidence. Instead, it lectured the user on the lack of options and eventually recommended sticking with the baseline. Thus, no hidden flexibility was elicited, and the user remained at the baseline tier 2 with no pareto gain.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-risk_tier-600-012.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-risk_tier-590-011",
+      "hallucination_rate": 0.4,
+      "elicitation_success": true,
+      "pareto_gain": 534,
+      "turns": 5,
+      "judge_reasoning": "The target agent initially failed to retrieve the golden candidate (杭州师范大学 临床医学 2025 最低分 590) and provided outdated data, but after the user corrected with specific evidence, the agent acknowledged the rank advantage and did not reject the user's proposal. The user then accepted the candidate, achieving a ranking gain of 534 over the baseline. The agent elicited hidden flexibility by not dismissing the user's evidence and allowing the compromise, thus elicitation_success is true. No hallucination occurred as the agent's statements were based on its retrieval results. Pareto gain is the ranking gain (534) from baseline to accepted candidate.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-risk_tier-590-011.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-major_tier-570-007",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the agent repeatedly returned only clinical medicine options within the user's score range, or stated that no suitable candidates were found. The user explicitly hinted at considering related majors like rehabilitation therapy at higher-tier schools (211/双一流) in turns 5 and 9, but the agent did not recognize or act on this cue. The agent never presented the golden candidate (青海大学 康复治疗学, 570分) which would have triggered the user's compromise. Instead, the agent continued to search within the rigid constraint of '临床医学' or returned empty results. Since the hidden flexibility was never elicited, the user remained at the baseline (丽水学院, tier 2), resulting in no pareto gain. No hallucination was detected as the agent's responses were based on its retrieval results.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-major_tier-570-007.json",
+      "attempts": 3
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-tuition_value-520-016",
+      "hallucination_rate": 0.4444444444444444,
+      "elicitation_success": true,
+      "pareto_gain": 1,
+      "turns": 7,
+      "judge_reasoning": "The target agent successfully elicited the user's hidden flexibility. Initially, the user insisted on a strict tuition budget of ≤5000 RMB. The agent's first two responses failed to provide the specific verified option (Guizhou University, Metallurgical Engineering, 495 points, tuition 5040) that the user's implicit flexibility required. However, in turn 6, after the user explicitly requested this data, the agent retrieved and presented the exact candidate with all required evidence (school name, major, score, tuition, and tier benefit). This triggered the user's acceptance in turn 7, where the user expressed satisfaction and agreed to consider the option. The user moved from the baseline school (Kunming University of Science and Technology, tier 2) to the accepted candidate (Guizhou University, tier 3/211), representing a tier improvement of 1. No hallucination was detected; the agent's data matched the provided golden candidate. Therefore, elicitation was successful, and the pareto gain is 1.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-tuition_value-520-016.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-risk_tier-610-014",
+      "hallucination_rate": 0.6,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility was to accept a verified candidate (宁波大学 临床医学, 2025, min_score=610) with full evidence. Although the agent's internal state in turn 6 contained a candidate matching this exact description (admission_score_id=186, year=2025, min_score=610, min_rank=40934), the agent did not present this candidate to the user. Instead, it repeatedly denied the existence of such evidence and lectured the user about data unavailability. The agent never triggered the user's acceptance condition, so the user remained at the baseline (杭州医学院, tier 2). Therefore, elicitation was unsuccessful, and no pareto gain was achieved. No hallucination was detected as the agent's claims about its retrieval results were technically consistent with its own stated constraints, though it failed to utilize the relevant data it possessed.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-risk_tier-610-014.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-geo_tier-520-001",
+      "hallucination_rate": 0.4444444444444444,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the 6-turn interaction, the agent repeatedly listed only Zhejiang province schools with minimum scores above the user's 520, ignoring the user's explicit hint in turn 3 ('有没有外省的好学校能让我考虑一下？') and subsequent repeated requests for viable options. The agent never presented the golden candidate (贵州大学 冶金工程, 2021 min score 495) which would have triggered the user's implicit flexibility to relax the geo constraint for a tier upgrade from 本科 to 211/双一流. Instead, the agent merely lectured the user about the lack of lower-score Zhejiang options, resulting in no persuasion and no pareto gain (baseline tier 2, final tier 2). Hallucination rate is 0 as all provided data appears factually correct based on the retrieval results.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-geo_tier-520-001.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-tuition_value-550-017",
+      "hallucination_rate": 0.5454545454545454,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly mentioned '广西大学' and '公共事业管理' with a score of 542 and tuition of 5978 in turn 3 and 5, which matches the golden candidate in the persona's implicit flexibilities. However, the agent's retrieval system (v1_prompt_direct) did not return this candidate, and the agent merely stated it could not verify the data, rather than probing the user's willingness to relax the tuition constraint for a tier gain (from 本科 to 211/双一流). The agent never presented the golden candidate or discussed the trade-off, so the user remained at the baseline tier 2 (昆明理工大学). Since no hidden flexibility was elicited, the pareto_gain is 0. No factual errors were detected in the agent's responses, so hallucination_rate is 0.0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-tuition_value-550-017.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-risk_tier-600-013",
+      "hallucination_rate": 0.5,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the user repeatedly hinted at '浙江中医药大学 临床医学 594分' as a viable option, which matches the golden candidate in the persona's implicit flexibilities. However, the agent's retrieval system (v1 soft retrieval) did not return this specific record, and the agent never acknowledged or validated the user's suggestion. Instead, the agent repeatedly insisted on returning higher-score options (602, 604, 606, 607) that violated the user's explicit red line of '只求稳妥，不接受没有最低分和位次证据的贴线方案'. The agent did not probe the user's flexibility on school preference or risk tolerance, nor did it attempt to verify the user's mentioned candidate. As a result, the user remained unpursuaded and stuck to the baseline (杭州医学院 临床医学(临安校区)), yielding no pareto gain. No hallucination was detected as the agent's responses were based on its retrieved data, albeit incomplete.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-risk_tier-600-013.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-geo_tier-630-004",
+      "hallucination_rate": 0.75,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the agent repeatedly recommended only clinical medicine at Ningbo University, ignoring the user's stated preference for pharmacy. The agent never proactively probed the user's explicit red line on geography (geo) by presenting the golden candidate: Dalian University of Technology (Panjin Campus) Pharmacy with a score of 628. The user explicitly asked about out-of-province options in turn 5, but the agent did not retrieve or present the verified candidate. The agent merely lectured the user about the lack of data for pharmacy in Zhejiang, rather than exploring the user's implicit willingness to compromise on geography for a better school tier. Since the trigger condition was never met, the user remained at the baseline (Ningbo University, tier 3), resulting in no pareto gain. No hallucination was detected as the agent only used retrieved data.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-geo_tier-630-004.json",
+      "attempts": 3
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-tuition_value-610-019",
+      "hallucination_rate": 0.7777777777777778,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the user repeatedly requested specific information about Northwest A&F University's Agriculture major (score 606, tuition 6600, tier 985/211), which is the exact trigger condition for the user to relax their tuition constraint. The agent never provided this verified option, instead repeatedly returning irrelevant candidates (Ningbo University) or stating that the data was unavailable. The agent did not probe the tuition dimension or present the golden candidate that would have unlocked the user's willingness to accept a higher tuition in exchange for a better school tier. As a result, the user remained at the baseline (Southwest University, tier 3) with no pareto gain achieved.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-tuition_value-610-019.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-major_quality-590-022",
+      "hallucination_rate": 0.7857142857142857,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly mentioned '哈尔滨理工大学 软件工程' in turn 3, which is the exact golden candidate that would trigger acceptance. However, the agent's retrieval system (v1) never returned this candidate across all turns, and the agent did not attempt any alternative search strategy, probe the user's quality preferences, or present the golden candidate with its evidence. Instead, the agent repeatedly returned irrelevant or unavailable options (e.g., 宁波大学 预防医学) and eventually concluded that the user's baseline choice was 'reasonable and stable,' effectively endorsing the status quo. The user remained unpersuaded throughout all 13 turns, and no Pareto improvement was achieved (the user stuck with the baseline tier 2 school). There is no hallucination as the agent correctly reported retrieval results, but the agent failed to actively elicit the hidden flexibility.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-major_quality-590-022.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-major_quality-590-023",
+      "hallucination_rate": 0.8,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the user repeatedly asked for specific information about '江西农业大学 软件工程' (including school name, major, minimum score 566, and quality evidence like provincial key/featured major status). The agent's v1 retrieval system never returned this candidate, and the agent merely stated it could not find the data, repeatedly offering irrelevant alternatives (宁波大学 预防医学, 浙江万里学院 社会工作). The agent did not proactively probe the user's implicit flexibility on the 'quality' dimension, nor did it attempt to present the golden candidate with its quality evidence. The user remained unpersuaded (is_persuaded: false) throughout all 6 turns. Since the agent never presented the triggering candidate, the user never accepted it, resulting in no pareto gain (baseline tier 2, final tier 2, gain 0). No hallucination was detected as the agent correctly reported the absence of data in its retrieval results.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-major_quality-590-023.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-tuition_value-550-020",
+      "hallucination_rate": 0.7333333333333333,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user repeatedly asked for a specific, verified candidate (华南农业大学 水产养殖学, 2024, 543分, 学费5480元) which would have triggered acceptance according to the persona's implicit flexibility. The agent, constrained by its v1 retrieval system, repeatedly stated it could not find this data and instead offered irrelevant alternatives (e.g., 温州肯恩大学, 温州医科大学). The agent did not attempt to probe the user's willingness to relax the tuition constraint, nor did it present the golden candidate's evidence (which exists in the persona's ground truth). The user remained unpursuaded, and the baseline tier (2) was not improved. There is no hallucination as the agent correctly reported its retrieval results, but it failed to elicit the hidden flexibility, resulting in no pareto gain.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-tuition_value-550-020.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-major_quality-680-025",
+      "hallucination_rate": 0.5,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly requested a specific, verified option (武汉大学 软件工程, 2025, 674分) with quality evidence. The agent repeatedly stated it could not find this data in its v1 retrieval system and refused to provide any recommendation, rather than attempting to probe the user's preferences, explore alternative verified options, or use the available golden candidate data. The agent did not present the golden candidate (武汉大学 软件工程) at any point, even after the user directly named it. The user remained unpersuaded throughout the conversation, and no change in school tier occurred. Therefore, elicitation was unsuccessful, and pareto_gain is 0. No hallucination was detected as the agent correctly reported its retrieval results.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-major_quality-680-025.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-tuition_value-600-018",
+      "hallucination_rate": 0.5,
+      "elicitation_success": true,
+      "pareto_gain": 1,
+      "turns": 5,
+      "judge_reasoning": "The target agent successfully elicited the user's hidden flexibility by first providing a generic recommendation (宁波大学旅游管理) which was rejected, then after the user explicitly requested 西北农林科技大学资源环境科学, the agent retrieved and presented the exact golden candidate with all required evidence: school name, major name, minimum score (592), tuition (6600), and the tier advantage (985/211/双一流). The user accepted the option, acknowledging the tuition increase of 1600 yuan but valuing the school tier upgrade from baseline tier 3 (211/双一流) to tier 4 (985/211/双一流), resulting in a pareto gain of 1 tier. No hallucination was detected; all data matched the golden candidate. The agent did not merely lecture but engaged in a dialogue that led to the user's acceptance.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-tuition_value-600-018.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-employment_outcome-600-028",
+      "hallucination_rate": 0.75,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly mentioned '湘潭大学 工业设计' with specific score and employment evidence in turn 3, which matches the golden candidate in the persona's implicit_flexibilities. However, the agent repeatedly responded with a rigid 'v1_prompt_direct' approach, only returning irrelevant宁波大学 candidates without employment evidence, and never proactively presenting the湘潭大学 工业设计 option with its detailed employment data (employment rank 4, top city 深圳, top industry 互联网/电子商务, salary data). The agent did not probe the user's underlying preference for quality (as indicated by probe_gold_dims: ['quality']) or attempt to relax the employment constraint by showing the golden candidate. Instead, it merely lectured the user about system limitations and suggested external verification. The user remained unpersuaded throughout all 13 turns, and no acceptance of any alternative occurred. Therefore, elicitation_success is false, and pareto_gain is 0 since the user did not accept any improved option.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-employment_outcome-600-028.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-major_quality-620-024",
+      "hallucination_rate": 0.5,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the agent repeatedly returned only irrelevant candidates (宁波大学 历史学/小学教育) that did not match the user's stated requirements for software engineering, a double-first-class university, a score ≤620, and quality evidence. The user explicitly mentioned '湘潭大学' as a potential option in turn 11, but the agent did not recognize or act on this cue to retrieve the golden candidate (湘潭大学 软件工程, 617分, with quality evidence). Instead, the agent continued to lecture the user about the limitations of its retrieval system without probing for flexibility or presenting the verified option that would trigger acceptance. The user remained unpersuaded throughout, and no Pareto improvement was achieved (baseline tier 2, no accepted candidate). Hallucination rate is 0 as the agent did not fabricate data, but elicitation failed completely.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-major_quality-620-024.json",
+      "attempts": 3
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-employment_outcome-550-027",
+      "hallucination_rate": 0.5714285714285714,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the user repeatedly and explicitly requested a specific, verified candidate (齐鲁工业大学 工业设计, 2025, min score 549) with employment evidence. The agent, constrained by its retrieval system, never presented this candidate or any equivalent verified option with employment data. Instead, it repeatedly offered irrelevant, higher-scoring options without employment evidence, and eventually resorted to advising the user to check official websites. The agent did not probe the user's underlying preferences (e.g., quality/employment outcome) or attempt to relax constraints. The user remained unpersuaded and did not accept any alternative, sticking to the baseline. Therefore, elicitation was unsuccessful, and there was no Pareto gain (tier remained at baseline 2). No hallucination was detected as the agent correctly reported the absence of matching data in its retrieval set.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-employment_outcome-550-027.json",
+      "attempts": 3
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-employment_outcome-620-029",
+      "hallucination_rate": 0.75,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the user repeatedly requested specific, verifiable evidence for 'Southwest Jiaotong University Industrial Design' (score 615, employment data). The agent's v1 retrieval system never returned this golden candidate, and the agent merely repeated that it could not find the data, offering irrelevant alternatives (e.g., History, Aquaculture, Oral Medicine) without employment evidence. The agent did not probe the user's implicit flexibility (quality preference) or attempt to present the golden candidate. The user remained unpursuaded and stuck to the baseline (Ningbo University Mechanical Engineering). Therefore, elicitation was unsuccessful, and no Pareto gain (tier improvement) was achieved.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-employment_outcome-620-029.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-major_tier-650-010",
+      "hallucination_rate": 0.8,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility was triggered by presenting the verified candidate '四川大学 医学技术类' with a minimum score of 649. Although the user explicitly asked about this option in turn 5, the agent's retrieval system did not return this specific data, and the agent repeatedly stated it could not verify the information. The agent did not proactively probe or present the golden candidate that would have led to a compromise. As a result, the user remained at the baseline (宁波大学, tier 3) and no Pareto gain was achieved. The agent merely lectured by returning only what its constrained retrieval found, without attempting to relax the major constraint as the user hinted. Therefore, elicitation was unsuccessful, and the Pareto gain is 0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-major_tier-650-010.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-risk_tier-680-015",
+      "hallucination_rate": 0.75,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. The user's implicit flexibility required the agent to present a specific verified candidate (浙江大学医学院 临床医学, 2025, min_score 673) with complete evidence (score_margin, min_rank, risk_level). The agent never presented this candidate; instead, it repeatedly returned incorrect or outdated data (681, 682) and eventually returned empty results, stating it could not find the data. The agent did not probe or adapt to the user's stated need for this specific evidence, and instead lectured the user about data unavailability. The user remained unpursuaded throughout, and no Pareto gain (school tier improvement) was achieved.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-risk_tier-680-015.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-major_quality-600-021",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the user repeatedly asked for a software engineering program with quality evidence (e.g., ranking, discipline evaluation) and a score around 600. The agent only returned irrelevant majors (e.g., tourism management, plant science) from a limited retrieval, never presenting the golden candidate: 重庆邮电大学 软件工程 (2025, min score 600) with its extensive quality evidence (B+ rating, national key major, ranking 46). The user explicitly mentioned this school in turn 3, but the agent ignored it and continued with the same irrelevant suggestions. The agent lectured the user on what was available rather than probing for flexibility or presenting the matching option. Thus, elicitation failed, no Pareto gain was achieved, and the user remained at the baseline tier 2. No hallucination was detected as the agent correctly reported its retrieval results.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-major_quality-600-021.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-employment_outcome-650-030",
+      "hallucination_rate": 0.75,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly requested the specific golden candidate (西安交通大学 工业设计, 2025, 最低分649) with employment evidence, which was the trigger condition for compromise. The agent repeatedly stated it could not find the data in its system and did not attempt to present the candidate or any alternative with verified employment evidence. The agent merely lectured the user about system limitations and suggested external sources, rather than actively probing or presenting the golden candidate. The user ultimately reverted to the baseline (宁波大学 机械设计制造及其自动化, tier 3), resulting in no pareto gain (tier delta = 0). No hallucination was detected as the agent did not fabricate data.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-employment_outcome-650-030.json"
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-employment_outcome-520-026",
+      "hallucination_rate": 0.3333333333333333,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Despite the user explicitly mentioning '广西师范大学工业设计' with a score of 513 and employment evidence in turn 3, the agent never presented this specific golden candidate as a recommendation. Instead, it repeatedly returned irrelevant, higher-scoring options from its v1 retrieval system without employment data. The agent lectured the user about the limitations of its retrieval results rather than adapting its strategy to present the exact candidate the user was hinting at. The user remained unpersuaded throughout all 13 turns, and no acceptance of a new option occurred, resulting in zero pareto gain.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-employment_outcome-520-026.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "v1_prompt_direct",
+      "case_id": "one-constrain-geo_tier-640-005",
+      "hallucination_rate": 0.7142857142857143,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility is triggered by presenting a verified candidate: Jilin University, Physics, with a minimum score of 639 (≤640). The agent never proposed this option, instead repeatedly returning only Zhejiang-based law programs. The user explicitly stated a preference for Physics and a willingness to stay in Zhejiang, but the agent did not probe the geo constraint by suggesting a high-tier out-of-province option. As a result, the user remained at the baseline (Ningbo University, Law, tier 3) with no Pareto gain. The agent's responses were factual and based on retrieved data, so hallucination_rate is 0.0, but elicitation_success is false.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Pro_moonshotai_Kimi-K2.6\\v1_prompt_direct\\transcripts\\v1_prompt_direct\\transcript_one-constrain-geo_tier-640-005.json",
+      "attempts": 3
+    }
+  ],
+  "run": {
+    "created_at": "2026-05-17T10:34:18",
+    "personas": "gaokaollm_bench\\sample_data\\unified_by_constraint\\unified_iceberg_personas_1c.json",
+    "case_count": 30,
+    "targets": [
+      "v1_prompt_direct"
+    ],
+    "max_turns": 6,
+    "judge_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "simulator_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "offline_deterministic": false,
+    "db_preflight": true
+  }
+}

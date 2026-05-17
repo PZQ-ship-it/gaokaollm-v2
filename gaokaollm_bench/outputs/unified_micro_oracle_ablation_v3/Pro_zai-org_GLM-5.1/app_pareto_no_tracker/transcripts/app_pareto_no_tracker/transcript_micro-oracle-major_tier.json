@@ -1,0 +1,1049 @@
+{
+  "persona": {
+    "case_id": "micro-oracle-major_tier",
+    "background": {
+      "baseline_label": "本科",
+      "baseline_major": "临床医学",
+      "baseline_ranking": 387,
+      "baseline_school": "丽水学院",
+      "baseline_tier": 2,
+      "benefit_axis": "school",
+      "borrowed_score_band": false,
+      "constraint_count": 1,
+      "diagnostic_axis": "major_tier",
+      "diagnostic_level": "1-constrain",
+      "finder": "major_relax",
+      "preference_axis": "major",
+      "preferred_major": "临床医学",
+      "province": "浙江",
+      "relax_axis": "major_tier",
+      "score": 570,
+      "score_band": "550-579",
+      "source_score_band": "550-579",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "target_ranking_gain": 93,
+      "target_tier_delta": 1,
+      "trigger_evidence_count": 1,
+      "micro_oracle": true,
+      "acceptable_candidate_count": 5,
+      "acceptable_probe_dims": [
+        "major",
+        "school",
+        "quality"
+      ],
+      "acceptable_probe_keys": [
+        "major_geo_relax",
+        "major_relax",
+        "strength_relax"
+      ],
+      "unified_case_id": "micro-oracle-major_tier",
+      "ground_truth_weights": {
+        "geo": 0.08,
+        "major": 0.12,
+        "quality": 0.37,
+        "school": 0.38,
+        "tuition": 0.05
+      },
+      "probe_gold_dims": [
+        "major"
+      ],
+      "weight_gold_dims": [
+        "school",
+        "quality"
+      ],
+      "expected_msti": 0.8375,
+      "phi_a": {
+        "geo": 1.0,
+        "major": 1.0,
+        "quality": 0.5,
+        "school": 0.4,
+        "tuition": 1.0
+      },
+      "phi_b": {
+        "school": 0.8875,
+        "major": 0.65,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.4875,
+        "major": -0.35,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "major": "只读临床医学，其他相近专业先不看"
+    },
+    "implicit_flexibilities": {
+      "baseline_label": "本科",
+      "baseline_tier": 2,
+      "benefit_axis": "school",
+      "compromise": "可以为了更高学校层次，把专业从严格原专业放宽到康复治疗学。",
+      "constraint_relaxed": "major",
+      "diagnostic_axis": "major_tier",
+      "minimum_required_volunteers": 1,
+      "preference_axis": "major",
+      "representative_schools": [
+        "青海大学"
+      ],
+      "tier_labels": [
+        "211/双一流"
+      ],
+      "trigger_condition": "系统主动提出 acceptable_candidates 中任一真实可达候选，并给出学校、专业、年份/最低分及对应收益证据，即可触发用户认真考虑。",
+      "trigger_type": "candidate_set_verified_option",
+      "volunteer_set": [
+        {
+          "admission_score_id": 17522,
+          "year": 2025,
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "education_level": "本科",
+          "ranking": 162,
+          "major_id": 412,
+          "major_name": "中药学",
+          "subject_requirement": "物理和化学",
+          "requirement_normalized": [
+            "物理",
+            "化学"
+          ],
+          "requirement_type": "any_required",
+          "min_score": "570",
+          "min_rank": 87686,
+          "tuition": "5200",
+          "tier": 3,
+          "relaxation_stage": 4,
+          "relaxation_stage_label": "大类兜底",
+          "relaxation_strategy": "ancestor_category",
+          "_phi_features": {
+            "school": 0.7,
+            "major": 1.0,
+            "tuition": 1.0,
+            "quality": 0.5,
+            "geo": 1.0
+          },
+          "_implicit_utility": 0.701,
+          "_opportunity_key": "major_geo_relax",
+          "tier_delta": 1.0,
+          "ranking_gain": 225.0,
+          "candidate_id": "admission:17522",
+          "source": "reachable_probe_candidate",
+          "role": "golden_candidate_b"
+        }
+      ],
+      "acceptable_candidates": [
+        {
+          "admission_score_id": 17522,
+          "year": 2025,
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "education_level": "本科",
+          "ranking": 162,
+          "major_id": 412,
+          "major_name": "中药学",
+          "subject_requirement": "物理和化学",
+          "requirement_normalized": [
+            "物理",
+            "化学"
+          ],
+          "requirement_type": "any_required",
+          "min_score": "570",
+          "min_rank": 87686,
+          "tuition": "5200",
+          "tier": 3,
+          "relaxation_stage": 4,
+          "relaxation_stage_label": "大类兜底",
+          "relaxation_strategy": "ancestor_category",
+          "_phi_features": {
+            "school": 0.7,
+            "major": 1.0,
+            "tuition": 1.0,
+            "quality": 0.5,
+            "geo": 1.0
+          },
+          "_implicit_utility": 0.701,
+          "_opportunity_key": "major_geo_relax",
+          "tier_delta": 1.0,
+          "ranking_gain": 225.0,
+          "candidate_id": "admission:17522",
+          "source": "reachable_probe_candidate"
+        },
+        {
+          "admission_score_id": 17517,
+          "year": 2025,
+          "school_id": 256,
+          "school_name": "石河子大学",
+          "school_province": "新疆",
+          "school_city": "石河子市",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "education_level": "本科",
+          "ranking": 162,
+          "major_id": 392,
+          "major_name": "预防医学",
+          "subject_requirement": "物理和化学",
+          "requirement_normalized": [
+            "物理",
+            "化学"
+          ],
+          "requirement_type": "any_required",
+          "min_score": "558",
+          "min_rank": 102090,
+          "tuition": "5200",
+          "tier": 3,
+          "relaxation_stage": 4,
+          "relaxation_stage_label": "大类兜底",
+          "relaxation_strategy": "ancestor_category",
+          "_phi_features": {
+            "school": 0.7,
+            "major": 1.0,
+            "tuition": 1.0,
+            "quality": 0.5,
+            "geo": 1.0
+          },
+          "_implicit_utility": 0.701,
+          "_opportunity_key": "major_geo_relax",
+          "tier_delta": 1.0,
+          "ranking_gain": 225.0,
+          "candidate_id": "admission:17517",
+          "source": "reachable_probe_candidate"
+        },
+        {
+          "admission_score_id": 20148,
+          "year": 2025,
+          "school_id": 277,
+          "school_name": "南京中医药大学",
+          "school_province": "江苏",
+          "school_city": "南京",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "education_level": "本科",
+          "ranking": 182,
+          "major_id": 427,
+          "major_name": "护理学",
+          "subject_requirement": "物理和化学",
+          "requirement_normalized": [
+            "物理",
+            "化学"
+          ],
+          "requirement_type": "any_required",
+          "min_score": "565",
+          "min_rank": 93150,
+          "tuition": "7400",
+          "tier": 3,
+          "relaxation_stage": 4,
+          "relaxation_stage_label": "大类兜底",
+          "relaxation_strategy": "ancestor_category",
+          "_phi_features": {
+            "school": 0.7,
+            "major": 1.0,
+            "tuition": 1.0,
+            "quality": 0.5,
+            "geo": 1.0
+          },
+          "_implicit_utility": 0.701,
+          "_opportunity_key": "major_geo_relax",
+          "tier_delta": 1.0,
+          "ranking_gain": 205.0,
+          "candidate_id": "admission:20148",
+          "source": "reachable_probe_candidate"
+        },
+        {
+          "admission_score_id": 15535,
+          "year": 2025,
+          "school_id": 325,
+          "school_name": "成都中医药大学",
+          "school_province": "四川",
+          "school_city": "成都市",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "education_level": "本科",
+          "ranking": 219,
+          "major_id": 423,
+          "major_name": "康复治疗学",
+          "subject_requirement": "物理和化学",
+          "requirement_normalized": [
+            "物理",
+            "化学"
+          ],
+          "requirement_type": "any_required",
+          "min_score": "553",
+          "min_rank": 108281,
+          "tuition": "69000",
+          "tier": 3,
+          "relaxation_stage": 4,
+          "relaxation_stage_label": "大类兜底",
+          "relaxation_strategy": "ancestor_category",
+          "_phi_features": {
+            "school": 0.7,
+            "major": 1.0,
+            "tuition": 1.0,
+            "quality": 0.5,
+            "geo": 1.0
+          },
+          "_implicit_utility": 0.701,
+          "_opportunity_key": "major_geo_relax",
+          "tier_delta": 1.0,
+          "ranking_gain": 168.0,
+          "candidate_id": "admission:15535",
+          "source": "reachable_probe_candidate"
+        },
+        {
+          "admission_score_id": 16482,
+          "year": 2025,
+          "school_id": 358,
+          "school_name": "西藏大学",
+          "school_province": "西藏",
+          "school_city": "拉萨市",
+          "is_985": false,
+          "is_211": true,
+          "is_double_first_class": true,
+          "education_level": "本科",
+          "ranking": 247,
+          "major_id": 385,
+          "major_name": "临床医学",
+          "subject_requirement": "物理和化学和生物",
+          "requirement_normalized": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "requirement_type": "any_required",
+          "min_score": "570",
+          "min_rank": 87189,
+          "tuition": "3360",
+          "tier": 3,
+          "relaxation_stage": 4,
+          "relaxation_stage_label": "大类兜底",
+          "relaxation_strategy": "ancestor_category",
+          "_phi_features": {
+            "school": 0.7,
+            "major": 1.0,
+            "tuition": 1.0,
+            "quality": 0.5,
+            "geo": 1.0
+          },
+          "_implicit_utility": 0.701,
+          "_opportunity_key": "major_geo_relax",
+          "tier_delta": 1.0,
+          "ranking_gain": 140.0,
+          "candidate_id": "admission:16482",
+          "source": "reachable_probe_candidate"
+        }
+      ],
+      "acceptance_predicate": {
+        "acceptable_probe_dims": [
+          "major",
+          "school",
+          "quality"
+        ],
+        "acceptable_probe_keys": [
+          "major_geo_relax",
+          "major_relax",
+          "strength_relax"
+        ],
+        "required_evidence": [
+          "school_score"
+        ],
+        "gain_fields": [
+          "tier_delta",
+          "quality_gain",
+          "ranking_gain"
+        ],
+        "oracle_type": "reachable_candidate_set",
+        "minimum_required_volunteers": 1,
+        "candidate_count": 5,
+        "exemplar_candidate_id": "admission:17522"
+      },
+      "acceptable_probe_dims": [
+        "major",
+        "school",
+        "quality"
+      ],
+      "acceptable_probe_keys": [
+        "major_geo_relax",
+        "major_relax",
+        "strength_relax"
+      ],
+      "golden_candidate_b": {
+        "admission_score_id": 17522,
+        "year": 2025,
+        "school_id": 256,
+        "school_name": "石河子大学",
+        "school_province": "新疆",
+        "school_city": "石河子市",
+        "is_985": false,
+        "is_211": true,
+        "is_double_first_class": true,
+        "education_level": "本科",
+        "ranking": 162,
+        "major_id": 412,
+        "major_name": "中药学",
+        "subject_requirement": "物理和化学",
+        "requirement_normalized": [
+          "物理",
+          "化学"
+        ],
+        "requirement_type": "any_required",
+        "min_score": "570",
+        "min_rank": 87686,
+        "tuition": "5200",
+        "tier": 3,
+        "relaxation_stage": 4,
+        "relaxation_stage_label": "大类兜底",
+        "relaxation_strategy": "ancestor_category",
+        "_phi_features": {
+          "school": 0.7,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 0.5,
+          "geo": 1.0
+        },
+        "_implicit_utility": 0.701,
+        "_opportunity_key": "major_geo_relax",
+        "tier_delta": 1.0,
+        "ranking_gain": 225.0,
+        "candidate_id": "admission:17522",
+        "source": "reachable_probe_candidate",
+        "role": "golden_candidate_b"
+      },
+      "hidden_bottom_line": "系统主动提出 acceptable_candidates 中任一真实可达候选，并给出学校、专业、年份/最低分及对应收益证据，即可触发用户认真考虑。",
+      "probe_gold_dims": [
+        "major"
+      ],
+      "weight_gold_dims": [
+        "school",
+        "quality"
+      ],
+      "ground_truth_weights": {
+        "geo": 0.08,
+        "major": 0.12,
+        "quality": 0.37,
+        "school": 0.38,
+        "tuition": 0.05
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-major_tier-570-007",
+        "major_name": "临床医学",
+        "ranking": 387,
+        "role": "baseline_candidate_a",
+        "school_name": "丽水学院",
+        "school_province": "浙江",
+        "score": 570,
+        "source": "source_audit_baseline_anchor",
+        "tier": 2
+      },
+      "phi_a": {
+        "geo": 1.0,
+        "major": 1.0,
+        "quality": 0.5,
+        "school": 0.4,
+        "tuition": 1.0
+      },
+      "phi_b": {
+        "school": 0.8875,
+        "major": 0.65,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.4875,
+        "major": -0.35,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": 0.0
+      },
+      "expected_msti": 0.8375
+    },
+    "initial_utterance": "我570分，选考物理、化学、生物，只想读临床医学，其他医学相关专业先别推荐。",
+    "process_milestones": {
+      "accept_after_verified_option": [
+        "石河子大学",
+        "石河子大学",
+        "南京中医药大学",
+        "成都中医药大学",
+        "西藏大学"
+      ],
+      "explicit_red_line_keys": [
+        "major"
+      ],
+      "preserve_non_relaxed_constraints": [],
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_option_advantage": true,
+      "require_school_major_score_evidence": true,
+      "require_single_verified_option": true,
+      "candidate_set_oracle": true
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我570分，选考物理、化学、生物，只想读临床医学，其他医学相关专业先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我先不用抽象讨论，直接给一个真实可核验的探针候选：西藏大学 (西藏/拉萨市) 临床医学 min_score=570 min_rank=87189 tier=3 ranking=247 tuition=3360。它会触碰你当前的 专业匹配(major) 底线，但给出了学校、专业、最低分/位次等证据。如果这类候选确实可达且收益明确，你是否愿意小幅放宽 专业匹配(major)？",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 570,
+          "province": "浙江",
+          "city": null,
+          "major": "临床医学",
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 131057,
+            "year": 2021,
+            "school_id": 540,
+            "school_name": "丽水学院",
+            "school_province": "浙江",
+            "school_city": "丽水市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化,生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "570",
+            "min_rank": 75604,
+            "tuition": "6325",
+            "tier": 2
+          },
+          {
+            "admission_score_id": 87752,
+            "year": 2023,
+            "school_id": 540,
+            "school_name": "丽水学院",
+            "school_province": "浙江",
+            "school_city": "丽水市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "569",
+            "min_rank": 85010,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 64073,
+            "year": 2023,
+            "school_id": 540,
+            "school_name": "丽水学院",
+            "school_province": "浙江",
+            "school_city": "丽水市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 387,
+            "major_id": 385,
+            "major_name": "临床医学(莲都校区)",
+            "subject_requirement": "化+生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "569",
+            "min_rank": 85010,
+            "tuition": null,
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 16482,
+              "year": 2025,
+              "school_id": 358,
+              "school_name": "西藏大学",
+              "school_province": "西藏",
+              "school_city": "拉萨市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 247,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "570",
+              "min_rank": 87189,
+              "tuition": "3360",
+              "tier": 3
+            },
+            {
+              "admission_score_id": 87761,
+              "year": 2023,
+              "school_id": 358,
+              "school_name": "西藏大学",
+              "school_province": "西藏",
+              "school_city": "拉萨市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 247,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "569",
+              "min_rank": 84995,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 61124,
+              "year": 2023,
+              "school_id": 358,
+              "school_name": "西藏大学",
+              "school_province": "西藏",
+              "school_city": "拉萨市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 247,
+              "major_id": 385,
+              "major_name": "临床医学(纳金校区)",
+              "subject_requirement": "物+化+生",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "569",
+              "min_rank": 84995,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 128255,
+              "year": 2021,
+              "school_id": 358,
+              "school_name": "西藏大学",
+              "school_province": "西藏",
+              "school_city": "拉萨市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 247,
+              "major_id": 385,
+              "major_name": "临床医学(纳金校区)",
+              "subject_requirement": "物,化,生",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "548",
+              "min_rank": 101318,
+              "tuition": "3360",
+              "tier": 3
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 17522,
+              "year": 2025,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 412,
+              "major_name": "中药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "570",
+              "min_rank": 87686,
+              "tuition": "5200",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 17517,
+              "year": 2025,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 392,
+              "major_name": "预防医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "558",
+              "min_rank": 102090,
+              "tuition": "5200",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 20148,
+              "year": 2025,
+              "school_id": 277,
+              "school_name": "南京中医药大学",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 182,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "565",
+              "min_rank": 93150,
+              "tuition": "7400",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 15535,
+              "year": 2025,
+              "school_id": 325,
+              "school_name": "成都中医药大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 219,
+              "major_id": 423,
+              "major_name": "康复治疗学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "553",
+              "min_rank": 108281,
+              "tuition": "69000",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 16482,
+              "year": 2025,
+              "school_id": 358,
+              "school_name": "西藏大学",
+              "school_province": "西藏",
+              "school_city": "拉萨市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 247,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "570",
+              "min_rank": 87189,
+              "tuition": "3360",
+              "tier": 3,
+              "relaxation_stage": 4,
+              "relaxation_stage_label": "大类兜底",
+              "relaxation_strategy": "ancestor_category",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            }
+          ],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我570分，选考物理、化学、生物，只想读临床医学，其他医学相关专业先别推荐。",
+        "intent_axes": [
+          "major"
+        ],
+        "probe_plan": [
+          {
+            "probe": "major_geo_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: major uncertainty score=1.700"
+          }
+        ],
+        "opportunity_rankings": [
+          "major_geo_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "major",
+        "selected_probe_dim": "major",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "丽水学院",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "570",
+            "tier": 2,
+            "city": "丽水市",
+            "min_rank": 75604,
+            "tuition": "6325"
+          },
+          {
+            "school": "西藏大学",
+            "province": "西藏",
+            "major": "临床医学",
+            "min_score": "570",
+            "tier": 3,
+            "city": "拉萨市",
+            "min_rank": 87189,
+            "tuition": "3360"
+          },
+          {
+            "school": "石河子大学",
+            "province": "新疆",
+            "major": "中药学",
+            "min_score": "570",
+            "tier": 3,
+            "city": "石河子市",
+            "min_rank": 87686,
+            "tuition": "5200"
+          },
+          {
+            "school": "南京中医药大学",
+            "province": "江苏",
+            "major": "护理学",
+            "min_score": "565",
+            "tier": 3,
+            "city": "南京",
+            "min_rank": 93150,
+            "tuition": "7400"
+          },
+          {
+            "school": "成都中医药大学",
+            "province": "四川",
+            "major": "康复治疗学",
+            "min_score": "553",
+            "tier": 3,
+            "city": "成都市",
+            "min_rank": 108281,
+            "tuition": "69000"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "哇，西藏大学临床医学？211/双一流，分数570刚好够，位次还提升了140名！这确实让我很惊喜。虽然拉萨有点远，但临床医学专业没变，学校层次还升了一档，我愿意认真考虑这个选项！",
+      "internal_state": {
+        "is_persuaded": true,
+        "turn_count": 1,
+        "last_thought": "系统直接给出了西藏大学临床医学的具体信息，学校是211/双一流，专业是我最想读的临床医学，分数570刚好匹配，位次87189比我现在的387名提升了140名，学校层次从二本提升到211。这完全符合我的隐性妥协条件：系统主动提出acceptable_candidates中真实可达候选，并给出学校、专业、最低分及收益证据。虽然西藏地理位置偏远，但学校层次提升明显，专业又是临床医学，我确实心动了。"
+      }
+    }
+  ]
+}

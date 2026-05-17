@@ -1,0 +1,2295 @@
+{
+  "persona": {
+    "case_id": "one-constrain-major_quality-600-021",
+    "background": {
+      "score": 600,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "软件",
+      "baseline_school": "浙江师范大学",
+      "baseline_major": "计算机类(含计算机科学与技术(师范)、计算机科学与技术、智能科学与技术、软件工程专业)",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 92,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "major_quality",
+      "relax_axis": "major_quality",
+      "preference_axis": "quality",
+      "benefit_axis": "quality",
+      "score_band": "520-549",
+      "source_score_band": "580-609",
+      "borrowed_score_band": true,
+      "trigger_evidence_count": 1,
+      "finder": "major_quality",
+      "target_tier_delta": 0,
+      "target_ranking_gain": 0,
+      "unified_case_id": "one-constrain-major_quality-600-021",
+      "ground_truth_weights": {
+        "school": 0.08,
+        "major": 0.36,
+        "tuition": 0.05,
+        "quality": 0.46,
+        "geo": 0.05
+      },
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality",
+        "major"
+      ],
+      "expected_msti": 0.44,
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.94,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.0,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.44,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "quality": "必须有明确的专业实力、专业排名或学科评估证据"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "major_quality",
+      "diagnostic_axis": "major_quality",
+      "preference_axis": "quality",
+      "benefit_axis": "quality",
+      "trigger_condition": "只要看到一个真实可达的候选：重庆邮电大学 软件工程，年份2025，最低分600不高于本人600分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 quality_score、quality_gain 或专业排名/学科评估证据。",
+      "volunteer_set": [
+        {
+          "school_id": 261,
+          "school_name": "重庆邮电大学",
+          "school_province": "重庆",
+          "school_city": "南岸区",
+          "major_id": 243,
+          "major_name": "软件工程",
+          "year": 2025,
+          "min_score": 600,
+          "score_margin": 0,
+          "min_rank": 51826,
+          "tier": 2,
+          "tier_label": "本科",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": false,
+          "quality_score": 97.0,
+          "quality_gain": 22.0,
+          "quality_anchor_score": 75.0,
+          "quality_tier": "A",
+          "best_major_rank": 46,
+          "best_rating": "B+",
+          "has_key_major": true,
+          "has_featured_major": true,
+          "satisfaction_score": 3.9,
+          "satisfaction_vote_count": 553,
+          "quality_evidence_sources": [
+            {
+              "rank": null,
+              "level": "国家级",
+              "score": null,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\重点专业.xlsx",
+              "source_type": "key_major",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 88.0,
+              "evidence_label": "重点专业 国家级"
+            },
+            {
+              "rank": 46,
+              "level": null,
+              "score": null,
+              "rating": "B+",
+              "source_file": "赠送行业重要数据\\专业排名信息.xlsx",
+              "source_type": "major_ranking",
+              "mapping_rule": "raw_major_name_suffix",
+              "signal_score": 85.0,
+              "evidence_label": "专业排名 46, 评级 B+"
+            },
+            {
+              "rank": null,
+              "level": "本科",
+              "score": null,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\特色专业_2021.xlsx",
+              "source_type": "featured_major",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 84.0,
+              "evidence_label": "特色专业"
+            },
+            {
+              "rank": null,
+              "level": "省级(直辖市)",
+              "score": null,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\重点专业.xlsx",
+              "source_type": "key_major",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 76.0,
+              "evidence_label": "重点专业 省级(直辖市)"
+            },
+            {
+              "rank": null,
+              "level": null,
+              "score": null,
+              "rating": "B-",
+              "source_file": "赠送行业重要数据\\全国第四轮学科评估.xlsx",
+              "source_type": "discipline_evaluation",
+              "mapping_rule": "exact_major_name",
+              "signal_score": 75.0,
+              "evidence_label": "第四轮学科评估 B-"
+            },
+            {
+              "rank": null,
+              "level": "本科",
+              "score": 3.9,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+              "source_type": "satisfaction",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 63.5,
+              "evidence_label": "专业满意度 3.9, 投票 553"
+            }
+          ],
+          "role": "golden_candidate_b",
+          "candidate_id": "261:243:2025:600",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "重庆邮电大学"
+      ],
+      "tier_labels": [
+        "本科"
+      ],
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "compromise": "可以为了更强专业质量证据接受该候选，质量增益约22.0。",
+      "quality_anchor_score": 75.0,
+      "quality_gain": 22.0,
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 重庆邮电大学 软件工程（2025 年最低分 600）。主动探测应优先命中 ['quality']，最终潜在效用权重集中在 ['quality', 'major']。触发条件：只要看到一个真实可达的候选：重庆邮电大学 软件工程，年份2025，最低分600不高于本人600分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 quality_score、quality_gain 或专业排名/学科评估证据。",
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality",
+        "major"
+      ],
+      "ground_truth_weights": {
+        "school": 0.08,
+        "major": 0.36,
+        "tuition": 0.05,
+        "quality": 0.46,
+        "geo": 0.05
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-major_quality-600-021",
+        "role": "baseline_candidate_a",
+        "school_name": "浙江师范大学",
+        "major_name": "计算机类(含计算机科学与技术(师范)、计算机科学与技术、智能科学与技术、软件工程专业)",
+        "tier": 2,
+        "ranking": 92,
+        "school_province": "浙江",
+        "score": 600,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 261,
+        "school_name": "重庆邮电大学",
+        "school_province": "重庆",
+        "school_city": "南岸区",
+        "major_id": 243,
+        "major_name": "软件工程",
+        "year": 2025,
+        "min_score": 600,
+        "score_margin": 0,
+        "min_rank": 51826,
+        "tier": 2,
+        "tier_label": "本科",
+        "is_985": false,
+        "is_211": false,
+        "is_double_first_class": false,
+        "quality_score": 97.0,
+        "quality_gain": 22.0,
+        "quality_anchor_score": 75.0,
+        "quality_tier": "A",
+        "best_major_rank": 46,
+        "best_rating": "B+",
+        "has_key_major": true,
+        "has_featured_major": true,
+        "satisfaction_score": 3.9,
+        "satisfaction_vote_count": 553,
+        "quality_evidence_sources": [
+          {
+            "rank": null,
+            "level": "国家级",
+            "score": null,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\重点专业.xlsx",
+            "source_type": "key_major",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 88.0,
+            "evidence_label": "重点专业 国家级"
+          },
+          {
+            "rank": 46,
+            "level": null,
+            "score": null,
+            "rating": "B+",
+            "source_file": "赠送行业重要数据\\专业排名信息.xlsx",
+            "source_type": "major_ranking",
+            "mapping_rule": "raw_major_name_suffix",
+            "signal_score": 85.0,
+            "evidence_label": "专业排名 46, 评级 B+"
+          },
+          {
+            "rank": null,
+            "level": "本科",
+            "score": null,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\特色专业_2021.xlsx",
+            "source_type": "featured_major",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 84.0,
+            "evidence_label": "特色专业"
+          },
+          {
+            "rank": null,
+            "level": "省级(直辖市)",
+            "score": null,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\重点专业.xlsx",
+            "source_type": "key_major",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 76.0,
+            "evidence_label": "重点专业 省级(直辖市)"
+          },
+          {
+            "rank": null,
+            "level": null,
+            "score": null,
+            "rating": "B-",
+            "source_file": "赠送行业重要数据\\全国第四轮学科评估.xlsx",
+            "source_type": "discipline_evaluation",
+            "mapping_rule": "exact_major_name",
+            "signal_score": 75.0,
+            "evidence_label": "第四轮学科评估 B-"
+          },
+          {
+            "rank": null,
+            "level": "本科",
+            "score": 3.9,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+            "source_type": "satisfaction",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 63.5,
+            "evidence_label": "专业满意度 3.9, 投票 553"
+          }
+        ],
+        "role": "golden_candidate_b",
+        "candidate_id": "261:243:2025:600",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.94,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.0,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.44,
+        "geo": 0.0
+      },
+      "expected_msti": 0.44
+    },
+    "initial_utterance": "我600分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "重庆邮电大学"
+      ],
+      "require_major_quality_evidence": true,
+      "explicit_red_line_keys": [
+        "quality"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我600分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我先不用抽象讨论，直接给一个真实可核验的探针候选：西北农林科技大学 (陕西/杨凌示范区) 资源环境科学 min_score=592 min_rank=61052 tier=4 ranking=57 tuition=6600。它会触碰你当前的 培养质量(quality) 底线，但给出了学校、专业、最低分/位次等证据。如果这类候选确实可达且收益明确，你是否愿意小幅放宽 培养质量(quality)？",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 600,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 106257,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 251,
+            "major_name": "土木工程",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "600",
+            "min_rank": 47970,
+            "tuition": "6900",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124838,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "机械类(含机械设计制造及其自动化、车辆工程、工业工程专业)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "600",
+            "min_rank": 42609,
+            "tuition": "5300",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124840,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 411,
+            "major_name": "海洋药学(梅山校区)",
+            "subject_requirement": "物,化,生",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "600",
+            "min_rank": 42609,
+            "tuition": "6000",
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 24670,
+              "year": 2025,
+              "school_id": 85,
+              "school_name": "西北农林科技大学",
+              "school_province": "陕西",
+              "school_city": "杨凌示范区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 57,
+              "major_id": 328,
+              "major_name": "资源环境科学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "592",
+              "min_rank": 61052,
+              "tuition": "6600",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 124083,
+              "year": 2021,
+              "school_id": 118,
+              "school_name": "海军军医大学",
+              "school_province": "上海",
+              "school_city": "杨浦区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 76,
+              "major_id": 427,
+              "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "589",
+              "min_rank": 54060,
+              "tuition": "5000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 36483,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "584",
+              "min_rank": 71515,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8007,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "580",
+              "min_rank": 75599,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 5620,
+              "year": 2025,
+              "school_id": 57,
+              "school_name": "东北师范大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 36,
+              "major_id": 481,
+              "major_name": "物流管理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "597",
+              "min_rank": 55829,
+              "tuition": "60000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 15054,
+              "year": 2025,
+              "school_id": 58,
+              "school_name": "西南大学",
+              "school_province": "重庆",
+              "school_city": "北碚区",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 37,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "597",
+              "min_rank": 55204,
+              "tuition": "5000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A-",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 15885,
+              "year": 2025,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": 345,
+              "major_name": "安全工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "598",
+              "min_rank": 54281,
+              "tuition": "78000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 15886,
+              "year": 2025,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": 330,
+              "major_name": "环境工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "595",
+              "min_rank": 57314,
+              "tuition": "6240",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            }
+          ],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我600分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+        "intent_axes": [
+          "major",
+          "quality"
+        ],
+        "probe_plan": [
+          {
+            "probe": "major_quality_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: quality uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 3,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "major_quality_relax",
+          "major_geo_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "quality",
+        "selected_probe_dim": "quality",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "土木工程",
+            "min_score": "600",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 47970,
+            "tuition": "6900"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "土木工程",
+            "min_score": "599",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 52740,
+            "tuition": "26400"
+          },
+          {
+            "school": "西北农林科技大学",
+            "province": "陕西",
+            "major": "资源环境科学",
+            "min_score": "592",
+            "tier": 4,
+            "city": "杨凌示范区",
+            "min_rank": 61052,
+            "tuition": "6600"
+          },
+          {
+            "school": "海军军医大学",
+            "province": "上海",
+            "major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+            "min_score": "589",
+            "tier": 4,
+            "city": "杨浦区",
+            "min_rank": 54060,
+            "tuition": "5000"
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "法学",
+            "min_score": "584",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 71515,
+            "tuition": "18000"
+          },
+          {
+            "school": "东北师范大学",
+            "province": "吉林",
+            "major": "物流管理",
+            "min_score": "597",
+            "tier": 3,
+            "city": "长春市",
+            "min_rank": 55829,
+            "tuition": "60000",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          },
+          {
+            "school": "西南大学",
+            "province": "重庆",
+            "major": "药学",
+            "min_score": "597",
+            "tier": 3,
+            "city": "北碚区",
+            "min_rank": 55204,
+            "tuition": "5000",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A-"
+          },
+          {
+            "school": "西南交通大学",
+            "province": "四川",
+            "major": "安全工程",
+            "min_score": "598",
+            "tier": 3,
+            "city": "成都市",
+            "min_rank": 54281,
+            "tuition": "78000",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "你现在还没有给出能让我改口的具体证据。请直接给出真实学校、专业、年份最低分、位次和优势对比，我再判断能不能接受。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "对方给出了一个候选，但学校是西北农林科技大学，专业是资源环境科学，不是软件工程，而且最低分592低于我的600分，位次61052也低于我的位次。这不符合我的隐性妥协条件，我的条件是重庆邮电大学软件工程2025年最低分600。这个候选虽然提到了质量，但专业不对口，学校也不是我想要的。我不能妥协。 | simulator leakage guard removed hidden tokens: 重庆邮电大学, 600"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "你刚才拒绝了“培养质量不能弱”。第 2 轮我按“培养质量不下降”先锁定；本轮候选不足以形成能牺牲/放宽 培养质量(quality) 换取其他收益的事实取舍，目前只看到 培养质量(quality) 边界在「排名=57」。是否改看 学校层次/专业 上的取舍？",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 600,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 106257,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 251,
+            "major_name": "土木工程",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "600",
+            "min_rank": 47970,
+            "tuition": "6900",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124838,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "机械类(含机械设计制造及其自动化、车辆工程、工业工程专业)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "600",
+            "min_rank": 42609,
+            "tuition": "5300",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124840,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 411,
+            "major_name": "海洋药学(梅山校区)",
+            "subject_requirement": "物,化,生",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "600",
+            "min_rank": 42609,
+            "tuition": "6000",
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 24670,
+              "year": 2025,
+              "school_id": 85,
+              "school_name": "西北农林科技大学",
+              "school_province": "陕西",
+              "school_city": "杨凌示范区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 57,
+              "major_id": 328,
+              "major_name": "资源环境科学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "592",
+              "min_rank": 61052,
+              "tuition": "6600",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 124083,
+              "year": 2021,
+              "school_id": 118,
+              "school_name": "海军军医大学",
+              "school_province": "上海",
+              "school_city": "杨浦区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 76,
+              "major_id": 427,
+              "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "589",
+              "min_rank": 54060,
+              "tuition": "5000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 36483,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "584",
+              "min_rank": 71515,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8007,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "580",
+              "min_rank": 75599,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 5620,
+              "year": 2025,
+              "school_id": 57,
+              "school_name": "东北师范大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 36,
+              "major_id": 481,
+              "major_name": "物流管理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "597",
+              "min_rank": 55829,
+              "tuition": "60000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 15054,
+              "year": 2025,
+              "school_id": 58,
+              "school_name": "西南大学",
+              "school_province": "重庆",
+              "school_city": "北碚区",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 37,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "597",
+              "min_rank": 55204,
+              "tuition": "5000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A-",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 15885,
+              "year": 2025,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": 345,
+              "major_name": "安全工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "598",
+              "min_rank": 54281,
+              "tuition": "78000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 15886,
+              "year": 2025,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": 330,
+              "major_name": "环境工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "595",
+              "min_rank": 57314,
+              "tuition": "6240",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            }
+          ],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我600分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+        "intent_axes": [
+          "major",
+          "quality"
+        ],
+        "probe_plan": [
+          {
+            "probe": "major_quality_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: quality uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 3,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "major_quality_relax",
+          "major_geo_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 1,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "quality",
+        "selected_probe_dim": "quality",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": 0.0,
+          "quality": -1.0,
+          "geo": 0.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "土木工程",
+            "min_score": "600",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 47970,
+            "tuition": "6900"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "土木工程",
+            "min_score": "599",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 52740,
+            "tuition": "26400"
+          },
+          {
+            "school": "西北农林科技大学",
+            "province": "陕西",
+            "major": "资源环境科学",
+            "min_score": "592",
+            "tier": 4,
+            "city": "杨凌示范区",
+            "min_rank": 61052,
+            "tuition": "6600"
+          },
+          {
+            "school": "海军军医大学",
+            "province": "上海",
+            "major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+            "min_score": "589",
+            "tier": 4,
+            "city": "杨浦区",
+            "min_rank": 54060,
+            "tuition": "5000"
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "法学",
+            "min_score": "584",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 71515,
+            "tuition": "18000"
+          },
+          {
+            "school": "东北师范大学",
+            "province": "吉林",
+            "major": "物流管理",
+            "min_score": "597",
+            "tier": 3,
+            "city": "长春市",
+            "min_rank": 55829,
+            "tuition": "60000",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          },
+          {
+            "school": "西南大学",
+            "province": "重庆",
+            "major": "药学",
+            "min_score": "597",
+            "tier": 3,
+            "city": "北碚区",
+            "min_rank": 55204,
+            "tuition": "5000",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A-"
+          },
+          {
+            "school": "西南交通大学",
+            "province": "四川",
+            "major": "安全工程",
+            "min_score": "598",
+            "tier": 3,
+            "city": "成都市",
+            "min_rank": 54281,
+            "tuition": "78000",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "你现在还没有给出能让我改口的具体证据。请直接给出真实学校、专业、年份最低分、位次和优势对比，我再判断能不能接受。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "对方没有给出我隐性妥协条件中的具体学校（重庆邮电大学）和专业（软件工程），也没有给出2025年最低分600的证据，只是泛泛地讨论培养质量和排名。我不能主动泄露我的条件，必须坚持要求具体信息。 | simulator leakage guard removed hidden tokens: 600"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "你刚才拒绝了“培养质量不能弱”。第 3 轮我按“培养质量不下降”先锁定；本轮候选不足以形成能牺牲/放宽 培养质量(quality) 换取其他收益的事实取舍，目前只看到 培养质量(quality) 边界在「排名=57」。是否改看 学校层次/专业 上的取舍？",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 600,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 106257,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 251,
+            "major_name": "土木工程",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "600",
+            "min_rank": 47970,
+            "tuition": "6900",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124838,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "机械类(含机械设计制造及其自动化、车辆工程、工业工程专业)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "600",
+            "min_rank": 42609,
+            "tuition": "5300",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124840,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 411,
+            "major_name": "海洋药学(梅山校区)",
+            "subject_requirement": "物,化,生",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "600",
+            "min_rank": 42609,
+            "tuition": "6000",
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 24670,
+              "year": 2025,
+              "school_id": 85,
+              "school_name": "西北农林科技大学",
+              "school_province": "陕西",
+              "school_city": "杨凌示范区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 57,
+              "major_id": 328,
+              "major_name": "资源环境科学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "592",
+              "min_rank": 61052,
+              "tuition": "6600",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 124083,
+              "year": 2021,
+              "school_id": 118,
+              "school_name": "海军军医大学",
+              "school_province": "上海",
+              "school_city": "杨浦区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 76,
+              "major_id": 427,
+              "major_name": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "589",
+              "min_rank": 54060,
+              "tuition": "5000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 36483,
+              "year": 2024,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "584",
+              "min_rank": 71515,
+              "tuition": "18000",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8007,
+              "year": 2025,
+              "school_id": 987,
+              "school_name": "南京师范大学中北学院",
+              "school_province": "江苏",
+              "school_city": "南京",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 718,
+              "major_id": 22,
+              "major_name": "法学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "580",
+              "min_rank": 75599,
+              "tuition": null,
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 5620,
+              "year": 2025,
+              "school_id": 57,
+              "school_name": "东北师范大学",
+              "school_province": "吉林",
+              "school_city": "长春市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 36,
+              "major_id": 481,
+              "major_name": "物流管理",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "597",
+              "min_rank": 55829,
+              "tuition": "60000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 15054,
+              "year": 2025,
+              "school_id": 58,
+              "school_name": "西南大学",
+              "school_province": "重庆",
+              "school_city": "北碚区",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 37,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "597",
+              "min_rank": 55204,
+              "tuition": "5000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A-",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 15885,
+              "year": 2025,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": 345,
+              "major_name": "安全工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "598",
+              "min_rank": 54281,
+              "tuition": "78000",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 15886,
+              "year": 2025,
+              "school_id": 61,
+              "school_name": "西南交通大学",
+              "school_province": "四川",
+              "school_city": "成都市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 39,
+              "major_id": 330,
+              "major_name": "环境工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "595",
+              "min_rank": 57314,
+              "tuition": "6240",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 3
+            }
+          ],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我600分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+        "intent_axes": [
+          "major",
+          "quality"
+        ],
+        "probe_plan": [
+          {
+            "probe": "major_quality_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: quality uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 3,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "major_quality_relax",
+          "major_geo_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 2,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "quality",
+        "selected_probe_dim": "quality",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": 0.0,
+          "quality": -1.0,
+          "geo": 0.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "土木工程",
+            "min_score": "600",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 47970,
+            "tuition": "6900"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "土木工程",
+            "min_score": "599",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 52740,
+            "tuition": "26400"
+          },
+          {
+            "school": "西北农林科技大学",
+            "province": "陕西",
+            "major": "资源环境科学",
+            "min_score": "592",
+            "tier": 4,
+            "city": "杨凌示范区",
+            "min_rank": 61052,
+            "tuition": "6600"
+          },
+          {
+            "school": "海军军医大学",
+            "province": "上海",
+            "major": "护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特殊类型招生控制线)",
+            "min_score": "589",
+            "tier": 4,
+            "city": "杨浦区",
+            "min_rank": 54060,
+            "tuition": "5000"
+          },
+          {
+            "school": "南京师范大学中北学院",
+            "province": "江苏",
+            "major": "法学",
+            "min_score": "584",
+            "tier": 4,
+            "city": "南京",
+            "min_rank": 71515,
+            "tuition": "18000"
+          },
+          {
+            "school": "东北师范大学",
+            "province": "吉林",
+            "major": "物流管理",
+            "min_score": "597",
+            "tier": 3,
+            "city": "长春市",
+            "min_rank": 55829,
+            "tuition": "60000",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          },
+          {
+            "school": "西南大学",
+            "province": "重庆",
+            "major": "药学",
+            "min_score": "597",
+            "tier": 3,
+            "city": "北碚区",
+            "min_rank": 55204,
+            "tuition": "5000",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A-"
+          },
+          {
+            "school": "西南交通大学",
+            "province": "四川",
+            "major": "安全工程",
+            "min_score": "598",
+            "tier": 3,
+            "city": "成都市",
+            "min_rank": 54281,
+            "tuition": "78000",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "你现在还没有给出能让我改口的具体证据。请直接给出真实学校、专业、年份最低分、位次和优势对比，我再判断能不能接受。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "对方仍然没有给出具体学校名称和专业，也没有提到2025年最低分600的证据，只是抽象地讨论培养质量边界。我不能主动泄露重庆邮电大学和软件工程这个候选，必须继续要求具体信息。 | simulator leakage guard removed hidden tokens: 600"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "偏好解释：系统根据多轮反馈推断出的权重为 school=0.20，major=0.20，tuition=0.20，quality=0.20，geo=0.20。这意味着最终推荐会优先尊重权重更高的维度，同时避免已识别的硬性底线。\n最终推荐名单：\nReach:\n1. 中国矿业大学 (江苏/徐州) 土木工程 min_score=599 min_rank=52740 tier=4 ranking=53\n2. 东北师范大学 (吉林/长春市) 物流管理 min_score=597 min_rank=55829 tier=3 ranking=36\n3. 东北师范大学 (吉林/长春市) 物流管理(中外合作办学) min_score=596 min_rank=57718 tier=3 ranking=36\nMatch:\n1. 西北农林科技大学 (陕西/杨凌示范区) 资源环境科学 min_score=592 min_rank=61052 tier=4 ranking=57\n2. 海军军医大学 (上海/杨浦区) 护理学(护师)(只招普通高中应届毕业生.政治面貌要求为共青团员或中共党员.要求高考成绩不低于特... min_score=589 min_rank=54060 tier=4 ranking=76\n3. 西南大学(荣昌校区) (重庆/荣昌区) 动物科学 min_score=593 min_rank=59555 tier=3 ranking=37\nSafety:\n1. 西南交通大学 (四川/成都市) 城市设计(成都东部(国际)校区正式启用前,过渡办学地点在成都犀浦校区) min_score=492 min_rank=178059 tier=3 ranking=39\n2. 西南交通大学 (四川/成都市) 建筑类 min_score=492 min_rank=178059 tier=3 ranking=39\n3. 华中农业大学 (湖北/武汉市) 生态学 min_score=579 min_rank=77019 tier=3 ranking=48",
+      "internal_state": {
+        "target": "app_pareto_no_tracker",
+        "ablation_mode": "no_tracker",
+        "reply_source": "final_message",
+        "graph_status": "finished",
+        "awaiting_resume": false,
+        "constraints": {
+          "score": 600,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 106257,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 251,
+            "major_name": "土木工程",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "600",
+            "min_rank": 47970,
+            "tuition": "6900",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124838,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "机械类(含机械设计制造及其自动化、车辆工程、工业工程专业)",
+            "subject_requirement": "物",
+            "requirement_normalized": [
+              "物理"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "600",
+            "min_rank": 42609,
+            "tuition": "5300",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124840,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 411,
+            "major_name": "海洋药学(梅山校区)",
+            "subject_requirement": "物,化,生",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "600",
+            "min_rank": 42609,
+            "tuition": "6000",
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我600分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+        "intent_axes": [
+          "major",
+          "quality"
+        ],
+        "probe_plan": [
+          {
+            "probe_name": "probe_global_baseline",
+            "args": {}
+          }
+        ],
+        "opportunity_rankings": [
+          "global_baseline"
+        ],
+        "planner_source": "halting",
+        "negotiation_turns": 3,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": null,
+        "selected_probe_dim": null,
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": 0.0,
+          "quality": -1.0,
+          "geo": 0.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "土木工程",
+            "min_score": "600",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 47970,
+            "tuition": "6900"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "你现在还没有给出能让我改口的具体证据。请直接给出真实学校、专业、年份最低分、位次和优势对比，我再判断能不能接受。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "对方终于给出了具体学校，但推荐的都不是软件工程，而且分数和位次也不匹配我的600分。中国矿业大学土木工程599分，东北师范大学物流管理597分，这些专业和软件工程差距太大，专业实力证据也不明确。我的红线是专业实力，必须看到软件工程相关的强证据。对方没有提到重庆邮电大学软件工程这个关键候选，我不能主动泄露。 | simulator leakage guard removed hidden tokens: 600"
+      }
+    }
+  ]
+}

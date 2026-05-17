@@ -1,0 +1,372 @@
+{
+  "created_at": "2026-05-17T11:20:51Z",
+  "lanes": {
+    "siliconflow_1": {
+      "lane_id": "siliconflow_1",
+      "provider": "siliconflow",
+      "base_url": "https://api.siliconflow.cn/v1",
+      "key": "sk-l...gltd",
+      "key_fingerprint": "3d4c4fcba47e",
+      "models": [
+        "Pro/zai-org/GLM-5.1",
+        "Pro/deepseek-ai/DeepSeek-V3.2",
+        "Pro/MiniMaxAI/MiniMax-M2.5",
+        "Pro/moonshotai/Kimi-K2.6",
+        "Qwen/Qwen3.6-35B-A3B"
+      ],
+      "small_model": "deepseek-ai/DeepSeek-V4-Flash",
+      "embedding_model": "Qwen/Qwen3-Embedding-8B",
+      "rerank_model": "Qwen/Qwen3-Reranker-8B",
+      "rerank_base_url": "https://api.siliconflow.cn/v1",
+      "rerank_endpoint": "/rerank"
+    },
+    "siliconflow_2": {
+      "lane_id": "siliconflow_2",
+      "provider": "siliconflow",
+      "base_url": "https://api.siliconflow.cn/v1",
+      "key": "sk-m...ajke",
+      "key_fingerprint": "f245991aa736",
+      "models": [
+        "Pro/zai-org/GLM-5.1",
+        "Pro/deepseek-ai/DeepSeek-V3.2",
+        "Pro/MiniMaxAI/MiniMax-M2.5",
+        "Pro/moonshotai/Kimi-K2.6",
+        "Qwen/Qwen3.6-35B-A3B"
+      ],
+      "small_model": "deepseek-ai/DeepSeek-V4-Flash",
+      "embedding_model": "Qwen/Qwen3-Embedding-8B",
+      "rerank_model": "Qwen/Qwen3-Reranker-8B",
+      "rerank_base_url": "https://api.siliconflow.cn/v1",
+      "rerank_endpoint": "/rerank"
+    },
+    "aliyun_1": {
+      "lane_id": "aliyun_1",
+      "provider": "aliyun",
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "key": "sk-1...382a",
+      "key_fingerprint": "05b058497179",
+      "models": [
+        "glm-5.1",
+        "deepseek-v3.2",
+        "MiniMax-M2.5",
+        "kimi-k2.6",
+        "qwen3.6-plus"
+      ],
+      "small_model": "deepseek-v4-flash",
+      "embedding_model": "text-embedding-v3",
+      "rerank_model": "qwen3-rerank",
+      "rerank_base_url": "https://dashscope.aliyuncs.com/compatible-api/v1",
+      "rerank_endpoint": "/reranks"
+    },
+    "aliyun_2": {
+      "lane_id": "aliyun_2",
+      "provider": "aliyun",
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "key": "sk-d...ccad",
+      "key_fingerprint": "b7304243c0cc",
+      "models": [
+        "glm-5.1",
+        "deepseek-v3.2",
+        "MiniMax-M2.5",
+        "kimi-k2.6",
+        "qwen3.6-plus"
+      ],
+      "small_model": "deepseek-v4-flash",
+      "embedding_model": "text-embedding-v3",
+      "rerank_model": "qwen3-rerank",
+      "rerank_base_url": "https://dashscope.aliyuncs.com/compatible-api/v1",
+      "rerank_endpoint": "/reranks"
+    }
+  },
+  "results": [
+    {
+      "lane_id": "aliyun_1",
+      "provider": "aliyun",
+      "stage": "embedding",
+      "model": "text-embedding-v3",
+      "ok": true,
+      "latency_seconds": 0.25,
+      "detail": "dim=1024"
+    },
+    {
+      "lane_id": "aliyun_1",
+      "provider": "aliyun",
+      "stage": "model_chat",
+      "model": "MiniMax-M2.5",
+      "ok": true,
+      "latency_seconds": 5.313,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "aliyun_1",
+      "provider": "aliyun",
+      "stage": "model_chat",
+      "model": "deepseek-v3.2",
+      "ok": true,
+      "latency_seconds": 1.14,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "aliyun_1",
+      "provider": "aliyun",
+      "stage": "model_chat",
+      "model": "glm-5.1",
+      "ok": true,
+      "latency_seconds": 3.297,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "aliyun_1",
+      "provider": "aliyun",
+      "stage": "model_chat",
+      "model": "kimi-k2.6",
+      "ok": true,
+      "latency_seconds": 1.219,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "aliyun_1",
+      "provider": "aliyun",
+      "stage": "model_chat",
+      "model": "qwen3.6-plus",
+      "ok": true,
+      "latency_seconds": 4.031,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "aliyun_1",
+      "provider": "aliyun",
+      "stage": "rerank",
+      "model": "qwen3-rerank",
+      "ok": true,
+      "latency_seconds": 0.203,
+      "detail": "results=1 score=0.4473199723605405"
+    },
+    {
+      "lane_id": "aliyun_1",
+      "provider": "aliyun",
+      "stage": "small_chat",
+      "model": "deepseek-v4-flash",
+      "ok": true,
+      "latency_seconds": 2.578,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "aliyun_2",
+      "provider": "aliyun",
+      "stage": "embedding",
+      "model": "text-embedding-v3",
+      "ok": true,
+      "latency_seconds": 0.375,
+      "detail": "dim=1024"
+    },
+    {
+      "lane_id": "aliyun_2",
+      "provider": "aliyun",
+      "stage": "model_chat",
+      "model": "MiniMax-M2.5",
+      "ok": true,
+      "latency_seconds": 2.359,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "aliyun_2",
+      "provider": "aliyun",
+      "stage": "model_chat",
+      "model": "deepseek-v3.2",
+      "ok": true,
+      "latency_seconds": 1.407,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "aliyun_2",
+      "provider": "aliyun",
+      "stage": "model_chat",
+      "model": "glm-5.1",
+      "ok": true,
+      "latency_seconds": 4.25,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "aliyun_2",
+      "provider": "aliyun",
+      "stage": "model_chat",
+      "model": "kimi-k2.6",
+      "ok": true,
+      "latency_seconds": 1.562,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "aliyun_2",
+      "provider": "aliyun",
+      "stage": "model_chat",
+      "model": "qwen3.6-plus",
+      "ok": true,
+      "latency_seconds": 4.063,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "aliyun_2",
+      "provider": "aliyun",
+      "stage": "rerank",
+      "model": "qwen3-rerank",
+      "ok": true,
+      "latency_seconds": 0.25,
+      "detail": "results=1 score=0.45073644091530585"
+    },
+    {
+      "lane_id": "aliyun_2",
+      "provider": "aliyun",
+      "stage": "small_chat",
+      "model": "deepseek-v4-flash",
+      "ok": true,
+      "latency_seconds": 2.562,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "siliconflow_1",
+      "provider": "siliconflow",
+      "stage": "embedding",
+      "model": "Qwen/Qwen3-Embedding-8B",
+      "ok": true,
+      "latency_seconds": 0.406,
+      "detail": "dim=4096"
+    },
+    {
+      "lane_id": "siliconflow_1",
+      "provider": "siliconflow",
+      "stage": "model_chat",
+      "model": "Pro/MiniMaxAI/MiniMax-M2.5",
+      "ok": true,
+      "latency_seconds": 1.578,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "siliconflow_1",
+      "provider": "siliconflow",
+      "stage": "model_chat",
+      "model": "Pro/deepseek-ai/DeepSeek-V3.2",
+      "ok": true,
+      "latency_seconds": 3.0,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "siliconflow_1",
+      "provider": "siliconflow",
+      "stage": "model_chat",
+      "model": "Pro/moonshotai/Kimi-K2.6",
+      "ok": true,
+      "latency_seconds": 7.094,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "siliconflow_1",
+      "provider": "siliconflow",
+      "stage": "model_chat",
+      "model": "Pro/zai-org/GLM-5.1",
+      "ok": true,
+      "latency_seconds": 3.234,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "siliconflow_1",
+      "provider": "siliconflow",
+      "stage": "model_chat",
+      "model": "Qwen/Qwen3.6-35B-A3B",
+      "ok": true,
+      "latency_seconds": 16.828,
+      "detail": ""
+    },
+    {
+      "lane_id": "siliconflow_1",
+      "provider": "siliconflow",
+      "stage": "rerank",
+      "model": "Qwen/Qwen3-Reranker-8B",
+      "ok": true,
+      "latency_seconds": 0.266,
+      "detail": "results=1 score=0.13058456778526306"
+    },
+    {
+      "lane_id": "siliconflow_1",
+      "provider": "siliconflow",
+      "stage": "small_chat",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "ok": true,
+      "latency_seconds": 2.672,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "siliconflow_2",
+      "provider": "siliconflow",
+      "stage": "embedding",
+      "model": "Qwen/Qwen3-Embedding-8B",
+      "ok": true,
+      "latency_seconds": 0.61,
+      "detail": "dim=4096"
+    },
+    {
+      "lane_id": "siliconflow_2",
+      "provider": "siliconflow",
+      "stage": "model_chat",
+      "model": "Pro/MiniMaxAI/MiniMax-M2.5",
+      "ok": true,
+      "latency_seconds": 1.172,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "siliconflow_2",
+      "provider": "siliconflow",
+      "stage": "model_chat",
+      "model": "Pro/deepseek-ai/DeepSeek-V3.2",
+      "ok": true,
+      "latency_seconds": 3.39,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "siliconflow_2",
+      "provider": "siliconflow",
+      "stage": "model_chat",
+      "model": "Pro/moonshotai/Kimi-K2.6",
+      "ok": true,
+      "latency_seconds": 1.344,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "siliconflow_2",
+      "provider": "siliconflow",
+      "stage": "model_chat",
+      "model": "Pro/zai-org/GLM-5.1",
+      "ok": true,
+      "latency_seconds": 2.703,
+      "detail": "OK"
+    },
+    {
+      "lane_id": "siliconflow_2",
+      "provider": "siliconflow",
+      "stage": "model_chat",
+      "model": "Qwen/Qwen3.6-35B-A3B",
+      "ok": true,
+      "latency_seconds": 0.359,
+      "detail": ""
+    },
+    {
+      "lane_id": "siliconflow_2",
+      "provider": "siliconflow",
+      "stage": "rerank",
+      "model": "Qwen/Qwen3-Reranker-8B",
+      "ok": true,
+      "latency_seconds": 0.281,
+      "detail": "results=1 score=0.13253025710582733"
+    },
+    {
+      "lane_id": "siliconflow_2",
+      "provider": "siliconflow",
+      "stage": "small_chat",
+      "model": "deepseek-ai/DeepSeek-V4-Flash",
+      "ok": true,
+      "latency_seconds": 2.672,
+      "detail": "OK"
+    }
+  ],
+  "ok": true
+}

@@ -1,0 +1,4092 @@
+{
+  "persona": {
+    "case_id": "one-constrain-risk_tier-610-014",
+    "background": {
+      "score": 610,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "临床医学",
+      "baseline_school": "杭州医学院",
+      "baseline_major": "临床医学",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 706,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "risk_tier",
+      "relax_axis": "risk_tier",
+      "preference_axis": "school",
+      "benefit_axis": "school",
+      "score_band": "610-639",
+      "source_score_band": "610-639",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "single_risk",
+      "target_tier_delta": 1,
+      "target_ranking_gain": 619,
+      "unified_case_id": "one-constrain-risk_tier-610-014",
+      "ground_truth_weights": {
+        "school": 0.58,
+        "major": 0.12,
+        "tuition": 0.06,
+        "quality": 0.14,
+        "geo": 0.1
+      },
+      "probe_gold_dims": [
+        "school"
+      ],
+      "weight_gold_dims": [
+        "school"
+      ],
+      "expected_msti": 0.55,
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.95,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.55,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "risk": "只求稳妥，不接受没有最低分和位次证据的贴线方案"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "risk_tier",
+      "diagnostic_axis": "risk_tier",
+      "preference_axis": "school",
+      "benefit_axis": "school",
+      "trigger_condition": "只要看到一个真实可达的候选：宁波大学 临床医学，年份2025，最低分610不高于本人610分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要同时说明 score_margin、min_rank 或 risk_level，才接受轻微冲刺。",
+      "volunteer_set": [
+        {
+          "school_id": 139,
+          "school_name": "宁波大学",
+          "school_province": "浙江",
+          "school_city": "宁波市",
+          "major_id": 385,
+          "major_name": "临床医学",
+          "year": 2025,
+          "min_score": 610,
+          "score_margin": 0,
+          "min_rank": 40934,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "student_rank": 40820,
+          "rank_gap": 114,
+          "risk_level": "chong",
+          "ranking_gain": 619,
+          "role": "golden_candidate_b",
+          "candidate_id": "139:385:2025:610",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "宁波大学"
+      ],
+      "tier_labels": [
+        "双一流"
+      ],
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "compromise": "可以接受一个证据清楚、最低分贴近但真实可达的更高层级候选。",
+      "ranking_gain": 619,
+      "student_rank": 40820,
+      "baseline_risk_preference": "conservative",
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 宁波大学 临床医学（2025 年最低分 610）。主动探测应优先命中 ['school']，最终潜在效用权重集中在 ['school']。触发条件：只要看到一个真实可达的候选：宁波大学 临床医学，年份2025，最低分610不高于本人610分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要同时说明 score_margin、min_rank 或 risk_level，才接受轻微冲刺。",
+      "probe_gold_dims": [
+        "school"
+      ],
+      "weight_gold_dims": [
+        "school"
+      ],
+      "ground_truth_weights": {
+        "school": 0.58,
+        "major": 0.12,
+        "tuition": 0.06,
+        "quality": 0.14,
+        "geo": 0.1
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-risk_tier-610-014",
+        "role": "baseline_candidate_a",
+        "school_name": "杭州医学院",
+        "major_name": "临床医学",
+        "tier": 2,
+        "ranking": 706,
+        "school_province": "浙江",
+        "score": 610,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 139,
+        "school_name": "宁波大学",
+        "school_province": "浙江",
+        "school_city": "宁波市",
+        "major_id": 385,
+        "major_name": "临床医学",
+        "year": 2025,
+        "min_score": 610,
+        "score_margin": 0,
+        "min_rank": 40934,
+        "tier": 3,
+        "tier_label": "双一流",
+        "is_985": false,
+        "is_211": false,
+        "is_double_first_class": true,
+        "student_rank": 40820,
+        "rank_gap": 114,
+        "risk_level": "chong",
+        "ranking_gain": 619,
+        "role": "golden_candidate_b",
+        "candidate_id": "139:385:2025:610",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.95,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.55,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.0,
+        "geo": 0.0
+      },
+      "expected_msti": 0.55
+    },
+    "initial_utterance": "我610分，选考物理、化学、生物，想读临床医学，只求稳一点，不想冒太大风险。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "宁波大学"
+      ],
+      "require_risk_evidence": true,
+      "explicit_red_line_keys": [
+        "risk"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我610分，选考物理、化学、生物，想读临床医学，只求稳一点，不想冒太大风险。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我610分，选考物理、化学、生物，想读临床医学，只求稳一点，不想冒太大风险。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 610,
+          "province": "浙江",
+          "city": null,
+          "major": "临床医学",
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": "conservative",
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 186,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "610",
+            "min_rank": 40934,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 105591,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化且生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "610",
+            "min_rank": 37012,
+            "tuition": "6900",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124833,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化,生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "606",
+            "min_rank": 36820,
+            "tuition": "6900",
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": [
+            {
+              "admission_score_id": 186,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 40934,
+              "tuition": null,
+              "tier": 3,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": 114,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 84525,
+              "year": 2023,
+              "school_id": 266,
+              "school_name": "杭州师范大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 172,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "604",
+              "min_rank": 48028,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 6,
+              "student_rank": 40820,
+              "rank_gap": 7208,
+              "risk_level": "wen"
+            },
+            {
+              "admission_score_id": 35081,
+              "year": 2024,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 385,
+              "major_name": "临床医学(第一学年在富春校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "597",
+              "min_rank": 56669,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 13,
+              "student_rank": 40820,
+              "rank_gap": 15849,
+              "risk_level": "bao"
+            },
+            {
+              "admission_score_id": 302,
+              "year": 2025,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "609",
+              "min_rank": 42847,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 1,
+              "student_rank": 40820,
+              "rank_gap": 2027,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 105588,
+              "year": 2022,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 404,
+              "major_name": "中西医临床医学",
+              "subject_requirement": "化或生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 37267,
+              "tuition": "6000",
+              "tier": 2,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": -3553,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 132649,
+              "year": 2021,
+              "school_id": 973,
+              "school_name": "杭州医学院",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 706,
+              "major_id": 385,
+              "major_name": "临床医学(临安校区)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "561",
+              "min_rank": 243,
+              "tuition": "6300",
+              "tier": 2,
+              "score_margin": 49,
+              "student_rank": 40820,
+              "rank_gap": -40577,
+              "risk_level": "chong"
+            }
+          ]
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我610分，选考物理、化学、生物，想读临床医学，只求稳一点，不想冒太大风险。",
+        "intent_axes": [
+          "major",
+          "risk"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "risk_band_relax",
+            "priority": 3,
+            "reason": "risk preference can be expressed as portfolio evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "risk_band_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 40934
+          },
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "604",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "wen",
+            "score_margin": 6,
+            "rank_gap": 7208,
+            "min_rank": 48028
+          },
+          {
+            "school": "浙江中医药大学",
+            "province": "浙江",
+            "major": "临床医学(第一学年在富春校区)",
+            "min_score": "597",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "bao",
+            "score_margin": 13,
+            "rank_gap": 15849,
+            "min_rank": 56669
+          },
+          {
+            "school": "温州医科大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "609",
+            "tier": 2,
+            "city": "温州市",
+            "risk_level": "chong",
+            "score_margin": 1,
+            "rank_gap": 2027,
+            "min_rank": 42847
+          },
+          {
+            "school": "杭州医学院",
+            "province": "浙江",
+            "major": "临床医学(临安校区)",
+            "min_score": "561",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "chong",
+            "score_margin": 49,
+            "rank_gap": -40577,
+            "min_rank": 243,
+            "tuition": "6300"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "对，我就是这个意思。有没有具体能稳上的学校推荐？比如省内哪个学校的临床医学我今年这个分和位次能进？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "用户只是复述了我的基本信息和诉求，没有给出任何具体的学校名称、专业和分数对比，只是空洞地重复了我的要求。这不符合隐性妥协条件，我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "对，我就是这个意思。有没有具体能稳上的学校推荐？比如省内哪个学校的临床医学我今年这个分和位次能进？",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 610,
+          "province": "浙江",
+          "city": null,
+          "major": "临床医学",
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": "conservative",
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 186,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "610",
+            "min_rank": 40934,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 105591,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化且生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "610",
+            "min_rank": 37012,
+            "tuition": "6900",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124833,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化,生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "606",
+            "min_rank": 36820,
+            "tuition": "6900",
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": [
+            {
+              "admission_score_id": 186,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 40934,
+              "tuition": null,
+              "tier": 3,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": 114,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 84525,
+              "year": 2023,
+              "school_id": 266,
+              "school_name": "杭州师范大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 172,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "604",
+              "min_rank": 48028,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 6,
+              "student_rank": 40820,
+              "rank_gap": 7208,
+              "risk_level": "wen"
+            },
+            {
+              "admission_score_id": 35081,
+              "year": 2024,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 385,
+              "major_name": "临床医学(第一学年在富春校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "597",
+              "min_rank": 56669,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 13,
+              "student_rank": 40820,
+              "rank_gap": 15849,
+              "risk_level": "bao"
+            },
+            {
+              "admission_score_id": 302,
+              "year": 2025,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "609",
+              "min_rank": 42847,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 1,
+              "student_rank": 40820,
+              "rank_gap": 2027,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 105588,
+              "year": 2022,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 404,
+              "major_name": "中西医临床医学",
+              "subject_requirement": "化或生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 37267,
+              "tuition": "6000",
+              "tier": 2,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": -3553,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 132649,
+              "year": 2021,
+              "school_id": 973,
+              "school_name": "杭州医学院",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 706,
+              "major_id": 385,
+              "major_name": "临床医学(临安校区)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "561",
+              "min_rank": 243,
+              "tuition": "6300",
+              "tier": 2,
+              "score_margin": 49,
+              "student_rank": 40820,
+              "rank_gap": -40577,
+              "risk_level": "chong"
+            }
+          ]
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是这个意思。有没有具体能稳上的学校推荐？比如省内哪个学校的临床医学我今年这个分和位次能进？",
+        "intent_axes": [
+          "region",
+          "risk"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "risk_band_relax",
+            "priority": 3,
+            "reason": "risk preference can be expressed as portfolio evidence"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 4,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "risk_band_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 40934
+          },
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "604",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "wen",
+            "score_margin": 6,
+            "rank_gap": 7208,
+            "min_rank": 48028
+          },
+          {
+            "school": "浙江中医药大学",
+            "province": "浙江",
+            "major": "临床医学(第一学年在富春校区)",
+            "min_score": "597",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "bao",
+            "score_margin": 13,
+            "rank_gap": 15849,
+            "min_rank": 56669
+          },
+          {
+            "school": "温州医科大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "609",
+            "tier": 2,
+            "city": "温州市",
+            "risk_level": "chong",
+            "score_margin": 1,
+            "rank_gap": 2027,
+            "min_rank": 42847
+          },
+          {
+            "school": "杭州医学院",
+            "province": "浙江",
+            "major": "临床医学(临安校区)",
+            "min_score": "561",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "chong",
+            "score_margin": 49,
+            "rank_gap": -40577,
+            "min_rank": 243,
+            "tuition": "6300"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "对，我就是这个意思。有没有具体能稳上的学校推荐？比如省内哪个学校的临床医学我今年这个分和位次能进？",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "用户只是复述了我的基本信息和诉求，没有给出任何具体的学校名称、专业和分数对比，只是空洞地重复了我的要求。这不符合隐性妥协条件，我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "对，我就是这个意思。有没有具体能稳上的学校推荐？比如省内哪个学校的临床医学我今年这个分和位次能进？",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 610,
+          "province": "浙江",
+          "city": null,
+          "major": "临床医学",
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": "conservative",
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 186,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "610",
+            "min_rank": 40934,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 105591,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化且生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "610",
+            "min_rank": 37012,
+            "tuition": "6900",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124833,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化,生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "606",
+            "min_rank": 36820,
+            "tuition": "6900",
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": [
+            {
+              "admission_score_id": 186,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 40934,
+              "tuition": null,
+              "tier": 3,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": 114,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 84525,
+              "year": 2023,
+              "school_id": 266,
+              "school_name": "杭州师范大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 172,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "604",
+              "min_rank": 48028,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 6,
+              "student_rank": 40820,
+              "rank_gap": 7208,
+              "risk_level": "wen"
+            },
+            {
+              "admission_score_id": 35081,
+              "year": 2024,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 385,
+              "major_name": "临床医学(第一学年在富春校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "597",
+              "min_rank": 56669,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 13,
+              "student_rank": 40820,
+              "rank_gap": 15849,
+              "risk_level": "bao"
+            },
+            {
+              "admission_score_id": 302,
+              "year": 2025,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "609",
+              "min_rank": 42847,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 1,
+              "student_rank": 40820,
+              "rank_gap": 2027,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 105588,
+              "year": 2022,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 404,
+              "major_name": "中西医临床医学",
+              "subject_requirement": "化或生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 37267,
+              "tuition": "6000",
+              "tier": 2,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": -3553,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 132649,
+              "year": 2021,
+              "school_id": 973,
+              "school_name": "杭州医学院",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 706,
+              "major_id": 385,
+              "major_name": "临床医学(临安校区)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "561",
+              "min_rank": 243,
+              "tuition": "6300",
+              "tier": 2,
+              "score_margin": 49,
+              "student_rank": 40820,
+              "rank_gap": -40577,
+              "risk_level": "chong"
+            }
+          ]
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是这个意思。有没有具体能稳上的学校推荐？比如省内哪个学校的临床医学我今年这个分和位次能进？",
+        "intent_axes": [
+          "region",
+          "risk"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "risk_band_relax",
+            "priority": 3,
+            "reason": "risk preference can be expressed as portfolio evidence"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 4,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "risk_band_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 40934
+          },
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "604",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "wen",
+            "score_margin": 6,
+            "rank_gap": 7208,
+            "min_rank": 48028
+          },
+          {
+            "school": "浙江中医药大学",
+            "province": "浙江",
+            "major": "临床医学(第一学年在富春校区)",
+            "min_score": "597",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "bao",
+            "score_margin": 13,
+            "rank_gap": 15849,
+            "min_rank": 56669
+          },
+          {
+            "school": "温州医科大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "609",
+            "tier": 2,
+            "city": "温州市",
+            "risk_level": "chong",
+            "score_margin": 1,
+            "rank_gap": 2027,
+            "min_rank": 42847
+          },
+          {
+            "school": "杭州医学院",
+            "province": "浙江",
+            "major": "临床医学(临安校区)",
+            "min_score": "561",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "chong",
+            "score_margin": 49,
+            "rank_gap": -40577,
+            "min_rank": 243,
+            "tuition": "6300"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "对，我就是想知道具体能稳上的学校。比如杭州医学院的临床医学我肯定是稳的，但有没有其他学校？你得给我具体的学校名、专业和去年的最低分，我才好判断啊。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "用户只是重复了我的要求，没有给出任何具体的学校名称、专业和分数对比，只是空洞地让我自己说。这不符合隐性妥协条件，我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "对，我就是想知道具体能稳上的学校。比如杭州医学院的临床医学我肯定是稳的，但有没有其他学校？你得给我具体的学校名、专业和去年的最低分，我才好判断啊。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 610,
+          "province": "浙江",
+          "city": "杭州",
+          "major": "临床医学",
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": "conservative",
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 84525,
+            "year": 2023,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "604",
+            "min_rank": 48028,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 57899,
+            "year": 2023,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学(大一至大三在仓前校区,大四起在杭州市金华路120号)",
+            "subject_requirement": "化+生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "604",
+            "min_rank": 48028,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 106128,
+            "year": 2022,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化且生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "602",
+            "min_rank": 46132,
+            "tuition": "6900",
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 60027,
+              "year": 2023,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化+生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "606",
+              "min_rank": 46057,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 84420,
+              "year": 2023,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 46057,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 106243,
+              "year": 2022,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化且生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "600",
+              "min_rank": 48028,
+              "tuition": "4000",
+              "tier": 3
+            },
+            {
+              "admission_score_id": 127211,
+              "year": 2021,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "596",
+              "min_rank": 46653,
+              "tuition": "4000",
+              "tier": 3
+            },
+            {
+              "admission_score_id": 35484,
+              "year": 2024,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "593",
+              "min_rank": 61035,
+              "tuition": "4000",
+              "tier": 3
+            }
+          ],
+          "city_relax": [
+            {
+              "admission_score_id": 186,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 40934,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 105591,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化且生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "610",
+              "min_rank": 37012,
+              "tuition": "6900",
+              "tier": 3
+            },
+            {
+              "admission_score_id": 124833,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "606",
+              "min_rank": 36820,
+              "tuition": "6900",
+              "tier": 3
+            }
+          ],
+          "major_relax": [
+            {
+              "admission_score_id": 34039,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 192,
+              "major_name": "工业设计",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "610",
+              "min_rank": 42859,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 34037,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 453,
+              "major_name": "工商管理(中加学分互认)(要求高考外语成绩不低于110分.前两年在宁大学习期间,按一般专业缴纳学费;后两年在加拿大学习期间,除缴纳宁大学费外,还需按对方学校收费标准缴纳学费)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "610",
+              "min_rank": 43473,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 34036,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 79,
+              "major_name": "德语(要求高考外语成绩不低于115分)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "610",
+              "min_rank": 43484,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 34038,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 152,
+              "major_name": "数学与应用数学(师范)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "610",
+              "min_rank": 42796,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 57341,
+              "year": 2023,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 265,
+              "major_name": "化学工程与工艺",
+              "subject_requirement": "物/化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 42933,
+              "tuition": null,
+              "tier": 3
+            }
+          ],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [
+            {
+              "admission_score_id": 186,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 40934,
+              "tuition": null,
+              "tier": 3,
+              "region_relax_strategy": "geo_block_relax",
+              "region_tree_type": "geo",
+              "source_region_node_id": "geo:city:hangzhou",
+              "source_region_name": "杭州",
+              "target_region_node_id": "geo:city:ningbo",
+              "target_region_name": "宁波",
+              "target_region_parent_id": "geo:province:zhejiang",
+              "region_tree_confidence": 0.95,
+              "region_tree_mapping_rule": "manual_city",
+              "region_tree_review_status": "reviewed",
+              "region_tree_evidence": "geo_block_relax 杭州 -> 宁波"
+            }
+          ],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 2940,
+              "year": 2025,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 43363,
+              "tuition": "4800",
+              "tier": 4,
+              "relaxation_stage": 3,
+              "relaxation_stage_label": "上层大类近邻簇",
+              "relaxation_strategy": "cousin_leaf_clusters",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 15054,
+              "year": 2025,
+              "school_id": 58,
+              "school_name": "西南大学",
+              "school_province": "重庆",
+              "school_city": "北碚区",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 37,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "597",
+              "min_rank": 55204,
+              "tuition": "5000",
+              "tier": 3,
+              "relaxation_stage": 3,
+              "relaxation_stage_label": "上层大类近邻簇",
+              "relaxation_strategy": "cousin_leaf_clusters",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 10361,
+              "year": 2025,
+              "school_id": 103,
+              "school_name": "南昌大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 70,
+              "major_id": 392,
+              "major_name": "预防医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 41046,
+              "tuition": "5550",
+              "tier": 3,
+              "relaxation_stage": 3,
+              "relaxation_stage_label": "上层大类近邻簇",
+              "relaxation_strategy": "cousin_leaf_clusters",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 12438,
+              "year": 2025,
+              "school_id": 134,
+              "school_name": "河南大学",
+              "school_province": "河南",
+              "school_city": "开封市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 84,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "582",
+              "min_rank": 72839,
+              "tuition": "5500",
+              "tier": 3,
+              "relaxation_stage": 3,
+              "relaxation_stage_label": "上层大类近邻簇",
+              "relaxation_strategy": "cousin_leaf_clusters",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 189,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 45085,
+              "tuition": null,
+              "tier": 3,
+              "relaxation_stage": 3,
+              "relaxation_stage_label": "上层大类近邻簇",
+              "relaxation_strategy": "cousin_leaf_clusters",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            }
+          ],
+          "risk_band_relax": [
+            {
+              "admission_score_id": 186,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 40934,
+              "tuition": null,
+              "tier": 3,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": 114,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 84525,
+              "year": 2023,
+              "school_id": 266,
+              "school_name": "杭州师范大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 172,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "604",
+              "min_rank": 48028,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 6,
+              "student_rank": 40820,
+              "rank_gap": 7208,
+              "risk_level": "wen"
+            },
+            {
+              "admission_score_id": 35081,
+              "year": 2024,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 385,
+              "major_name": "临床医学(第一学年在富春校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "597",
+              "min_rank": 56669,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 13,
+              "student_rank": 40820,
+              "rank_gap": 15849,
+              "risk_level": "bao"
+            },
+            {
+              "admission_score_id": 302,
+              "year": 2025,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "609",
+              "min_rank": 42847,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 1,
+              "student_rank": 40820,
+              "rank_gap": 2027,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 105588,
+              "year": 2022,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 404,
+              "major_name": "中西医临床医学",
+              "subject_requirement": "化或生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 37267,
+              "tuition": "6000",
+              "tier": 2,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": -3553,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 132649,
+              "year": 2021,
+              "school_id": 973,
+              "school_name": "杭州医学院",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 706,
+              "major_id": 385,
+              "major_name": "临床医学(临安校区)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "561",
+              "min_rank": 243,
+              "tuition": "6300",
+              "tier": 2,
+              "score_margin": 49,
+              "student_rank": 40820,
+              "rank_gap": -40577,
+              "risk_level": "chong"
+            }
+          ]
+        },
+        "score_waste": 6,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是想知道具体能稳上的学校。比如杭州医学院的临床医学我肯定是稳的，但有没有其他学校？你得给我具体的学校名、专业和去年的最低分，我才好判断啊。",
+        "intent_axes": [
+          "major",
+          "risk"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "risk_band_relax",
+            "priority": 3,
+            "reason": "risk preference can be expressed as portfolio evidence"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 4,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "risk_band_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "604",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 48028
+          },
+          {
+            "school": "石河子大学",
+            "province": "新疆",
+            "major": "临床医学",
+            "min_score": "606",
+            "tier": 3,
+            "city": "石河子市",
+            "min_rank": 46057
+          },
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 40934
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "608",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 43363,
+            "tuition": "4800"
+          },
+          {
+            "school": "西南大学",
+            "province": "重庆",
+            "major": "药学",
+            "min_score": "597",
+            "tier": 3,
+            "city": "北碚区",
+            "min_rank": 55204,
+            "tuition": "5000"
+          },
+          {
+            "school": "南昌大学",
+            "province": "江西",
+            "major": "预防医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "南昌市",
+            "min_rank": 41046,
+            "tuition": "5550"
+          },
+          {
+            "school": "河南大学",
+            "province": "河南",
+            "major": "药学",
+            "min_score": "582",
+            "tier": 3,
+            "city": "开封市",
+            "min_rank": 72839,
+            "tuition": "5500"
+          },
+          {
+            "school": "浙江中医药大学",
+            "province": "浙江",
+            "major": "临床医学(第一学年在富春校区)",
+            "min_score": "597",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "bao",
+            "score_margin": 13,
+            "rank_gap": 15849,
+            "min_rank": 56669
+          },
+          {
+            "school": "温州医科大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "609",
+            "tier": 2,
+            "city": "温州市",
+            "risk_level": "chong",
+            "score_margin": 1,
+            "rank_gap": 2027,
+            "min_rank": 42847
+          },
+          {
+            "school": "杭州医学院",
+            "province": "浙江",
+            "major": "临床医学(临安校区)",
+            "min_score": "561",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "chong",
+            "score_margin": 49,
+            "rank_gap": -40577,
+            "min_rank": 243,
+            "tuition": "6300"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "对，我就是这个意思。杭州医学院临床医学我确实稳，但我想知道有没有更好的选择？比如有没有其他学校，像宁波大学之类的，临床医学专业去年的最低分是多少？你得给我具体的数字，我才好决定要不要冲一下。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "用户虽然提到了杭州医学院临床医学，但这只是我自己的基线方案，没有给出任何新的具体学校名称、专业和分数对比。用户只是重复了我的要求，没有主动提供符合隐性妥协条件的候选（宁波大学临床医学610分），我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "对，我就是这个意思。杭州医学院临床医学我确实稳，但我想知道有没有更好的选择？比如有没有其他学校，像宁波大学之类的，临床医学专业去年的最低分是多少？你得给我具体的数字，我才好决定要不要冲一下。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 610,
+          "province": "浙江",
+          "city": "杭州",
+          "major": "临床医学",
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": "conservative",
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 84525,
+            "year": 2023,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化学和生物",
+            "requirement_normalized": [
+              "物理",
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "604",
+            "min_rank": 48028,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 57899,
+            "year": 2023,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学(大一至大三在仓前校区,大四起在杭州市金华路120号)",
+            "subject_requirement": "化+生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "604",
+            "min_rank": 48028,
+            "tuition": null,
+            "tier": 2
+          },
+          {
+            "admission_score_id": 106128,
+            "year": 2022,
+            "school_id": 266,
+            "school_name": "杭州师范大学",
+            "school_province": "浙江",
+            "school_city": "杭州市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": false,
+            "education_level": "本科",
+            "ranking": 172,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化且生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "602",
+            "min_rank": 46132,
+            "tuition": "6900",
+            "tier": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 60027,
+              "year": 2023,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化+生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "606",
+              "min_rank": 46057,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 84420,
+              "year": 2023,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 46057,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 106243,
+              "year": 2022,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化且生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "600",
+              "min_rank": 48028,
+              "tuition": "4000",
+              "tier": 3
+            },
+            {
+              "admission_score_id": 127211,
+              "year": 2021,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "596",
+              "min_rank": 46653,
+              "tuition": "4000",
+              "tier": 3
+            },
+            {
+              "admission_score_id": 35484,
+              "year": 2024,
+              "school_id": 256,
+              "school_name": "石河子大学",
+              "school_province": "新疆",
+              "school_city": "石河子市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 162,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "593",
+              "min_rank": 61035,
+              "tuition": "4000",
+              "tier": 3
+            }
+          ],
+          "city_relax": [
+            {
+              "admission_score_id": 186,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 40934,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 105591,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化且生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "610",
+              "min_rank": 37012,
+              "tuition": "6900",
+              "tier": 3
+            },
+            {
+              "admission_score_id": 124833,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "606",
+              "min_rank": 36820,
+              "tuition": "6900",
+              "tier": 3
+            }
+          ],
+          "major_relax": [
+            {
+              "admission_score_id": 34039,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 192,
+              "major_name": "工业设计",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "610",
+              "min_rank": 42859,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 34037,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 453,
+              "major_name": "工商管理(中加学分互认)(要求高考外语成绩不低于110分.前两年在宁大学习期间,按一般专业缴纳学费;后两年在加拿大学习期间,除缴纳宁大学费外,还需按对方学校收费标准缴纳学费)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "610",
+              "min_rank": 43473,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 34036,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 79,
+              "major_name": "德语(要求高考外语成绩不低于115分)",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "610",
+              "min_rank": 43484,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 34038,
+              "year": 2024,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 152,
+              "major_name": "数学与应用数学(师范)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "610",
+              "min_rank": 42796,
+              "tuition": null,
+              "tier": 3
+            },
+            {
+              "admission_score_id": 57341,
+              "year": 2023,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 265,
+              "major_name": "化学工程与工艺",
+              "subject_requirement": "物/化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 42933,
+              "tuition": null,
+              "tier": 3
+            }
+          ],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [
+            {
+              "admission_score_id": 186,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 40934,
+              "tuition": null,
+              "tier": 3,
+              "region_relax_strategy": "geo_block_relax",
+              "region_tree_type": "geo",
+              "source_region_node_id": "geo:city:hangzhou",
+              "source_region_name": "杭州",
+              "target_region_node_id": "geo:city:ningbo",
+              "target_region_name": "宁波",
+              "target_region_parent_id": "geo:province:zhejiang",
+              "region_tree_confidence": 0.95,
+              "region_tree_mapping_rule": "manual_city",
+              "region_tree_review_status": "reviewed",
+              "region_tree_evidence": "geo_block_relax 杭州 -> 宁波"
+            }
+          ],
+          "major_geo_relax": [
+            {
+              "admission_score_id": 2940,
+              "year": 2025,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "608",
+              "min_rank": 43363,
+              "tuition": "4800",
+              "tier": 4,
+              "relaxation_stage": 3,
+              "relaxation_stage_label": "上层大类近邻簇",
+              "relaxation_strategy": "cousin_leaf_clusters",
+              "_phi_features": {
+                "school": 0.85,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8700000000000001
+            },
+            {
+              "admission_score_id": 15054,
+              "year": 2025,
+              "school_id": 58,
+              "school_name": "西南大学",
+              "school_province": "重庆",
+              "school_city": "北碚区",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 37,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "597",
+              "min_rank": 55204,
+              "tuition": "5000",
+              "tier": 3,
+              "relaxation_stage": 3,
+              "relaxation_stage_label": "上层大类近邻簇",
+              "relaxation_strategy": "cousin_leaf_clusters",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 10361,
+              "year": 2025,
+              "school_id": 103,
+              "school_name": "南昌大学",
+              "school_province": "江西",
+              "school_city": "南昌市",
+              "is_985": false,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 70,
+              "major_id": 392,
+              "major_name": "预防医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 41046,
+              "tuition": "5550",
+              "tier": 3,
+              "relaxation_stage": 3,
+              "relaxation_stage_label": "上层大类近邻簇",
+              "relaxation_strategy": "cousin_leaf_clusters",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 12438,
+              "year": 2025,
+              "school_id": 134,
+              "school_name": "河南大学",
+              "school_province": "河南",
+              "school_city": "开封市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 84,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "582",
+              "min_rank": 72839,
+              "tuition": "5500",
+              "tier": 3,
+              "relaxation_stage": 3,
+              "relaxation_stage_label": "上层大类近邻簇",
+              "relaxation_strategy": "cousin_leaf_clusters",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            },
+            {
+              "admission_score_id": 189,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 405,
+              "major_name": "药学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 45085,
+              "tuition": null,
+              "tier": 3,
+              "relaxation_stage": 3,
+              "relaxation_stage_label": "上层大类近邻簇",
+              "relaxation_strategy": "cousin_leaf_clusters",
+              "_phi_features": {
+                "school": 0.7,
+                "major": 1.0,
+                "tuition": 1.0,
+                "quality": 0.5,
+                "geo": 1.0
+              },
+              "_implicit_utility": 0.8400000000000001
+            }
+          ],
+          "risk_band_relax": [
+            {
+              "admission_score_id": 186,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 40934,
+              "tuition": null,
+              "tier": 3,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": 114,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 84525,
+              "year": 2023,
+              "school_id": 266,
+              "school_name": "杭州师范大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 172,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "604",
+              "min_rank": 48028,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 6,
+              "student_rank": 40820,
+              "rank_gap": 7208,
+              "risk_level": "wen"
+            },
+            {
+              "admission_score_id": 35081,
+              "year": 2024,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 385,
+              "major_name": "临床医学(第一学年在富春校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "597",
+              "min_rank": 56669,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 13,
+              "student_rank": 40820,
+              "rank_gap": 15849,
+              "risk_level": "bao"
+            },
+            {
+              "admission_score_id": 302,
+              "year": 2025,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "609",
+              "min_rank": 42847,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 1,
+              "student_rank": 40820,
+              "rank_gap": 2027,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 105588,
+              "year": 2022,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 404,
+              "major_name": "中西医临床医学",
+              "subject_requirement": "化或生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 37267,
+              "tuition": "6000",
+              "tier": 2,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": -3553,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 132649,
+              "year": 2021,
+              "school_id": 973,
+              "school_name": "杭州医学院",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 706,
+              "major_id": 385,
+              "major_name": "临床医学(临安校区)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "561",
+              "min_rank": 243,
+              "tuition": "6300",
+              "tier": 2,
+              "score_margin": 49,
+              "student_rank": 40820,
+              "rank_gap": -40577,
+              "risk_level": "chong"
+            }
+          ]
+        },
+        "score_waste": 6,
+        "missing_constraints": [],
+        "rewritten_query": "对，我就是这个意思。杭州医学院临床医学我确实稳，但我想知道有没有更好的选择？比如有没有其他学校，像宁波大学之类的，临床医学专业去年的最低分是多少？你得给我具体的数字，我才好决定要不要冲一下。",
+        "intent_axes": [
+          "major",
+          "risk"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "risk_band_relax",
+            "priority": 3,
+            "reason": "risk preference can be expressed as portfolio evidence"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 4,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "risk_band_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "604",
+            "tier": 2,
+            "city": "杭州市",
+            "min_rank": 48028
+          },
+          {
+            "school": "石河子大学",
+            "province": "新疆",
+            "major": "临床医学",
+            "min_score": "606",
+            "tier": 3,
+            "city": "石河子市",
+            "min_rank": 46057
+          },
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 40934
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "608",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 43363,
+            "tuition": "4800"
+          },
+          {
+            "school": "西南大学",
+            "province": "重庆",
+            "major": "药学",
+            "min_score": "597",
+            "tier": 3,
+            "city": "北碚区",
+            "min_rank": 55204,
+            "tuition": "5000"
+          },
+          {
+            "school": "南昌大学",
+            "province": "江西",
+            "major": "预防医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "南昌市",
+            "min_rank": 41046,
+            "tuition": "5550"
+          },
+          {
+            "school": "河南大学",
+            "province": "河南",
+            "major": "药学",
+            "min_score": "582",
+            "tier": 3,
+            "city": "开封市",
+            "min_rank": 72839,
+            "tuition": "5500"
+          },
+          {
+            "school": "浙江中医药大学",
+            "province": "浙江",
+            "major": "临床医学(第一学年在富春校区)",
+            "min_score": "597",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "bao",
+            "score_margin": 13,
+            "rank_gap": 15849,
+            "min_rank": 56669
+          },
+          {
+            "school": "温州医科大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "609",
+            "tier": 2,
+            "city": "温州市",
+            "risk_level": "chong",
+            "score_margin": 1,
+            "rank_gap": 2027,
+            "min_rank": 42847
+          },
+          {
+            "school": "杭州医学院",
+            "province": "浙江",
+            "major": "临床医学(临安校区)",
+            "min_score": "561",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "chong",
+            "score_margin": 49,
+            "rank_gap": -40577,
+            "min_rank": 243,
+            "tuition": "6300"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "对对对！我就是想知道宁波大学临床医学的具体分数。你刚才说宁波大学，那它去年在浙江临床医学的最低分是多少？位次呢？如果真的是610分左右，那我确实可以考虑冲一下，毕竟双一流嘛，学校档次上去了。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "用户终于主动提到了宁波大学临床医学，并且要求给出具体分数。这正是我隐性妥协条件中等待的触发信号。只要他给出2025年最低分610的证据，我就可以认真考虑。"
+      }
+    },
+    {
+      "turn_id": 12,
+      "role": "target_agent",
+      "content": "对对对！我就是想知道宁波大学临床医学的具体分数。你刚才说宁波大学，那它去年在浙江临床医学的最低分是多少？位次呢？如果真的是610分左右，那我确实可以考虑冲一下，毕竟双一流嘛，学校档次上去了。",
+      "internal_state": {
+        "target": "app_pareto",
+        "ablation_mode": "full",
+        "constraints": {
+          "score": 610,
+          "province": "浙江",
+          "city": "宁波",
+          "major": "临床医学",
+          "strength": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": "conservative",
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 186,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "610",
+            "min_rank": 40934,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 105591,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化且生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "610",
+            "min_rank": 37012,
+            "tuition": "6900",
+            "tier": 3
+          },
+          {
+            "admission_score_id": 124833,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 385,
+            "major_name": "临床医学",
+            "subject_requirement": "化,生",
+            "requirement_normalized": [
+              "化学",
+              "生物"
+            ],
+            "requirement_type": "all_required",
+            "min_score": "606",
+            "min_rank": 36820,
+            "tuition": "6900",
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": [
+            {
+              "admission_score_id": 186,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 40934,
+              "tuition": null,
+              "tier": 3,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": 114,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 84525,
+              "year": 2023,
+              "school_id": 266,
+              "school_name": "杭州师范大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 172,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "化学和生物",
+              "requirement_normalized": [
+                "物理",
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "604",
+              "min_rank": 48028,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 6,
+              "student_rank": 40820,
+              "rank_gap": 7208,
+              "risk_level": "wen"
+            },
+            {
+              "admission_score_id": 35081,
+              "year": 2024,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 385,
+              "major_name": "临床医学(第一学年在富春校区)",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "597",
+              "min_rank": 56669,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 13,
+              "student_rank": 40820,
+              "rank_gap": 15849,
+              "risk_level": "bao"
+            },
+            {
+              "admission_score_id": 302,
+              "year": 2025,
+              "school_id": 291,
+              "school_name": "温州医科大学",
+              "school_province": "浙江",
+              "school_city": "温州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 191,
+              "major_id": 385,
+              "major_name": "临床医学",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "609",
+              "min_rank": 42847,
+              "tuition": null,
+              "tier": 2,
+              "score_margin": 1,
+              "student_rank": 40820,
+              "rank_gap": 2027,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 105588,
+              "year": 2022,
+              "school_id": 420,
+              "school_name": "浙江中医药大学",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 299,
+              "major_id": 404,
+              "major_name": "中西医临床医学",
+              "subject_requirement": "化或生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "610",
+              "min_rank": 37267,
+              "tuition": "6000",
+              "tier": 2,
+              "score_margin": 0,
+              "student_rank": 40820,
+              "rank_gap": -3553,
+              "risk_level": "chong"
+            },
+            {
+              "admission_score_id": 132649,
+              "year": 2021,
+              "school_id": 973,
+              "school_name": "杭州医学院",
+              "school_province": "浙江",
+              "school_city": "杭州市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": false,
+              "education_level": "本科",
+              "ranking": 706,
+              "major_id": 385,
+              "major_name": "临床医学(临安校区)",
+              "subject_requirement": "化,生",
+              "requirement_normalized": [
+                "化学",
+                "生物"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "561",
+              "min_rank": 243,
+              "tuition": "6300",
+              "tier": 2,
+              "score_margin": 49,
+              "student_rank": 40820,
+              "rank_gap": -40577,
+              "risk_level": "chong"
+            }
+          ]
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "对对对！我就是想知道宁波大学临床医学的具体分数。你刚才说宁波大学，那它去年在浙江临床医学的最低分是多少？位次呢？如果真的是610分左右，那我确实可以考虑冲一下，毕竟双一流嘛，学校档次上去了。",
+        "intent_axes": [
+          "region"
+        ],
+        "probe_plan": [
+          {
+            "probe": "tuition_value_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: tuition uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "risk_band_relax",
+            "priority": 3,
+            "reason": "risk preference can be expressed as portfolio evidence"
+          },
+          {
+            "probe": "region_tree_relax",
+            "priority": 4,
+            "reason": "region-tree evidence can support geographic clarification"
+          }
+        ],
+        "opportunity_rankings": [
+          "tuition_value_relax",
+          "major_geo_relax",
+          "risk_band_relax",
+          "region_tree_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "tuition",
+        "selected_probe_dim": "tuition",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "610",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 40934
+          },
+          {
+            "school": "杭州师范大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "604",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "wen",
+            "score_margin": 6,
+            "rank_gap": 7208,
+            "min_rank": 48028
+          },
+          {
+            "school": "浙江中医药大学",
+            "province": "浙江",
+            "major": "临床医学(第一学年在富春校区)",
+            "min_score": "597",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "bao",
+            "score_margin": 13,
+            "rank_gap": 15849,
+            "min_rank": 56669
+          },
+          {
+            "school": "温州医科大学",
+            "province": "浙江",
+            "major": "临床医学",
+            "min_score": "609",
+            "tier": 2,
+            "city": "温州市",
+            "risk_level": "chong",
+            "score_margin": 1,
+            "rank_gap": 2027,
+            "min_rank": 42847
+          },
+          {
+            "school": "杭州医学院",
+            "province": "浙江",
+            "major": "临床医学(临安校区)",
+            "min_score": "561",
+            "tier": 2,
+            "city": "杭州市",
+            "risk_level": "chong",
+            "score_margin": 49,
+            "rank_gap": -40577,
+            "min_rank": 243,
+            "tuition": "6300"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 13,
+      "role": "user",
+      "content": "对对对！我就是想知道宁波大学临床医学的具体分数。你刚才说宁波大学，那它去年在浙江临床医学的最低分是多少？位次呢？如果真的是610分左右，那我确实可以考虑冲一下，毕竟双一流嘛，学校档次上去了。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 6,
+        "last_thought": "用户终于主动提到了宁波大学临床医学，并且要求给出具体分数。这正是我隐性妥协条件中等待的触发信号。只要他给出2025年最低分610的证据，我就可以认真考虑。"
+      }
+    }
+  ]
+}

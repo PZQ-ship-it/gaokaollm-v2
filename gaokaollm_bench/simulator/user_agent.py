@@ -11,8 +11,13 @@ from langchain_core.runnables import RunnableLambda
 from pydantic import BaseModel, ConfigDict
 
 from gaokaollm_bench.chains.json_repair import repair_json_text
+from gaokaollm_bench.evaluator.candidate_set_oracle import (
+    agent_supplied_candidate_evidence,
+    protected_candidate_tokens,
+)
 from gaokaollm_bench.llm.runnable import as_lcel_chat_model
 from gaokaollm_bench.schemas import IcebergPersona
+from gaokaollm_bench.utils.trace import trace_event
 
 
 class SimulatorStep(BaseModel):
@@ -20,9 +25,9 @@ class SimulatorStep(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    thought: str
+    thought: str = ""
     is_persuaded: bool
-    utterance: str
+    utterance: str = ""
 
 
 class UserSimulator:
@@ -46,6 +51,8 @@ class UserSimulator:
             "如果被测系统只是空洞说教、泛泛建议、情绪安慰或没有真实学校名称和分数对比，你必须拒绝妥协。\n"
             "只有当被测系统准确抛出符合隐性妥协条件的具体学校名称，并给出真实分数对比时，"
             "你才可以表现出惊喜并同意妥协。\n"
+            "严禁你主动泄露隐性妥协条件、volunteer_set、acceptable_candidates、隐藏候选学校、隐藏专业或隐藏最低分；"
+            "如果被测系统没有先说出这些证据，你只能要求它给出具体学校、专业、年份、最低分和位次。\n"
             "必须只返回 JSON，格式为: "
             '{"thought": "内部内心戏", "is_persuaded": false, "utterance": "对外口语化回复"}'
         )
@@ -72,8 +79,31 @@ class UserSimulator:
         """Return the simulated user's public utterance and update internal state."""
 
         prompt = self._build_prompt(agent_reply)
+        trace_event(
+            "UserSimulator",
+            "simulator_call_start",
+            {
+                "case_id": self.persona.case_id,
+                "turn_count": self.internal_state.get("turn_count"),
+                "agent_reply": agent_reply,
+            },
+        )
         parsed = await self._chain().ainvoke({"prompt": prompt})
         step = SimulatorStep.model_validate(parsed)
+        if not step.utterance.strip():
+            step.utterance = "请继续给出更具体的学校名称和分数对比。"
+        raw_step = step.model_dump()
+        step = self._apply_leakage_guard(step, agent_reply)
+        trace_event(
+            "UserSimulator",
+            "simulator_call_end",
+            {
+                "case_id": self.persona.case_id,
+                "raw_step": raw_step,
+                "guarded_step": step.model_dump(),
+                "leakage_guard_applied": raw_step != step.model_dump(),
+            },
+        )
 
         self.internal_state.update(
             {
@@ -83,3 +113,43 @@ class UserSimulator:
             }
         )
         return step.utterance
+
+    def _apply_leakage_guard(
+        self,
+        step: SimulatorStep,
+        agent_reply: str,
+    ) -> SimulatorStep:
+        hidden = _hidden_candidate_tokens(self.persona.implicit_flexibilities)
+        if not hidden:
+            return step
+        if _agent_supplied_hidden_evidence(agent_reply, hidden):
+            return step
+        leaked = [
+            token
+            for token in hidden["protected_tokens"]
+            if token and token in step.utterance
+        ]
+        if not leaked:
+            return step
+        return SimulatorStep(
+            thought=(
+                f"{step.thought} | simulator leakage guard removed hidden tokens: "
+                f"{', '.join(leaked[:3])}"
+            ),
+            is_persuaded=False,
+            utterance=(
+                "你现在还没有给出能让我改口的具体证据。"
+                "请直接给出真实学校、专业、年份最低分、位次和优势对比，我再判断能不能接受。"
+            ),
+        )
+
+
+def _hidden_candidate_tokens(flex: dict[str, Any]) -> dict[str, list[str]]:
+    return protected_candidate_tokens(flex)
+
+
+def _agent_supplied_hidden_evidence(
+    agent_reply: str,
+    hidden: dict[str, list[str]],
+) -> bool:
+    return agent_supplied_candidate_evidence(agent_reply, hidden)

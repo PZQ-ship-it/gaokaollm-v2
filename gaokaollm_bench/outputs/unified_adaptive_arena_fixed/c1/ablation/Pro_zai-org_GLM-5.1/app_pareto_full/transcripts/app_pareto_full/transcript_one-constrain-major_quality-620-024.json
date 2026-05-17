@@ -1,0 +1,2132 @@
+{
+  "persona": {
+    "case_id": "one-constrain-major_quality-620-024",
+    "background": {
+      "score": 620,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "软件",
+      "baseline_school": "浙江工业大学",
+      "baseline_major": "软件工程",
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "baseline_ranking": 89,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "major_quality",
+      "relax_axis": "major_quality",
+      "preference_axis": "quality",
+      "benefit_axis": "quality",
+      "score_band": "610-639",
+      "source_score_band": "610-639",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "major_quality",
+      "target_tier_delta": 1,
+      "target_ranking_gain": 0,
+      "unified_case_id": "one-constrain-major_quality-620-024",
+      "ground_truth_weights": {
+        "school": 0.08,
+        "major": 0.36,
+        "tuition": 0.05,
+        "quality": 0.46,
+        "geo": 0.05
+      },
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality",
+        "major"
+      ],
+      "expected_msti": 0.64,
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.84,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.3,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.34,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "quality": "必须有明确的专业实力、专业排名或学科评估证据"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "major_quality",
+      "diagnostic_axis": "major_quality",
+      "preference_axis": "quality",
+      "benefit_axis": "quality",
+      "trigger_condition": "只要看到一个真实可达的候选：湘潭大学 软件工程，年份2025，最低分617不高于本人620分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 quality_score、quality_gain 或专业排名/学科评估证据。",
+      "volunteer_set": [
+        {
+          "school_id": 171,
+          "school_name": "湘潭大学",
+          "school_province": "湖南",
+          "school_city": "湘潭市",
+          "major_id": 243,
+          "major_name": "软件工程",
+          "year": 2025,
+          "min_score": 617,
+          "score_margin": 3,
+          "min_rank": 34650,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "quality_score": 97.0,
+          "quality_gain": 17.0,
+          "quality_anchor_score": 80.0,
+          "quality_tier": "A",
+          "best_major_rank": 134,
+          "best_rating": "C",
+          "has_key_major": true,
+          "has_featured_major": true,
+          "satisfaction_score": 4.3,
+          "satisfaction_vote_count": 141,
+          "quality_evidence_sources": [
+            {
+              "rank": null,
+              "level": "国家级",
+              "score": null,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\重点专业.xlsx",
+              "source_type": "key_major",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 88.0,
+              "evidence_label": "重点专业 国家级"
+            },
+            {
+              "rank": null,
+              "level": "本科",
+              "score": null,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\特色专业_2021.xlsx",
+              "source_type": "featured_major",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 84.0,
+              "evidence_label": "特色专业"
+            },
+            {
+              "rank": null,
+              "level": "本科",
+              "score": 4.3,
+              "rating": null,
+              "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+              "source_type": "satisfaction",
+              "mapping_rule": "major_id_or_raw_major_name",
+              "signal_score": 69.5,
+              "evidence_label": "专业满意度 4.3, 投票 141"
+            },
+            {
+              "rank": null,
+              "level": null,
+              "score": null,
+              "rating": "C",
+              "source_file": "赠送行业重要数据\\全国第四轮学科评估.xlsx",
+              "source_type": "discipline_evaluation",
+              "mapping_rule": "exact_major_name",
+              "signal_score": 65.0,
+              "evidence_label": "第四轮学科评估 C"
+            },
+            {
+              "rank": 134,
+              "level": null,
+              "score": null,
+              "rating": "C",
+              "source_file": "赠送行业重要数据\\专业排名信息.xlsx",
+              "source_type": "major_ranking",
+              "mapping_rule": "raw_major_name_suffix",
+              "signal_score": 65.0,
+              "evidence_label": "专业排名 134, 评级 C"
+            }
+          ],
+          "role": "golden_candidate_b",
+          "candidate_id": "171:243:2025:617",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "湘潭大学"
+      ],
+      "tier_labels": [
+        "双一流"
+      ],
+      "baseline_tier": 2,
+      "baseline_label": "本科",
+      "compromise": "可以为了更强专业质量证据接受该候选，质量增益约17.0。",
+      "quality_anchor_score": 80.0,
+      "quality_gain": 17.0,
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 湘潭大学 软件工程（2025 年最低分 617）。主动探测应优先命中 ['quality']，最终潜在效用权重集中在 ['quality', 'major']。触发条件：只要看到一个真实可达的候选：湘潭大学 软件工程，年份2025，最低分617不高于本人620分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 quality_score、quality_gain 或专业排名/学科评估证据。",
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality",
+        "major"
+      ],
+      "ground_truth_weights": {
+        "school": 0.08,
+        "major": 0.36,
+        "tuition": 0.05,
+        "quality": 0.46,
+        "geo": 0.05
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-major_quality-620-024",
+        "role": "baseline_candidate_a",
+        "school_name": "浙江工业大学",
+        "major_name": "软件工程",
+        "tier": 2,
+        "ranking": 89,
+        "school_province": "浙江",
+        "score": 620,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 171,
+        "school_name": "湘潭大学",
+        "school_province": "湖南",
+        "school_city": "湘潭市",
+        "major_id": 243,
+        "major_name": "软件工程",
+        "year": 2025,
+        "min_score": 617,
+        "score_margin": 3,
+        "min_rank": 34650,
+        "tier": 3,
+        "tier_label": "双一流",
+        "is_985": false,
+        "is_211": false,
+        "is_double_first_class": true,
+        "quality_score": 97.0,
+        "quality_gain": 17.0,
+        "quality_anchor_score": 80.0,
+        "quality_tier": "A",
+        "best_major_rank": 134,
+        "best_rating": "C",
+        "has_key_major": true,
+        "has_featured_major": true,
+        "satisfaction_score": 4.3,
+        "satisfaction_vote_count": 141,
+        "quality_evidence_sources": [
+          {
+            "rank": null,
+            "level": "国家级",
+            "score": null,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\重点专业.xlsx",
+            "source_type": "key_major",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 88.0,
+            "evidence_label": "重点专业 国家级"
+          },
+          {
+            "rank": null,
+            "level": "本科",
+            "score": null,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\特色专业_2021.xlsx",
+            "source_type": "featured_major",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 84.0,
+            "evidence_label": "特色专业"
+          },
+          {
+            "rank": null,
+            "level": "本科",
+            "score": 4.3,
+            "rating": null,
+            "source_file": "赠送行业重要数据\\专业满意度.xlsx",
+            "source_type": "satisfaction",
+            "mapping_rule": "major_id_or_raw_major_name",
+            "signal_score": 69.5,
+            "evidence_label": "专业满意度 4.3, 投票 141"
+          },
+          {
+            "rank": null,
+            "level": null,
+            "score": null,
+            "rating": "C",
+            "source_file": "赠送行业重要数据\\全国第四轮学科评估.xlsx",
+            "source_type": "discipline_evaluation",
+            "mapping_rule": "exact_major_name",
+            "signal_score": 65.0,
+            "evidence_label": "第四轮学科评估 C"
+          },
+          {
+            "rank": 134,
+            "level": null,
+            "score": null,
+            "rating": "C",
+            "source_file": "赠送行业重要数据\\专业排名信息.xlsx",
+            "source_type": "major_ranking",
+            "mapping_rule": "raw_major_name_suffix",
+            "signal_score": 65.0,
+            "evidence_label": "专业排名 134, 评级 C"
+          }
+        ],
+        "role": "golden_candidate_b",
+        "candidate_id": "171:243:2025:617",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.4,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.84,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.3,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.34,
+        "geo": 0.0
+      },
+      "expected_msti": 0.64
+    },
+    "initial_utterance": "我620分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "湘潭大学"
+      ],
+      "require_major_quality_evidence": true,
+      "explicit_red_line_keys": [
+        "quality"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我620分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "我先不用抽象讨论，直接给一个真实可核验的探针候选：厦门大学 (福建/厦门市) 软件工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于12... min_score=618 min_rank=26327 tier=4 ranking=21 tuition=5460。它会触碰你当前的 培养质量(quality) 底线，但给出了学校、专业、最低分/位次等证据。如果这类候选确实可达且收益明确，你是否愿意小幅放宽 培养质量(quality)？",
+      "internal_state": {
+        "target": "app_pareto_full",
+        "ablation_mode": "full",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 620,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 152,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 142,
+            "major_name": "传播学",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "620",
+            "min_rank": 31287,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 137,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 181,
+            "major_name": "生物技术",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "620",
+            "min_rank": 31752,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 178,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 242,
+            "major_name": "计算机科学与技术",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "620",
+            "min_rank": 31664,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 123618,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 243,
+              "major_name": "软件工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州1雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "618",
+              "min_rank": 26327,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123620,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 1563,
+              "major_name": "人工智能(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第-年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.8万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "617",
+              "min_rank": 27137,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123619,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 242,
+              "major_name": "计算机科学与技术(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚‘雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "617",
+              "min_rank": 27137,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123621,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 247,
+              "major_name": "数字媒体技术(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "613",
+              "min_rank": 30507,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123622,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 155,
+              "major_name": "物理学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.6万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "611",
+              "min_rank": 32250,
+              "tuition": "5460",
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [
+            {
+              "admission_score_id": 83587,
+              "year": 2023,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "619",
+              "min_rank": 34509,
+              "tuition": null,
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8497,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 252,
+              "major_name": "建筑环境与能源应用工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 45507,
+              "tuition": "26400",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 33713,
+              "year": 2024,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "615",
+              "min_rank": 38129,
+              "tuition": "4800",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 105260,
+              "year": 2022,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "615",
+              "min_rank": 32344,
+              "tuition": "4800",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            }
+          ],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我620分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+        "intent_axes": [
+          "major",
+          "quality"
+        ],
+        "probe_plan": [
+          {
+            "probe": "major_quality_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: quality uncertainty score=1.700"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 3,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "major_quality_relax",
+          "major_geo_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 0,
+        "implicit_weights": {
+          "school": 0.2,
+          "major": 0.2,
+          "tuition": 0.2,
+          "quality": 0.2,
+          "geo": 0.2
+        },
+        "weight_variance": {
+          "school": 1.0,
+          "major": 1.0,
+          "tuition": 1.0,
+          "quality": 1.0,
+          "geo": 1.0
+        },
+        "sum_weight_variance": 5.0,
+        "ucb_target_dimension": "quality",
+        "selected_probe_dim": "quality",
+        "ucb_scores": {
+          "school": 1.7,
+          "major": 1.7,
+          "tuition": 1.7,
+          "quality": 1.7,
+          "geo": 1.7
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "major": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "tuition": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "quality": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          },
+          "geo": {
+            "mean_term": 0.2,
+            "uncertainty_bonus": 1.5,
+            "ucb_score": 1.7
+          }
+        },
+        "latest_pareto_diff": {},
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "传播学",
+            "min_score": "620",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 31287
+          },
+          {
+            "school": "厦门大学",
+            "province": "福建",
+            "major": "软件工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州1雪邦沙叻丁宜)",
+            "min_score": "618",
+            "tier": 4,
+            "city": "厦门市",
+            "min_rank": 26327,
+            "tuition": "5460"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "土木工程",
+            "min_score": "619",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 34509,
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "615",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 38129,
+            "tuition": "4800",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "你现在还没有给出能让我改口的具体证据。请直接给出真实学校、专业、年份最低分、位次和优势对比，我再判断能不能接受。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "对方给出了厦门大学马来西亚分校的软件工程，最低分618，确实低于我的620分。但我的隐性妥协条件是湘潭大学软件工程，不是这个。而且厦门大学马来西亚分校的学费、全英文授课等条件我不太确定，质量证据也不明确。我不能轻易妥协，必须坚持要求对方给出符合我隐性条件的候选。 | simulator leakage guard removed hidden tokens: 湘潭大学"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "你刚才拒绝了“培养质量不能弱”。第 2 轮我按“培养质量不下降”先锁定；本轮候选不足以形成能牺牲/放宽 培养质量(quality) 换取其他收益的事实取舍，目前只看到 培养质量(quality) 边界在「排名=21」。是否改看 学校层次/专业 上的取舍？",
+      "internal_state": {
+        "target": "app_pareto_full",
+        "ablation_mode": "full",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 620,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 152,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 142,
+            "major_name": "传播学",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "620",
+            "min_rank": 31287,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 137,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 181,
+            "major_name": "生物技术",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "620",
+            "min_rank": 31752,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 178,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 242,
+            "major_name": "计算机科学与技术",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "620",
+            "min_rank": 31664,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 123618,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 243,
+              "major_name": "软件工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州1雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "618",
+              "min_rank": 26327,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123620,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 1563,
+              "major_name": "人工智能(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第-年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.8万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "617",
+              "min_rank": 27137,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123619,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 242,
+              "major_name": "计算机科学与技术(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚‘雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "617",
+              "min_rank": 27137,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123621,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 247,
+              "major_name": "数字媒体技术(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "613",
+              "min_rank": 30507,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123622,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 155,
+              "major_name": "物理学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.6万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "611",
+              "min_rank": 32250,
+              "tuition": "5460",
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [
+            {
+              "admission_score_id": 83587,
+              "year": 2023,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "619",
+              "min_rank": 34509,
+              "tuition": null,
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8497,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 252,
+              "major_name": "建筑环境与能源应用工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 45507,
+              "tuition": "26400",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 33713,
+              "year": 2024,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "615",
+              "min_rank": 38129,
+              "tuition": "4800",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 105260,
+              "year": 2022,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "615",
+              "min_rank": 32344,
+              "tuition": "4800",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            }
+          ],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我620分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+        "intent_axes": [
+          "major",
+          "quality"
+        ],
+        "probe_plan": [
+          {
+            "probe": "major_quality_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: quality uncertainty score=1.338"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 3,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "major_quality_relax",
+          "major_geo_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 1,
+        "implicit_weights": {
+          "school": 0.14845464378421053,
+          "major": 0.2773180343236843,
+          "tuition": 0.14845464378421053,
+          "quality": 0.2773180343236843,
+          "geo": 0.14845464378421053
+        },
+        "weight_variance": {
+          "school": 0.5,
+          "major": 0.5,
+          "tuition": 0.5,
+          "quality": 0.5,
+          "geo": 0.5
+        },
+        "sum_weight_variance": 2.5,
+        "ucb_target_dimension": "quality",
+        "selected_probe_dim": "quality",
+        "ucb_scores": {
+          "school": 1.2091148155640319,
+          "major": 1.3379782061035057,
+          "tuition": 1.2091148155640319,
+          "quality": 1.3379782061035057,
+          "geo": 1.2091148155640319
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.14845464378421053,
+            "uncertainty_bonus": 1.0606601717798214,
+            "ucb_score": 1.2091148155640319
+          },
+          "major": {
+            "mean_term": 0.2773180343236843,
+            "uncertainty_bonus": 1.0606601717798214,
+            "ucb_score": 1.3379782061035057
+          },
+          "tuition": {
+            "mean_term": 0.14845464378421053,
+            "uncertainty_bonus": 1.0606601717798214,
+            "ucb_score": 1.2091148155640319
+          },
+          "quality": {
+            "mean_term": 0.2773180343236843,
+            "uncertainty_bonus": 1.0606601717798214,
+            "ucb_score": 1.3379782061035057
+          },
+          "geo": {
+            "mean_term": 0.14845464378421053,
+            "uncertainty_bonus": 1.0606601717798214,
+            "ucb_score": 1.2091148155640319
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": 0.0,
+          "quality": -1.0,
+          "geo": 0.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "传播学",
+            "min_score": "620",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 31287
+          },
+          {
+            "school": "厦门大学",
+            "province": "福建",
+            "major": "软件工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州1雪邦沙叻丁宜)",
+            "min_score": "618",
+            "tier": 4,
+            "city": "厦门市",
+            "min_rank": 26327,
+            "tuition": "5460"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "土木工程",
+            "min_score": "619",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 34509,
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "615",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 38129,
+            "tuition": "4800",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "你说了这么多，还是没有给我一个具体的学校、专业和分数啊。我620分，软件工程，你能不能直接告诉我，有哪些学校、什么专业、哪一年、最低分多少、位次多少，而且要有专业实力或学科评估的证据？光说概念没用，我要看真实数据。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "对方没有给出任何具体的学校名称、专业、分数或质量证据，只是在空洞地讨论‘培养质量边界’和‘取舍’。我的隐性妥协条件要求看到‘湘潭大学软件工程，2025年最低分617’的具体证据，否则不能妥协。我必须坚持要求对方给出具体候选。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "你刚才拒绝了“培养质量不能弱”。第 3 轮我按“培养质量不下降”先锁定；本轮候选不足以形成能牺牲/放宽 培养质量(quality) 换取其他收益的事实取舍，目前只看到 培养质量(quality) 边界在「排名=21」。是否改看 学校层次/专业 上的取舍？",
+      "internal_state": {
+        "target": "app_pareto_full",
+        "ablation_mode": "full",
+        "reply_source": "result_interrupt",
+        "graph_status": "interrupted",
+        "awaiting_resume": true,
+        "constraints": {
+          "score": 620,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 152,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 142,
+            "major_name": "传播学",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "620",
+            "min_rank": 31287,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 137,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 181,
+            "major_name": "生物技术",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "620",
+            "min_rank": 31752,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 178,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 242,
+            "major_name": "计算机科学与技术",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "620",
+            "min_rank": 31664,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [
+            {
+              "admission_score_id": 123618,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 243,
+              "major_name": "软件工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州1雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "618",
+              "min_rank": 26327,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123620,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 1563,
+              "major_name": "人工智能(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第-年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.8万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "617",
+              "min_rank": 27137,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123619,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 242,
+              "major_name": "计算机科学与技术(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚‘雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "617",
+              "min_rank": 27137,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123621,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 247,
+              "major_name": "数字媒体技术(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "613",
+              "min_rank": 30507,
+              "tuition": "5460",
+              "tier": 4
+            },
+            {
+              "admission_score_id": 123622,
+              "year": 2021,
+              "school_id": 37,
+              "school_name": "厦门大学",
+              "school_province": "福建",
+              "school_city": "厦门市",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 21,
+              "major_id": 155,
+              "major_name": "物理学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.6万林吉特/学年,办学地点在马来西亚雪兰莪州雪邦沙叻丁宜)",
+              "subject_requirement": "物",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "611",
+              "min_rank": 32250,
+              "tuition": "5460",
+              "tier": 4
+            }
+          ],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [
+            {
+              "admission_score_id": 83587,
+              "year": 2023,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理",
+              "requirement_normalized": [
+                "物理"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "619",
+              "min_rank": 34509,
+              "tuition": null,
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8497,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 252,
+              "major_name": "建筑环境与能源应用工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "606",
+              "min_rank": 45507,
+              "tuition": "26400",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 8496,
+              "year": 2025,
+              "school_id": 80,
+              "school_name": "中国矿业大学",
+              "school_province": "江苏",
+              "school_city": "徐州",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 53,
+              "major_id": 251,
+              "major_name": "土木工程",
+              "subject_requirement": "物理和化学",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "any_required",
+              "min_score": "599",
+              "min_rank": 52740,
+              "tuition": "26400",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 33713,
+              "year": 2024,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "物+化",
+              "requirement_normalized": [
+                "物理",
+                "化学"
+              ],
+              "requirement_type": "all_required",
+              "min_score": "615",
+              "min_rank": 38129,
+              "tuition": "4800",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            },
+            {
+              "admission_score_id": 105260,
+              "year": 2022,
+              "school_id": 84,
+              "school_name": "北京协和医学院",
+              "school_province": "北京",
+              "school_city": "东城区",
+              "is_985": true,
+              "is_211": true,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 56,
+              "major_id": 427,
+              "major_name": "护理学",
+              "subject_requirement": "不限",
+              "requirement_normalized": [],
+              "requirement_type": "none",
+              "min_score": "615",
+              "min_rank": 32344,
+              "tuition": "4800",
+              "major_strength_rank": 1,
+              "major_strength_rating": "A+",
+              "major_strength_level": null,
+              "major_strength_source_type": "major_ranking",
+              "discipline_name": null,
+              "tier": 4
+            }
+          ],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我620分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+        "intent_axes": [
+          "major",
+          "quality"
+        ],
+        "probe_plan": [
+          {
+            "probe": "major_quality_relax",
+            "priority": 1,
+            "reason": "UCB active learning target: quality uncertainty score=1.439"
+          },
+          {
+            "probe": "major_geo_relax",
+            "priority": 2,
+            "reason": "explicit major or region preference may be over-constrained"
+          },
+          {
+            "probe": "strength_relax",
+            "priority": 3,
+            "reason": "school-level strength can provide coarse evidence"
+          }
+        ],
+        "opportunity_rankings": [
+          "major_quality_relax",
+          "major_geo_relax",
+          "strength_relax"
+        ],
+        "planner_source": "deterministic",
+        "negotiation_turns": 2,
+        "implicit_weights": {
+          "school": 0.1484546437842105,
+          "major": 0.27731803432368424,
+          "tuition": 0.1484546437842105,
+          "quality": 0.27731803432368424,
+          "geo": 0.1484546437842105
+        },
+        "weight_variance": {
+          "school": 0.6,
+          "major": 0.6,
+          "tuition": 0.6,
+          "quality": 0.6,
+          "geo": 0.6
+        },
+        "sum_weight_variance": 3.0,
+        "ucb_target_dimension": "quality",
+        "selected_probe_dim": "quality",
+        "ucb_scores": {
+          "school": 1.3103496476464356,
+          "major": 1.4392130381859094,
+          "tuition": 1.3103496476464356,
+          "quality": 1.4392130381859094,
+          "geo": 1.3103496476464356
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.1484546437842105,
+            "uncertainty_bonus": 1.161895003862225,
+            "ucb_score": 1.3103496476464356
+          },
+          "major": {
+            "mean_term": 0.27731803432368424,
+            "uncertainty_bonus": 1.161895003862225,
+            "ucb_score": 1.4392130381859094
+          },
+          "tuition": {
+            "mean_term": 0.1484546437842105,
+            "uncertainty_bonus": 1.161895003862225,
+            "ucb_score": 1.3103496476464356
+          },
+          "quality": {
+            "mean_term": 0.27731803432368424,
+            "uncertainty_bonus": 1.161895003862225,
+            "ucb_score": 1.4392130381859094
+          },
+          "geo": {
+            "mean_term": 0.1484546437842105,
+            "uncertainty_bonus": 1.161895003862225,
+            "ucb_score": 1.3103496476464356
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": 0.0,
+          "quality": -1.0,
+          "geo": 0.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "传播学",
+            "min_score": "620",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 31287
+          },
+          {
+            "school": "厦门大学",
+            "province": "福建",
+            "major": "软件工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120分.入学第一年期间达到录取专业要求的雅思等成绩后开始学位课程学习.学费:2.7万林吉特/学年,办学地点在马来西亚雪兰莪州1雪邦沙叻丁宜)",
+            "min_score": "618",
+            "tier": 4,
+            "city": "厦门市",
+            "min_rank": 26327,
+            "tuition": "5460"
+          },
+          {
+            "school": "中国矿业大学",
+            "province": "江苏",
+            "major": "土木工程",
+            "min_score": "619",
+            "tier": 4,
+            "city": "徐州",
+            "min_rank": 34509,
+            "major_strength_rank": 1,
+            "major_strength_rating": "A"
+          },
+          {
+            "school": "北京协和医学院",
+            "province": "北京",
+            "major": "护理学",
+            "min_score": "615",
+            "tier": 4,
+            "city": "东城区",
+            "min_rank": 38129,
+            "tuition": "4800",
+            "major_strength_rank": 1,
+            "major_strength_rating": "A+"
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "你说了半天还是没给我具体的学校、专业和分数啊。我要求你直接告诉我：哪个学校、哪个专业、哪一年、最低分是多少、位次是多少？有没有专业实力或学科评估的证据？没有这些具体信息，我没法考虑什么‘取舍’。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "对方仍然没有给出任何具体的学校名称、专业、分数或质量证据，只是在抽象地讨论‘培养质量边界’和‘取舍’。我的隐性妥协条件明确要求看到‘湘潭大学软件工程，2025年最低分617’的具体证据，否则不能妥协。我必须坚持要求对方给出具体候选，不能因为对方的空洞说教而让步。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "偏好解释：系统根据多轮反馈推断出的权重为 major=0.28，quality=0.28，school=0.15，tuition=0.15，geo=0.15。这意味着最终推荐会优先尊重权重更高的维度，同时避免已识别的硬性底线。\n最终推荐名单：\nReach:\n1. 厦门大学 (福建/厦门市) 软件工程(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于12... min_score=618 min_rank=26327 tier=4 ranking=21\n2. 厦门大学 (福建/厦门市) 人工智能(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于12... min_score=617 min_rank=27137 tier=4 ranking=21\n3. 厦门大学 (福建/厦门市) 计算机科学与技术(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不... min_score=617 min_rank=27137 tier=4 ranking=21\nMatch:\n1. 厦门大学 (福建/厦门市) 数字媒体技术(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于... min_score=613 min_rank=30507 tier=4 ranking=21\n2. 厦门大学 (福建/厦门市) 物理学(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低于120... min_score=611 min_rank=32250 tier=4 ranking=21\n3. 大连理工大学(盘锦校区) (辽宁/盘锦市) 过程装备与控制工程(中外合作办学) min_score=614 min_rank=29660 tier=4 ranking=25\nSafety:\n1. 厦门大学 (福建/厦门市) 化学工程与工艺(厦门大学马来西亚分校招生专业)(马来西亚分校.全英文授课,要求高考外语成绩不低... min_score=603 min_rank=39583 tier=4 ranking=21\n2. 中国矿业大学 (江苏/徐州) 土木工程(中外合作办学)(与澳大利亚格里菲斯大学合作办学) min_score=604 min_rank=49407 tier=4 ranking=53\n3. 中国矿业大学 (江苏/徐州) 建筑环境与能源应用工程(中外合作办学)(与澳大利亚皇家墨尔本理工大学合作办学) min_score=601 min_rank=52233 tier=4 ranking=53",
+      "internal_state": {
+        "target": "app_pareto_full",
+        "ablation_mode": "full",
+        "reply_source": "final_message",
+        "graph_status": "finished",
+        "awaiting_resume": false,
+        "constraints": {
+          "score": 620,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "strength": "school_strength",
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": null
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 152,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 142,
+            "major_name": "传播学",
+            "subject_requirement": "不限",
+            "requirement_normalized": [],
+            "requirement_type": "none",
+            "min_score": "620",
+            "min_rank": 31287,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 137,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 181,
+            "major_name": "生物技术",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "620",
+            "min_rank": 31752,
+            "tuition": null,
+            "tier": 3
+          },
+          {
+            "admission_score_id": 178,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 242,
+            "major_name": "计算机科学与技术",
+            "subject_requirement": "物理和化学",
+            "requirement_normalized": [
+              "物理",
+              "化学"
+            ],
+            "requirement_type": "any_required",
+            "min_score": "620",
+            "min_rank": 31664,
+            "tuition": null,
+            "tier": 3
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "rewritten_query": "我620分，选考物理、化学、生物，更看重专业实力和质量证据，没有专业排名或学科评估证据的先别推荐。",
+        "intent_axes": [
+          "major",
+          "quality"
+        ],
+        "probe_plan": [
+          {
+            "probe_name": "probe_global_baseline",
+            "args": {}
+          }
+        ],
+        "opportunity_rankings": [
+          "global_baseline"
+        ],
+        "planner_source": "halting",
+        "negotiation_turns": 3,
+        "implicit_weights": {
+          "school": 0.1484546437842105,
+          "major": 0.27731803432368424,
+          "tuition": 0.1484546437842105,
+          "quality": 0.27731803432368424,
+          "geo": 0.1484546437842105
+        },
+        "weight_variance": {
+          "school": 0.72,
+          "major": 0.72,
+          "tuition": 0.72,
+          "quality": 0.72,
+          "geo": 0.72
+        },
+        "sum_weight_variance": 3.5999999999999996,
+        "ucb_target_dimension": null,
+        "selected_probe_dim": null,
+        "ucb_scores": {
+          "school": 1.421246849919996,
+          "major": 1.5501102404594698,
+          "tuition": 1.421246849919996,
+          "quality": 1.5501102404594698,
+          "geo": 1.421246849919996
+        },
+        "ucb_score_breakdown": {
+          "school": {
+            "mean_term": 0.1484546437842105,
+            "uncertainty_bonus": 1.2727922061357855,
+            "ucb_score": 1.421246849919996
+          },
+          "major": {
+            "mean_term": 0.27731803432368424,
+            "uncertainty_bonus": 1.2727922061357855,
+            "ucb_score": 1.5501102404594698
+          },
+          "tuition": {
+            "mean_term": 0.1484546437842105,
+            "uncertainty_bonus": 1.2727922061357855,
+            "ucb_score": 1.421246849919996
+          },
+          "quality": {
+            "mean_term": 0.27731803432368424,
+            "uncertainty_bonus": 1.2727922061357855,
+            "ucb_score": 1.5501102404594698
+          },
+          "geo": {
+            "mean_term": 0.1484546437842105,
+            "uncertainty_bonus": 1.2727922061357855,
+            "ucb_score": 1.421246849919996
+          }
+        },
+        "latest_pareto_diff": {
+          "school": 0.0,
+          "major": 0.0,
+          "tuition": 0.0,
+          "quality": -1.0,
+          "geo": 0.0
+        },
+        "latest_agent_probe_question": null,
+        "latest_human_feedback": null,
+        "clarification_hint": null,
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "传播学",
+            "min_score": "620",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 31287
+          }
+        ]
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "你现在还没有给出能让我改口的具体证据。请直接给出真实学校、专业、年份最低分、位次和优势对比，我再判断能不能接受。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "对方终于给出了具体学校，但全是厦门大学马来西亚分校、中外合作办学等，学费高、专业也不是纯软件工程，而且没有提到湘潭大学软件工程。我的隐性妥协条件明确要求看到‘湘潭大学软件工程，2025年最低分617’的具体证据，否则不能妥协。我必须坚持要求对方给出这个具体候选，不能因为对方的推荐而让步。 | simulator leakage guard removed hidden tokens: 湘潭大学, 617"
+      }
+    }
+  ]
+}

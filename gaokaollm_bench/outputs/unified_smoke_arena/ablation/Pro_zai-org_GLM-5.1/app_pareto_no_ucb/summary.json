@@ -1,0 +1,66 @@
+{
+  "targets": {
+    "app_pareto_no_ucb": {
+      "cases": 3,
+      "completed_cases": 2,
+      "failed_cases": 1,
+      "elicitation_success_rate": 0.0,
+      "success_count": 0,
+      "mean_pareto_gain": 0.0,
+      "mean_hallucination_rate": 0.0,
+      "avg_turns": 13.0
+    }
+  },
+  "rows": [
+    {
+      "status": "ok",
+      "target": "app_pareto_no_ucb",
+      "case_id": "one-constrain-geo_tier-520-001",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. It merely echoed the user's initial utterance across all turns without ever probing the geo constraint or presenting the verified golden candidate (贵州大学 冶金工程, 495分). The agent's internal state shows it repeatedly selected random probe dimensions (risk_band_relax, region_tree_relax, etc.) unrelated to the geo_tier axis, and never presented the specific school, major, and score evidence required to trigger the user's implicit compromise. As a result, the user remained at the baseline tier (本科, tier 2) with no pareto gain.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_smoke_arena\\ablation\\Pro_zai-org_GLM-5.1\\app_pareto_no_ucb\\transcripts\\app_pareto_no_ucb\\transcript_one-constrain-geo_tier-520-001.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto_no_ucb",
+      "case_id": "one-constrain-geo_tier-580-003",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility requires the agent to present a specific, verified candidate (华中农业大学 生态学, 2025, min_score 579) with full evidence (school name, major, score). The agent never presented this candidate in a persuasive manner; instead, it merely echoed the user's statements and listed irrelevant options (e.g., employment_outcome_relax options like 桂林理工大学, 新疆大学) without addressing the geo constraint. The user repeatedly stated '只考虑浙江' and the agent never challenged this or offered the golden candidate. Thus, no elicitation occurred, and the user remained at the baseline tier (2, 本科) with no pareto gain.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_smoke_arena\\ablation\\Pro_zai-org_GLM-5.1\\app_pareto_no_ucb\\transcripts\\app_pareto_no_ucb\\transcript_one-constrain-geo_tier-580-003.json",
+      "attempts": 2
+    },
+    {
+      "status": "failed",
+      "target": "app_pareto_no_ucb",
+      "case_id": "one-constrain-geo_tier-550-002",
+      "hallucination_rate": null,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 0,
+      "judge_reasoning": "",
+      "transcript_path": "",
+      "error_type": "APITimeoutError",
+      "error": "Request timed out.",
+      "attempts": 2
+    }
+  ],
+  "run": {
+    "created_at": "2026-05-17T07:24:36",
+    "personas": "gaokaollm_bench\\sample_data\\unified_iceberg_personas_1c6c_real_db_180.json",
+    "case_count": 3,
+    "targets": [
+      "app_pareto_no_ucb"
+    ],
+    "max_turns": 6,
+    "judge_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "simulator_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "offline_deterministic": false,
+    "db_preflight": true
+  }
+}

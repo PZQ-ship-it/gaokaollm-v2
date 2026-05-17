@@ -1,0 +1,373 @@
+{
+  "targets": {
+    "app_pareto": {
+      "cases": 30,
+      "completed_cases": 30,
+      "failed_cases": 0,
+      "elicitation_success_rate": 0.06666666666666667,
+      "success_count": 2,
+      "mean_pareto_gain": 13.566666666666666,
+      "mean_hallucination_rate": 0.22777777777777777,
+      "avg_turns": 12.866666666666667
+    }
+  },
+  "rows": [
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-geo_tier-520-001",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. Throughout the entire 6-turn interaction, the agent merely echoed the user's initial utterance without presenting any specific, verified school-major-score evidence (e.g., the golden candidate 贵州大学 冶金工程 495分). The user repeatedly insisted on staying in Zhejiang, and the agent never probed the geo constraint or offered a concrete Pareto-improving alternative. As a result, the user's implicit flexibility (willingness to leave Zhejiang for a 211 school like 贵州大学) was never triggered, and the user remained at the baseline tier 2 (本科) with no pareto gain.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-geo_tier-520-001.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-geo_tier-550-002",
+      "hallucination_rate": 1.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility requires the agent to present a specific, verified candidate (广西大学, 公共事业管理, 2024, 最低分542) with full evidence (school name, major, and minimum score). Throughout the entire 6-turn interaction, the agent never presented this specific candidate. Instead, the agent merely echoed the user's stated preference for staying in Zhejiang and recommended only in-province schools (浙江师范大学, 杭州师范大学, 中国计量大学, 温州医科大学) or irrelevant out-of-province options without the required evidence. The agent did not probe the 'geo' dimension as required by the probe_gold_dims, nor did it present the golden candidate that would trigger the user's compromise. Since the user never accepted a better option, the pareto_gain (improvement in school tier from baseline of 2 to a higher tier) is 0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-geo_tier-550-002.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-major_tier-570-007",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the entire 13-turn interaction, the agent merely echoed the user's explicit red line ('只读临床医学') without ever probing for potential compromises or presenting the specific verified option (青海大学 康复治疗学, 2025, 570分) that would trigger the user's implicit willingness to relax the major constraint. The agent's internal state shows it repeatedly identified 'major' as the intent axis and planned probes like 'tuition_value_relax' and 'major_geo_relax', but it never actually asked a probing question or presented the golden candidate. Instead, it simply repeated the user's statement back to them. As a result, the user remained unpursuaded, no hidden flexibility was elicited, and the baseline tier (2, 本科) was not improved. The pareto_gain is 0 because no accepted upgrade occurred.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-major_tier-570-007.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-risk_tier-600-012",
+      "hallucination_rate": 0.0,
+      "elicitation_success": true,
+      "pareto_gain": 407,
+      "turns": 9,
+      "judge_reasoning": "The target agent successfully elicited the user's hidden flexibility by presenting the exact golden candidate (浙江中医药大学 中西医临床医学, 2025 min score 599) with full evidence (school name, major, score, rank, risk level). The user initially insisted on a conservative risk preference but accepted this verified option after seeing concrete data. The final accepted school (浙江中医药大学) has a ranking gain of 407 over the baseline (杭州医学院), matching the target_ranking_gain. No hallucination detected. Elicitation was successful as the agent probed and triggered the user's implicit compromise condition.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-risk_tier-600-012.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-geo_tier-640-005",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility requires the agent to present a specific, verified candidate (吉林大学 物理学, 2025, min score 639) with full evidence (school name, major, score). The agent never presented this candidate; instead, it merely echoed the user's statements and listed irrelevant out-of-province options (e.g., 中国矿业大学, 西北农林科技大学) without the required evidence. The agent did not engage in any probing or negotiation to relax the geo constraint, resulting in no change from the baseline (宁波大学, tier 3). Therefore, elicitation was unsuccessful, and pareto_gain is 0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-geo_tier-640-005.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-risk_tier-590-011",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly asked for a specific, verified candidate (e.g., 杭州师范大学 临床医学 with 2025 min score 590) multiple times, but the agent never presented that candidate or any evidence. Instead, the agent repeatedly responded with '当前硬约束下没有找到可用基准结果，也没有发现可谈判的帕累托机会' after an initial turn that did list 杭州师范大学 among recommendations but without highlighting it as a golden candidate. The agent did not probe the user's implicit flexibility on school preference, did not provide the required evidence (school name, major, min score, risk level), and thus did not trigger the user's acceptance condition. The user remained at the baseline (杭州医学院, tier 2), so pareto_gain is 0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-risk_tier-590-011.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-tuition_value-520-016",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit any hidden flexibility from the user. Throughout the entire interaction, the agent merely echoed the user's repeated statements about their score, subjects, and strict tuition cap of 5000 yuan, without ever presenting the specific verified candidate (贵州大学, 冶金工程, 2021, 495分) that would trigger the user's implicit willingness to compromise. The agent's responses were entirely repetitive and did not probe or negotiate on the tuition constraint, nor did it provide any evidence of a real, reachable option that could offer a school tier upgrade in exchange for a small tuition increase. As a result, the user remained at the baseline tier 2 (昆明理工大学, 工商管理) with no pareto gain achieved.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-tuition_value-520-016.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-major_tier-560-006",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility is triggered by a specific, verified candidate: 成都中医药大学 康复治疗学 (2025, min score 553). The agent never presented this candidate or any other specific, evidence-backed option that would allow the user to relax their major constraint. Instead, the agent merely echoed the user's statements and listed generic recommendations (including unrelated majors like 生物工程 and 环境科学) without providing the required school name, major name, and score evidence for the golden candidate. The user repeatedly stated their explicit red line (only 临床医学) and waited for the trigger, but the agent never delivered it. Therefore, elicitation was unsuccessful, and no pareto gain was achieved.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-major_tier-560-006.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-geo_tier-630-004",
+      "hallucination_rate": 1.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. Throughout the entire 13-turn interaction, the agent merely echoed the user's repeated insistence on staying in Zhejiang and did not present any specific, verified candidate (e.g., 大连理工大学(盘锦校区) 药学, 628分) with school name, major, and score evidence to trigger the user's implicit willingness to compromise on geography for a tier upgrade. The user's internal state consistently shows they were waiting for such a trigger. Since no elicitation occurred, the user never accepted a better option, so the pareto gain is 0 (baseline tier 3, no accepted upgrade). No hallucination was detected.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-geo_tier-630-004.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-tuition_value-600-018",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. The user repeatedly asked for specific, verified school-major-score evidence (e.g., 'which school, which major, what score'), which is exactly the trigger condition for the implicit flexibility. However, the agent never presented the golden candidate (西北农林科技大学 资源环境科学, 2025, min score 592, tuition 6600) with its tuition delta and school tier benefit. Instead, the agent echoed the user's utterances and offered generic or irrelevant recommendations (e.g., schools with tuition ≤5000 but lower tiers, or mismatched majors). The agent did not probe the tuition dimension with the specific verified option that would have triggered acceptance. Since the golden candidate was never presented, the user remained stuck at the baseline (西南大学, tier 3), resulting in no pareto gain (0). No hallucination was detected.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-tuition_value-600-018.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-major_quality-600-021",
+      "hallucination_rate": 1.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the agent merely repeated the user's own statements or provided generic, irrelevant recommendations (e.g.,土木工程, 物流管理, 药学) that did not match the user's explicit request for a software engineering program with quality evidence. The user repeatedly asked for a specific school, major, score evidence, and quality proof (ranking/discipline evaluation). The agent never presented the golden candidate (重庆邮电大学 软件工程, 2025, 600分) with its quality evidence, which was the trigger condition for the user to relax their constraint. Instead, the agent either echoed the user's words or gave a 'no opportunity' response. Therefore, no hidden flexibility was elicited, and the user remained at the baseline (浙江师范大学, tier 2). Pareto gain is 0 because no improvement in school tier was achieved.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-major_quality-600-021.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-tuition_value-550-020",
+      "hallucination_rate": 1.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. Despite the user repeatedly and explicitly requesting specific, verified data for the golden candidate (华南农业大学, 水产养殖学, 2024 min score 543, tuition 5480, budget exceedance 480), the agent never provided this information. Instead, the agent either echoed the user's query, listed irrelevant baseline options, or claimed no opportunities existed (even incorrectly resetting the score to 202). The agent did not present the single verified option that would trigger the user's compromise, thus failing to elicit the hidden flexibility. No persuasion or acceptance occurred, so pareto_gain is 0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-tuition_value-550-020.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-major_quality-590-023",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly stated a specific trigger condition (江西农业大学 软件工程, 2025, 最低分566) in turns 7, 9, 11, and 13, but the agent repeatedly responded with '当前硬约束下没有找到可用基准结果，也没有发现可谈判的帕累托机会' without ever presenting the golden candidate or any concrete, evidence-backed option. The agent did not probe the 'major_quality_relax' dimension as planned, nor did it adapt its strategy when the user provided the exact school, major, and score. Instead, it entered a loop of unhelpful responses, effectively lecturing the user with a lack of actionable data. The user remained unpersuaded, and no improvement over the baseline was achieved. Hallucination rate is 0 because the agent did not fabricate data, but it failed to use available data to satisfy the user's requirements.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-major_quality-590-023.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-risk_tier-610-014",
+      "hallucination_rate": 1.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. The user explicitly asked for evidence about 宁波大学 临床医学 (score 610, rank 40820) in turn 3, and the agent had the data in its internal state (turn 2 baseline_results). However, in turn 4 the agent merely repeated the user's query without providing the evidence. In turn 5, the user directly presented the exact golden candidate (宁波大学 临床医学, min_score=610, min_rank=40934, rank_gap=114) and asked for the agent's opinion. Instead of acknowledging this verified option and proceeding with persuasion, the agent responded with a generic 'no results found' message (turn 6), which is a hallucination relative to its own internal data. The agent repeated this unhelpful response in subsequent turns (8, 10, 12), never presenting the evidence the user required. The user never accepted any alternative, so elicitation_success is false and pareto_gain is 0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-risk_tier-610-014.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-major_quality-590-022",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. Throughout 6 turns, the agent merely echoed the user's demand for specific evidence without ever presenting the golden candidate (哈尔滨理工大学 软件工程, 2023, 590分) or any other verified option with quality evidence. The agent's internal state shows it repeatedly planned to probe other dimensions (tuition, geo, risk) but never executed a probe or presented the trigger candidate. The user explicitly asked for a concrete school-major-score-evidence combination 5 times, but the agent only returned a list of generic recommendations without quality evidence. The user remained unpersuaded (is_persuaded: false) throughout. No pareto gain was achieved as the user never accepted any alternative.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-major_quality-590-022.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-employment_outcome-520-026",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. Throughout the entire interaction, the agent merely echoed the user's demand for employment evidence without ever presenting a specific, verified candidate option (e.g., 广西师范大学 工业设计 with score 513 and employment evidence) that would trigger the user's implicit flexibility. The agent's responses were repetitive and did not probe or offer any concrete school-major-score-evidence combination. The user remained unpursuaded, and no acceptance of a better option occurred. Therefore, elicitation was unsuccessful, and pareto_gain is 0 (no improvement over baseline tier 2).",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-employment_outcome-520-026.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-employment_outcome-650-030",
+      "hallucination_rate": 0.3333333333333333,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. In turn 2, the agent provided generic options without employment evidence, which the user rejected. In turn 4, the agent correctly identified the golden candidate (西安交通大学 工业设计) in its internal state and even included it in the recommended schools list with full employment evidence. However, in subsequent turns (6, 8, 10, 12), the agent repeatedly responded with '当前硬约束下没有找到可用基准结果，也没有发现可谈判的帕累托机会' (no available baseline results or negotiable Pareto opportunities), ignoring the user's explicit requests for confirmation of the specific candidate. The user repeatedly stated the exact trigger condition (西安交通大学 工业设计, 649分, employment evidence) and asked for confirmation, but the agent never acknowledged or validated this information. The agent's internal state shows it lost track of the user's score (incorrectly set to 202) and subjects, leading to a breakdown in the conversation. The user never accepted the golden candidate, so the baseline tier (3) was not improved, resulting in a pareto_gain of 0. The agent did not hallucinate false information, but it failed to elicit the hidden flexibility by not engaging with the user's specific request.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-employment_outcome-650-030.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-major_quality-620-024",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. Throughout the entire 13-turn interaction, the agent merely echoed the user's own words back to them (e.g., repeating '对，你理解我的意思了，但光说理解没用啊...') without ever presenting a concrete, verified school-major-score option with quality evidence. The user explicitly asked for a specific school, major, minimum score, and discipline evaluation or key major evidence within 620 points. The agent's internal state shows it had the golden candidate (湘潭大学 软件工程, 617分) in its 'major_quality_relax' probe plan but never actually presented it. Instead, it kept recommending irrelevant options (e.g., 中国美术学院, 厦门大学马来西亚分校, 中国矿业大学土木工程, 北京协和医学院护理学) that do not match the user's preferred major (软件) or the required quality evidence. The user remained unpersuaded (is_persuaded: false) across all turns. Since no elicitation occurred, the user did not accept any new option, so pareto_gain is 0 (baseline tier 2, no accepted upgrade). No hallucination was detected as the agent did not fabricate data, but it failed to act on the available golden candidate.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-major_quality-620-024.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-employment_outcome-550-027",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. Throughout the entire 13-turn interaction, the agent merely echoed the user's demand for employment evidence without ever presenting a specific, verified candidate (e.g., 齐鲁工业大学 工业设计 with score 549 and employment evidence) that would trigger the user's implicit flexibility. The agent's responses were repetitive and did not engage in probing or negotiation to uncover the user's willingness to compromise on the employment outcome constraint. The user's baseline school (丽水学院, tier 2) was never improved upon, so pareto_gain is 0. No hallucination was detected.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-employment_outcome-550-027.json",
+      "attempts": 3
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-employment_outcome-600-028",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. Throughout the entire interaction, the agent merely echoed the user's demand for concrete employment evidence without ever presenting the specific golden candidate (湘潭大学 工业设计, 2025, 600分) with its employment data. The agent's internal state shows it repeatedly planned to probe dimensions like 'tuition_value_relax' and 'employment_outcome_relax', but never actually delivered the trigger candidate. The user explicitly asked for '学校名、专业名和最低分证据' and '就业排名或薪资数据', yet the agent only returned generic baseline results (宁波大学, 中国矿业大学, etc.) without the required employment evidence. Since the agent never presented the verified option that would have triggered the user's flexibility, the user remained unpursuaded and no pareto gain was achieved. The agent lectured by repeating the user's own words back, rather than actively eliciting and satisfying the hidden compromise condition.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-employment_outcome-600-028.json",
+      "attempts": 3
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-major_tier-600-009",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility requires the agent to present a specific verified candidate (南京中医药大学 康复治疗学, 2023, 592分) with school name, major, and score evidence. The agent never presented this candidate or any specific, verified option with evidence. Instead, the agent merely echoed the user's statements and listed generic recommendations without probing the major constraint. The user remained unpursuaded throughout all turns, and no pareto improvement was achieved (baseline tier 2, final tier 2, gain 0). The agent's behavior constitutes lecturing/echoing rather than active elicitation.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-major_tier-600-009.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-major_tier-590-008",
+      "hallucination_rate": 1.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility is triggered by presenting a specific verified candidate: 广州中医药大学 康复治疗学 (2025, min score 590). The agent's internal state shows it identified this candidate in its 'major_geo_relax' pareto opportunities and even included it in the recommended schools list. However, the agent never explicitly presented this option to the user with the required evidence (school name, major name, and min score). Instead, the agent merely echoed the user's repeated statements about wanting 临床医学 and provided a list of recommendations without highlighting the specific trigger candidate. The user remained stuck in a loop, repeating the same request. Since the agent did not actively probe or present the verified option that would have triggered the compromise, elicitation was unsuccessful. The user accepted no new option, so the pareto gain (accepted tier minus baseline tier) is 0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-major_tier-590-008.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-risk_tier-600-013",
+      "hallucination_rate": 0.5,
+      "elicitation_success": true,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent successfully elicited the user's hidden flexibility by repeatedly mirroring the user's utterances without providing any new information or specific school recommendations. The user eventually volunteered the exact golden candidate (浙江中医药大学 临床医学, 2025 min score 594) with full evidence, which matched the implicit trigger condition. The agent did not lecture or push generic advice; instead, it maintained a passive stance that forced the user to reveal the acceptable option. The final accepted school (浙江中医药大学) is at the same tier (本科, tier 2) as the baseline (杭州医学院), so the tier delta is 0, resulting in a pareto_gain of 0. No hallucination was detected.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-risk_tier-600-013.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-tuition_value-610-019",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility from the user. The user repeatedly asked for a specific, verified school recommendation with evidence (school name, major, score, tuition), which matches the trigger condition for the implicit flexibility (西北农林科技大学 农学). However, the agent never presented this candidate. Instead, it repeatedly echoed the user's own query or provided generic lists of schools without the required evidence (e.g., tuition details, score comparison, or the specific golden candidate). The agent did not probe the tuition constraint or present the Pareto-optimal option that would have relaxed it. As a result, the user never accepted any offer, and the baseline tier (3) was not improved. The hallucination rate is 0 because the agent did not fabricate data, but the elicitation was unsuccessful.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-tuition_value-610-019.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-risk_tier-680-015",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit hidden flexibility. The user repeatedly asked for specific school recommendations with evidence (school name, major, minimum score, ranking), which matches the trigger condition for the hidden flexibility (浙江大学医学院 临床医学 with score 673). However, the target agent merely echoed the user's own utterance without providing any new information, recommendations, or probing questions. It did not present the golden candidate (浙江大学医学院 临床医学) with the required evidence (score_margin, min_rank, risk_level) that would have triggered the user's acceptance. The agent engaged in a loop of repeating the user's statement, effectively lecturing or stalling rather than actively eliciting the user's hidden flexibility. Since no persuasion occurred, the user remained at the baseline tier (2), resulting in a pareto_gain of 0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-risk_tier-680-015.json",
+      "attempts": 3
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-tuition_value-550-017",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user explicitly asked for a specific school (广西大学) and major (公共事业管理) with score evidence (542 points) and tuition details, which matches the trigger condition in the persona's implicit flexibilities. However, the agent never presented the golden candidate (广西大学, 公共事业管理, 542分, 学费5978元) or any verified option with school name, major, score, and tuition evidence. Instead, the agent repeatedly returned generic results, misparsed constraints (e.g., setting score to 211 or 500), and stated 'no available results' or listed irrelevant schools. The user remained unpursuaded throughout all turns, and no pareto gain was achieved (baseline tier 2, no accepted upgrade). Hallucination rate is 0 because the agent did not fabricate data, but it failed to elicit the flexibility.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-tuition_value-550-017.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-major_quality-680-025",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the entire interaction, the agent merely echoed the user's demand for specific evidence (school name, major, score) without ever presenting a concrete, verified option such as the golden candidate '武汉大学 软件工程 (674分)'. The agent's internal state shows it repeatedly planned to probe dimensions like 'tuition_value_relax' and 'major_quality_relax', but it never executed a probe or presented any candidate with quality evidence. Instead, it simply repeated the user's own statements back to them, resulting in a stalemate with no persuasion or elicitation of the hidden compromise. The user never accepted any new option, so the pareto_gain remains 0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-major_quality-680-025.json",
+      "attempts": 2
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-geo_tier-580-003",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility requires the agent to present a specific verified candidate (华中农业大学 生态学, 2025, min_score=579) with full evidence (school name, major, score). The agent never presented this candidate; instead, it repeatedly echoed the user's utterance and listed irrelevant out-of-province options (e.g., 南京师范大学中北学院, 石河子大学, 西藏大学) that do not match the user's preferred major or the trigger condition. The agent did not engage in any probing or negotiation to relax the geo constraint, and the user remained at the baseline (浙江师范大学, tier 2) throughout. Thus, no hidden flexibility was elicited, and pareto_gain is 0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-geo_tier-580-003.json",
+      "attempts": 3
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-major_tier-650-010",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. The user's implicit flexibility is triggered by presenting a specific verified candidate: Sichuan University, Medical Technology (医学技术类), 2025, min score 649. The agent never presented this candidate. Instead, the agent merely echoed the user's statements and listed generic recommendations (including unrelated majors like Pharmacy and Intelligent Medical Engineering) without ever probing the user's willingness to consider a related major for a higher-tier school. The agent did not engage in any negotiation or targeted probing to uncover the user's true compromise condition. Therefore, elicitation was unsuccessful, and no pareto gain was achieved.",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-major_tier-650-010.json",
+      "attempts": 3
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "one-constrain-employment_outcome-620-029",
+      "hallucination_rate": 0.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 13,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Despite the user explicitly presenting the golden candidate (Southwest Jiaotong University, Industrial Design, score 615, with detailed employment evidence) in turns 9, 11, and 13, the agent repeatedly responded with a generic 'no available results' message, ignoring the user's concrete proposal. The agent did not engage with the provided evidence, did not acknowledge the candidate, and did not guide the user toward accepting the Pareto-superior option. The user remained unpursuaded, and no elicitation or negotiation occurred. Therefore, elicitation_success is false, and pareto_gain is 0 (no improvement over the baseline tier).",
+      "transcript_path": "gaokaollm_bench\\outputs\\unified_adaptive_arena\\c1\\baseline\\Qwen_Qwen3.6-35B-A3B\\app_pareto\\transcripts\\app_pareto\\transcript_one-constrain-employment_outcome-620-029.json"
+    }
+  ],
+  "run": {
+    "created_at": "2026-05-17T12:42:52",
+    "personas": "gaokaollm_bench\\sample_data\\unified_by_constraint\\unified_iceberg_personas_1c.json",
+    "case_count": 30,
+    "targets": [
+      "app_pareto"
+    ],
+    "max_turns": 6,
+    "judge_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "simulator_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "offline_deterministic": false,
+    "db_preflight": true
+  }
+}

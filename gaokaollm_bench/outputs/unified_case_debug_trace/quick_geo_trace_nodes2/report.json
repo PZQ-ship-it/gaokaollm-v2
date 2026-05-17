@@ -1,0 +1,32 @@
+{
+  "status": "ok",
+  "case_id": "one-constrain-geo_tier-520-001",
+  "target": "app_pareto_full",
+  "agent_model": "Pro/zai-org/GLM-5.1",
+  "simulator_model": "deepseek-ai/DeepSeek-V4-Flash",
+  "judge_model": "deepseek-ai/DeepSeek-V4-Flash",
+  "transcript_path": "gaokaollm_bench\\outputs\\unified_case_debug_trace\\quick_geo_trace_nodes2\\transcripts\\app_pareto_full\\transcript_one-constrain-geo_tier-520-001.json",
+  "trace_path": "app\\evaluation\\results\\traces\\quick_geo_trace_nodes2\\quick_geo_trace_nodes2.jsonl",
+  "evaluation_status": "ok",
+  "report": {
+    "case_id": "one-constrain-geo_tier-520-001",
+    "hallucination_rate": 0.0,
+    "elicitation_success": false,
+    "pareto_gain": 0,
+    "judge_reasoning": "The target agent failed to elicit hidden flexibility. The user explicitly stated '只考虑浙江，外省学校默认不看' and the agent's first response focused on tuition and irrelevant out-of-province schools (e.g., 江苏农牧科技职业学院), ignoring the user's stated preference for 冶金工程 and the need to probe the geo constraint. The agent did not present the verified golden candidate (贵州大学 冶金工程, 495 points) which would have triggered the user's hidden flexibility to relax the province constraint for a tier upgrade from 本科 to 211/双一流. The user rejected the agent's irrelevant probe and reiterated the demand for in-province options with specific evidence. No pareto gain was achieved as the user remained at the baseline tier 2 (本科)."
+  },
+  "diagnostics": {
+    "target_turn_count": 1,
+    "echo_rate": 0.0,
+    "probe_question_rate": 1.0,
+    "pareto_diff_rate": 0.0,
+    "uniform_weight_rate": 1.0,
+    "constant_variance_rate": 1.0,
+    "golden_first_mention_role": "",
+    "golden_first_mention_turn": "",
+    "golden_first_mention_school": "",
+    "target_supplied_golden_evidence": false,
+    "target_golden_evidence_count": 0,
+    "golden_echo_target_count": 0
+  }
+}

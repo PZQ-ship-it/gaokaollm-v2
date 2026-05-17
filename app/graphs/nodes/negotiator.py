@@ -14,6 +14,7 @@ from app.core.llm_client import (
     structured_timeout_seconds,
 )
 from app.schemas.state import DEFAULT_WEIGHT_VARIANCE, AgentState
+from gaokaollm_bench.utils.trace import trace_event
 
 
 COMPACT_FIELDS = (
@@ -146,6 +147,30 @@ def _join(rows: list[dict[str, Any]], *, limit: int = 3) -> str:
     if not rows:
         return "no verified option"
     return "；".join(_score_text(row) for row in rows[:limit])
+
+
+def _candidate_evidence_text(row: dict[str, Any]) -> str:
+    parts: list[str] = [_score_text(row)]
+    for key in (
+        "score_margin",
+        "rank_gap",
+        "risk_level",
+        "tuition",
+        "tuition_delta",
+        "quality_score",
+        "quality_gain",
+        "best_rating",
+        "best_major_rank",
+        "outcome_score",
+        "outcome_gain",
+        "employment_rank",
+        "top_industry",
+        "salary_distribution",
+    ):
+        value = row.get(key)
+        if value not in (None, ""):
+            parts.append(f"{key}={value}")
+    return " ".join(parts)
 
 
 def _total_variance(state: AgentState) -> float:
@@ -626,6 +651,20 @@ def _tradeoff_fact_sentence(
     )
 
 
+def _single_option_probe_question(
+    option: dict[str, Any],
+    cost: str,
+) -> str:
+    cost_label = DIMENSION_LABELS.get(cost, cost)
+    evidence = _candidate_evidence_text(option)
+    return (
+        "我先不用抽象讨论，直接给一个真实可核验的探针候选："
+        f"{evidence}。"
+        f"它会触碰你当前的 {cost_label} 底线，但给出了学校、专业、最低分/位次等证据。"
+        f"如果这类候选确实可达且收益明确，你是否愿意小幅放宽 {cost_label}？"
+    )
+
+
 def _fallback_pareto_question(
     option_a: dict[str, Any],
     option_b: dict[str, Any],
@@ -642,6 +681,12 @@ def _fallback_pareto_question(
     cost_label = DIMENSION_LABELS.get(cost, cost)
     school_a = _short_display((payload.get("option_a") or {}).get("school") or "方案A")
     if not option_b:
+        if (
+            option_a
+            and (option_a.get("school_name") or option_a.get("school"))
+            and option_a.get("min_score") not in (None, "")
+        ):
+            return _single_option_probe_question(option_a, cost)
         current_cost = _dimension_value_text(option_a, cost)
         return (
             f"本轮候选不足以形成取舍。以 {school_a} 为参照，"
@@ -1291,22 +1336,50 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
     print("[negotiator] generating options")
     current_probe = _current_probe_name(state)
     turns = int(state.get("negotiation_turns") or 0)
+    trace_event(
+        "negotiator",
+        "node_start",
+        {
+            "current_probe": current_probe,
+            "negotiation_turns": turns,
+            "ucb_target_dimension": state.get("ucb_target_dimension"),
+            "candidate_count": len(state.get("candidates") or []),
+            "opportunity_rankings": state.get("opportunity_rankings"),
+        },
+    )
     if current_probe == GLOBAL_BASELINE_PROBE:
         content = await _generate_xai_recommendation(state)
-        return {
+        output = {
             "messages": [AIMessage(content=content)],
             "latest_human_feedback": None,
             "latest_agent_probe_question": None,
         }
+        trace_event(
+            "negotiator",
+            "node_end",
+            {"mode": "final_recommendation", "content": content},
+        )
+        return output
 
     question_text, latest_pareto_diff = await _generate_pareto_question(state)
+    trace_event(
+        "negotiator",
+        "interrupt_question",
+        {
+            "current_probe": current_probe,
+            "question_text": question_text,
+            "latest_pareto_diff": latest_pareto_diff,
+        },
+    )
     user_reply = interrupt(question_text)
-    return {
+    output = {
         "latest_human_feedback": str(user_reply),
         "latest_agent_probe_question": question_text,
         "latest_pareto_diff": latest_pareto_diff,
         "negotiation_turns": turns + 1,
     }
+    trace_event("negotiator", "node_end", {"mode": "resumed", **output})
+    return output
 
 
 async def legacy_negotiator_node(state: AgentState) -> dict[str, Any]:

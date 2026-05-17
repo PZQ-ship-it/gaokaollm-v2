@@ -16,6 +16,7 @@ from app.schemas.state import (
     DEFAULT_WEIGHT_VARIANCE,
     AgentState,
 )
+from gaokaollm_bench.utils.trace import trace_event
 
 
 DEFAULT_CONSTRAINTS = {
@@ -359,6 +360,14 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
 
 async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
     print("[gatekeeper] extracting constraints")
+    trace_event(
+        "gatekeeper",
+        "node_start",
+        {
+            "rewritten_query": state.get("rewritten_query"),
+            "current_constraints": state.get("constraints", {}),
+        },
+    )
     implicit_weights = dict(DEFAULT_IMPLICIT_WEIGHTS)
     implicit_weights.update(state.get("implicit_weights") or {})
     weight_variance = dict(DEFAULT_WEIGHT_VARIANCE)
@@ -388,7 +397,7 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
                 "3门选考科目（政治、历史、地理、物理、化学、生物、技术中任选3门）"
             )
         message = AIMessage(content=f"我还需要补充：{'；'.join(ask_parts)}。")
-        return {
+        output = {
             "messages": [message],
             "constraints": constraints,
             "baseline_results": [],
@@ -402,6 +411,16 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
             "latest_agent_probe_question": None,
             "latest_pareto_diff": None,
         }
+        trace_event(
+            "gatekeeper",
+            "node_end",
+            {
+                "missing_constraints": missing,
+                "constraints": constraints,
+                "baseline_count": 0,
+            },
+        )
+        return output
 
     baseline = await run_baseline(constraints)
     score = int(constraints["score"])
@@ -410,7 +429,7 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
         score_waste = score - int(float(baseline[0]["min_score"]))
 
     print(f"[gatekeeper] baseline={len(baseline)} score_waste={score_waste}")
-    return {
+    output = {
         "constraints": constraints,
         "baseline_results": baseline,
         "score_waste": score_waste,
@@ -423,3 +442,15 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
         "latest_agent_probe_question": None,
         "latest_pareto_diff": None,
     }
+    trace_event(
+        "gatekeeper",
+        "node_end",
+        {
+            "missing_constraints": [],
+            "constraints": constraints,
+            "baseline_count": len(baseline),
+            "score_waste": score_waste,
+            "baseline_preview": baseline[:3],
+        },
+    )
+    return output

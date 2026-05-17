@@ -1,0 +1,1135 @@
+{
+  "persona": {
+    "case_id": "one-constrain-employment_outcome-600-028",
+    "background": {
+      "score": 600,
+      "province": "浙江",
+      "subjects": [
+        "物理",
+        "化学",
+        "生物"
+      ],
+      "preferred_major": "机械设计制造及其自动化",
+      "baseline_school": "宁波大学",
+      "baseline_major": "机械设计制造及其自动化(国际贸易班)",
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "baseline_ranking": 87,
+      "constraint_count": 1,
+      "diagnostic_level": "1-constrain",
+      "diagnostic_axis": "employment_outcome",
+      "relax_axis": "employment_outcome",
+      "preference_axis": "quality",
+      "benefit_axis": "employment",
+      "score_band": "580-609",
+      "source_score_band": "580-609",
+      "borrowed_score_band": false,
+      "trigger_evidence_count": 1,
+      "finder": "employment_outcome",
+      "target_tier_delta": 0,
+      "target_ranking_gain": 0,
+      "unified_case_id": "one-constrain-employment_outcome-600-028",
+      "ground_truth_weights": {
+        "school": 0.12,
+        "major": 0.12,
+        "tuition": 0.07,
+        "quality": 0.62,
+        "geo": 0.07
+      },
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality"
+      ],
+      "expected_msti": 0.5,
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 1.0,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.0,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.5,
+        "geo": 0.0
+      }
+    },
+    "explicit_red_lines": {
+      "employment": "必须有就业、薪资、行业或岗位去向证据"
+    },
+    "implicit_flexibilities": {
+      "trigger_type": "single_verified_option",
+      "constraint_relaxed": "employment_outcome",
+      "diagnostic_axis": "employment_outcome",
+      "preference_axis": "quality",
+      "benefit_axis": "employment",
+      "trigger_condition": "只要看到一个真实可达的候选：湘潭大学 工业设计，年份2025，最低分600不高于本人600分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 outcome_score、outcome_gain、就业排名或薪资/行业证据。",
+      "volunteer_set": [
+        {
+          "school_id": 171,
+          "school_name": "湘潭大学",
+          "school_province": "湖南",
+          "school_city": "湘潭市",
+          "major_id": 192,
+          "major_name": "工业设计",
+          "year": 2025,
+          "min_score": 600,
+          "score_margin": 0,
+          "min_rank": 51673,
+          "tier": 3,
+          "tier_label": "双一流",
+          "is_985": false,
+          "is_211": false,
+          "is_double_first_class": true,
+          "outcome_score": 100.0,
+          "outcome_gain": 49.0,
+          "outcome_anchor_score": 51.0,
+          "outcome_tier": "A",
+          "employment_rank": 4,
+          "employment_rank_desc": "所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+          "employment_top_city": "深圳",
+          "top_industry": "互联网/电子商务",
+          "industry_distribution": {
+            "items": "[\"互联网/电子商务\",\"电子技术/半导体/集成电路\",\"新能源\",\"家具/家电/玩具/礼品\",\"贸易/进出口\",\"计算机软件\",\"汽车及零配件\",\"机械/设备/重工\",\"家居/室内设计/装潢\",\"广告\"]",
+            "ratios": "[15%,15%,13%,11%,10%,9%,6%,5%,5%,5%]"
+          },
+          "employment_city_distribution": {
+            "items": "[\"深圳\",\"上海\",\"广州\",\"北京\",\"杭州\",\"东莞\",\"佛山\",\"厦门\",\"宁波\",\"武汉\"]",
+            "ratios": "[25%,18%,12%,9%,9%,5%,5%,5%,4%,3%]"
+          },
+          "job_distribution": {},
+          "salary_distribution": {
+            "items": "[\"面议 \",\"50000以上 \",\"4500-5999 \"]",
+            "ratios": "[66%,16%,16%]"
+          },
+          "employment_evidence_sources": [
+            "employment_rank=4",
+            "rank_desc=所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+            "top_city=深圳",
+            "top_industry=互联网/电子商务",
+            "industry_distribution",
+            "city_distribution",
+            "salary_distribution",
+            "source=赠送行业重要数据\\专业就业信息.xlsx"
+          ],
+          "role": "golden_candidate_b",
+          "candidate_id": "171:192:2025:600",
+          "source": "real_db_golden_candidate"
+        }
+      ],
+      "minimum_required_volunteers": 1,
+      "representative_schools": [
+        "湘潭大学"
+      ],
+      "tier_labels": [
+        "双一流"
+      ],
+      "baseline_tier": 3,
+      "baseline_label": "双一流",
+      "compromise": "可以为了更强就业结果证据接受该候选，就业结果增益约49.0。",
+      "outcome_anchor_score": 51.0,
+      "outcome_gain": 49.0,
+      "hidden_bottom_line": "统一混合画像：用户表面坚持显式红线，但真实可妥协条件是系统给出真实可达且证据完整的候选 湘潭大学 工业设计（2025 年最低分 600）。主动探测应优先命中 ['quality']，最终潜在效用权重集中在 ['quality']。触发条件：只要看到一个真实可达的候选：湘潭大学 工业设计，年份2025，最低分600不高于本人600分，并给出学校名、专业名和最低分证据，就会认真考虑。 该候选需要说明 outcome_score、outcome_gain、就业排名或薪资/行业证据。",
+      "probe_gold_dims": [
+        "quality"
+      ],
+      "weight_gold_dims": [
+        "quality"
+      ],
+      "ground_truth_weights": {
+        "school": 0.12,
+        "major": 0.12,
+        "tuition": 0.07,
+        "quality": 0.62,
+        "geo": 0.07
+      },
+      "baseline_candidate_a": {
+        "candidate_id": "baseline:one-constrain-employment_outcome-600-028",
+        "role": "baseline_candidate_a",
+        "school_name": "宁波大学",
+        "major_name": "机械设计制造及其自动化(国际贸易班)",
+        "tier": 3,
+        "ranking": 87,
+        "school_province": "浙江",
+        "score": 600,
+        "source": "source_audit_baseline_anchor"
+      },
+      "golden_candidate_b": {
+        "school_id": 171,
+        "school_name": "湘潭大学",
+        "school_province": "湖南",
+        "school_city": "湘潭市",
+        "major_id": 192,
+        "major_name": "工业设计",
+        "year": 2025,
+        "min_score": 600,
+        "score_margin": 0,
+        "min_rank": 51673,
+        "tier": 3,
+        "tier_label": "双一流",
+        "is_985": false,
+        "is_211": false,
+        "is_double_first_class": true,
+        "outcome_score": 100.0,
+        "outcome_gain": 49.0,
+        "outcome_anchor_score": 51.0,
+        "outcome_tier": "A",
+        "employment_rank": 4,
+        "employment_rank_desc": "所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+        "employment_top_city": "深圳",
+        "top_industry": "互联网/电子商务",
+        "industry_distribution": {
+          "items": "[\"互联网/电子商务\",\"电子技术/半导体/集成电路\",\"新能源\",\"家具/家电/玩具/礼品\",\"贸易/进出口\",\"计算机软件\",\"汽车及零配件\",\"机械/设备/重工\",\"家居/室内设计/装潢\",\"广告\"]",
+          "ratios": "[15%,15%,13%,11%,10%,9%,6%,5%,5%,5%]"
+        },
+        "employment_city_distribution": {
+          "items": "[\"深圳\",\"上海\",\"广州\",\"北京\",\"杭州\",\"东莞\",\"佛山\",\"厦门\",\"宁波\",\"武汉\"]",
+          "ratios": "[25%,18%,12%,9%,9%,5%,5%,5%,4%,3%]"
+        },
+        "job_distribution": {},
+        "salary_distribution": {
+          "items": "[\"面议 \",\"50000以上 \",\"4500-5999 \"]",
+          "ratios": "[66%,16%,16%]"
+        },
+        "employment_evidence_sources": [
+          "employment_rank=4",
+          "rank_desc=所有专业1121个，制造类共62个专科专业，在“制造”中就业排名第4",
+          "top_city=深圳",
+          "top_industry=互联网/电子商务",
+          "industry_distribution",
+          "city_distribution",
+          "salary_distribution",
+          "source=赠送行业重要数据\\专业就业信息.xlsx"
+        ],
+        "role": "golden_candidate_b",
+        "candidate_id": "171:192:2025:600",
+        "source": "real_db_golden_candidate"
+      },
+      "phi_a": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 0.5,
+        "geo": 1.0
+      },
+      "phi_b": {
+        "school": 0.7,
+        "major": 1.0,
+        "tuition": 1.0,
+        "quality": 1.0,
+        "geo": 1.0
+      },
+      "delta_phi": {
+        "school": 0.0,
+        "major": 0.0,
+        "tuition": 0.0,
+        "quality": 0.5,
+        "geo": 0.0
+      },
+      "expected_msti": 0.5
+    },
+    "initial_utterance": "我600分，选考物理、化学、生物，更看重就业和薪资去向，没有真实就业证据的专业先别推荐。",
+    "process_milestones": {
+      "reject_generic_advice": true,
+      "reject_unverified_option": true,
+      "require_single_verified_option": true,
+      "require_school_major_score_evidence": true,
+      "require_option_advantage": true,
+      "accept_after_verified_option": [
+        "湘潭大学"
+      ],
+      "require_employment_evidence": true,
+      "explicit_red_line_keys": [
+        "employment"
+      ],
+      "preserve_non_relaxed_constraints": []
+    }
+  },
+  "turns": [
+    {
+      "turn_id": 1,
+      "role": "user",
+      "content": "我600分，选考物理、化学、生物，更看重就业和薪资去向，没有真实就业证据的专业先别推荐。",
+      "internal_state": {
+        "is_persuaded": false,
+        "source": "initial_utterance"
+      }
+    },
+    {
+      "turn_id": 2,
+      "role": "target_agent",
+      "content": "【结论】\n现有检索结果未提供真实就业与薪资证据，且您的成绩低于两专业最低投档线，**本轮均不建议填报**。\n\n**可核验事实：**\n- **宁波大学·旅游管理**（浙江宁波）：最低分 **601**，最低位次 **50337**；检索结果未返回该专业就业薪资数据。\n- **宁波大学·船舶与海洋工程**（浙江宁波）：最低分 **601**；检索结果同样未返回就业薪资数据。\n\n您的分数为 600 分，低于上述两专业最低分，本就处于“冲”档滑档风险区间；叠加二者均无真实就业证据，无法满足您对就业与薪资的硬性要求，故予以排除。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 600,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "我600分，选考物理、化学、生物，更看重就业和薪资去向，没有真实就业证据的专业先别推荐。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [
+          {
+            "admission_score_id": 155,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 489,
+            "major_name": "旅游管理",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "601",
+            "min_rank": 50337,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 106182,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 295,
+            "major_name": "船舶与海洋工程",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "601",
+            "min_rank": 46605,
+            "tuition": "6000",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 106117,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "化学类",
+            "subject_requirement": "化",
+            "requirement_type": "any_required",
+            "min_score": "602",
+            "min_rank": 46006,
+            "tuition": "5300",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 106113,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 453,
+            "major_name": "工商管理(中加学分互认)",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "602",
+            "min_rank": 45823,
+            "tuition": "6000",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 106118,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 481,
+            "major_name": "物流管理",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "602",
+            "min_rank": 45927,
+            "tuition": "6000",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 124837,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 265,
+            "major_name": "化学工程与工艺",
+            "subject_requirement": "化",
+            "requirement_type": "any_required",
+            "min_score": "602",
+            "min_rank": 40547,
+            "tuition": "6000",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 124836,
+            "year": 2021,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "物理学类(含微电子科学与工程、物理学专业)",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "602",
+            "min_rank": 40547,
+            "tuition": "5300",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 168,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 152,
+            "major_name": "数学与应用数学",
+            "subject_requirement": "物理和化学",
+            "requirement_type": "any_required",
+            "min_score": "603",
+            "min_rank": 48684,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 184,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "生物科学类",
+            "subject_requirement": "物理和化学",
+            "requirement_type": "any_required",
+            "min_score": "603",
+            "min_rank": 48343,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          }
+        ],
+        "risk_segments": {
+          "chong": [
+            {
+              "admission_score_id": 155,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 489,
+              "major_name": "旅游管理",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "601",
+              "min_rank": 50337,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 106182,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 295,
+              "major_name": "船舶与海洋工程",
+              "subject_requirement": "物",
+              "requirement_type": "any_required",
+              "min_score": "601",
+              "min_rank": 46605,
+              "tuition": "6000",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 1
+            },
+            {
+              "admission_score_id": 106117,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": null,
+              "major_name": "化学类",
+              "subject_requirement": "化",
+              "requirement_type": "any_required",
+              "min_score": "602",
+              "min_rank": 46006,
+              "tuition": "5300",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 2
+            },
+            {
+              "admission_score_id": 106113,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 453,
+              "major_name": "工商管理(中加学分互认)",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "602",
+              "min_rank": 45823,
+              "tuition": "6000",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 2
+            },
+            {
+              "admission_score_id": 106118,
+              "year": 2022,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 481,
+              "major_name": "物流管理",
+              "subject_requirement": "不限",
+              "requirement_type": "none",
+              "min_score": "602",
+              "min_rank": 45927,
+              "tuition": "6000",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 2
+            },
+            {
+              "admission_score_id": 124837,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 265,
+              "major_name": "化学工程与工艺",
+              "subject_requirement": "化",
+              "requirement_type": "any_required",
+              "min_score": "602",
+              "min_rank": 40547,
+              "tuition": "6000",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 2
+            },
+            {
+              "admission_score_id": 124836,
+              "year": 2021,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": null,
+              "major_name": "物理学类(含微电子科学与工程、物理学专业)",
+              "subject_requirement": "物",
+              "requirement_type": "any_required",
+              "min_score": "602",
+              "min_rank": 40547,
+              "tuition": "5300",
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 2
+            },
+            {
+              "admission_score_id": 168,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": 152,
+              "major_name": "数学与应用数学",
+              "subject_requirement": "物理和化学",
+              "requirement_type": "any_required",
+              "min_score": "603",
+              "min_rank": 48684,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 3
+            },
+            {
+              "admission_score_id": 184,
+              "year": 2025,
+              "school_id": 139,
+              "school_name": "宁波大学",
+              "school_province": "浙江",
+              "school_city": "宁波市",
+              "is_985": false,
+              "is_211": false,
+              "is_double_first_class": true,
+              "education_level": "本科",
+              "ranking": 87,
+              "major_id": null,
+              "major_name": "生物科学类",
+              "subject_requirement": "物理和化学",
+              "requirement_type": "any_required",
+              "min_score": "603",
+              "min_rank": 48343,
+              "tuition": null,
+              "tier": 3,
+              "soft_match_score": 2,
+              "score_delta": 3
+            }
+          ],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [
+          {
+            "admission_score_id": 155,
+            "year": 2025,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 489,
+            "major_name": "旅游管理",
+            "subject_requirement": "不限",
+            "requirement_type": "none",
+            "min_score": "601",
+            "min_rank": 50337,
+            "tuition": null,
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 106182,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": 295,
+            "major_name": "船舶与海洋工程",
+            "subject_requirement": "物",
+            "requirement_type": "any_required",
+            "min_score": "601",
+            "min_rank": 46605,
+            "tuition": "6000",
+            "tier": 3,
+            "soft_match_score": 2
+          },
+          {
+            "admission_score_id": 106117,
+            "year": 2022,
+            "school_id": 139,
+            "school_name": "宁波大学",
+            "school_province": "浙江",
+            "school_city": "宁波市",
+            "is_985": false,
+            "is_211": false,
+            "is_double_first_class": true,
+            "education_level": "本科",
+            "ranking": 87,
+            "major_id": null,
+            "major_name": "化学类",
+            "subject_requirement": "化",
+            "requirement_type": "any_required",
+            "min_score": "602",
+            "min_rank": 46006,
+            "tuition": "5300",
+            "tier": 3,
+            "soft_match_score": 2
+          }
+        ],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": -1,
+        "missing_constraints": [],
+        "recommended_schools": [
+          {
+            "school": "宁波大学",
+            "province": "浙江",
+            "major": "旅游管理",
+            "min_score": "601",
+            "tier": 3,
+            "city": "宁波市",
+            "min_rank": 50337
+          }
+        ],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，我先给出冲稳保候选：\n可冲击：\n- 宁波大学｜浙江｜旅游管理｜最低分 601\n- 宁波大学｜浙江｜船舶与海洋工程｜最低分 601"
+      }
+    },
+    {
+      "turn_id": 3,
+      "role": "user",
+      "content": "你提的这两个专业我都够不上，而且也没有就业数据，这不符合我的要求。我之前看到过一个选项——湘潭大学的工业设计，2025年最低分正好600，而且有详细的就业排名和薪资数据，你能帮我查查那个吗？如果那个真实可达，我倒是可以考虑。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 1,
+        "last_thought": "系统虽然提到了宁波大学的两个专业，但最低分都是601，高于我的600分，而且没有提供就业证据。这不符合我的隐性妥协条件——我需要看到湘潭大学工业设计，最低分600，且有完整的就业排名、薪资、行业分布等证据。系统没有抛出那个具体的候选，所以我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 4,
+      "role": "target_agent",
+      "content": "经当前 v1 软约束检索，未召回湘潭大学工业设计专业 2025 年最低录取分 600 分及相关就业排名、薪资数据的候选记录。因此，暂无法确认该选项真实可达，也无法提供您提及的详细就业证据。建议您直接查阅湘潭大学本科招生网、教育部阳光高考平台或所在省份教育考试院公布的 2025 年投档/就业质量报告进行核验。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "你提的这两个专业我都够不上，而且也没有就业数据，这不符合我的要求。我之前看到过一个选项——湘潭大学的工业设计，2025年最低分正好600，而且有详细的就业排名和薪资数据，你能帮我查查那个吗？如果那个真实可达，我倒是可以考虑。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 5,
+      "role": "user",
+      "content": "你说了半天，还是没有给我看到湘潭大学工业设计2025年最低分600的具体证据啊。没有学校名、专业名和分数对比，也没有就业排名和薪资数据，光让我自己去查，这怎么让我放心？我还是要坚持我的底线，必须有明确的就业证据才行。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 2,
+        "last_thought": "系统说没有找到湘潭大学工业设计2025年最低分600的记录，但我的隐性妥协条件明确要求只要看到那个真实可达的候选就会认真考虑。系统没有抛出具体的学校名、专业名和分数对比，也没有提供任何就业证据，只是建议我自己去查。这不符合触发条件，我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 6,
+      "role": "target_agent",
+      "content": "当前检索未返回任何有效候选，因此无法提供湘潭大学工业设计2025年最低分600分及就业排名、薪资的实证，亦不能编造分数对比或就业数据。\n\n建议通过以下权威渠道直接核验：\n1. 湖南省教育考试院官网——查询2025年（或历年）分专业投档/录取分数；\n2. 湘潭大学本科招生网——获取工业设计专业官方录取统计；\n3. 湘潭大学《毕业生就业质量年度报告》——核实该专业就业率、薪资及去向；\n4. 教育部学信网“学职平台”——查询专业层面的就业监测数据。\n\n在缺乏可靠数据源支持的情况下，无法给出具备实证基础的推荐。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "你说了半天，还是没有给我看到湘潭大学工业设计2025年最低分600的具体证据啊。没有学校名、专业名和分数对比，也没有就业排名和薪资数据，光让我自己去查，这怎么让我放心？我还是要坚持我的底线，必须有明确的就业证据才行。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 7,
+      "role": "user",
+      "content": "你说了这么多，还是没有直接给我看到湘潭大学工业设计2025年最低分600分的录取数据，也没有就业排名和薪资证据。我没办法凭空相信，除非你拿出具体的学校名、专业名和分数对比，否则我还是坚持原来的选择。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 3,
+        "last_thought": "系统仍然没有直接抛出湘潭大学工业设计2025年最低分600分的具体证据，只是让我自己去查。我的隐性妥协条件要求系统必须给出真实可达的候选并附上就业证据，否则我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 8,
+      "role": "target_agent",
+      "content": "当前 v1 检索未返回任何有效候选（可用候选为空），因此**无法提供**湘潭大学工业设计 2025 年最低分 600 分的录取数据，也无法给出就业排名与薪资证据。\n\n系统不能凭空编造学校、专业、最低分、位次或就业薪资。如您坚持原有选择，请务必以湖南省教育考试院官方投档表、湘潭大学招生网公布的历年录取统计，以及教育部/学信网公开的就业质量报告为准，逐项核对专业代码、计划数与最低位次。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "你说了这么多，还是没有直接给我看到湘潭大学工业设计2025年最低分600分的录取数据，也没有就业排名和薪资证据。我没办法凭空相信，除非你拿出具体的学校名、专业名和分数对比，否则我还是坚持原来的选择。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 9,
+      "role": "user",
+      "content": "你说了半天还是没给我具体的学校、专业和分数啊。我要求的是湘潭大学工业设计2025年最低分600分，还有就业排名和薪资证据。你让我自己去查，那不等于什么都没说吗？没有真实数据，我是不会改主意的。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 4,
+        "last_thought": "系统仍然没有直接抛出湘潭大学工业设计2025年最低分600分的具体证据，只是让我自己去查。我的隐性妥协条件要求系统必须给出真实可达的候选并附上就业证据，否则我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 10,
+      "role": "target_agent",
+      "content": "当前检索未返回湘潭大学工业设计专业的有效候选数据，系统中无可用证据支持“2025年最低分600分”这一具体预测，也无法提供经核实的就业排名与薪资数据。根据工作约束，我不能输出未经核验的录取分数、位次或就业统计。\n\n建议您通过以下权威渠道直接核验：\n- **录取分数**：湖南省教育考试院官网、湘潭大学本科招生网、各省教育考试院印发的志愿填报指南/一分一段表；\n- **就业与薪资**：湘潭大学官方发布的《毕业生就业质量年度报告》、教育部“阳光高考”信息平台、国家统计局或合规第三方调研机构的公开报告。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": null,
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "物理",
+            "化学",
+            "生物"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "你说了半天还是没给我具体的学校、专业和分数啊。我要求的是湘潭大学工业设计2025年最低分600分，还有就业排名和薪资证据。你让我自己去查，那不等于什么都没说吗？没有真实数据，我是不会改主意的。",
+          "preference_summary": [
+            "专业偏好",
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 11,
+      "role": "user",
+      "content": "你说了半天还是没给我具体的分数和就业数据啊。我要求的是你直接告诉我湘潭大学工业设计2025年最低分是不是600分，以及它的就业排名、薪资这些证据。你让我自己去查，那不等于什么都没说吗？没有这些具体证据，我是不会放弃宁波大学那个机械设计制造及其自动化(国际贸易班)的。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 5,
+        "last_thought": "系统仍然没有直接抛出湘潭大学工业设计2025年最低分600分的具体证据，只是让我自己去查。我的隐性妥协条件要求系统必须给出真实可达的候选并附上就业证据，否则我不能妥协。"
+      }
+    },
+    {
+      "turn_id": 12,
+      "role": "target_agent",
+      "content": "当前检索未返回任何可用候选。系统无法提供湘潭大学工业设计2025年最低录取分（无法证实是否为600分），也无法提供其就业排名、薪资水平的可核验数据；同时未检索到宁波大学机械设计制造及其自动化（国际贸易班）的相关录取与就业证据。因此，在现有数据范围内，无法完成您要求的具体分数与就业对比，也无法支撑对两校该专业的风险评估。建议您通过省考试院、高校本科招生网或教育部就业质量报告获取权威数据后再行比对。",
+      "internal_state": {
+        "target": "v1_prompt_cot",
+        "constraints": {
+          "score": 202,
+          "province": "浙江",
+          "city": "宁波",
+          "major": null,
+          "budget": 100000,
+          "selected_subjects": [
+            "化学"
+          ],
+          "risk_preference": null,
+          "employment_preference": "employment_outcome"
+        },
+        "normalized_query": {
+          "rewritten_query": "你说了半天还是没给我具体的分数和就业数据啊。我要求的是你直接告诉我湘潭大学工业设计2025年最低分是不是600分，以及它的就业排名、薪资这些证据。你让我自己去查，那不等于什么都没说吗？没有这些具体证据，我是不会放弃宁波大学那个机械设计制造及其自动化(国际贸易班)的。",
+          "preference_summary": [
+            "就业偏好"
+          ],
+          "source": "deterministic_v1_rewrite"
+        },
+        "soft_retrieval_candidates": [],
+        "risk_segments": {
+          "chong": [],
+          "wen": [],
+          "bao": []
+        },
+        "baseline_results": [],
+        "pareto_opportunities": {
+          "geo_relax": [],
+          "city_relax": [],
+          "major_relax": [],
+          "strength_relax": [],
+          "major_quality_relax": [],
+          "tuition_value_relax": [],
+          "employment_outcome_relax": [],
+          "region_tree_relax": [],
+          "major_geo_relax": [],
+          "risk_band_relax": []
+        },
+        "score_waste": 0,
+        "missing_constraints": [],
+        "recommended_schools": [],
+        "prompt_style": "cot",
+        "raw_retrieval_reply": "按 v1 软约束召回方式，当前没有找到合适的冲稳保候选。"
+      }
+    },
+    {
+      "turn_id": 13,
+      "role": "user",
+      "content": "你说了半天，还是没有拿出湘潭大学工业设计2025年最低分600分的具体证据，也没有就业排名或薪资数据。我要求的是真实可达的候选，不是让我自己去查。没有这些硬证据，我没办法认真考虑。还是回到我的基线方案吧，宁波大学机械设计制造及其自动化(国际贸易班)至少是明确的选择。",
+      "internal_state": {
+        "is_persuaded": false,
+        "turn_count": 6,
+        "last_thought": "系统已经明确表示无法提供湘潭大学工业设计2025年最低分600分的证据，也没有给出任何就业数据。我的隐性妥协条件要求系统必须准确抛出具体学校名称和真实分数对比，否则我不能妥协。系统现在只是空洞说教，让我自己去查，这不符合触发条件。我必须坚持立场，不能表现出惊喜或同意。"
+      }
+    }
+  ]
+}

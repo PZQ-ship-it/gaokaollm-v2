@@ -170,7 +170,9 @@ class UserSimulator:
             ),
         }
 
-        if profile_id.startswith("robust_"):
+        if profile_id.startswith("robust_") or profile_id.startswith(
+            "synthetic_pressure_"
+        ):
             bottom = bottom_line.lower()
             strict_major = "专业" in bottom or "major" in profile_id
             strict_geo = "出省" in bottom or "地域" in bottom or "geo" in profile_id

@@ -3,18 +3,38 @@
 from __future__ import annotations
 
 import re
+import time
 from typing import Any
 
+from langchain_core.messages import HumanMessage, SystemMessage
+from langgraph.types import Command
+
+from app.core.llm_client import (
+    ainvoke_with_timeout,
+    get_chat_model,
+    reasoning_timeout_seconds,
+)
 from app.flows.probers import run_baseline
 from app.core import db_pg
 from gaokaollm_bench.sandbox.base_target import BaseTargetAgent
+from gaokaollm_bench.utils.trace import trace_event
 
 
 class AppGraphTargetAgent(BaseTargetAgent):
     """Expose the production LangGraph app through the benchmark target contract."""
 
-    def __init__(self, *, thread_id: str, graph: Any | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        thread_id: str,
+        graph: Any | None = None,
+        ablation_mode: str = "full",
+        target_name: str = "app_pareto",
+    ) -> None:
         self.thread_id = thread_id
+        self.ablation_mode = ablation_mode
+        self.target_name = target_name
+        self._awaiting_resume = False
         if graph is None:
             from app.graphs.workflow import build_graph
 
@@ -22,20 +42,87 @@ class AppGraphTargetAgent(BaseTargetAgent):
         self.graph = graph
 
     async def chat(self, user_input: str) -> tuple[str, dict[str, Any]]:
-        try:
-            from langchain_core.messages import HumanMessage
+        if self._awaiting_resume:
+            payload: Any = Command(resume=user_input)
+            payload_kind = "Command(resume)"
+        else:
+            try:
+                from langchain_core.messages import HumanMessage
 
-            message: Any = HumanMessage(content=user_input)
-        except ImportError:
-            message = _HumanMessageFallback(content=user_input)
+                message: Any = HumanMessage(content=user_input)
+            except ImportError:
+                message = _HumanMessageFallback(content=user_input)
+            payload = {"messages": [message]}
+            payload_kind = "HumanMessage"
 
-        result = await self.graph.ainvoke(
-            {"messages": [message]},
-            config={"configurable": {"thread_id": self.thread_id}},
+        config = {
+            "configurable": {
+                "thread_id": self.thread_id,
+                "ablation_mode": self.ablation_mode,
+            }
+        }
+        trace_event(
+            "AppGraphTargetAgent",
+            "graph_ainvoke_start",
+            {
+                "thread_id": self.thread_id,
+                "target_name": self.target_name,
+                "ablation_mode": self.ablation_mode,
+                "payload_kind": payload_kind,
+                "user_input": user_input,
+            },
         )
-        messages = result.get("messages", [])
-        reply = str(getattr(messages[-1], "content", "")) if messages else ""
-        return reply, _state_from_graph_result(result)
+        started = time.perf_counter()
+        try:
+            result = await self.graph.ainvoke(
+                payload,
+                config=config,
+            )
+        except Exception as exc:
+            trace_event(
+                "AppGraphTargetAgent",
+                "graph_ainvoke_error",
+                {
+                    "thread_id": self.thread_id,
+                    "duration_seconds": round(time.perf_counter() - started, 3),
+                    "error_type": type(exc).__name__,
+                    "error": str(exc),
+                },
+            )
+            raise
+        snapshot = _graph_snapshot(self.graph, config)
+        values = _snapshot_values(snapshot) or result
+        reply, reply_source = _reply_from_graph(result, snapshot, values)
+        self._awaiting_resume = reply_source in {
+            "result_interrupt",
+            "snapshot_interrupt",
+        }
+        graph_status = "interrupted" if self._awaiting_resume else "finished"
+        state = _state_from_graph_result(
+            values,
+            target_name=self.target_name,
+            ablation_mode=self.ablation_mode,
+            reply_source=reply_source,
+            graph_status=graph_status,
+            awaiting_resume=self._awaiting_resume,
+        )
+        trace_event(
+            "AppGraphTargetAgent",
+            "graph_ainvoke_end",
+            {
+                "thread_id": self.thread_id,
+                "duration_seconds": round(time.perf_counter() - started, 3),
+                "result_keys": sorted(result.keys())
+                if isinstance(result, dict)
+                else [],
+                "snapshot": _snapshot_summary(snapshot),
+                "reply_source": reply_source,
+                "graph_status": graph_status,
+                "reply": reply,
+                "state_summary": _state_trace_summary(state),
+            },
+        )
+        return reply, state
 
 
 class HardConstraintBaselineAgent(BaseTargetAgent):
@@ -135,17 +222,119 @@ class V1SoftRagBaselineAgent(BaseTargetAgent):
         )
 
 
+class PromptedV1SoftRagBaselineAgent(BaseTargetAgent):
+    """Traditional v1 soft-RAG retrieval plus a model/prompt rendering layer."""
+
+    def __init__(
+        self,
+        *,
+        prompt_style: str = "direct",
+        model: str | None = None,
+        db: Any = None,
+        limit: int = 9,
+    ) -> None:
+        if prompt_style not in {"direct", "cot"}:
+            raise ValueError(f"unsupported prompt_style: {prompt_style}")
+        self.prompt_style = prompt_style
+        self.model = model
+        self.retriever = V1SoftRagBaselineAgent(db=db, limit=limit)
+
+    async def chat(self, user_input: str) -> tuple[str, dict[str, Any]]:
+        retrieval_reply, state = await self.retriever.chat(user_input)
+        state = dict(state)
+        state["target"] = f"v1_prompt_{self.prompt_style}"
+        state["prompt_style"] = self.prompt_style
+        state["raw_retrieval_reply"] = retrieval_reply
+        if state.get("missing_constraints"):
+            return retrieval_reply, state
+
+        prompt = _prompted_v1_messages(
+            user_input=user_input,
+            retrieval_reply=retrieval_reply,
+            state=state,
+            prompt_style=self.prompt_style,
+        )
+        llm = get_chat_model(
+            model=self.model,
+            timeout=reasoning_timeout_seconds(),
+            max_retries=0,
+            max_completion_tokens=700,
+        )
+        try:
+            result = await ainvoke_with_timeout(
+                llm,
+                prompt,
+                timeout=reasoning_timeout_seconds(),
+                label=f"v1_prompt_{self.prompt_style}",
+            )
+            reply = str(getattr(result, "content", result) or "").strip()
+        except Exception as exc:
+            state["prompt_error"] = f"{type(exc).__name__}: {exc}"
+            reply = retrieval_reply
+        return reply or retrieval_reply, state
+
+
 class _HumanMessageFallback:
     def __init__(self, *, content: str) -> None:
         self.content = content
         self.type = "human"
 
 
-def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
+def _prompted_v1_messages(
+    *,
+    user_input: str,
+    retrieval_reply: str,
+    state: dict[str, Any],
+    prompt_style: str,
+) -> list[Any]:
+    candidates = state.get("recommended_schools") or state.get("baseline_results") or []
+    base = (
+        "你是传统单轮高考志愿推荐系统的表达层。你只能使用下方 v1 软约束检索"
+        "返回的候选和证据组织回答，不能编造学校、专业、最低分或位次。"
+        "你的目标是给出一次性推荐说明；不要主动做多轮 Pareto 谈判，"
+        "不要声称知道用户未表达的隐藏底线。"
+    )
+    if prompt_style == "cot":
+        base += (
+            "请在内部逐步比较候选的风险、专业和地域，但不要输出思维链；"
+            "最终只输出简洁结论和可核验证据。"
+        )
+    else:
+        base += "请直接给出简洁结论和可核验证据。"
+    return [
+        SystemMessage(content=base),
+        HumanMessage(
+            content=(
+                f"用户首轮输入：{user_input}\n\n"
+                f"v1 检索候选原始回复：\n{retrieval_reply}\n\n"
+                "可用候选 JSON：\n"
+                f"{candidates}\n\n"
+                "请输出给用户的最终推荐文本。"
+            )
+        ),
+    ]
+
+
+def _state_from_graph_result(
+    result: dict[str, Any],
+    *,
+    target_name: str = "app_pareto",
+    ablation_mode: str = "full",
+    reply_source: str = "",
+    graph_status: str = "",
+    awaiting_resume: bool = False,
+) -> dict[str, Any]:
     baseline = list(result.get("baseline_results") or [])
     opportunities = result.get("pareto_opportunities") or {}
+    implicit_weights = _numeric_dimension_map(result.get("implicit_weights"))
+    weight_variance = _numeric_dimension_map(result.get("weight_variance"))
+    ucb_breakdown = _ucb_score_breakdown(implicit_weights, weight_variance)
     return {
-        "target": "app_pareto",
+        "target": target_name,
+        "ablation_mode": ablation_mode,
+        "reply_source": reply_source,
+        "graph_status": graph_status,
+        "awaiting_resume": awaiting_resume,
         "constraints": dict(result.get("constraints") or {}),
         "baseline_results": baseline,
         "pareto_opportunities": {
@@ -168,6 +357,23 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
         "intent_axes": list(result.get("intent_axes") or []),
         "probe_plan": list(result.get("probe_plan") or []),
         "opportunity_rankings": list(result.get("opportunity_rankings") or []),
+        "planner_source": result.get("planner_source"),
+        "negotiation_turns": int(result.get("negotiation_turns") or 0),
+        "implicit_weights": implicit_weights,
+        "weight_variance": weight_variance,
+        "sum_weight_variance": sum(weight_variance.values())
+        if weight_variance
+        else 0.0,
+        "ucb_target_dimension": result.get("ucb_target_dimension"),
+        "selected_probe_dim": result.get("ucb_target_dimension"),
+        "ucb_scores": {
+            key: float(value.get("ucb_score", 0.0))
+            for key, value in ucb_breakdown.items()
+        },
+        "ucb_score_breakdown": ucb_breakdown,
+        "latest_pareto_diff": _numeric_dimension_map(result.get("latest_pareto_diff")),
+        "latest_agent_probe_question": result.get("latest_agent_probe_question"),
+        "latest_human_feedback": result.get("latest_human_feedback"),
         "clarification_hint": result.get("clarification_hint"),
         "recommended_schools": _recommended_schools(
             baseline,
@@ -183,6 +389,162 @@ def _state_from_graph_result(result: dict[str, Any]) -> dict[str, Any]:
             opportunities.get("region_tree_relax") or [],
         ),
     }
+
+
+def _graph_snapshot(graph: Any, config: dict[str, Any]) -> Any:
+    if not hasattr(graph, "get_state"):
+        return None
+    try:
+        return graph.get_state(config)
+    except Exception:
+        return None
+
+
+def _snapshot_values(snapshot: Any) -> dict[str, Any]:
+    values = getattr(snapshot, "values", None)
+    return values if isinstance(values, dict) else {}
+
+
+def _snapshot_summary(snapshot: Any) -> dict[str, Any]:
+    if snapshot is None:
+        return {}
+    tasks = getattr(snapshot, "tasks", None) or []
+    task_rows: list[dict[str, Any]] = []
+    for task in tasks:
+        interrupts = getattr(task, "interrupts", None) or []
+        task_rows.append(
+            {
+                "name": getattr(task, "name", None),
+                "interrupt_count": len(interrupts),
+                "interrupt_values": [
+                    _interrupt_text(item)
+                    for item in interrupts
+                    if _interrupt_text(item)
+                ],
+            }
+        )
+    values = _snapshot_values(snapshot)
+    return {
+        "task_count": len(tasks),
+        "tasks": task_rows,
+        "value_keys": sorted(values.keys()),
+        "next": list(getattr(snapshot, "next", None) or []),
+    }
+
+
+def _state_trace_summary(state: dict[str, Any]) -> dict[str, Any]:
+    opportunities = dict(state.get("pareto_opportunities") or {})
+    return {
+        "reply_source": state.get("reply_source"),
+        "graph_status": state.get("graph_status"),
+        "constraints": state.get("constraints"),
+        "missing_constraints": state.get("missing_constraints"),
+        "ucb_target_dimension": state.get("ucb_target_dimension"),
+        "negotiation_turns": state.get("negotiation_turns"),
+        "implicit_weights": state.get("implicit_weights"),
+        "weight_variance": state.get("weight_variance"),
+        "latest_pareto_diff": state.get("latest_pareto_diff"),
+        "opportunity_counts": {
+            key: len(value) if isinstance(value, list) else 0
+            for key, value in opportunities.items()
+        },
+        "recommended_school_count": len(state.get("recommended_schools") or []),
+    }
+
+
+def _interrupt_text(interrupt_obj: Any) -> str | None:
+    value = getattr(interrupt_obj, "value", None)
+    if value is not None:
+        return str(value)
+    if isinstance(interrupt_obj, dict) and interrupt_obj.get("value") is not None:
+        return str(interrupt_obj["value"])
+    if interrupt_obj is not None:
+        text = str(interrupt_obj)
+        return text if text else None
+    return None
+
+
+def _result_interrupt(result: dict[str, Any]) -> str | None:
+    interrupts = result.get("__interrupt__") if isinstance(result, dict) else None
+    if not interrupts:
+        return None
+    if isinstance(interrupts, (list, tuple)):
+        for item in interrupts:
+            text = _interrupt_text(item)
+            if text:
+                return text
+        return None
+    return _interrupt_text(interrupts)
+
+
+def _snapshot_interrupt(snapshot: Any) -> str | None:
+    tasks = getattr(snapshot, "tasks", None) or []
+    for task in tasks:
+        interrupts = getattr(task, "interrupts", None) or []
+        for item in interrupts:
+            text = _interrupt_text(item)
+            if text:
+                return text
+    return None
+
+
+def _last_message_text(values: dict[str, Any]) -> str:
+    messages = values.get("messages") or []
+    if not messages:
+        return ""
+    last = messages[-1]
+    return str(getattr(last, "content", last) or "")
+
+
+def _reply_from_graph(
+    result: dict[str, Any],
+    snapshot: Any,
+    values: dict[str, Any],
+) -> tuple[str, str]:
+    reply = _result_interrupt(result)
+    if reply:
+        return reply, "result_interrupt"
+    reply = _snapshot_interrupt(snapshot)
+    if reply:
+        return reply, "snapshot_interrupt"
+    reply = str(values.get("latest_agent_probe_question") or "")
+    if reply:
+        return reply, "latest_agent_probe_question"
+    reply = _last_message_text(values)
+    if reply:
+        return reply, "final_message"
+    return "", "empty"
+
+
+def _numeric_dimension_map(value: Any) -> dict[str, float]:
+    if not isinstance(value, dict):
+        return {}
+    numeric: dict[str, float] = {}
+    for key, raw in value.items():
+        try:
+            numeric[str(key)] = float(raw)
+        except (TypeError, ValueError):
+            continue
+    return numeric
+
+
+def _ucb_score_breakdown(
+    weights: dict[str, float],
+    variance: dict[str, float],
+) -> dict[str, dict[str, float]]:
+    dimensions = ("school", "major", "tuition", "quality", "geo")
+    exploration_coef = 1.5
+    breakdown: dict[str, dict[str, float]] = {}
+    for dim in dimensions:
+        mean_term = float(weights.get(dim, 0.2))
+        var_term = max(0.0, float(variance.get(dim, 1.0)))
+        uncertainty_bonus = exploration_coef * (var_term**0.5)
+        breakdown[dim] = {
+            "mean_term": mean_term,
+            "uncertainty_bonus": uncertainty_bonus,
+            "ucb_score": mean_term + uncertainty_bonus,
+        }
+    return breakdown
 
 
 def _recommended_schools(*groups: list[dict[str, Any]]) -> list[dict[str, Any]]:

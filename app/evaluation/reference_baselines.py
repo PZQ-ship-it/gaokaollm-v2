@@ -21,6 +21,7 @@ from app.core.llm_client import (
 from app.evaluation.benchmark import get_dataset
 from app.evaluation.classification_metrics import (
     REFERENCE_SOURCE,
+    compute_prf,
     classification_rows_from_reference_rows,
     merge_classification_metrics,
 )
@@ -256,36 +257,62 @@ def estimate_random_baseline(
     rng = random.Random(seed)
     profile_sums = {profile.profile_id: 0.0 for profile in dataset}
     profile_sq_sums = {profile.profile_id: 0.0 for profile in dataset}
+    profile_f1_sums = {profile.profile_id: 0.0 for profile in dataset}
+    profile_f1_sq_sums = {profile.profile_id: 0.0 for profile in dataset}
     dataset_values: list[float] = []
+    dataset_f1_values: list[float] = []
 
     for _ in range(samples):
         weights = _sample_dirichlet_uniform(rng)
         sample_total = 0.0
+        sample_f1_total = 0.0
         for profile in dataset:
             value = compute_mae(weights, profile.ground_truth_weights)
+            f1_value = float(compute_prf(weights, profile)["f1"])
             profile_sums[profile.profile_id] += value
             profile_sq_sums[profile.profile_id] += value * value
+            profile_f1_sums[profile.profile_id] += f1_value
+            profile_f1_sq_sums[profile.profile_id] += f1_value * f1_value
             sample_total += value
+            sample_f1_total += f1_value
         if dataset:
             dataset_values.append(sample_total / len(dataset))
+            dataset_f1_values.append(sample_f1_total / len(dataset))
 
     rows: list[dict[str, Any]] = []
     for profile in dataset:
         mean = profile_sums[profile.profile_id] / samples
+        f1_mean = profile_f1_sums[profile.profile_id] / samples
         variance = max(
             0.0,
             profile_sq_sums[profile.profile_id] / samples - mean * mean,
+        )
+        f1_variance = max(
+            0.0,
+            profile_f1_sq_sums[profile.profile_id] / samples - f1_mean * f1_mean,
         )
         rows.append(
             {
                 "profile_id": profile.profile_id,
                 "mean_mae": mean,
                 "std_mae": math.sqrt(variance),
+                "expected_f1": f1_mean,
+                "std_f1": math.sqrt(f1_variance),
             }
         )
     dataset_mean = sum(dataset_values) / len(dataset_values) if dataset_values else 0.0
     dataset_std = _std(dataset_values)
-    return {"mean_mae": dataset_mean, "std_mae": dataset_std, "profile_rows": rows}
+    dataset_f1_mean = (
+        sum(dataset_f1_values) / len(dataset_f1_values) if dataset_f1_values else 0.0
+    )
+    dataset_f1_std = _std(dataset_f1_values)
+    return {
+        "mean_mae": dataset_mean,
+        "std_mae": dataset_std,
+        "expected_f1": dataset_f1_mean,
+        "std_f1": dataset_f1_std,
+        "profile_rows": rows,
+    }
 
 
 def _std(values: list[float]) -> float:
@@ -534,7 +561,13 @@ def random_baseline_rows(
             "__dataset__",
             RANDOM_BASELINE,
             float(result["mean_mae"]),
-            {"samples": samples, "seed": seed, "std_mae": float(result["std_mae"])},
+            {
+                "samples": samples,
+                "seed": seed,
+                "std_mae": float(result["std_mae"]),
+                "expected_f1": float(result["expected_f1"]),
+                "std_f1": float(result["std_f1"]),
+            },
             status="ok",
         )
     ]
@@ -549,6 +582,8 @@ def random_baseline_rows(
                     "samples": samples,
                     "seed": seed,
                     "std_mae": float(profile_row["std_mae"]),
+                    "expected_f1": float(profile_row["expected_f1"]),
+                    "std_f1": float(profile_row["std_f1"]),
                 },
                 status="ok",
             )

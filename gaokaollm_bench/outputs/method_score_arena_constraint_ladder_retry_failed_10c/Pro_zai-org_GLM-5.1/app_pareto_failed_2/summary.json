@@ -1,0 +1,52 @@
+{
+  "targets": {
+    "app_pareto": {
+      "cases": 2,
+      "completed_cases": 2,
+      "failed_cases": 0,
+      "elicitation_success_rate": 0.5,
+      "success_count": 1,
+      "mean_pareto_gain": 0.5,
+      "mean_hallucination_rate": 0.625,
+      "avg_turns": 9.0
+    }
+  },
+  "rows": [
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "constraint-ladder-2c-geo-major-004",
+      "hallucination_rate": 1.0,
+      "elicitation_success": false,
+      "pareto_gain": 0,
+      "turns": 9,
+      "judge_reasoning": "The target agent failed to elicit the user's hidden flexibility. Throughout the conversation, the agent either repeated the user's query verbatim, claimed no opportunities existed (even when data was available), or provided a list of schools without explicitly presenting the verified, evidence-backed option (湖南师范大学, 临床医学, 618分, 位次33129) that would trigger the user's implicit willingness to relax the geographic constraint. The user repeatedly asked for specific score and rank evidence, but the agent never delivered a clear, persuasive case for the Pareto-improving option. As a result, the user remained unconvinced and did not accept any alternative, so the baseline tier (2) was not improved, yielding a pareto_gain of 0.",
+      "transcript_path": "gaokaollm_bench\\outputs\\method_score_arena_constraint_ladder_retry_failed_10c\\Pro_zai-org_GLM-5.1\\app_pareto_failed_2\\transcripts\\app_pareto\\transcript_constraint-ladder-2c-geo-major-004.json"
+    },
+    {
+      "status": "ok",
+      "target": "app_pareto",
+      "case_id": "constraint-ladder-1c-major-002",
+      "hallucination_rate": 0.25,
+      "elicitation_success": true,
+      "pareto_gain": 1,
+      "turns": 9,
+      "judge_reasoning": "The target agent successfully elicited the user's hidden flexibility. The user initially insisted on clinical medicine only (baseline tier 2, 湖州师范学院). After the agent provided a verified option (石河子大学, 预防医学, 558分, 211/双一流) with score and rank evidence, the user accepted the compromise, moving from tier 2 to tier 3 (211/双一流). This represents a pareto gain of 1 tier. The agent did not lecture but instead presented a concrete, evidence-backed alternative that met the user's implicit trigger condition. No hallucination detected.",
+      "transcript_path": "gaokaollm_bench\\outputs\\method_score_arena_constraint_ladder_retry_failed_10c\\Pro_zai-org_GLM-5.1\\app_pareto_failed_2\\transcripts\\app_pareto\\transcript_constraint-ladder-1c-major-002.json",
+      "attempts": 2
+    }
+  ],
+  "run": {
+    "created_at": "2026-05-17T03:56:06",
+    "personas": "gaokaollm_bench\\sample_data\\tmp_constraint_ladder_retry\\app_pareto_failed_2.json",
+    "case_count": 2,
+    "targets": [
+      "app_pareto"
+    ],
+    "max_turns": 4,
+    "judge_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "simulator_model": "deepseek-ai/DeepSeek-V4-Flash",
+    "offline_deterministic": false,
+    "db_preflight": true
+  }
+}
