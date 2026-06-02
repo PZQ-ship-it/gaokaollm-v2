@@ -18,3 +18,39 @@ dist/
 build/
 *.egg-info/
 tmp/
+
+# Local browser and trace artifacts
+.playwright-cli/
+current_out.md
+output/
+outputs/
+
+# Generated deck/PPT QA exports
+generated_pptx_test/
+qa/
+exp/ppt_deck_build_v0/current_v0_export/
+exp/ppt_deck_build_v0/current_v0_refactor_export/
+exp/ppt_deck_build_v0/full_spotcheck_slides/
+exp/ppt_deck_build_v0/spotcheck_slides/
+exp/ppt_deck_build_v0/storyboard_visual_audit/
+exp/ppt_deck_build_v0/reference_ppt_layout_study/
+exp/ppt_deck_build_v0/reference_yingyuxuan/
+exp/ppt_deck_build_v0/generated_assets/*.json
+exp/ppt_deck_build_v0/generated_assets/*.png
+exp/ppt_deck_build_v0/generated_assets/*.txt
+
+# Evaluation run logs and large generated result exports
+app/evaluation/results/logs/
+app/evaluation/results/paper_replacement_ablation_results.csv
+app/evaluation/results/paper_replacement_baseline_results.csv
+app/evaluation/results/paper_replacement_process_by_case.csv
+app/evaluation/results/preview_c1_c6_average_*.csv
+app/evaluation/results/process_metrics_c2_c6_by_case.csv
+app/evaluation/results/unified_c2_c6_ablation_results.csv
+app/evaluation/results/unified_c2_c6_baseline_results.csv
+gaokaollm_bench/outputs/unified_*/
+gaokaollm_bench/sample_data/unified_by_constraint_fixed/
+gaokaollm_bench/sample_data/unified_c3_cot_shards/
+gaokaollm_bench/sample_data/unified_c3_cot_split_by_lane/
+gaokaollm_bench/sample_data/unified_c6_shards/
+gaokaollm_bench/sample_data/unified_c6_split_by_lane/
