@@ -5,7 +5,7 @@ import random
 import re
 from typing import Any
 
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 
 from app.core.llm_client import (
@@ -15,6 +15,7 @@ from app.core.llm_client import (
 )
 from app.evaluation.ablation import get_ablation_mode
 from app.flows.probers import probe_global_baseline, run_all_probes
+from app.graphs.nodes.semantic_normalizer import refresh_full_context_semantics
 from app.schemas.state import (
     DEFAULT_IMPLICIT_WEIGHTS,
     DEFAULT_WEIGHT_VARIANCE,
@@ -36,7 +37,7 @@ PROBE_KEYS = [
     "major_relax",
 ]
 
-PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
+PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo", "risk")
 UCB_EXPLORATION_COEF = 1.5
 HALTING_VARIANCE_THRESHOLD = 1.5
 MAX_NEGOTIATION_TURNS = 3
@@ -47,6 +48,7 @@ PROBE_MAPPING: dict[str, str] = {
     "tuition": "tuition_value_relax",
     "quality": "major_quality_relax",
     "geo": "major_geo_relax",
+    "risk": "risk_band_relax",
 }
 
 EMPTY_OPPORTUNITIES: dict[str, list[dict[str, Any]]] = {
@@ -103,9 +105,22 @@ def total_weight_variance(state: AgentState) -> float:
 
 def should_halt_for_global_baseline(state: AgentState) -> bool:
     turns = int(state.get("negotiation_turns") or 0)
+    if str(state.get("navigation_intent") or "") == "continue":
+        return False
     return total_weight_variance(state) < HALTING_VARIANCE_THRESHOLD or (
         turns >= MAX_NEGOTIATION_TURNS
     )
+
+
+def _accepted_dimensions(state: AgentState) -> set[str]:
+    accepted: set[str] = set()
+    for item in state.get("accepted_relaxations") or []:
+        if not isinstance(item, dict):
+            continue
+        dimension = str(item.get("dimension") or "").strip()
+        if dimension in PREFERENCE_KEYS:
+            accepted.add(dimension)
+    return accepted
 
 
 def _is_global_baseline_plan(plan: dict[str, Any]) -> bool:
@@ -166,11 +181,268 @@ def _flatten_candidates(
     return candidates
 
 
+def _opportunity_count(value: Any) -> int:
+    return len(_iter_rows(value))
+
+
+def _opportunity_is_usable(key: str, value: Any) -> bool:
+    rows = _iter_rows(value)
+    if not rows:
+        return False
+    if key == "risk_band_relax":
+        relaxed_buckets = {"chong", "reach", "wen", "match"}
+        for row in rows:
+            bucket = str(row.get("risk_bucket") or row.get("risk_level") or "")
+            if bucket in relaxed_buckets:
+                return True
+            features = row.get("_phi_features")
+            if isinstance(features, dict):
+                try:
+                    if float(features.get("risk", 1.0)) < 0.95:
+                        return True
+                except (TypeError, ValueError):
+                    pass
+        return False
+    return True
+
+
+def _plan_with_available_opportunities(
+    plan: dict[str, Any],
+    opportunities: dict[str, Any],
+    state: AgentState | None = None,
+) -> dict[str, Any]:
+    blocked_dimensions = {
+        str(item)
+        for item in ((state or {}).get("factual_blocked_dimensions") or [])
+        if str(item) in PREFERENCE_KEYS
+    }
+    probe_dimensions = {
+        "major_geo_relax": {"major", "geo"},
+        "geo_relax": {"geo"},
+        "city_relax": {"geo"},
+        "region_tree_relax": {"geo"},
+        "major_relax": {"major"},
+        "risk_band_relax": {"risk"},
+        "tuition_value_relax": {"tuition"},
+        "major_quality_relax": {"major", "quality"},
+        "employment_outcome_relax": {"major", "quality"},
+        "strength_relax": {"school"},
+    }
+    available = {
+        key
+        for key, value in opportunities.items()
+        if key in PROBE_KEYS
+        and _opportunity_is_usable(key, value)
+        and not probe_dimensions.get(key, set()).issubset(blocked_dimensions)
+    }
+    if not available:
+        fallback = dict(GLOBAL_BASELINE_PLAN)
+        fallback["probe_plan"] = [
+            dict(item) for item in GLOBAL_BASELINE_PLAN["probe_plan"]
+        ]
+        fallback["opportunity_rankings"] = list(
+            GLOBAL_BASELINE_PLAN["opportunity_rankings"]
+        )
+        fallback["planner_source"] = "no_available_opportunities"
+        fallback["clarification_hint"] = (
+            "当前已尝试或排除的放宽方向里没有新的显著跃迁候选。"
+        )
+        return fallback
+    plan_rows = [
+        dict(item)
+        for item in plan.get("probe_plan") or []
+        if isinstance(item, dict)
+        and str(item.get("probe") or item.get("probe_name") or "").removeprefix(
+            "probe_"
+        )
+        in available
+    ]
+    if not plan_rows:
+        best_key = next((key for key in PROBE_KEYS if key in available), None)
+        if best_key:
+            plan_rows = [
+                {
+                    "probe": best_key,
+                    "priority": 1,
+                    "reason": "available opportunity fallback",
+                }
+            ]
+    for index, item in enumerate(plan_rows):
+        item["probe"] = str(
+            item.get("probe") or item.get("probe_name") or ""
+        ).removeprefix("probe_")
+        item["priority"] = index + 1
+    rankings = [
+        str(item).removeprefix("probe_")
+        for item in plan.get("opportunity_rankings") or []
+        if str(item).removeprefix("probe_") in available
+    ]
+    if not rankings:
+        rankings = [item["probe"] for item in plan_rows]
+    else:
+        for item in plan_rows:
+            if item["probe"] not in rankings:
+                rankings.append(item["probe"])
+    adjusted = dict(plan)
+    adjusted["probe_plan"] = plan_rows
+    adjusted["opportunity_rankings"] = rankings
+    if (
+        adjusted.get("ucb_required_probe")
+        and adjusted.get("ucb_required_probe") not in available
+    ):
+        adjusted["ucb_required_probe"] = None
+    return adjusted
+
+
+def _candidate_identity_key(row: dict[str, Any]) -> tuple[Any, Any, Any]:
+    return (
+        row.get("school_id") or row.get("school_name") or row.get("school"),
+        row.get("major_id") or row.get("major_name") or row.get("major"),
+        row.get("admission_score_id"),
+    )
+
+
+def _display_identity_key(row: dict[str, Any]) -> tuple[Any, Any]:
+    return (
+        row.get("school_id") or row.get("school_name") or row.get("school"),
+        row.get("major_id") or row.get("major_name") or row.get("major"),
+    )
+
+
+def _accepted_relaxation_candidates(state: AgentState) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for item in state.get("accepted_relaxations") or []:
+        if not isinstance(item, dict):
+            continue
+        candidate = item.get("candidate")
+        if not isinstance(candidate, dict):
+            continue
+        row = dict(candidate)
+        row["_accepted_relaxation"] = True
+        row["_accepted_dimension"] = item.get("dimension")
+        rows.append(row)
+    return rows
+
+
+def _merge_accepted_into_baseline(
+    global_result: Any,
+    state: AgentState,
+) -> Any:
+    accepted = _accepted_relaxation_candidates(state)
+    if not accepted:
+        return global_result
+    if not isinstance(global_result, dict):
+        return global_result
+    merged = {
+        key: _iter_rows(global_result.get(key)) for key in ("reach", "match", "safety")
+    }
+    seen = {
+        _candidate_identity_key(row)
+        for rows in merged.values()
+        for row in rows
+        if isinstance(row, dict)
+    }
+    for row in accepted:
+        key = _candidate_identity_key(row)
+        if key in seen:
+            continue
+        bucket = str(row.get("risk_bucket") or row.get("risk_level") or "match")
+        if bucket not in merged:
+            bucket = "match"
+        row.setdefault("risk_bucket", bucket)
+        merged[bucket].insert(0, row)
+        seen.add(key)
+    return merged
+
+
+def _without_accepted_relaxation_candidates(
+    opportunities: dict[str, Any],
+    state: AgentState,
+) -> dict[str, Any]:
+    accepted_keys = {
+        _candidate_identity_key(row) for row in _accepted_relaxation_candidates(state)
+    }
+    if not accepted_keys:
+        return opportunities
+    filtered: dict[str, Any] = {}
+    for key, value in opportunities.items():
+        if isinstance(value, list):
+            filtered[key] = [
+                row
+                for row in value
+                if not isinstance(row, dict)
+                or _candidate_identity_key(row) not in accepted_keys
+            ]
+        elif isinstance(value, dict):
+            filtered[key] = {
+                bucket: [
+                    row
+                    for row in rows
+                    if not isinstance(row, dict)
+                    or _candidate_identity_key(row) not in accepted_keys
+                ]
+                if isinstance(rows, list)
+                else rows
+                for bucket, rows in value.items()
+            }
+        else:
+            filtered[key] = value
+    return filtered
+
+
+def _without_global_baseline_duplicates(
+    opportunities: dict[str, Any],
+    global_result: Any,
+) -> dict[str, Any]:
+    baseline_keys = {
+        _display_identity_key(row)
+        for row in _iter_rows(global_result)
+        if isinstance(row, dict)
+    }
+    if not baseline_keys:
+        return opportunities
+    filtered: dict[str, Any] = {}
+    for key, value in opportunities.items():
+        if key == "global_baseline":
+            filtered[key] = value
+            continue
+        if isinstance(value, list):
+            filtered[key] = [
+                row
+                for row in value
+                if not isinstance(row, dict)
+                or _display_identity_key(row) not in baseline_keys
+            ]
+        elif isinstance(value, dict):
+            filtered[key] = {
+                bucket: [
+                    row
+                    for row in rows
+                    if not isinstance(row, dict)
+                    or _display_identity_key(row) not in baseline_keys
+                ]
+                if isinstance(rows, list)
+                else rows
+                for bucket, rows in value.items()
+            }
+        else:
+            filtered[key] = value
+    return filtered
+
+
 def calculate_ucb_scores(state: AgentState) -> dict[str, float]:
     raw_weights = state.get("implicit_weights") or {}
     raw_variance = state.get("weight_variance") or {}
+    blocked_dimensions = {
+        str(item)
+        for item in (state.get("factual_blocked_dimensions") or [])
+        if str(item) in PREFERENCE_KEYS
+    }
+    accepted_dimensions = _accepted_dimensions(state)
     scores: dict[str, float] = {}
     for key in PREFERENCE_KEYS:
+        if key in blocked_dimensions or key in accepted_dimensions:
+            continue
         try:
             weight = float(raw_weights.get(key, DEFAULT_IMPLICIT_WEIGHTS[key]))
         except (TypeError, ValueError):
@@ -183,14 +455,50 @@ def calculate_ucb_scores(state: AgentState) -> dict[str, float]:
     return scores
 
 
+def _continue_exploration_tie_break_order(state: AgentState) -> list[str]:
+    if str(state.get("navigation_intent") or "") != "continue":
+        return []
+    constraints = state.get("constraints") or {}
+    order: list[str] = []
+    if (
+        constraints.get("target_provinces")
+        or constraints.get("city")
+        or constraints.get("province")
+    ):
+        order.append("geo")
+    if constraints.get("major"):
+        order.append("major")
+    order.append("risk")
+    order.extend(["school", "quality", "tuition"])
+    return list(dict.fromkeys(order))
+
+
 def _ucb_tie_break_order(state: AgentState) -> list[str]:
+    blocked_dimensions = {
+        str(item)
+        for item in (state.get("factual_blocked_dimensions") or [])
+        if str(item) in PREFERENCE_KEYS
+    }
+    accepted_dimensions = _accepted_dimensions(state)
+
+    def without_blocked(order: list[str]) -> list[str]:
+        return [
+            item
+            for item in order
+            if item not in blocked_dimensions and item not in accepted_dimensions
+        ]
+
+    continue_order = _continue_exploration_tie_break_order(state)
+    if continue_order:
+        return without_blocked(continue_order)
+
     constraint_order = _explicit_constraint_tie_break_order(state)
     if constraint_order:
-        return constraint_order
+        return without_blocked(constraint_order)
 
     intent_order = _intent_axis_tie_break_order(state)
     if intent_order:
-        return intent_order
+        return without_blocked(intent_order)
 
     text_parts = [
         str(state.get("rewritten_query") or ""),
@@ -198,46 +506,46 @@ def _ucb_tie_break_order(state: AgentState) -> list[str]:
     ]
     text = "\n".join(text_parts)
     if "profile_major" in text or "major_extreme" in text:
-        return ["major", "geo", "school", "tuition", "quality"]
+        return without_blocked(["major", "geo", "school", "tuition", "quality"])
     if "profile_geo" in text or "geo_extreme" in text or "geo_free" in text:
-        return ["geo", "major", "school", "tuition", "quality"]
+        return without_blocked(["geo", "major", "school", "tuition", "quality"])
     if (
         "profile_tuition" in text
         or "tuition_extreme" in text
         or "school_to_tuition" in text
     ):
-        return ["tuition", "major", "geo", "school", "quality"]
+        return without_blocked(["tuition", "major", "geo", "school", "quality"])
     if "school_extreme" in text:
-        return ["school", "major", "geo", "tuition", "quality"]
+        return without_blocked(["school", "major", "geo", "tuition", "quality"])
     if "quality_major" in text or "low_school_decoy" in text:
-        return ["major", "quality", "school", "geo", "tuition"]
+        return without_blocked(["major", "quality", "school", "geo", "tuition"])
     if "school_geo" in text:
-        return ["geo", "school", "major", "tuition", "quality"]
+        return without_blocked(["geo", "school", "major", "tuition", "quality"])
     if "geo_tuition" in text:
-        return ["tuition", "geo", "major", "school", "quality"]
+        return without_blocked(["tuition", "geo", "major", "school", "quality"])
     if any(token in text for token in ("学费", "预算", "费用", "tuition", "budget")):
-        return ["tuition", "major", "geo", "school", "quality"]
+        return without_blocked(["tuition", "major", "geo", "school", "quality"])
     if any(
         token in text
         for token in ("学校和专业都可以灵活", "性价比", "绝不出省", "本省")
     ):
-        return ["geo", "major", "school", "tuition", "quality"]
+        return without_blocked(["geo", "major", "school", "tuition", "quality"])
     if any(token in text for token in ("专业", "计算机", "major")):
-        return ["major", "geo", "school", "tuition", "quality"]
-    return list(PREFERENCE_KEYS)
+        return without_blocked(["major", "geo", "school", "tuition", "quality"])
+    return without_blocked(list(PREFERENCE_KEYS))
 
 
 def _intent_axis_tie_break_order(state: AgentState) -> list[str]:
     axes: list[str] = list(_all_intent_axes(state))
     axis_priority = {
-        "region": ["geo", "school", "major", "tuition", "quality"],
-        "geo": ["geo", "school", "major", "tuition", "quality"],
-        "major": ["major", "quality", "school", "geo", "tuition"],
-        "tuition": ["tuition", "school", "quality", "major", "geo"],
-        "budget": ["tuition", "school", "quality", "major", "geo"],
-        "risk": ["school", "major", "geo", "tuition", "quality"],
-        "quality": ["quality", "major", "school", "geo", "tuition"],
-        "employment": ["quality", "major", "school", "geo", "tuition"],
+        "region": ["geo", "school", "major", "tuition", "quality", "risk"],
+        "geo": ["geo", "school", "major", "tuition", "quality", "risk"],
+        "major": ["major", "quality", "school", "geo", "tuition", "risk"],
+        "tuition": ["tuition", "school", "quality", "major", "geo", "risk"],
+        "budget": ["tuition", "school", "quality", "major", "geo", "risk"],
+        "risk": ["risk", "school", "major", "geo", "tuition", "quality"],
+        "quality": ["quality", "major", "school", "geo", "tuition", "risk"],
+        "employment": ["quality", "major", "school", "geo", "tuition", "risk"],
     }
     for axis in axes:
         if axis in axis_priority:
@@ -285,25 +593,25 @@ def _explicit_constraint_tie_break_order(state: AgentState) -> list[str]:
     if not isinstance(constraints, dict):
         return []
     if constraints.get("risk_preference"):
-        return ["school", "major", "geo", "tuition", "quality"]
+        return ["risk", "school", "major", "geo", "tuition", "quality"]
     if constraints.get("employment_preference") or constraints.get("strength"):
-        return ["quality", "major", "school", "geo", "tuition"]
+        return ["quality", "major", "school", "geo", "tuition", "risk"]
     budget = constraints.get("budget")
     try:
         has_real_budget = budget not in (None, "") and int(float(budget)) < 100000
     except (TypeError, ValueError):
         has_real_budget = False
     if has_real_budget:
-        return ["tuition", "school", "quality", "major", "geo"]
+        return ["tuition", "school", "quality", "major", "geo", "risk"]
     if constraints.get("major"):
-        return ["major", "quality", "school", "geo", "tuition"]
+        return ["major", "quality", "school", "geo", "tuition", "risk"]
     if constraints.get("city"):
-        return ["geo", "school", "major", "tuition", "quality"]
+        return ["geo", "school", "major", "tuition", "quality", "risk"]
     province = constraints.get("province")
     if _explicit_region_intent(state):
-        return ["geo", "school", "major", "tuition", "quality"]
+        return ["geo", "school", "major", "tuition", "quality", "risk"]
     if province not in (None, "", "浙江"):
-        return ["geo", "school", "major", "tuition", "quality"]
+        return ["geo", "school", "major", "tuition", "quality", "risk"]
     return []
 
 
@@ -328,6 +636,8 @@ def target_probe_for_dimension(
     dimension: str,
     state: AgentState | None = None,
 ) -> str:
+    if dimension == "risk":
+        return "risk_band_relax"
     if state is not None:
         constraints = state.get("constraints") or {}
         axes = _all_intent_axes(state)
@@ -431,6 +741,13 @@ def _deterministic_probe_plan(state: AgentState) -> dict[str, Any]:
             "region_tree_relax",
             "region-tree evidence can support geographic clarification",
         )
+    if constraints.get("score") and not any(
+        item.get("probe") == "risk_band_relax" for item in plan
+    ):
+        add(
+            "risk_band_relax",
+            "score/rank evidence can test admission-risk elasticity",
+        )
     if not plan:
         add("geo_relax", "default geographic relaxation probe")
         add("major_relax", "default major relaxation probe")
@@ -533,6 +850,15 @@ async def _build_probe_plan(
     state: AgentState,
     config: RunnableConfig | None = None,
 ) -> dict[str, Any]:
+    if state.get("force_final_recommendation"):
+        return dict(GLOBAL_BASELINE_PLAN)
+    blocked_dimensions = {
+        str(item)
+        for item in (state.get("factual_blocked_dimensions") or [])
+        if str(item) in PREFERENCE_KEYS
+    }
+    if len(blocked_dimensions) >= len(PREFERENCE_KEYS):
+        return dict(GLOBAL_BASELINE_PLAN)
     if should_halt_for_global_baseline(state):
         return dict(GLOBAL_BASELINE_PLAN)
 
@@ -571,14 +897,14 @@ async def _build_probe_plan(
     prompt = [
         SystemMessage(
             content=(
-                "你是高考志愿 Pareto 机会探测规划器。"
-                "你只能规划接下来应调用哪些确定性探针，不得编造学校、专业、分数或候选。"
-                "输出 JSON，字段为 probe_plan(list), opportunity_rankings(list[str]), "
-                "clarification_hint(str|null)。"
-                "probe 只能从以下集合中选择: "
+                "你是高考志愿咨询中的取舍探测规划师。"
+                "你的任务是决定下一轮应该检查哪些可审计的事实方向；事实候选只能由后续数据库探针产生。"
+                "不要编造学校、专业、分数、位次或收益。"
+                "只输出 JSON，字段为 probe_plan(list), opportunity_rankings(list[str]), clarification_hint(str|null)。"
+                "probe 只能从以下集合选择: "
                 + ", ".join(PROBE_KEYS)
-                + "。如果需要澄清，只给短 clarification_hint；事实候选必须由 SQL probes 产生。"
-                "禁止输出 implicit_flexibilities, volunteer_set, axis_flexibilities。"
+                + "。优先选择最能检验用户底线弹性的方向；如果事实上没有可比较方向，只给一句短 clarification_hint。"
+                "不要输出 implicit_flexibilities, volunteer_set, axis_flexibilities。"
                 + (
                     str(required_context["instruction"])
                     if required_context["instruction"]
@@ -586,26 +912,29 @@ async def _build_probe_plan(
                 )
             )
         ),
-        SystemMessage(
-            content=json.dumps(
-                {
-                    "constraints": constraints,
-                    "normalized_intent": normalized_intent,
-                    "score_waste": state.get("score_waste", 0),
-                    "baseline_count": len(state.get("baseline_results", [])),
-                    "fallback_plan": fallback,
-                    **(
-                        {}
-                        if ablation_mode == "no_ucb"
-                        else {
-                            "ucb_scores": calculate_ucb_scores(state),
-                            "ucb_target_dimension": required_context["dimension"],
-                            "ucb_required_probe": required_probe,
-                        }
-                    ),
-                },
-                ensure_ascii=False,
-                default=str,
+        HumanMessage(
+            content=(
+                "请为以下当前状态规划下一轮事实探测，只返回 JSON：\n"
+                + json.dumps(
+                    {
+                        "constraints": constraints,
+                        "normalized_intent": normalized_intent,
+                        "score_waste": state.get("score_waste", 0),
+                        "baseline_count": len(state.get("baseline_results", [])),
+                        "fallback_plan": fallback,
+                        **(
+                            {}
+                            if ablation_mode == "no_ucb"
+                            else {
+                                "ucb_scores": calculate_ucb_scores(state),
+                                "ucb_target_dimension": required_context["dimension"],
+                                "ucb_required_probe": required_probe,
+                            }
+                        ),
+                    },
+                    ensure_ascii=False,
+                    default=str,
+                )
             )
         ),
     ]
@@ -637,6 +966,9 @@ async def radar_node(
     state: AgentState,
     config: RunnableConfig | None = None,
 ) -> dict[str, Any]:
+    semantic_output = await refresh_full_context_semantics(state)
+    if semantic_output:
+        state = {**state, **semantic_output}
     baseline = state.get("baseline_results", [])
     score_waste = int(state.get("score_waste") or 0)
     constraints = state.get("constraints", {})
@@ -665,10 +997,12 @@ async def radar_node(
 
     if _is_global_baseline_plan(plan):
         global_result: Any = await probe_global_baseline(dict(state))
+        global_result = _merge_accepted_into_baseline(global_result, state)
         opportunities: dict[str, Any] = {"global_baseline": global_result}
         candidates = _iter_rows(global_result)
         print(f"[radar] global_baseline={len(candidates)}")
         output = {
+            **semantic_output,
             "pareto_opportunities": opportunities,
             "candidates": candidates,
             "probe_plan": plan["probe_plan"],
@@ -692,11 +1026,58 @@ async def radar_node(
         opportunities = await run_all_probes(constraints, user_state=dict(state))
     else:
         opportunities = dict(EMPTY_OPPORTUNITIES)
+    opportunities = _without_accepted_relaxation_candidates(opportunities, state)
+    try:
+        global_result: Any = await probe_global_baseline(dict(state))
+        global_result = _merge_accepted_into_baseline(global_result, state)
+    except Exception as exc:
+        print(f"[radar] global_baseline_preview_failed={type(exc).__name__}")
+        global_result = {}
+    opportunities = dict(opportunities)
+    opportunities = _without_global_baseline_duplicates(opportunities, global_result)
+    plan = _plan_with_available_opportunities(plan, opportunities, state)
+    if _is_global_baseline_plan(plan):
+        opportunities["global_baseline"] = global_result
+        candidates = _iter_rows(global_result)
+        print(f"[radar] global_baseline={len(candidates)} after_opportunity_filter")
+        output = {
+            **semantic_output,
+            "pareto_opportunities": opportunities,
+            "candidates": candidates,
+            "probe_plan": plan["probe_plan"],
+            "opportunity_rankings": plan["opportunity_rankings"],
+            "clarification_hint": plan.get("clarification_hint"),
+            "planner_source": plan.get("planner_source"),
+            "ucb_target_dimension": plan.get("ucb_target_dimension"),
+        }
+        trace_event(
+            "radar",
+            "node_end",
+            {
+                "global_baseline": True,
+                "candidate_count": len(candidates),
+                "plan": plan,
+            },
+        )
+        return output
     candidates = _flatten_candidates(
         opportunities,
         [str(item) for item in plan.get("opportunity_rankings", [])],
         include_unranked=get_ablation_mode(config) != "no_ucb",
     )
+    accepted_candidates = _accepted_relaxation_candidates(state)
+    if accepted_candidates:
+        existing_candidate_keys = {_candidate_identity_key(row) for row in candidates}
+        candidates = [
+            *[
+                row
+                for row in accepted_candidates
+                if _candidate_identity_key(row) not in existing_candidate_keys
+            ],
+            *candidates,
+        ]
+    opportunities["global_baseline"] = global_result
+    global_count = len(_iter_rows(global_result))
 
     print(
         "[radar] opportunities="
@@ -709,9 +1090,11 @@ async def radar_node(
         f"employment:{len(opportunities.get('employment_outcome_relax', []))} "
         f"region_tree:{len(opportunities.get('region_tree_relax', []))} "
         f"major_geo:{len(opportunities.get('major_geo_relax', []))} "
-        f"risk:{len(opportunities.get('risk_band_relax', []))}"
+        f"risk:{len(opportunities.get('risk_band_relax', []))} "
+        f"global:{global_count}"
     )
     output = {
+        **semantic_output,
         "pareto_opportunities": opportunities,
         "candidates": candidates,
         "probe_plan": plan["probe_plan"],

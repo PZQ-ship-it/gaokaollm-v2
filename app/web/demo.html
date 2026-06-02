@@ -1,0 +1,1828 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>高考志愿偏好澄清演示</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #162033;
+      --muted: #607086;
+      --line: #d8e0ea;
+      --soft: #eef3f8;
+      --panel: #ffffff;
+      --navy: #123c69;
+      --blue: #2563eb;
+      --green: #07846f;
+      --amber: #b76b10;
+      --red: #b42318;
+      --cyan: #0e7490;
+      --shadow: 0 14px 34px rgba(18, 32, 51, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #e7edf5;
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    textarea,
+    input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 66px 1fr;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 26px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--navy);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .runtime {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #41516a;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #94a3b8;
+    }
+
+    .dot.ok { background: #16a34a; }
+    .dot.busy { background: #f59e0b; }
+    .dot.err { background: #dc2626; }
+
+    .shell {
+      width: min(1480px, 100%);
+      margin: 0 auto;
+      padding: 18px 20px 22px;
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr) 380px;
+      gap: 16px;
+    }
+
+    .panel {
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      min-height: 50px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .metric {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 7px;
+      background: #e0f2fe;
+      color: #075985;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .panel-body {
+      padding: 15px;
+    }
+
+    label {
+      display: block;
+      margin: 0 0 7px;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 154px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px;
+      color: var(--ink);
+      line-height: 1.55;
+      background: #fff;
+    }
+
+    .primary-btn,
+    .ghost-btn,
+    .choice-btn {
+      min-height: 40px;
+      border: 0;
+      border-radius: 7px;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .primary-btn {
+      width: 100%;
+      margin-top: 11px;
+      background: var(--blue);
+    }
+
+    .primary-btn:disabled,
+    .choice-btn:disabled {
+      cursor: wait;
+      opacity: 0.66;
+    }
+
+    .ghost-btn {
+      width: 100%;
+      margin-top: 9px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #334155;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 11px;
+    }
+
+    .quick-grid button {
+      min-height: 34px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      background: #fff;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 78px 1fr;
+      gap: 7px 9px;
+      margin: 13px 0 0;
+      font-size: 12px;
+    }
+
+    .kv dt {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .kv dd {
+      margin: 0;
+      min-width: 0;
+      word-break: break-word;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-rows: minmax(230px, auto) auto minmax(250px, 1fr);
+      gap: 16px;
+    }
+
+    .dialogue {
+      display: grid;
+      gap: 10px;
+      max-height: 318px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .msg {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      background: #fff;
+    }
+
+    .msg.user {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+    }
+
+    .msg.system {
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+    }
+
+    .msg.error {
+      border-color: #fecaca;
+      background: #fef2f2;
+      color: var(--red);
+    }
+
+    .msg strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #475569;
+      font-size: 12px;
+    }
+
+    .choice-panel {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fbfdff;
+      overflow: hidden;
+    }
+
+    .choice-title {
+      padding: 11px 13px;
+      border-bottom: 1px solid #dbe3ee;
+      background: #f1f5f9;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .choice-copy {
+      padding: 12px 13px;
+      color: #334155;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .choice-summary {
+      display: grid;
+      gap: 6px;
+      white-space: normal;
+    }
+
+    .choice-summary strong {
+      color: #0f172a;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .choice-summary span {
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .choice-evidence {
+      display: grid;
+      gap: 7px;
+      margin-top: 10px;
+      white-space: normal;
+    }
+
+    .choice-evidence span {
+      display: block;
+      border: 1px solid #dbeafe;
+      border-radius: 7px;
+      padding: 7px 8px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .choice-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      padding: 0 13px 13px;
+    }
+
+    .choice-btn.accept { background: var(--green); }
+    .choice-btn.reject { background: var(--blue); }
+    .choice-btn.unsure { background: #475569; }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .chip {
+      min-height: 27px;
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 7px;
+      background: #fff;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .chip.blue { border-color: #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+    .chip.green { border-color: #bbf7d0; background: #f0fdf4; color: #047857; }
+    .chip.amber { border-color: #fde68a; background: #fffbeb; color: #a16207; }
+    .chip.red { border-color: #fecaca; background: #fef2f2; color: #b91c1c; }
+
+    .section-label {
+      margin: 14px 0 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .candidate-compare {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.92fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .current-cards {
+      display: grid;
+      gap: 8px;
+    }
+
+    .mini-candidate,
+    .relaxed-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .mini-candidate {
+      padding: 9px 10px;
+      border-left: 4px solid var(--green);
+    }
+
+    .mini-top,
+    .relax-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .mini-candidate h3,
+    .relaxed-card h3 {
+      margin: 0 0 4px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .mini-candidate .major,
+    .relaxed-card .major {
+      color: #475569;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .mini-meta,
+    .candidate-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+      color: #64748b;
+      font-size: 11px;
+    }
+
+    .mini-meta b,
+    .candidate-detail-grid b {
+      display: block;
+      margin-top: 1px;
+      color: #0f172a;
+      font-size: 12px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .candidate-detail-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .source-pill,
+    .dimension-badge {
+      min-height: 24px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 7px;
+      padding: 3px 7px;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .source-pill {
+      border: 1px solid #bbf7d0;
+      background: #f0fdf4;
+      color: #047857;
+    }
+
+    .source-pill.reach {
+      border-color: #fed7aa;
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    .source-pill.match {
+      border-color: #bfdbfe;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .source-pill.safety {
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+      color: #047857;
+    }
+
+    .dimension-badge {
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .relaxed-card {
+      min-height: 100%;
+      padding: 12px;
+      border-color: #bfdbfe;
+      border-left: 4px solid var(--blue);
+      background: #f8fbff;
+    }
+
+    .relaxed-empty {
+      display: grid;
+      place-items: center;
+      min-height: 170px;
+      border-style: dashed;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    .advantage-list {
+      display: grid;
+      gap: 7px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .advantage-list li {
+      border: 1px solid #dbeafe;
+      border-radius: 7px;
+      padding: 7px 8px;
+      background: #fff;
+      color: #1e3a8a;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .compare-note {
+      margin-top: 10px;
+      border: 1px solid #fde68a;
+      border-radius: 7px;
+      padding: 8px;
+      background: #fffbeb;
+      color: #92400e;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .candidate {
+      min-height: 150px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--green);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .candidate.relaxed {
+      border-left-color: var(--blue);
+      background: #f8fbff;
+    }
+
+    .candidate h3 {
+      margin: 0 0 4px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .candidate .major {
+      min-height: 34px;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      margin-top: 9px;
+      color: #64748b;
+      font-size: 11px;
+    }
+
+    .facts b {
+      display: block;
+      margin-top: 1px;
+      color: #0f172a;
+      font-size: 12px;
+    }
+
+    .tagline {
+      margin-top: 9px;
+      padding: 7px 8px;
+      border-radius: 7px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-size: 11px;
+      line-height: 1.45;
+      font-weight: 800;
+    }
+
+    .weight-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .weight-row {
+      display: grid;
+      grid-template-columns: 82px 1fr 56px;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #334155;
+    }
+
+    .track {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 7px;
+      background: #e2e8f0;
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: 7px;
+      background: var(--blue);
+    }
+
+    .trace {
+      display: grid;
+      gap: 8px;
+    }
+
+    .trace-node {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 8px;
+      border: 1px solid #dbe3ee;
+      border-radius: 8px;
+      background: #fbfdff;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .trace-node i {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: #e0f2fe;
+      color: #075985;
+      font-style: normal;
+      font-size: 11px;
+    }
+
+    .json {
+      max-height: 210px;
+      overflow: auto;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 1120px) {
+      .shell { grid-template-columns: 1fr; }
+      .candidate-compare { grid-template-columns: 1fr; }
+      .mini-meta,
+      .candidate-detail-grid { grid-template-columns: 1fr 1fr; }
+      .cards { grid-template-columns: 1fr; }
+      .topbar { height: auto; align-items: start; flex-direction: column; padding: 16px 20px; }
+      .runtime { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">E</div>
+        <div>
+          <h1>高考志愿偏好澄清演示</h1>
+          <p>真实 FastAPI / LangGraph 链路：事实检索、主动探测、取舍反馈、后验更新</p>
+        </div>
+      </div>
+      <div class="runtime">
+        <span id="status-dot" class="dot"></span>
+        <span id="status-text">等待真实服务调用</span>
+      </div>
+    </header>
+
+    <main class="shell">
+      <aside class="panel">
+        <div class="panel-head">
+          <h2>用户画像输入</h2>
+          <span class="metric">真实 API</span>
+        </div>
+        <div class="panel-body">
+          <label for="message">本轮输入</label>
+          <textarea id="message">我是浙江考生，分数600，选科物理、化学、生物，想读医学相关专业，只看江浙沪的学校，预算每年5500元以内。</textarea>
+          <button id="send" class="primary-btn">提交到推荐系统</button>
+          <button id="reset" class="ghost-btn">新建演示线程</button>
+
+          <div class="quick-grid">
+            <button data-template="我是浙江考生，分数612，选科物理、化学、生物，想读计算机相关专业，江浙沪都可以看，预算每年6000元以内。">计算机样例</button>
+            <button data-template="我是浙江考生，分数600，选科物理、化学、生物，想读医学相关专业，只看江浙沪的学校，预算每年5500元以内。">医学样例</button>
+            <button data-template="可以接受外省，但专业不能偏，预算最好压住。">反馈：接受外省</button>
+            <button data-template="我还是更看重专业，不想为了学校名气牺牲太多。">反馈：保专业</button>
+          </div>
+
+          <dl class="kv">
+            <dt>Thread</dt>
+            <dd id="thread-id"></dd>
+            <dt>接口</dt>
+            <dd>POST /api/v1/chat</dd>
+            <dt>状态</dt>
+            <dd id="call-state">未调用</dd>
+            <dt>轮次</dt>
+            <dd id="turns">0</dd>
+          </dl>
+
+          <div class="section-label">约束锁定</div>
+          <div id="constraints" class="chips"><span class="empty">等待系统抽取。</span></div>
+        </div>
+      </aside>
+
+      <section class="main-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>多轮澄清对话</h2>
+            <span id="mode" class="metric">ready</span>
+          </div>
+          <div class="panel-body">
+            <div id="dialogue" class="dialogue">
+              <p class="empty">提交左侧样例后，页面会调用真实后端并展示系统回复。</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="choice-panel" class="choice-panel">
+          <div class="choice-title">当前取舍问题</div>
+          <div id="choice-copy" class="choice-copy">等待系统生成可比较的取舍问题。</div>
+          <div class="choice-actions">
+            <button class="choice-btn accept" data-role="accept" data-feedback="我愿意小幅放宽当前问题里的底线。">偏向接受</button>
+            <button class="choice-btn reject" data-role="reject" data-feedback="不能接受这个取舍，请保留我的底线。">保留底线</button>
+            <button class="choice-btn unsure" data-role="unsure" data-feedback="我还不确定，想再看一轮证据。">仍不确定</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>当前候选与放宽引导</h2>
+            <span id="candidate-count" class="metric">0 个候选</span>
+          </div>
+          <div class="panel-body">
+            <div class="candidate-compare">
+              <section>
+                <div class="section-label" style="margin-top:0">当前范围内前几个候选</div>
+                <div id="current-cards" class="current-cards">
+                  <p class="empty">等待硬约束范围内候选。</p>
+                </div>
+              </section>
+              <section>
+                <div class="section-label" style="margin-top:0">放宽后发现的引导候选</div>
+                <div id="relaxed-card" class="relaxed-card relaxed-empty">
+                  等待系统返回可解释的放宽选项。
+                </div>
+              </section>
+            </div>
+            <div class="section-label">本轮放宽后出现的新选项</div>
+            <div id="cards" class="cards">
+              <p class="empty">等待数据库探针返回候选。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="panel-head">
+          <h2>偏好状态与运行轨迹</h2>
+          <span id="ucb" class="metric">待判断</span>
+        </div>
+        <div class="panel-body">
+          <div class="section-label" style="margin-top:0">偏好权重</div>
+          <div id="weights" class="weight-list"></div>
+
+          <div class="section-label">下一步比较方向</div>
+          <div id="probe-plan" class="chips"><span class="empty">等待规划。</span></div>
+
+          <div class="section-label">推荐流程</div>
+          <div id="trace" class="trace"></div>
+
+          <div class="section-label">演示摘要</div>
+          <pre id="debug" class="json">{}</pre>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const labels = {
+      score: "分数",
+      province: "考生省份",
+      target_provinces: "目标省份",
+      city: "城市",
+      major: "专业",
+      budget: "预算",
+      selected_subjects: "选科",
+      risk_preference: "风险",
+      employment_preference: "就业",
+      strength: "实力",
+      school: "学校",
+      tuition: "学费",
+      quality: "质量",
+      geo: "地域",
+      risk: "风险弹性"
+    };
+
+    const samples = {
+      accept: "我愿意小幅放宽当前问题里的底线。",
+      reject: "不能接受这个取舍，请保留我的底线。",
+      unsure: "我还不确定，想再看一轮证据。"
+    };
+
+    const bucketLabels = {
+      reach: "冲",
+      match: "稳",
+      safety: "保",
+      chong: "冲",
+      wen: "稳",
+      bao: "保"
+    };
+
+    const probeLabels = {
+      global_baseline: "生成冲稳保候选",
+      probe_global_baseline: "生成冲稳保候选",
+      major_geo_relax: "比较专业或地域边界",
+      probe_major_geo_relax: "比较专业或地域边界",
+      tuition_value_relax: "比较预算小幅放宽",
+      probe_tuition_value_relax: "比较预算小幅放宽",
+      major_quality_relax: "比较学科质量收益",
+      probe_major_quality_relax: "比较学科质量收益",
+      employment_outcome_relax: "比较就业画像收益",
+      probe_employment_outcome_relax: "比较就业画像收益",
+      region_tree_relax: "比较相近区域替代",
+      probe_region_tree_relax: "比较相近区域替代",
+      risk_band_relax: "比较冲稳保组合",
+      probe_risk_band_relax: "比较冲稳保组合",
+      strength_relax: "比较学校实力收益",
+      probe_strength_relax: "比较学校实力收益",
+      geo_relax: "比较地域范围",
+      city_relax: "比较城市范围",
+      major_relax: "比较相近专业"
+    };
+
+    const traceLabels = {
+      semantic_normalizer: "理解用户表述",
+      gatekeeper: "抽取硬性条件",
+      radar: "检索候选方案",
+      negotiator: "生成取舍问题",
+      preference_tracker: "更新偏好判断",
+      ok: "完成",
+      pending: "等待",
+      updated: "已更新",
+      waiting: "等待"
+    };
+
+    let threadId = makeThreadId();
+    let lastData = null;
+    const dialogue = [];
+
+    const el = {
+      dot: document.getElementById("status-dot"),
+      status: document.getElementById("status-text"),
+      state: document.getElementById("call-state"),
+      thread: document.getElementById("thread-id"),
+      turns: document.getElementById("turns"),
+      message: document.getElementById("message"),
+      send: document.getElementById("send"),
+      reset: document.getElementById("reset"),
+      dialogue: document.getElementById("dialogue"),
+      choiceCopy: document.getElementById("choice-copy"),
+      choicePanel: document.getElementById("choice-panel"),
+      currentCards: document.getElementById("current-cards"),
+      relaxedCard: document.getElementById("relaxed-card"),
+      cards: document.getElementById("cards"),
+      constraints: document.getElementById("constraints"),
+      weights: document.getElementById("weights"),
+      probes: document.getElementById("probe-plan"),
+      trace: document.getElementById("trace"),
+      debug: document.getElementById("debug"),
+      mode: document.getElementById("mode"),
+      ucb: document.getElementById("ucb"),
+      candidateCount: document.getElementById("candidate-count")
+    };
+
+    function makeThreadId() {
+      return `demo-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    }
+
+    function setStatus(kind, text) {
+      el.dot.className = `dot ${kind || ""}`;
+      el.status.textContent = text;
+      el.state.textContent = text;
+    }
+
+    function valueText(value) {
+      if (value === null || value === undefined || value === "") return "未给出";
+      if (Array.isArray(value)) return value.join("、") || "未给出";
+      if (typeof value === "object") return JSON.stringify(value);
+      return String(value);
+    }
+
+    function shortText(value, max = 44) {
+      const text = valueText(value).replace(/\s+/g, " ").trim();
+      return text.length > max ? `${text.slice(0, max - 1)}...` : text;
+    }
+
+    function displayProbeName(name) {
+      return probeLabels[name] || labels[name] || String(name || "待规划");
+    }
+
+    function flattenRows(value) {
+      if (Array.isArray(value)) return value.filter((row) => row && typeof row === "object");
+      if (!value || typeof value !== "object") return [];
+      return Object.entries(value).flatMap(([bucket, rows]) => {
+        if (!Array.isArray(rows)) return [];
+        return rows.filter((row) => row && typeof row === "object").map((row) => ({...row, risk_bucket: row.risk_bucket || bucket}));
+      });
+    }
+
+    function baseIdentityKey(row) {
+      return [
+        row?.school_id || row?.school_name || row?.school || "",
+        row?.major_id || row?.major_name || row?.major || ""
+      ].join("|");
+    }
+
+    function identityKey(row) {
+      return baseIdentityKey(row);
+    }
+
+    function hasDisplayValue(row, key) {
+      const value = row?.[key];
+      return value !== undefined && value !== null && String(value).trim() !== "";
+    }
+
+    function mergeRows(rows) {
+      const merged = new Map();
+      const order = [];
+      for (const raw of rows || []) {
+        if (!raw || typeof raw !== "object") continue;
+        const key = identityKey(raw);
+        if (!key.replace(/\|/g, "").trim()) continue;
+        if (!merged.has(key)) {
+          merged.set(key, {...raw});
+          order.push(key);
+          continue;
+        }
+        const current = merged.get(key);
+        for (const [field, value] of Object.entries(raw)) {
+          if (value === undefined || value === null || String(value).trim() === "") continue;
+          if (!hasDisplayValue(current, field)) {
+            current[field] = value;
+          }
+        }
+      }
+      return order.map((key) => merged.get(key));
+    }
+
+    function dedupeRows(rows) {
+      return mergeRows(rows);
+    }
+
+    function opportunityEntries(data) {
+      const opportunities = data?.pareto_opportunities || {};
+      if (!opportunities || typeof opportunities !== "object") return [];
+      const preferred = Array.isArray(data?.opportunity_rankings) ? data.opportunity_rankings : [];
+      const orderedKeys = [
+        ...preferred.filter((key) => Object.prototype.hasOwnProperty.call(opportunities, key)),
+        ...Object.keys(opportunities).filter((key) => !preferred.includes(key))
+      ];
+      return orderedKeys.flatMap((key) => {
+        if (key === "global_baseline") return [];
+        const rows = flattenRows(opportunities[key]);
+        return rows.map((row) => ({...row, _opportunity_key: row._opportunity_key || key}));
+      });
+    }
+
+    function currentOpportunityKey(data) {
+      const pairKey = data?.latest_tradeoff_pair?.opportunity_key || data?.latest_tradeoff_pair?.option_b?._opportunity_key;
+      if (pairKey) return String(pairKey).replace(/^probe_/, "");
+      const plan = Array.isArray(data?.probe_plan) ? data.probe_plan : [];
+      const first = plan[0] || {};
+      const probe = first.probe_name || first.probe || "";
+      return String(probe || "").replace(/^probe_/, "");
+    }
+
+    function globalBaselineRows(data) {
+      const global = data?.pareto_opportunities?.global_baseline;
+      if (!global || typeof global !== "object") return [];
+      return ["reach", "match", "safety"].flatMap((bucket) => {
+        const rows = flattenRows(global[bucket] || []);
+        return rows.map((row) => ({
+          ...row,
+          risk_bucket: row.risk_bucket || bucket,
+          risk_label: row.risk_label || bucketLabels[bucket] || bucket
+        }));
+      });
+    }
+
+    function baselineRows(data) {
+      const globalRows = globalBaselineRows(data);
+      if (globalRows.length) return dedupeRows(globalRows);
+      return dedupeRows(flattenRows(data?.baseline_results || []));
+    }
+
+    function relaxedRows(data) {
+      const currentKey = currentOpportunityKey(data);
+      const accepted = new Set((data?.accepted_relaxations || [])
+        .map((item) => item?.candidate ? baseIdentityKey(item.candidate) : "")
+        .filter(Boolean));
+      const current = new Set(baselineRows(data).map(baseIdentityKey).filter(Boolean));
+      return dedupeRows(opportunityEntries(data)
+        .filter((row) => !currentKey || row._opportunity_key === currentKey)
+        .filter((row) => !accepted.has(baseIdentityKey(row)) && !current.has(baseIdentityKey(row))));
+    }
+
+    function allRows(data) {
+      if (!data) return [];
+      const rows = [
+        ...baselineRows(data),
+        ...relaxedRows(data),
+        ...flattenRows(data.candidates)
+      ];
+      return dedupeRows(rows);
+    }
+
+    function numberOrNull(value) {
+      const numeric = Number(value);
+      return Number.isFinite(numeric) ? numeric : null;
+    }
+
+    function signedNumber(value) {
+      const numeric = numberOrNull(value);
+      if (numeric === null) return null;
+      return numeric > 0 ? `+${numeric}` : String(numeric);
+    }
+
+    function schoolLevel(row) {
+      const tags = [];
+      const tierText = valueText(row.school_tier || row.school_level || row.tier_label || row.education_tier || "").trim();
+      if (tierText && tierText !== "未给出" && !/^tier\b/i.test(tierText)) tags.push(tierText);
+      if (row.is_985) tags.push("985");
+      if (row.is_211) tags.push("211");
+      if (row.is_double_first_class) tags.push("双一流");
+      if (!tags.length && row.tier !== undefined && row.tier !== null) {
+        const tier = Number(row.tier);
+        if (tier >= 4) tags.push("985 层次");
+        else if (tier >= 3) tags.push("211/双一流层次");
+        else if (tier >= 2) tags.push("重点本科层次");
+        else if (tier >= 1) tags.push("普通本科层次");
+      }
+      if (!tags.length) return "层次待确认";
+      return [...new Set(tags)].join(" / ");
+    }
+
+    function placeText(row) {
+      return [row.school_province || row.province, row.school_city || row.city].filter(Boolean).join(" / ") || "地域待确认";
+    }
+
+    function compactScore(row) {
+      const minScore = row.min_score ?? row.score ?? "N/A";
+      const rank = row.min_rank ?? row.rank_gap ?? "N/A";
+      return `${valueText(minScore)} 分 / ${valueText(rank)}`;
+    }
+
+    function minScoreText(row) {
+      const minScore = row.min_score ?? row.score;
+      return minScore === undefined || minScore === null ? "待确认" : `${valueText(minScore)} 分`;
+    }
+
+    function minRankText(row) {
+      const rank = row.min_rank;
+      return rank === undefined || rank === null ? "待确认" : `${valueText(rank)}`;
+    }
+
+    function tuitionText(row) {
+      const tuition = row.tuition ?? row.tuition_fee;
+      if (tuition === undefined || tuition === null || tuition === "") return "待确认";
+      return `约 ${valueText(tuition)} 元/年`;
+    }
+
+    function subjectRequirementText(row) {
+      return valueText(row.subject_requirement || row.requirement_normalized || "待确认");
+    }
+
+    function schoolRankingText(row) {
+      const ranking = numberOrNull(row.ranking);
+      return ranking === null ? "待确认" : `综合排名参考第 ${ranking} 名`;
+    }
+
+    function majorQualityText(row) {
+      const parts = [];
+      if (row.major_strength_rating || row.best_rating) parts.push(`评级 ${row.major_strength_rating || row.best_rating}`);
+      if (row.major_strength_rank || row.best_major_rank) parts.push(`排名参考第 ${row.major_strength_rank || row.best_major_rank} 名`);
+      if (row.major_strength_level || row.quality_tier) parts.push(`${row.major_strength_level || row.quality_tier}`);
+      if (!parts.length && row.quality_score !== undefined) parts.push("质量画像有可比证据");
+      if (row.has_key_major) parts.push("重点专业证据");
+      if (row.has_featured_major) parts.push("特色专业证据");
+      return parts.length ? parts.join("，") : "待确认";
+    }
+
+    function majorFitText(row) {
+      const score = numberOrNull(row.major_similarity_score);
+      if (score === null) return "待确认";
+      const percent = Math.round(Math.max(0, Math.min(1, score)) * 100);
+      const label = row.major_similarity_label ? `，${row.major_similarity_label}` : "";
+      const target = row.major_similarity_target ? `（相对“${shortText(row.major_similarity_target, 12)}”）` : "";
+      return `约 ${percent}%${label}${target}`;
+    }
+
+    function employmentText(row) {
+      const parts = [];
+      if (row.employment_rank_desc) parts.push(row.employment_rank_desc);
+      else if (row.employment_rank !== undefined) parts.push(`就业排名参考第 ${row.employment_rank} 名`);
+      if (row.top_industry) parts.push(`主要行业：${row.top_industry}`);
+      if (row.salary_distribution) parts.push(`薪资画像：${row.salary_distribution}`);
+      if (!parts.length && row.outcome_score !== undefined) parts.push("就业画像有可比证据");
+      return parts.length ? parts.join("，") : "待确认";
+    }
+
+    function budgetDeltaText(row) {
+      const delta = numberOrNull(row.tuition_delta ?? row.budget_delta);
+      if (delta === null) return "";
+      if (Math.abs(delta) < 1) return "与预算基本持平";
+      return `约${delta > 0 ? "高于" : "低于"}预算 ${Math.abs(delta)} 元/年`;
+    }
+
+    function candidateFields(row, {includeEmployment = false} = {}) {
+      const fields = [
+        ["所在地", placeText(row)],
+        ["最低录取分", minScoreText(row)],
+        ["最低录取位次", minRankText(row)],
+        ["选科要求", subjectRequirementText(row)],
+        ["学费", tuitionText(row)],
+        ["学校平台/标签", schoolLevel(row)],
+        ["学校排名", schoolRankingText(row)],
+        ["专业贴合", majorFitText(row)],
+        ["学科/专业", majorQualityText(row)]
+      ];
+      if (includeEmployment) fields.push(["就业画像", employmentText(row)]);
+      return fields;
+    }
+
+    function renderFieldGrid(row, options = {}) {
+      const limit = options.limit || 0;
+      const fields = candidateFields(row, options);
+      const visibleFields = limit > 0 ? fields.slice(0, limit) : fields;
+      return visibleFields.map(([label, value]) => (
+        `<span>${escapeHtml(label)}<b>${escapeHtml(shortText(valueText(value), 34))}</b></span>`
+      )).join("");
+    }
+
+    function riskLabel(row) {
+      return row.risk_label || bucketLabels[row.risk_bucket] || bucketLabels[row.risk_level] || row.risk_bucket || row.risk_level || "候选";
+    }
+
+    function estimatedRank(data) {
+      const rows = baselineRows(data);
+      const value = rows.find((row) => row.student_rank !== undefined)?.student_rank;
+      return value === undefined ? null : value;
+    }
+
+    function dimensionInfo(key, row) {
+      const map = {
+        tuition_value_relax: {
+          label: "学费预算小幅放宽",
+          action: "放宽预算",
+          reason: "比较预算变化是否值得换取学校平台标签、综合排名或培养质量上的可比变化。"
+        },
+        major_geo_relax: {
+          label: "专业与地域联合放宽",
+          action: "同时放宽地域或专业邻近度",
+          reason: "看专业贴合、地域范围、学校平台标签和综合排名之间是否存在清晰取舍。"
+        },
+        geo_relax: {
+          label: "地域范围放宽",
+          action: "放宽地域",
+          reason: "把候选从原地域扩展到外省或相近城市圈，比较学校平台标签、综合排名和录取余量。"
+        },
+        city_relax: {
+          label: "城市范围放宽",
+          action: "放宽城市",
+          reason: "从指定城市扩展到同省或周边城市，增加可比较候选。"
+        },
+        region_tree_relax: {
+          label: "区域圈层放宽",
+          action: "放宽区域圈层",
+          reason: "从严格地域扩展到同类区域或城市圈，寻找更优候选。"
+        },
+        major_relax: {
+          label: "专业邻近度放宽",
+          action: "放宽专业",
+          reason: "保留方向相关性，但接受相近专业来换取学校或风险收益。"
+        },
+        strength_relax: {
+          label: "学校实力优先放宽",
+          action: "放宽非核心条件",
+          reason: "用局部让步观察学校平台标签和综合排名是否确实带来可比变化。"
+        },
+        major_quality_relax: {
+          label: "学科质量优先放宽",
+          action: "放宽地域或专业细分",
+          reason: "用局部让步换取更高学科质量、评级或专业排名。"
+        },
+        employment_outcome_relax: {
+          label: "就业结果优先放宽",
+          action: "放宽专业/地域细节",
+          reason: "用局部让步换取更强就业画像、行业去向或薪资证据。"
+        },
+        risk_band_relax: {
+          label: "风险带放宽",
+          action: "放宽风险偏好",
+          reason: "从单一稳妥扩展为冲稳保组合，增加上探空间。"
+        },
+        global_baseline: {
+          label: "全局可达候选",
+          action: "放宽未锁定条件",
+          reason: "在当前信息不足时，先给出事实层可达候选供判断。"
+        }
+      };
+      const info = map[key] || {
+        label: "约束放宽探针",
+        action: "放宽一个候选维度",
+        reason: "系统在事实库中发现了可供取舍判断的候选。"
+      };
+      if (row?.relaxation_stage_label) {
+        return {...info, label: row.relaxation_stage_label};
+      }
+      return info;
+    }
+
+    function selectRelaxedCandidate(data) {
+      const optionB = data?.latest_tradeoff_pair?.option_b;
+      if (optionB && typeof optionB === "object" && baseIdentityKey(optionB).replace(/\|/g, "").trim()) {
+        const key = currentOpportunityKey(data);
+        return {...optionB, _opportunity_key: optionB._opportunity_key || key};
+      }
+      const rows = relaxedRows(data);
+      if (!rows.length) return null;
+      const preferred = Array.isArray(data?.opportunity_rankings) ? data.opportunity_rankings : [];
+      for (const key of preferred) {
+        const found = rows.find((row) => row._opportunity_key === key);
+        if (found) return found;
+      }
+      return rows[0];
+    }
+
+    function tradeoffAnchor(data, fallbackRows = []) {
+      const optionA = data?.latest_tradeoff_pair?.option_a;
+      if (optionA && typeof optionA === "object" && baseIdentityKey(optionA).replace(/\|/g, "").trim()) {
+        return optionA;
+      }
+      return fallbackRows?.[0] || null;
+    }
+
+    function compareAgainstBaseline(relaxed, baseline, data = null) {
+      const facts = [];
+      const anchor = tradeoffAnchor(data, baseline) || baseline?.[0] || null;
+      const key = relaxed?._opportunity_key || "";
+      const info = dimensionInfo(key, relaxed);
+      facts.push(`放宽维度：${info.action}。${info.reason}`);
+
+      const tier = numberOrNull(relaxed?.tier);
+      const anchorTier = numberOrNull(anchor?.tier);
+      const level = schoolLevel(relaxed);
+      const anchorLevel = anchor ? schoolLevel(anchor) : "层次待确认";
+      const ranking = numberOrNull(relaxed?.ranking);
+      const anchorRanking = numberOrNull(anchor?.ranking);
+      if (tier !== null && anchorTier !== null && tier > anchorTier) {
+        if (ranking !== null && anchorRanking !== null && ranking > anchorRanking) {
+          facts.push(`学校平台标签更突出：${level}；但综合排名参考不比参照项靠前（第 ${ranking} 名，参照项约第 ${anchorRanking} 名）。`);
+        } else {
+          facts.push(`学校平台标签更突出：${level}，参照项约为 ${anchorLevel}。`);
+        }
+      } else if (tier !== null && anchorTier !== null && tier < anchorTier) {
+        facts.push(`学校平台标签不占优：${level}，参照项约为 ${anchorLevel}。`);
+      } else if (level !== "层次待确认") {
+        facts.push(`学校平台标签证据：${level}。`);
+      }
+
+      if (ranking !== null && anchorRanking !== null && ranking < anchorRanking) {
+        facts.push(`学校排名更靠前：综合排名参考第 ${ranking} 名，当前首选约为第 ${anchorRanking} 名。`);
+      } else if (ranking !== null && anchorRanking !== null && ranking > anchorRanking) {
+        facts.push(`学校排名参考不占优：综合排名参考第 ${ranking} 名，参照项约第 ${anchorRanking} 名。`);
+      } else if (ranking !== null) {
+        facts.push(`学校排名证据：综合排名参考第 ${ranking} 名。`);
+      }
+
+      if (relaxed?.quality_gain !== undefined) {
+        const anchorText = relaxed.quality_anchor_school ? `，参照 ${relaxed.quality_anchor_school}` : "";
+        facts.push(`学科质量更有吸引力${anchorText}。`);
+      } else if (relaxed?.quality_score !== undefined) {
+        facts.push("学科质量画像：有可比证据。");
+      }
+
+      if (relaxed?.best_rating || relaxed?.best_major_rank) {
+        const rating = relaxed.best_rating ? `评级 ${relaxed.best_rating}` : "";
+        const rank = relaxed.best_major_rank ? `专业排名 ${relaxed.best_major_rank}` : "";
+        facts.push(`学科证据：${[rating, rank].filter(Boolean).join("，")}。`);
+      }
+
+      const majorFit = numberOrNull(relaxed?.major_similarity_score);
+      const anchorMajorFit = numberOrNull(anchor?.major_similarity_score);
+      if (majorFit !== null && anchorMajorFit !== null) {
+        const current = Math.round(majorFit * 100);
+        const base = Math.round(anchorMajorFit * 100);
+        if (majorFit + 0.04 < anchorMajorFit) {
+          facts.push(`专业贴合度下降：约 ${current}%，参照项约 ${base}%。`);
+        } else if (majorFit > anchorMajorFit + 0.04) {
+          facts.push(`专业贴合度更高：约 ${current}%，参照项约 ${base}%。`);
+        } else {
+          facts.push(`专业贴合度接近：约 ${current}%，参照项约 ${base}%。`);
+        }
+      } else if (majorFit !== null) {
+        facts.push(`专业贴合证据：${majorFitText(relaxed)}。`);
+      }
+
+      if (relaxed?.outcome_gain !== undefined) {
+        facts.push(`就业画像更有吸引力。`);
+      } else if (relaxed?.outcome_score !== undefined) {
+        facts.push("就业画像：有可比证据。");
+      }
+
+      if (relaxed?.tuition_delta !== undefined) {
+        const delta = budgetDeltaText(relaxed);
+        facts.push(`学费变化：${tuitionText(relaxed)}${delta ? `，${delta}` : ""}。`);
+      } else if (relaxed?.tuition !== undefined) {
+        facts.push(`学费证据：${tuitionText(relaxed)}。`);
+      }
+
+      const scoreMargin = relaxed?.score_margin ?? relaxed?.rank_gap;
+      if (scoreMargin !== undefined) {
+        facts.push(`录取风险证据：${relaxed.score_margin !== undefined ? "分数余量" : "位次差距"} ${scoreMargin}。`);
+      }
+
+      const deduped = [];
+      const seen = new Set();
+      for (const fact of facts) {
+        if (!fact || seen.has(fact)) continue;
+        seen.add(fact);
+        deduped.push(fact);
+      }
+      return deduped.slice(0, 5);
+    }
+
+    function renderChoiceSummary(data, noLeap) {
+      if (noLeap) {
+        return `
+          <div class="choice-summary">
+            <strong>这一轮没有找到足够清晰的跃迁收益。</strong>
+            <span>系统不会把它当成偏好更新依据；你可以直接看最终推荐，也可以换一个方向继续查。</span>
+          </div>
+        `;
+      }
+      const relaxed = selectRelaxedCandidate(data);
+      if (!relaxed) {
+        return `
+          <div class="choice-summary">
+            <strong>系统已生成取舍问题。</strong>
+            <span>请结合对话区里的系统提问，选择你更接近哪一种倾向。</span>
+          </div>
+        `;
+      }
+      const baseline = baselineRows(data);
+      const info = dimensionInfo(relaxed._opportunity_key || "", relaxed);
+      const facts = compareAgainstBaseline(relaxed, baseline, data).slice(1, 4);
+      return `
+        <div class="choice-summary">
+          <strong>关键取舍点：${escapeHtml(info.action)}</strong>
+          <span>${escapeHtml(info.reason)}</span>
+        </div>
+        ${facts.length ? `<div class="choice-evidence">${facts.map((fact) => `<span>${escapeHtml(fact)}</span>`).join("")}</div>` : ""}
+      `;
+    }
+
+    function renderDialogue() {
+      if (!dialogue.length) {
+        el.dialogue.innerHTML = '<p class="empty">提交左侧样例后，页面会调用真实后端并展示系统回复。</p>';
+        return;
+      }
+      el.dialogue.innerHTML = dialogue.map((item) => (
+        `<div class="msg ${item.role}${item.error ? " error" : ""}"><strong>${item.role === "user" ? "用户" : "系统"}</strong>${escapeHtml(item.text)}</div>`
+      )).join("");
+      el.dialogue.scrollTop = el.dialogue.scrollHeight;
+    }
+
+    function renderChips(target, data, color = "") {
+      target.innerHTML = "";
+      if (!data || (Array.isArray(data) && !data.length) || (typeof data === "object" && !Object.keys(data).length)) {
+        target.innerHTML = '<span class="empty">暂无结构化字段。</span>';
+        return;
+      }
+      const items = Array.isArray(data)
+        ? data.map((value, index) => [`#${index + 1}`, value])
+        : Object.entries(data);
+      for (const [key, value] of items) {
+        if (value === null || value === undefined || value === "" || (Array.isArray(value) && !value.length)) continue;
+        const span = document.createElement("span");
+        span.className = `chip ${color}`;
+        span.textContent = `${labels[key] || key}: ${shortText(value, 30)}`;
+        target.appendChild(span);
+      }
+      if (!target.children.length) target.innerHTML = '<span class="empty">暂无结构化字段。</span>';
+    }
+
+    function renderProbePlan(data) {
+      const plan = data?.probe_plan || [];
+      el.probes.innerHTML = "";
+      if (!plan.length) {
+        el.probes.innerHTML = '<span class="empty">暂无下一步比较方向。</span>';
+        return;
+      }
+      for (const item of plan.slice(0, 6)) {
+        const name = item.probe_name || item.probe || item.name || "probe";
+        const span = document.createElement("span");
+        span.className = "chip blue";
+        span.textContent = displayProbeName(name);
+        el.probes.appendChild(span);
+      }
+    }
+
+    function renderWeights(weights) {
+      const safe = weights && Object.keys(weights).length ? weights : {school: 1 / 6, major: 1 / 6, tuition: 1 / 6, quality: 1 / 6, geo: 1 / 6, risk: 1 / 6};
+      el.weights.innerHTML = "";
+      for (const key of ["school", "major", "tuition", "quality", "geo", "risk"]) {
+        const value = Number(safe[key] ?? 0);
+        const pct = Math.max(0, Math.min(100, value * 100));
+        const row = document.createElement("div");
+        row.className = "weight-row";
+        row.innerHTML = `<span>${labels[key] || key}</span><div class="track"><div class="fill" style="width:${pct}%"></div></div><b>${value.toFixed(2)}</b>`;
+        el.weights.appendChild(row);
+      }
+    }
+
+    function acceptedRelaxationRows(data) {
+      return dedupeRows((data?.accepted_relaxations || [])
+        .map((item) => item?.candidate ? {
+          ...item.candidate,
+          _accepted_relaxation: true,
+          _accepted_dimension: item.dimension
+        } : null)
+        .filter(Boolean));
+    }
+
+    function renderCurrentCandidates(data) {
+      const rows = dedupeRows([...acceptedRelaxationRows(data), ...baselineRows(data)]).slice(0, 9);
+      if (!rows.length) {
+        el.currentCards.innerHTML = '<p class="empty">当前硬约束下暂无直接候选，系统会先用放宽探针寻找可讨论选项。</p>';
+        return;
+      }
+      el.currentCards.innerHTML = rows.map((row, index) => {
+        const school = shortText(row.school_name || row.school || "候选学校", 28);
+        const major = shortText(row.major_name || row.major || "专业待确认", 52);
+        const bucket = row.risk_bucket || "";
+        return `
+          <article class="mini-candidate">
+            <div class="mini-top">
+              <h3>${escapeHtml(school)}</h3>
+              <span class="source-pill ${escapeHtml(bucket)}">${escapeHtml(row._accepted_relaxation ? "已接受放宽" : riskLabel(row))} #${index + 1}</span>
+            </div>
+            <div class="major">${escapeHtml(major)}</div>
+            <div class="mini-meta candidate-detail-grid">
+              ${renderFieldGrid(row)}
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderRelaxedSpotlight(data) {
+      const baseline = dedupeRows([...acceptedRelaxationRows(data), ...baselineRows(data)]);
+      const relaxed = selectRelaxedCandidate(data);
+      if (!relaxed) {
+        el.relaxedCard.className = "relaxed-card relaxed-empty";
+        el.relaxedCard.innerHTML = "暂无可解释的放宽选项。若还在补充分数、选科或专业约束，这是正常状态。";
+        return;
+      }
+      el.relaxedCard.className = "relaxed-card";
+      const key = relaxed._opportunity_key || "";
+      const info = dimensionInfo(key, relaxed);
+      const school = shortText(relaxed.school_name || relaxed.school || "放宽候选学校", 30);
+      const major = shortText(relaxed.major_name || relaxed.major || "专业待确认", 58);
+      const facts = compareAgainstBaseline(relaxed, baseline, data);
+      el.relaxedCard.innerHTML = `
+        <div class="relax-header">
+          <span class="dimension-badge">${escapeHtml(info.label)}</span>
+          <span class="source-pill">引导判断</span>
+        </div>
+        <h3>${escapeHtml(school)}</h3>
+        <div class="major">${escapeHtml(major)}</div>
+        <div class="mini-meta candidate-detail-grid">
+          ${renderFieldGrid(relaxed, {includeEmployment: true})}
+        </div>
+        <ul class="advantage-list">
+          ${facts.map((fact) => `<li>${escapeHtml(fact)}</li>`).join("")}
+        </ul>
+        <div class="compare-note">这个选项不是替你直接拍板，而是把学校平台标签、综合排名、专业贴合和费用变化拆开给你比较。</div>
+      `;
+    }
+
+    function renderCards(data) {
+      const baseline = dedupeRows([...acceptedRelaxationRows(data), ...baselineRows(data)]);
+      const relaxed = relaxedRows(data);
+      const spotlight = selectRelaxedCandidate(data);
+      const spotlightKey = spotlight ? identityKey(spotlight) : "";
+      const currentKeys = new Set(baseline.slice(0, 9).map(identityKey));
+      const rows = relaxed
+        .filter((row) => identityKey(row) !== spotlightKey && !currentKeys.has(identityKey(row)))
+        .slice(0, 6);
+      const total = dedupeRows([...baseline, ...relaxed]).length;
+      const rank = estimatedRank(data);
+      el.candidateCount.textContent = `${baseline.length} 个范围内候选 · ${relaxed.length} 个放宽候选${rank ? ` · 估计位次 ${rank}` : ""}`;
+      renderCurrentCandidates(data);
+      renderRelaxedSpotlight(data);
+      if (!total) {
+        el.cards.innerHTML = '<p class="empty">本轮尚未返回候选。若系统在补充约束阶段，这是正常状态。</p>';
+        return;
+      }
+      if (!rows.length) {
+        el.cards.innerHTML = '<p class="empty">本轮新增候选已在上方展示，或没有更多同方向新增选项。</p>';
+        return;
+      }
+      el.cards.innerHTML = rows.map((row) => {
+        const school = shortText(row.school_name || row.school || "候选学校", 26);
+        const major = shortText(row.major_name || row.major || "专业待确认", 46);
+        const note = row.quality_score !== undefined
+          ? "质量画像有可比证据"
+          : row.outcome_score !== undefined
+            ? "就业画像有可比证据"
+            : row.score_margin !== undefined
+              ? `分数余量 ${row.score_margin}`
+              : "事实候选来自数据库探针";
+        const isRelaxed = Boolean(row._opportunity_key);
+        return `
+          <article class="candidate ${isRelaxed ? "relaxed" : ""}">
+            <h3>${escapeHtml(school)}</h3>
+            <div class="major">${escapeHtml(major)}</div>
+            <div class="facts">
+              ${renderFieldGrid(row, {limit: 6})}
+            </div>
+            <div class="tagline">${escapeHtml(note)}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderTrace(data) {
+      const nodes = [
+        ["S", "semantic_normalizer", data?.rewritten_query ? "ok" : "pending"],
+        ["G", "gatekeeper", data?.constraints && Object.keys(data.constraints).length ? "ok" : "pending"],
+        ["R", "radar", data?.probe_plan?.length ? "ok" : "pending"],
+        ["N", "negotiator", data?.reply ? "ok" : "pending"],
+        ["B", "preference_tracker", Number(data?.negotiation_turns || 0) > 0 ? "updated" : "waiting"]
+      ];
+      el.trace.innerHTML = nodes.map(([mark, name, state]) => (
+        `<div class="trace-node"><i>${mark}</i><span>${traceLabels[name] || name} · ${traceLabels[state] || state}</span></div>`
+      )).join("");
+    }
+
+    function renderChoice(data) {
+      const pending = data?.pending_interrupt || data?.latest_agent_probe_question || "";
+      const inferredNoLeap = pending.includes("没有看到值得") || pending.includes("不把这条作为偏好调整依据") || pending.includes("事实边界") || pending.includes("不足以形成取舍");
+      const kind = data?.latest_question_kind || (inferredNoLeap ? "no_significant_tradeoff" : "");
+      const noLeap = kind === "no_significant_tradeoff";
+      const title = document.querySelector(".choice-title");
+      if (title) title.textContent = noLeap ? "本轮证据诊断" : "当前取舍问题";
+      if (!pending) {
+        el.choiceCopy.textContent = "等待系统生成可比较的取舍问题。";
+      } else {
+        el.choiceCopy.innerHTML = renderChoiceSummary(data, noLeap);
+      }
+      const buttons = [...document.querySelectorAll(".choice-btn")];
+      if (noLeap) {
+        const labels = {
+          accept: ["直接看最终推荐", "请直接进入最终推荐。"],
+          reject: ["换个方向看看", "请换一个方向继续查一轮。"],
+          unsure: ["我补充条件", "我想先补充更多条件。"]
+        };
+        for (const btn of buttons) {
+          const role = btn.dataset.role || "";
+          if (!labels[role]) continue;
+          btn.textContent = labels[role][0];
+          btn.dataset.feedback = labels[role][1];
+        }
+      } else {
+        const labels = {
+          accept: ["偏向接受", samples.accept],
+          reject: ["保留底线", samples.reject],
+          unsure: ["仍不确定", samples.unsure]
+        };
+        for (const btn of buttons) {
+          const role = btn.dataset.role || "";
+          if (!labels[role]) continue;
+          btn.textContent = labels[role][0];
+          btn.dataset.feedback = labels[role][1];
+        }
+      }
+      const disabled = !pending || el.send.disabled;
+      for (const btn of buttons) btn.disabled = disabled;
+    }
+
+    function renderDebug(data) {
+      const summary = {
+        状态: data?.status || data?.mode || "ready",
+        待补充条件: Array.isArray(data?.missing_constraints)
+          ? data.missing_constraints.map((key) => labels[key] || key)
+          : [],
+        下一步比较方向: Array.isArray(data?.opportunity_rankings)
+          ? data.opportunity_rankings.map(displayProbeName).slice(0, 5)
+          : [],
+        候选概况: el.candidateCount.textContent,
+        交互类型: data?.latest_question_kind || "none",
+        追问来源: data?.latest_question_source || "none",
+        轮次: Number(data?.negotiation_turns || 0)
+      };
+      el.debug.textContent = JSON.stringify(summary, null, 2);
+      el.mode.textContent = data?.mode || "ready";
+      el.ucb.textContent = data?.ucb_target_dimension
+        ? displayProbeName(`probe_${data.ucb_target_dimension}_relax`)
+        : "待判断";
+      el.turns.textContent = String(data?.negotiation_turns || 0);
+    }
+
+    function render(data) {
+      lastData = data;
+      renderChips(el.constraints, data?.constraints || {}, "green");
+      renderProbePlan(data);
+      renderWeights(data?.implicit_weights);
+      renderCards(data);
+      renderTrace(data);
+      renderChoice(data);
+      renderDebug(data);
+    }
+
+    async function submit(messageOverride) {
+      const message = (messageOverride || el.message.value).trim();
+      if (!message) return;
+      if (lastData?.pending_interrupt || lastData?.latest_agent_probe_question) {
+        await submitFeedback(message);
+        return;
+      }
+      el.send.disabled = true;
+      for (const btn of document.querySelectorAll(".choice-btn")) btn.disabled = true;
+      setStatus("busy", "正在调用真实推荐系统");
+      dialogue.push({role: "user", text: message});
+      renderDialogue();
+      try {
+        const started = performance.now();
+        const response = await fetch("/api/v1/chat", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({thread_id: threadId, message})
+        });
+        if (!response.ok) {
+          let detail = "";
+          try {
+            const errorPayload = await response.json();
+            detail = errorPayload?.detail ? `：${errorPayload.detail}` : "";
+          } catch (_error) {
+            detail = "";
+          }
+          throw new Error(`HTTP ${response.status}${detail}`);
+        }
+        const data = await response.json();
+        const elapsed = Math.round(performance.now() - started);
+        dialogue.push({role: "system", text: data.reply || "系统未返回文本回复。"});
+        renderDialogue();
+        render(data);
+        setStatus("ok", `${data.status === "interrupt" ? "等待用户取舍反馈" : "调用完成"} · ${elapsed}ms`);
+      } catch (error) {
+        dialogue.push({role: "system", text: `调用失败：${error.message}`, error: true});
+        renderDialogue();
+        setStatus("err", "调用失败，请检查服务、数据库或模型配置");
+      } finally {
+        el.send.disabled = false;
+        renderChoice(lastData);
+      }
+    }
+
+    async function postChat(message, action = null) {
+      const response = await fetch("/api/v1/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          thread_id: threadId,
+          message,
+          ...(action ? {action} : {})
+        })
+      });
+      if (!response.ok) {
+        let detail = "";
+        try {
+          const errorPayload = await response.json();
+          detail = errorPayload?.detail ? `：${errorPayload.detail}` : "";
+        } catch (_error) {
+          detail = "";
+        }
+        throw new Error(`HTTP ${response.status}${detail}`);
+      }
+      return response.json();
+    }
+
+    async function submitFeedback(feedback) {
+      const message = (feedback || "").trim();
+      if (!message) return;
+      el.send.disabled = true;
+      for (const btn of document.querySelectorAll(".choice-btn")) btn.disabled = true;
+      setStatus("busy", "正在提交偏好反馈");
+      dialogue.push({role: "user", text: message});
+      renderDialogue();
+      try {
+        const feedbackStarted = performance.now();
+        const feedbackData = await postChat(message, "feedback");
+        const feedbackElapsed = Math.round(performance.now() - feedbackStarted);
+        render(feedbackData);
+        dialogue.push({
+          role: "system",
+          text: `已更新偏好权重，正在基于新权重生成下一轮候选。`
+        });
+        renderDialogue();
+        setStatus("busy", `偏好已更新 · ${feedbackElapsed}ms，正在生成下一轮问题`);
+
+        const continueStarted = performance.now();
+        const data = await postChat("继续生成下一轮取舍问题。", "continue");
+        const continueElapsed = Math.round(performance.now() - continueStarted);
+        dialogue.push({role: "system", text: data.reply || "系统未返回文本回复。"});
+        renderDialogue();
+        render(data);
+        setStatus("ok", `${data.status === "interrupt" ? "等待用户取舍反馈" : "调用完成"} · ${continueElapsed}ms`);
+      } catch (error) {
+        dialogue.push({role: "system", text: `调用失败：${error.message}`, error: true});
+        renderDialogue();
+        setStatus("err", "调用失败，请检查服务、数据库或模型配置");
+      } finally {
+        el.send.disabled = false;
+        renderChoice(lastData);
+      }
+    }
+
+    function resetThread() {
+      threadId = makeThreadId();
+      dialogue.length = 0;
+      lastData = null;
+      el.thread.textContent = threadId;
+      el.turns.textContent = "0";
+      renderDialogue();
+      render(null);
+      setStatus("", "等待真实服务调用");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    el.send.addEventListener("click", () => submit());
+    el.reset.addEventListener("click", resetThread);
+    for (const btn of document.querySelectorAll("[data-template]")) {
+      btn.addEventListener("click", () => {
+        el.message.value = btn.dataset.template || "";
+        el.message.focus();
+      });
+    }
+    for (const btn of document.querySelectorAll(".choice-btn")) {
+      btn.addEventListener("click", () => {
+        const feedback = btn.dataset.feedback || samples.unsure;
+        el.message.value = feedback;
+        submitFeedback(feedback);
+      });
+    }
+
+    el.thread.textContent = threadId;
+    render(null);
+  </script>
+</body>
+</html>

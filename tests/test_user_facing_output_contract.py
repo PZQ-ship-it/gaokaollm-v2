@@ -1,0 +1,140 @@
+from app.graphs.nodes.negotiator import (
+    _candidate_evidence_text,
+    _sanitize_user_output,
+    _score_text,
+    _school_evidence_comparison,
+    _xai_fallback_text,
+)
+
+
+BANNED_USER_TOKENS = (
+    "min_score=",
+    "min_rank=",
+    "tier=",
+    "tier 2",
+    "tuition_delta=",
+    "quality_score=",
+    "outcome_score=",
+    "utility=",
+    "_implicit_utility",
+    "semantic_score",
+    "_semantic_score",
+    "_lexicographic_tier",
+    "_lexicographic_epsilon",
+    "rank_ratio",
+    "c/r",
+    "隐性效用",
+    "标准化效用",
+)
+
+
+def _sample_candidate() -> dict:
+    return {
+        "school_name": "江苏大学",
+        "school_province": "江苏",
+        "school_city": "镇江",
+        "major_name": "医学检验技术",
+        "min_score": 597,
+        "min_rank": 45643,
+        "subject_requirement": "物理、化学",
+        "tuition": 7480,
+        "tuition_delta": 1980,
+        "tier": 2,
+        "ranking": 113,
+        "major_strength_rating": "B+",
+        "major_strength_rank": 48,
+        "major_similarity_score": 0.82,
+        "major_similarity_target": "医学",
+        "major_similarity_label": "较贴合",
+        "_implicit_utility": 0.84,
+        "semantic_score": 0.91,
+        "_semantic_score": 0.91,
+        "_lexicographic_tier": 84,
+    }
+
+
+def _assert_user_facing(text: str) -> None:
+    for token in BANNED_USER_TOKENS:
+        assert token not in text
+
+
+def test_candidate_evidence_text_is_user_facing() -> None:
+    text = _candidate_evidence_text(_sample_candidate())
+
+    assert "江苏大学" in text
+    assert "医学检验技术" in text
+    assert "最低录取分 597" in text
+    assert "最低录取位次 45643" in text
+    assert "物理、化学" in text
+    assert "学费约 7480 元/年" in text
+    assert "综合排名参考第 113 名" in text
+    assert "重点本科层次" in text
+    assert "专业贴合度约 82%" in text
+    assert "综合排名前 300 层次" not in text
+    _assert_user_facing(text)
+
+
+def test_score_text_and_final_fallback_do_not_expose_internal_fields() -> None:
+    row = _sample_candidate()
+    text = "\n".join(
+        [
+            _score_text(row),
+            _xai_fallback_text(
+                {"school": 0.4, "major": 0.3, "tuition": 0.1},
+                [row],
+                {"reach": [row], "match": [], "safety": []},
+            ),
+        ]
+    )
+
+    _assert_user_facing(text)
+
+
+def test_sanitize_user_output_rewrites_legacy_probe_jargon() -> None:
+    raw = (
+        "江苏大学 min_score=597 min_rank=45643 tier=2 "
+        "ranking=113 tuition_delta=1980 utility=0.84 "
+        "semantic_score=0.91 _lexicographic_tier=84 major_geo_relax"
+    )
+    text = _sanitize_user_output(raw)
+
+    assert "最低录取分 597" in text
+    assert "最低录取位次 45643" in text
+    assert "学校平台/标签：重点本科层次" in text
+    assert "综合排名前 300 层次" not in text
+    assert "相对预算差额 1980" in text
+    assert "专业或地域边界放宽" in text
+    _assert_user_facing(text)
+
+
+def test_sanitize_user_output_extracts_llm_text_field() -> None:
+    raw = "{'text': '上海海洋大学是双一流，但专业贴合度下降，需要你判断是否接受。', 'latest_tradeoff_pair': {'debug': true}}"
+    text = _sanitize_user_output(raw)
+
+    assert text == "上海海洋大学是双一流，但专业贴合度下降，需要你判断是否接受。"
+    assert "latest_tradeoff_pair" not in text
+
+
+def test_school_evidence_comparison_separates_platform_and_ranking() -> None:
+    baseline = {
+        "school_name": "温州医科大学",
+        "major_name": "生物医学工程",
+        "tier": 2,
+        "ranking": 191,
+    }
+    relaxed = {
+        "school_name": "上海海洋大学",
+        "major_name": "水产类",
+        "is_double_first_class": True,
+        "tier": 3,
+        "ranking": 206,
+    }
+
+    comparison = _school_evidence_comparison(baseline, relaxed)
+    brief = comparison["brief"]
+
+    assert comparison["platform_relation"] == "b_higher"
+    assert comparison["ranking_relation"] == "b_worse"
+    assert "学校平台标签更突出" in brief
+    assert "综合排名参考不比参照项靠前" in brief
+    assert "不能说成“综合排名更好”" in brief

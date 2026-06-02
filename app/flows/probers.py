@@ -1,4 +1,6 @@
 import asyncio
+import math
+import os
 import re
 import sys
 from pathlib import Path
@@ -7,7 +9,12 @@ from typing import Any
 if __name__ == "__main__" and __package__ is None:
     sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from app.core import db_pg
+from app.core import db_pg, embedding_client
+from app.core.embedding_client import (
+    cosine_similarity,
+    ensure_embedding_dimension,
+    vector_to_pg_literal,
+)
 from app.schemas.state import DEFAULT_IMPLICIT_WEIGHTS
 from gaokaollm_bench.data_gen.major_tree import build_relaxation_stages
 from gaokaollm_bench.data_gen.region_tree_relax import (
@@ -25,8 +32,21 @@ DEFAULT_REGION_GEO_TREE_PATH = Path(
 DEFAULT_REGION_URBAN_TREE_PATH = Path(
     "gaokaollm_bench/outputs/region_urban_tier_tree_reviewed_v1.json"
 )
-UTILITY_FEATURE_KEYS = ("school", "major", "tuition", "quality", "geo")
+UTILITY_FEATURE_KEYS = ("school", "major", "tuition", "quality", "geo", "risk")
 GLOBAL_BASELINE_BUCKETS = ("reach", "match", "safety")
+GLOBAL_BASELINE_BUCKET_LABELS = {
+    "reach": "冲",
+    "match": "稳",
+    "safety": "保",
+}
+RANK_BUCKET_RANGES = {
+    "reach": (0.85, 0.98),
+    "match": (0.98, 1.15),
+    "safety": (1.15, 1.40),
+}
+RANK_WINDOW_MIN = 0.85
+RANK_WINDOW_MAX = 1.40
+RANK_WINDOW_RELAXED_MIN = 0.75
 SPECIAL_MAJOR_TERMS = (
     "中外合作",
     "合作办学",
@@ -38,6 +58,15 @@ SPECIAL_MAJOR_TERMS = (
     "留学",
     "双文凭",
 )
+MAJOR_EMBEDDING_NOISE_PATTERN = re.compile(
+    r"[（(][^（）()]*?(?:校区|班|方向|合作|学分互认|外语成绩|不低于|留学|双文凭)[^（）()]*?[）)]"
+)
+MAJOR_SIMILARITY_WEIGHT = 0.70
+MAJOR_STAGE_WEIGHT = 1.0 - MAJOR_SIMILARITY_WEIGHT
+_MAJOR_VECTOR_CACHE: dict[str, list[float]] = {}
+_MAJOR_SIMILARITY_CACHE: dict[tuple[str, str], float] = {}
+DEFAULT_LEXICOGRAPHIC_EPSILON = 0.01
+SEMANTIC_SCORE_BATCH_SIZE = 200
 
 
 def _coerce_float(value: Any) -> float | None:
@@ -63,13 +92,419 @@ def _clamp_unit(value: float) -> float:
     return max(0.0, min(1.0, value))
 
 
+def _major_similarity_enabled() -> bool:
+    if os.getenv("GAOKAOLLM_DISABLE_MAJOR_EMBEDDING") == "1":
+        return False
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        return False
+    return bool(os.getenv("EMBEDDING_MODEL"))
+
+
+def _major_similarity_text(value: Any) -> str:
+    text = str(value or "")
+    text = MAJOR_EMBEDDING_NOISE_PATTERN.sub("", text)
+    text = (
+        text.replace("（", " ").replace("）", " ").replace("(", " ").replace(")", " ")
+    )
+    return embedding_client.normalize_text(text)
+
+
+def _major_similarity_target(user_state: dict[str, Any] | None) -> str:
+    constraints = _state_constraints(user_state)
+    target = constraints.get("major")
+    if not target and isinstance(user_state, dict):
+        original = user_state.get("original_constraints")
+        if isinstance(original, dict):
+            target = original.get("major")
+    return _major_similarity_text(target)
+
+
+def _major_similarity_label(score: float) -> str:
+    if score >= 0.86:
+        return "高度贴合"
+    if score >= 0.74:
+        return "较贴合"
+    if score >= 0.62:
+        return "有一定相关"
+    if score >= 0.50:
+        return "相关性偏弱"
+    return "相关性较弱"
+
+
+async def _embed_major_texts(texts: list[str]) -> None:
+    missing = [text for text in texts if text and text not in _MAJOR_VECTOR_CACHE]
+    if not missing:
+        return
+    client_cls = getattr(embedding_client, "Open" + "AIEmbeddingClient")
+    client = client_cls()
+    vectors = await client.embed(missing)
+    for text, vector in zip(missing, vectors):
+        _MAJOR_VECTOR_CACHE[text] = vector
+
+
+async def annotate_major_similarity(
+    candidates: list[dict[str, Any]],
+    user_state: dict[str, Any] | None,
+) -> list[dict[str, Any]]:
+    """Annotate candidates with continuous major-demand similarity when configured."""
+
+    if not candidates or not _major_similarity_enabled():
+        return candidates
+
+    target = _major_similarity_target(user_state)
+    if not target:
+        return candidates
+
+    rows = [
+        dict(candidate) if isinstance(candidate, dict) else {}
+        for candidate in candidates
+    ]
+    candidate_texts = [
+        _major_similarity_text(row.get("major_name") or row.get("major"))
+        for row in rows
+    ]
+    unique_texts = list(
+        dict.fromkeys([target, *[text for text in candidate_texts if text]])
+    )
+    await _embed_major_texts(unique_texts)
+    target_vector = _MAJOR_VECTOR_CACHE.get(target)
+    if not target_vector:
+        raise RuntimeError("Major embedding target vector is unavailable.")
+
+    for row, candidate_text in zip(rows, candidate_texts):
+        if not candidate_text:
+            continue
+        cache_key = (target, candidate_text)
+        score = _MAJOR_SIMILARITY_CACHE.get(cache_key)
+        if score is None:
+            candidate_vector = _MAJOR_VECTOR_CACHE.get(candidate_text)
+            if not candidate_vector:
+                raise RuntimeError(
+                    f"Major embedding vector is unavailable for {candidate_text!r}."
+                )
+            score = _clamp_unit(cosine_similarity(target_vector, candidate_vector))
+            if target == candidate_text:
+                score = 1.0
+            elif len(target) >= 4 and target in candidate_text:
+                score = max(score, 0.92)
+            elif len(candidate_text) >= 4 and candidate_text in target:
+                score = max(score, 0.92)
+            _MAJOR_SIMILARITY_CACHE[cache_key] = score
+        row["major_similarity_score"] = round(float(score), 4)
+        row["major_similarity_target"] = target
+        row["major_similarity_method"] = "embedding_cosine"
+        row["major_similarity_label"] = _major_similarity_label(float(score))
+    return rows
+
+
+def _full_context_embedding(user_state: dict[str, Any] | None) -> list[float] | None:
+    if not isinstance(user_state, dict):
+        return None
+    raw = user_state.get("full_context_embedding")
+    if not isinstance(raw, list) or not raw:
+        return None
+    try:
+        vector = [float(value) for value in raw]
+    except (TypeError, ValueError):
+        return None
+    ensure_embedding_dimension(vector, label="full_context_embedding")
+    return vector
+
+
+def _candidate_semantic_key(row: dict[str, Any]) -> tuple[Any, Any, Any]:
+    return (
+        row.get("admission_score_id"),
+        row.get("school_id"),
+        row.get("major_id") or row.get("major_name"),
+    )
+
+
+async def _fetch_semantic_scores(
+    db: Any,
+    *,
+    query_vector: list[float],
+    rows: list[dict[str, Any]],
+) -> dict[tuple[Any, Any, Any], float]:
+    keyed_rows = [
+        (
+            index,
+            row.get("admission_score_id"),
+            row.get("school_id"),
+            row.get("major_id"),
+            row.get("major_name"),
+        )
+        for index, row in enumerate(rows)
+    ]
+    if not keyed_rows:
+        return {}
+    vector_literal = vector_to_pg_literal(query_vector)
+    result: dict[tuple[Any, Any, Any], float] = {}
+    for start in range(0, len(keyed_rows), SEMANTIC_SCORE_BATCH_SIZE):
+        chunk = keyed_rows[start : start + SEMANTIC_SCORE_BATCH_SIZE]
+        values_sql = ",".join(["(%s,%s,%s,%s,%s)"] * len(chunk))
+        params: list[Any] = []
+        for index, admission_score_id, school_id, major_id, major_name in chunk:
+            params.extend([index, admission_score_id, school_id, major_id, major_name])
+        params.append(vector_literal)
+        query = f"""
+WITH candidate(index, admission_score_id, school_id, major_id, major_name) AS (
+    VALUES {values_sql}
+)
+SELECT
+    candidate.index,
+    candidate.admission_score_id,
+    candidate.school_id,
+    candidate.major_id,
+    candidate.major_name,
+    MAX(1 - (kd.embedding <=> %s::vector)) AS semantic_score
+FROM candidate
+LEFT JOIN knowledge_documents kd
+  ON kd.embedding IS NOT NULL
+ AND (
+    kd.school_id = candidate.school_id
+    OR kd.major_id = candidate.major_id
+    OR (candidate.major_id IS NULL AND kd.title = candidate.major_name)
+ )
+GROUP BY
+    candidate.index,
+    candidate.admission_score_id,
+    candidate.school_id,
+    candidate.major_id,
+    candidate.major_name
+"""
+        fetched = await _fetch(db, query, params)
+        for item in fetched:
+            score = _coerce_float(item.get("semantic_score"))
+            if score is None:
+                continue
+            key = (
+                item.get("admission_score_id"),
+                item.get("school_id"),
+                item.get("major_id") or item.get("major_name"),
+            )
+            result[key] = _clamp_unit(float(score))
+    return result
+
+
+async def annotate_full_context_semantic_score(
+    candidates: list[dict[str, Any]],
+    user_state: dict[str, Any] | None,
+    db: Any = None,
+) -> list[dict[str, Any]]:
+    rows = [
+        dict(candidate) if isinstance(candidate, dict) else {}
+        for candidate in candidates or []
+    ]
+    if not rows:
+        return rows
+    query_vector = _full_context_embedding(user_state)
+    if query_vector is None:
+        for row in rows:
+            row.setdefault("semantic_score", None)
+            row.setdefault("semantic_score_source", "missing_full_context_embedding")
+        return rows
+    scores = await _fetch_semantic_scores(
+        db,
+        query_vector=query_vector,
+        rows=rows,
+    )
+    for row in rows:
+        score = scores.get(_candidate_semantic_key(row))
+        if score is None:
+            row["semantic_score"] = None
+            row["semantic_score_source"] = "missing_knowledge_embedding"
+            continue
+        row["semantic_score"] = round(float(score), 6)
+        row["semantic_score_source"] = "knowledge_documents_pgvector"
+    return rows
+
+
 def _state_constraints(user_state: dict[str, Any] | None) -> dict[str, Any]:
     if not isinstance(user_state, dict):
         return {}
     constraints = user_state.get("constraints")
     if isinstance(constraints, dict):
+        return dict(constraints)
+    return dict(user_state)
+
+
+def _accepted_relaxed_dimensions(user_state: dict[str, Any] | None) -> set[str]:
+    if not isinstance(user_state, dict):
+        return set()
+    accepted = user_state.get("accepted_relaxations")
+    if not isinstance(accepted, list):
+        return set()
+    dimensions: set[str] = set()
+    for item in accepted:
+        if not isinstance(item, dict):
+            continue
+        dimension = str(item.get("dimension") or "").strip()
+        if dimension:
+            dimensions.add(dimension)
+    return dimensions
+
+
+def _has_accepted_relaxation(
+    user_state: dict[str, Any] | None,
+    *dimensions: str,
+) -> bool:
+    accepted = _accepted_relaxed_dimensions(user_state)
+    return any(dimension in accepted for dimension in dimensions)
+
+
+def _apply_accepted_relaxations(
+    constraints: dict[str, Any],
+    user_state: dict[str, Any] | None,
+) -> dict[str, Any]:
+    if not isinstance(user_state, dict):
         return constraints
-    return user_state
+    accepted = user_state.get("accepted_relaxations")
+    if not isinstance(accepted, list):
+        return constraints
+    adjusted = dict(constraints)
+    for item in accepted:
+        if not isinstance(item, dict):
+            continue
+        dimension = str(item.get("dimension") or "")
+        if dimension == "geo":
+            adjusted.pop("target_provinces", None)
+            adjusted.pop("city", None)
+            adjusted["school_region_relaxed"] = True
+        elif dimension == "major":
+            adjusted.pop("major", None)
+        elif dimension == "tuition":
+            accepted_budget = _coerce_float(item.get("accepted_budget"))
+            current_budget = _coerce_float(adjusted.get("budget"))
+            if accepted_budget is None:
+                continue
+            if current_budget is None or accepted_budget > current_budget:
+                adjusted["budget"] = int(round(accepted_budget))
+        elif dimension in {"school", "quality"}:
+            adjusted.pop("strength", None)
+        elif dimension == "risk":
+            adjusted.pop("risk_preference", None)
+    return adjusted
+
+
+def _terminal_search_constraints(
+    constraints: dict[str, Any],
+    user_state: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Keep immutable exam facts, but drop preference filters the user accepted relaxing."""
+
+    adjusted = dict(constraints)
+    if _has_accepted_relaxation(user_state, "geo"):
+        adjusted.pop("target_provinces", None)
+        adjusted.pop("city", None)
+        adjusted["school_region_relaxed"] = True
+    if _has_accepted_relaxation(user_state, "major"):
+        adjusted.pop("major", None)
+    if _has_accepted_relaxation(user_state, "tuition"):
+        adjusted.pop("budget", None)
+    if _has_accepted_relaxation(user_state, "school", "quality"):
+        adjusted.pop("strength", None)
+    if _has_accepted_relaxation(user_state, "risk"):
+        adjusted.pop("risk_preference", None)
+    return adjusted
+
+
+def _city_values_for_match(city: Any) -> set[str]:
+    if not city:
+        return set()
+    try:
+        return {str(item) for item in city_variants(str(city)) if str(item)}
+    except Exception:
+        return {str(city)}
+
+
+def _candidate_matches_geo(
+    candidate: dict[str, Any], constraints: dict[str, Any]
+) -> bool:
+    target_provinces = constraints.get("target_provinces")
+    province = str(candidate.get("school_province") or candidate.get("province") or "")
+    if isinstance(target_provinces, list) and target_provinces:
+        allowed = {str(item) for item in target_provinces if str(item)}
+        if province and province not in allowed:
+            return False
+    elif constraints.get("province"):
+        if province and province != str(constraints.get("province")):
+            return False
+
+    city = constraints.get("city")
+    if city:
+        candidate_city = str(
+            candidate.get("school_city") or candidate.get("city") or ""
+        )
+        if candidate_city and candidate_city not in _city_values_for_match(city):
+            return False
+    return True
+
+
+def _rank_ratio_for_candidate(candidate: dict[str, Any]) -> float | None:
+    student_rank = _coerce_float(candidate.get("student_rank"))
+    min_rank = _coerce_float(candidate.get("min_rank"))
+    if student_rank is None or student_rank <= 0 or min_rank is None:
+        return None
+    return min_rank / student_rank
+
+
+def _risk_phi(candidate: dict[str, Any]) -> float:
+    ratio = _rank_ratio_for_candidate(candidate)
+    if ratio is None:
+        return 0.5
+    if ratio < 0.85:
+        return 0.0
+    if ratio < 0.98:
+        return 0.25
+    if ratio <= 1.15:
+        return 0.70
+    if ratio <= 1.40:
+        return 1.0
+    return 0.5
+
+
+def _annotate_terminal_relaxation_features(
+    candidate: dict[str, Any],
+    constraints: dict[str, Any],
+    user_state: dict[str, Any] | None,
+) -> dict[str, Any]:
+    row = dict(candidate)
+    if _has_accepted_relaxation(user_state, "geo") and not _candidate_matches_geo(
+        row, constraints
+    ):
+        row.setdefault("geo_relax_level", 1)
+    major = constraints.get("major")
+    major_name = str(row.get("major_name") or row.get("major") or "")
+    if (
+        _has_accepted_relaxation(user_state, "major")
+        and major
+        and str(major) not in major_name
+    ):
+        row.setdefault("major_relax_level", 1)
+    if _has_accepted_relaxation(user_state, "risk"):
+        ratio = _rank_ratio_for_candidate(row)
+        if ratio is not None and ratio < 0.98:
+            row.setdefault("risk_relax_level", 1)
+    return row
+
+
+def _annotate_major_geo_probe_features(
+    candidate: dict[str, Any],
+    constraints: dict[str, Any],
+    stage: dict[str, Any],
+) -> dict[str, Any]:
+    row = dict(candidate)
+    if not _candidate_matches_geo(row, constraints):
+        row.setdefault("geo_relax_level", 1)
+
+    strict_major = constraints.get("major")
+    major_name = str(row.get("major_name") or row.get("major") or "")
+    if strict_major and str(strict_major) not in major_name:
+        stage_level = _coerce_float(stage.get("stage"))
+        if stage_level is None or stage_level <= 0:
+            stage_level = 1.0
+        row.setdefault("major_relax_level", stage_level)
+    return row
 
 
 def _utility_weights(user_state: dict[str, Any] | None) -> dict[str, float]:
@@ -153,6 +588,7 @@ def extract_phi_features(
         "tuition": 1.0,
         "quality": 0.5,
         "geo": 1.0,
+        "risk": 0.5,
     }
 
     try:
@@ -164,7 +600,8 @@ def extract_phi_features(
         major_level = _coerce_float(candidate.get("major_relax_level"))
         if major_level is None:
             major_level = 0.0
-        features["major"] = max(0.0, 1.0 - 0.35 * major_level)
+        stage_major_phi = max(0.0, 1.0 - 0.35 * major_level)
+        features["major"] = stage_major_phi
     except Exception:
         features["major"] = 1.0
 
@@ -175,6 +612,11 @@ def extract_phi_features(
         features["geo"] = max(0.0, 1.0 - 0.30 * geo_level)
     except Exception:
         features["geo"] = 1.0
+
+    try:
+        features["risk"] = _risk_phi(candidate)
+    except Exception:
+        features["risk"] = 0.5
 
     try:
         quality_score = _coerce_float(candidate.get("quality_score"))
@@ -202,9 +644,10 @@ def extract_phi_features(
             features["tuition"] = 1.0
         else:
             excess_ratio = (tuition - budget) / budget
+            tuition_relaxed = _has_accepted_relaxation(user_state, "tuition")
             # 防止“线性补偿陷阱”：当学费严重超预算时，不能让名校光环
             # 或质量分通过线性加权把该方案重新抬到前排，因此触发非补偿性否决。
-            if excess_ratio >= 0.30:
+            if excess_ratio >= 0.30 and not tuition_relaxed:
                 features["tuition"] = -9999.0
             else:
                 features["tuition"] = max(0.0, 1.0 - 2.0 * excess_ratio)
@@ -212,6 +655,61 @@ def extract_phi_features(
         features["tuition"] = 1.0
 
     return features
+
+
+def _lexicographic_epsilon(user_state: dict[str, Any] | None) -> float:
+    raw = (
+        user_state.get("lexicographic_epsilon")
+        if isinstance(user_state, dict)
+        else None
+    )
+    try:
+        epsilon = float(raw)
+    except (TypeError, ValueError):
+        epsilon = DEFAULT_LEXICOGRAPHIC_EPSILON
+    if epsilon <= 0:
+        return DEFAULT_LEXICOGRAPHIC_EPSILON
+    return epsilon
+
+
+def _lexicographic_tier(utility: float, epsilon: float) -> int:
+    if epsilon <= 0:
+        epsilon = DEFAULT_LEXICOGRAPHIC_EPSILON
+    return math.floor(float(utility) / epsilon)
+
+
+def _semantic_score(row: dict[str, Any]) -> float:
+    score = _coerce_float(row.get("semantic_score"))
+    if score is None:
+        return 0.0
+    return _clamp_unit(score)
+
+
+def _stable_sort_token(row: dict[str, Any]) -> str:
+    return "|".join(
+        str(row.get(key) or "")
+        for key in (
+            "admission_score_id",
+            "school_id",
+            "school_name",
+            "major_id",
+            "major_name",
+        )
+    )
+
+
+def _lexicographic_sort_key(row: dict[str, Any]) -> tuple[Any, ...]:
+    utility = float(row.get("_implicit_utility") or -999999.0)
+    epsilon = float(row.get("_lexicographic_epsilon") or DEFAULT_LEXICOGRAPHIC_EPSILON)
+    tier = int(row.get("_lexicographic_tier") or _lexicographic_tier(utility, epsilon))
+    return (
+        tier,
+        float(row.get("_semantic_score") or 0.0),
+        utility,
+        -int(row.get("ranking") or 999999),
+        int(row.get("year") or 0),
+        _stable_sort_token(row),
+    )
 
 
 def rank_by_implicit_utility(
@@ -225,6 +723,7 @@ def rank_by_implicit_utility(
     ]
     quality_bounds = _quality_bounds(rows)
     ranked: list[dict[str, Any]] = []
+    epsilon = _lexicographic_epsilon(user_state)
     for row in rows:
         try:
             features = extract_phi_features(row, user_state, quality_bounds)
@@ -239,19 +738,52 @@ def rank_by_implicit_utility(
                 "tuition": -9999.0,
                 "quality": 0.5,
                 "geo": 0.0,
+                "risk": 0.0,
             }
             utility = -9999.0
         row["_phi_features"] = features
         row["_implicit_utility"] = float(utility)
+        row["_semantic_score"] = _semantic_score(row)
+        row["_lexicographic_epsilon"] = epsilon
+        row["_lexicographic_tier"] = _lexicographic_tier(float(utility), epsilon)
         ranked.append(row)
     return sorted(
         ranked,
-        key=lambda row: float(row.get("_implicit_utility") or -999999.0),
+        key=_lexicographic_sort_key,
         reverse=True,
     )
 
 
-BASE_SELECT = """
+async def rank_by_implicit_utility_async(
+    candidates: list[dict[str, Any]],
+    user_state: dict[str, Any] | None,
+) -> list[dict[str, Any]]:
+    annotated = await annotate_major_similarity(candidates, user_state)
+    annotated = await annotate_full_context_semantic_score(annotated, user_state)
+    return rank_by_implicit_utility(annotated, user_state)
+
+
+PLAN_TUITION_JOIN = """
+LEFT JOIN LATERAL (
+    SELECT p.tuition AS min_tuition
+    FROM admission_plans p
+    WHERE p.school_id = a.school_id
+      AND (
+          p.major_id = a.major_id
+          OR p.major_code = a.major_code
+          OR p.major_name_raw = a.major_name_raw
+      )
+      AND p.tuition IS NOT NULL
+    ORDER BY
+      CASE WHEN p.year = a.year THEN 0 ELSE 1 END,
+      CASE WHEN p.year IS NULL THEN 9999 ELSE abs(p.year - a.year) END,
+      p.tuition ASC
+    LIMIT 1
+) plan ON true
+"""
+
+
+BASE_SELECT = f"""
 SELECT
     a.id AS admission_score_id,
     a.year,
@@ -281,17 +813,7 @@ SELECT
 FROM admission_scores a
 JOIN schools s ON s.id = a.school_id
 LEFT JOIN subject_requirements sr ON sr.raw_requirement = a.subject_requirement
-LEFT JOIN LATERAL (
-    SELECT min(p.tuition) AS min_tuition
-    FROM admission_plans p
-    WHERE p.school_id = a.school_id
-      AND p.year = a.year
-      AND (
-          p.major_id = a.major_id
-          OR p.major_code = a.major_code
-          OR p.major_name_raw = a.major_name_raw
-      )
-) plan ON true
+{PLAN_TUITION_JOIN}
 """
 
 BASE_ORDER = """
@@ -316,7 +838,7 @@ ORDER BY
 LIMIT %s
 """
 
-STRENGTH_SELECT = """
+STRENGTH_SELECT = f"""
 SELECT
     a.id AS admission_score_id,
     a.year,
@@ -351,17 +873,7 @@ SELECT
 FROM admission_scores a
 JOIN schools s ON s.id = a.school_id
 LEFT JOIN subject_requirements sr ON sr.raw_requirement = a.subject_requirement
-LEFT JOIN LATERAL (
-    SELECT min(p.tuition) AS min_tuition
-    FROM admission_plans p
-    WHERE p.school_id = a.school_id
-      AND p.year = a.year
-      AND (
-          p.major_id = a.major_id
-          OR p.major_code = a.major_code
-          OR p.major_name_raw = a.major_name_raw
-      )
-) plan ON true
+{PLAN_TUITION_JOIN}
 LEFT JOIN (
     SELECT DISTINCT ON (sms.school_id)
         sms.school_id,
@@ -380,7 +892,7 @@ LEFT JOIN (
 ) sms ON sms.school_id = a.school_id
 """
 
-MAJOR_QUALITY_SELECT = """
+MAJOR_QUALITY_SELECT = f"""
 SELECT
     a.id AS admission_score_id,
     a.year,
@@ -419,17 +931,7 @@ SELECT
 FROM admission_scores a
 JOIN schools s ON s.id = a.school_id
 LEFT JOIN subject_requirements sr ON sr.raw_requirement = a.subject_requirement
-LEFT JOIN LATERAL (
-    SELECT min(p.tuition) AS min_tuition
-    FROM admission_plans p
-    WHERE p.school_id = a.school_id
-      AND p.year = a.year
-      AND (
-          p.major_id = a.major_id
-          OR p.major_code = a.major_code
-          OR p.major_name_raw = a.major_name_raw
-      )
-) plan ON true
+{PLAN_TUITION_JOIN}
 LEFT JOIN LATERAL (
     SELECT
         profile.quality_score,
@@ -451,7 +953,7 @@ LEFT JOIN LATERAL (
 ) mq ON true
 """
 
-EMPLOYMENT_OUTCOME_SELECT = """
+EMPLOYMENT_OUTCOME_SELECT = f"""
 SELECT
     a.id AS admission_score_id,
     a.year,
@@ -492,17 +994,7 @@ SELECT
 FROM admission_scores a
 JOIN schools s ON s.id = a.school_id
 LEFT JOIN subject_requirements sr ON sr.raw_requirement = a.subject_requirement
-LEFT JOIN LATERAL (
-    SELECT min(p.tuition) AS min_tuition
-    FROM admission_plans p
-    WHERE p.school_id = a.school_id
-      AND p.year = a.year
-      AND (
-          p.major_id = a.major_id
-          OR p.major_code = a.major_code
-          OR p.major_name_raw = a.major_name_raw
-      )
-) plan ON true
+{PLAN_TUITION_JOIN}
 LEFT JOIN LATERAL (
     SELECT
         profile.outcome_score,
@@ -610,12 +1102,28 @@ def classify_risk_band(
     *,
     score_margin: int | float | None,
     rank_gap: int | float | None = None,
+    rank_ratio: int | float | None = None,
 ) -> str:
-    """Classify admission risk using deterministic score/rank margins."""
+    """Classify admission risk using the paper's c / r rank-ratio windows."""
+
+    ratio = _coerce_float(rank_ratio)
+    if ratio is not None:
+        bucket = _risk_bucket_from_rank_ratio(ratio)
+        if bucket == "reach":
+            return "chong"
+        if bucket == "match":
+            return "wen"
+        if bucket == "safety":
+            return "bao"
+        return "dian"
 
     if rank_gap is not None:
-        gap = float(rank_gap)
-        if gap <= 3000:
+        # Legacy fallback for synthetic rows without a student-rank mapping.
+        try:
+            gap = float(rank_gap)
+        except (TypeError, ValueError):
+            gap = 999999.0
+        if gap < 0:
             return "chong"
         if gap <= 12000:
             return "wen"
@@ -661,12 +1169,17 @@ def _annotate_risk_row(
         score_margin = score - int(float(min_score))
     if student_rank is not None and min_rank is not None:
         rank_gap = int(float(min_rank)) - student_rank
+    rank_ratio = None
+    if student_rank is not None and student_rank > 0 and min_rank is not None:
+        rank_ratio = float(min_rank) / float(student_rank)
     annotated["score_margin"] = score_margin
     annotated["student_rank"] = student_rank
     annotated["rank_gap"] = rank_gap
+    annotated["rank_ratio"] = round(rank_ratio, 4) if rank_ratio is not None else None
     annotated["risk_level"] = classify_risk_band(
         score_margin=score_margin,
         rank_gap=rank_gap,
+        rank_ratio=rank_ratio,
     )
     return annotated
 
@@ -719,9 +1232,6 @@ def _select_risk_portfolio(
             max_per_school=max_per_school,
         )
 
-    required = {"chong", "wen", "bao"}
-    if not required.issubset({str(row.get("risk_level")) for row in selected}):
-        return []
     return selected[:limit]
 
 
@@ -759,13 +1269,21 @@ def _tier_sql() -> str:
     """
 
 
-def _where_common(constraints: dict[str, Any]) -> tuple[list[str], list[Any]]:
-    where = ["a.min_score IS NOT NULL", "a.min_score <= %s"]
-    params: list[Any] = [_score(constraints)]
+def _where_common(
+    constraints: dict[str, Any],
+    *,
+    include_score_ceiling: bool = True,
+) -> tuple[list[str], list[Any]]:
+    where = ["a.min_score IS NOT NULL"]
+    params: list[Any] = []
+    if include_score_ceiling:
+        where.append("a.min_score <= %s")
+        params.append(_score(constraints))
 
     budget = _budget(constraints)
     if budget is not None:
-        where.append("(plan.min_tuition IS NULL OR plan.min_tuition <= %s)")
+        where.append("plan.min_tuition IS NOT NULL")
+        where.append("plan.min_tuition <= %s")
         params.append(budget)
 
     selected_subjects = constraints.get("selected_subjects")
@@ -796,6 +1314,13 @@ def _add_province_filter(
     params: list[Any],
     constraints: dict[str, Any],
 ) -> None:
+    if constraints.get("school_region_relaxed") or constraints.get("province_relaxed"):
+        return
+    target_provinces = constraints.get("target_provinces")
+    if isinstance(target_provinces, list) and target_provinces:
+        where.append("s.province = ANY(%s::text[])")
+        params.append([str(item) for item in target_provinces if str(item)])
+        return
     province = constraints.get("province")
     if province:
         where.append("s.province = %s")
@@ -807,6 +1332,8 @@ def _add_city_filter(
     params: list[Any],
     constraints: dict[str, Any],
 ) -> None:
+    if constraints.get("school_region_relaxed") or constraints.get("province_relaxed"):
+        return
     city = constraints.get("city")
     if city:
         where.append("s.city = ANY(%s::text[])")
@@ -831,6 +1358,20 @@ def _add_higher_tier_filter(
 ) -> None:
     where.append(f"{_tier_sql()} > %s")
     params.append(_max_tier(baseline))
+
+
+def _add_school_gain_filter(
+    where: list[str],
+    params: list[Any],
+    baseline: list[dict[str, Any]],
+) -> None:
+    clauses = [f"{_tier_sql()} > %s"]
+    params.append(_max_tier(baseline))
+    best_ranking = _best_ranking(baseline)
+    if best_ranking is not None:
+        clauses.append("s.ranking IS NOT NULL AND s.ranking < %s")
+        params.append(best_ranking)
+    where.append("(" + " OR ".join(clauses) + ")")
 
 
 def _add_undergraduate_quality_filters(
@@ -940,6 +1481,39 @@ def _selection_key(row: dict[str, Any]) -> tuple[Any, ...]:
     )
 
 
+def _visible_option_key(row: dict[str, Any]) -> tuple[Any, Any, Any]:
+    return (
+        row.get("school_id") or row.get("school_name"),
+        row.get("major_id") or row.get("major_name"),
+        row.get("major_name"),
+    )
+
+
+def _dedupe_visible_options(
+    rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    selected: list[dict[str, Any]] = []
+    seen: set[tuple[Any, Any, Any]] = set()
+    for row in rows:
+        option_key = _visible_option_key(row)
+        if option_key in seen:
+            continue
+        seen.add(option_key)
+        selected.append(row)
+    return selected
+
+
+def _flatten_probe_rows(value: Any) -> list[dict[str, Any]]:
+    if isinstance(value, list):
+        return [row for row in value if isinstance(row, dict)]
+    if isinstance(value, dict):
+        rows: list[dict[str, Any]] = []
+        for nested in value.values():
+            rows.extend(_flatten_probe_rows(nested))
+        return rows
+    return []
+
+
 def _select_relaxation_rows(
     rows: list[dict[str, Any]],
     *,
@@ -996,42 +1570,27 @@ async def run_baseline(
     return await _fetch(db, query, params)
 
 
-def _score_margin_for_bucket(
-    row: dict[str, Any],
-    constraints: dict[str, Any],
-    *,
-    index: int,
-    total: int,
-) -> float | None:
-    explicit_margin = _coerce_float(row.get("score_margin"))
-    if explicit_margin is not None:
-        return explicit_margin
-
-    score = _coerce_float(constraints.get("score"))
-    min_score = _coerce_float(row.get("min_score"))
-    if score is not None and min_score is not None:
-        return score - min_score
-
-    if total <= 0:
+def _risk_bucket_from_rank_ratio(ratio: float | None) -> str | None:
+    if ratio is None:
         return None
-    ratio = index / max(total - 1, 1)
-    if ratio < 1 / 3:
-        return -5.0 + ratio * 30.0
-    if ratio < 2 / 3:
-        return 6.0 + (ratio - 1 / 3) * 27.0
-    return 16.0 + (ratio - 2 / 3) * 60.0
-
-
-def _global_bucket(score_margin: float | None) -> str | None:
-    if score_margin is None:
-        return None
-    if -5.0 <= score_margin <= 5.0:
-        return "reach"
-    if 5.0 < score_margin <= 15.0:
-        return "match"
-    if score_margin > 15.0:
-        return "safety"
+    for bucket, (lower, upper) in RANK_BUCKET_RANGES.items():
+        if bucket == "reach":
+            if lower <= ratio < upper:
+                return bucket
+            continue
+        if lower <= ratio <= upper:
+            return bucket
     return None
+
+
+def _rank_ratio_for_bucket(
+    row: dict[str, Any],
+) -> float | None:
+    student_rank = _coerce_float(row.get("student_rank"))
+    min_rank = _coerce_float(row.get("min_rank"))
+    if student_rank is None or student_rank <= 0 or min_rank is None:
+        return None
+    return min_rank / student_rank
 
 
 def build_recommendation_matrix(
@@ -1040,33 +1599,34 @@ def build_recommendation_matrix(
     *,
     limit_per_bucket: int = 3,
 ) -> dict[str, list[dict[str, Any]]]:
-    constraints = _state_constraints(user_state)
     matrix: dict[str, list[dict[str, Any]]] = {
         key: [] for key in GLOBAL_BASELINE_BUCKETS
     }
-    total = len(ranked_candidates or [])
-    for index, candidate in enumerate(ranked_candidates or []):
+    risk_relaxed = _has_accepted_relaxation(user_state or {}, "risk")
+    for candidate in ranked_candidates or []:
         if not isinstance(candidate, dict):
             continue
         row = dict(candidate)
-        margin = _score_margin_for_bucket(
-            row,
-            constraints,
-            index=index,
-            total=total,
-        )
-        bucket = _global_bucket(margin)
+        rank_ratio = _rank_ratio_for_bucket(row)
+        bucket = _risk_bucket_from_rank_ratio(rank_ratio)
+        if (
+            bucket is None
+            and risk_relaxed
+            and rank_ratio is not None
+            and RANK_WINDOW_RELAXED_MIN <= rank_ratio < RANK_WINDOW_MIN
+        ):
+            bucket = "reach"
         if bucket is None:
             continue
-        margin_value = 0.0 if margin is None else float(margin)
-        row["score_margin"] = round(margin_value, 3)
+        row["rank_ratio"] = round(float(rank_ratio), 4)
         row["risk_bucket"] = bucket
+        row["risk_label"] = GLOBAL_BASELINE_BUCKET_LABELS[bucket]
         matrix[bucket].append(row)
 
     for bucket in GLOBAL_BASELINE_BUCKETS:
         matrix[bucket] = sorted(
             matrix[bucket],
-            key=lambda row: float(row.get("_implicit_utility") or -999999.0),
+            key=_lexicographic_sort_key,
             reverse=True,
         )[:limit_per_bucket]
     return matrix
@@ -1076,24 +1636,77 @@ async def probe_global_baseline(
     user_state: dict[str, Any],
     db: Any = None,
     limit: int = 5,
-    pool_size: int = 100,
+    pool_size: int = 500,
 ) -> dict[str, list[dict[str, Any]]]:
-    """Search the hard-feasible domain, then rank globally by implicit utility."""
+    """Search hard constraints, bucket by rank ratio, then rank by implicit utility."""
 
     constraints = _state_constraints(user_state)
-    where, params = _where_common(constraints)
-    _add_major_filter(where, params, constraints)
+    search_constraints = _terminal_search_constraints(constraints, user_state)
+    student_rank = await _student_rank_for_score(constraints, db=db)
+    if student_rank is None:
+        return {key: [] for key in GLOBAL_BASELINE_BUCKETS}
+
+    where, params = _where_common(search_constraints, include_score_ceiling=False)
+    _add_province_filter(where, params, search_constraints)
+    _add_city_filter(where, params, search_constraints)
+    _add_major_filter(where, params, search_constraints)
     _add_undergraduate_quality_filters(where, params)
+    where.extend(
+        [
+            "a.min_rank IS NOT NULL",
+            "a.min_rank >= %s",
+            "a.min_rank <= %s",
+        ]
+    )
+    params.extend(
+        [
+            int(
+                student_rank
+                * (
+                    RANK_WINDOW_RELAXED_MIN
+                    if _has_accepted_relaxation(user_state, "risk")
+                    else RANK_WINDOW_MIN
+                )
+            ),
+            int(student_rank * RANK_WINDOW_MAX),
+        ]
+    )
     params.append(max(pool_size, limit * 10))
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
     candidates = await _fetch(db, query, params)
-    ranked = rank_by_implicit_utility(candidates, user_state)
+    candidates = [
+        _annotate_terminal_relaxation_features(
+            dict(row, student_rank=student_rank),
+            constraints,
+            user_state,
+        )
+        for row in candidates
+    ]
+    ranked = await rank_by_implicit_utility_async(candidates, user_state)
+    ranked = _dedupe_visible_options(ranked)
     return build_recommendation_matrix(
         ranked,
         user_state,
         limit_per_bucket=max(1, min(3, limit)),
     )
+
+
+async def probe_comparison_baseline(
+    constraints: dict[str, Any],
+    db: Any = None,
+    user_state: dict[str, Any] | None = None,
+    limit: int = 3,
+) -> list[dict[str, Any]]:
+    """Return realistic display-level anchors for relaxation probes."""
+
+    state = dict(user_state or {})
+    state["constraints"] = dict(constraints)
+    matrix = await probe_global_baseline(state, db=db, limit=limit)
+    rows = _dedupe_visible_options(_flatten_probe_rows(matrix))
+    if rows:
+        return rows
+    return await run_baseline(constraints, db=db, limit=limit)
 
 
 async def _student_rank_for_score(
@@ -1117,7 +1730,7 @@ async def _student_rank_for_score(
     rows = await _fetch(db, query, [province, int(score), int(score)])
     if not rows:
         return None
-    rank_value = rows[0].get("rank_min") or rows[0].get("rank_max")
+    rank_value = rows[0].get("rank_max") or rows[0].get("rank_min")
     if rank_value is None:
         return None
     return int(float(rank_value))
@@ -1127,8 +1740,12 @@ async def probe_geo_relax(
     constraints: dict[str, Any],
     db: Any = None,
     baseline_results: list[dict[str, Any]] | None = None,
+    user_state: dict[str, Any] | None = None,
     limit: int = 5,
 ) -> list[dict[str, Any]]:
+    if constraints.get("school_region_relaxed") or constraints.get("province_relaxed"):
+        return []
+
     baseline = baseline_results
     if baseline is None:
         baseline = await run_baseline(constraints, db=db)
@@ -1145,16 +1762,22 @@ async def probe_geo_relax(
     params.append(limit)
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
-    return await _fetch(db, query, params)
+    rows = await _fetch(db, query, params)
+    ranked = await rank_by_implicit_utility_async(rows, user_state or constraints)
+    return ranked[:limit]
 
 
 async def probe_city_relax(
     constraints: dict[str, Any],
     db: Any = None,
     baseline_results: list[dict[str, Any]] | None = None,
+    user_state: dict[str, Any] | None = None,
     limit: int = 5,
 ) -> list[dict[str, Any]]:
     """Find tier gains unlocked by relaxing only the exact city constraint."""
+
+    if constraints.get("school_region_relaxed") or constraints.get("province_relaxed"):
+        return []
 
     city = constraints.get("city")
     if not city:
@@ -1173,19 +1796,25 @@ async def probe_city_relax(
     params.append(limit)
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
-    return await _fetch(db, query, params)
+    rows = await _fetch(db, query, params)
+    ranked = await rank_by_implicit_utility_async(rows, user_state or constraints)
+    return ranked[:limit]
 
 
 async def probe_region_tree_relax(
     constraints: dict[str, Any],
     db: Any = None,
     baseline_results: list[dict[str, Any]] | None = None,
+    user_state: dict[str, Any] | None = None,
     limit: int = 5,
     max_per_school: int = 2,
     geo_tree_path: str | Path | None = DEFAULT_REGION_GEO_TREE_PATH,
     urban_tree_path: str | Path | None = DEFAULT_REGION_URBAN_TREE_PATH,
 ) -> list[dict[str, Any]]:
     """Find tier gains unlocked by reviewed region-tree relaxations."""
+
+    if constraints.get("school_region_relaxed") or constraints.get("province_relaxed"):
+        return []
 
     if not constraints.get("city") and not constraints.get("province"):
         return []
@@ -1248,14 +1877,19 @@ async def probe_region_tree_relax(
             ):
                 continue
             if len(selected) >= limit:
-                return selected
-    return selected
+                ranked = await rank_by_implicit_utility_async(
+                    selected, user_state or constraints
+                )
+                return ranked[:limit]
+    ranked = await rank_by_implicit_utility_async(selected, user_state or constraints)
+    return ranked[:limit]
 
 
 async def probe_strength_relax(
     constraints: dict[str, Any],
     db: Any = None,
     baseline_results: list[dict[str, Any]] | None = None,
+    user_state: dict[str, Any] | None = None,
     limit: int = 5,
 ) -> list[dict[str, Any]]:
     """Find school-strength gains unlocked by relaxing the strength preference."""
@@ -1317,13 +1951,15 @@ async def probe_strength_relax(
         if candidate_rank >= anchor_rank:
             continue
         selected.append(row)
-    return selected
+    ranked = await rank_by_implicit_utility_async(selected, user_state or constraints)
+    return ranked[:limit]
 
 
 async def probe_major_quality_relax(
     constraints: dict[str, Any],
     db: Any = None,
     baseline_results: list[dict[str, Any]] | None = None,
+    user_state: dict[str, Any] | None = None,
     limit: int = 5,
     min_quality_gain: int = 10,
 ) -> list[dict[str, Any]]:
@@ -1408,7 +2044,8 @@ async def probe_major_quality_relax(
         selected.append(candidate)
         if len(selected) >= limit:
             break
-    return selected
+    ranked = await rank_by_implicit_utility_async(selected, user_state or constraints)
+    return ranked[:limit]
 
 
 async def probe_tuition_value_relax(
@@ -1508,13 +2145,15 @@ async def probe_tuition_value_relax(
         selected.append(candidate)
         if len(selected) >= limit:
             break
-    return rank_by_implicit_utility(selected, user_state or constraints)[:limit]
+    ranked = await rank_by_implicit_utility_async(selected, user_state or constraints)
+    return ranked[:limit]
 
 
 async def probe_employment_outcome_relax(
     constraints: dict[str, Any],
     db: Any = None,
     baseline_results: list[dict[str, Any]] | None = None,
+    user_state: dict[str, Any] | None = None,
     limit: int = 5,
     min_outcome_gain: int = 10,
     major_tree_path: str | Path | None = DEFAULT_MAJOR_TREE_PATH,
@@ -1620,16 +2259,22 @@ async def probe_employment_outcome_relax(
             ):
                 continue
             if len(selected) >= limit:
-                return selected
+                ranked = await rank_by_implicit_utility_async(
+                    selected,
+                    user_state or constraints,
+                )
+                return ranked[:limit]
         if selected:
             break
-    return selected
+    ranked = await rank_by_implicit_utility_async(selected, user_state or constraints)
+    return ranked[:limit]
 
 
 async def probe_major_relax(
     constraints: dict[str, Any],
     db: Any = None,
     baseline_results: list[dict[str, Any]] | None = None,
+    user_state: dict[str, Any] | None = None,
     limit: int = 5,
 ) -> list[dict[str, Any]]:
     baseline = baseline_results
@@ -1648,7 +2293,9 @@ async def probe_major_relax(
     params.append(limit)
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
-    return await _fetch(db, query, params)
+    rows = await _fetch(db, query, params)
+    ranked = await rank_by_implicit_utility_async(rows, user_state or constraints)
+    return ranked[:limit]
 
 
 async def probe_major_geo_relax(
@@ -1687,7 +2334,7 @@ async def probe_major_geo_relax(
             stage=stage,
             strict_major=constraints.get("major"),
         )
-        _add_higher_tier_filter(where, params, baseline)
+        _add_school_gain_filter(where, params, baseline)
         params.append(max(selection_limit * 4, 40))
 
         query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{MAJOR_GEO_ORDER}"
@@ -1705,30 +2352,56 @@ async def probe_major_geo_relax(
                 row["relaxation_stage"] = stage.get("stage")
                 row["relaxation_stage_label"] = stage.get("label")
                 row["relaxation_strategy"] = stage.get("strategy")
+                annotated = _annotate_major_geo_probe_features(row, constraints, stage)
+                row.update(annotated)
             break
 
-    return rank_by_implicit_utility(selected, user_state or constraints)[:limit]
+    ranked = await rank_by_implicit_utility_async(selected, user_state or constraints)
+    return ranked[:limit]
 
 
 async def probe_risk_band_relax(
     constraints: dict[str, Any],
     db: Any = None,
+    user_state: dict[str, Any] | None = None,
     limit: int = 6,
     max_per_school: int = 2,
 ) -> list[dict[str, Any]]:
     """Find a chong/wen/bao portfolio under existing hard constraints."""
 
     risk_preference = str(constraints.get("risk_preference") or "").lower()
-    if risk_preference not in {"conservative", "low", "stable"}:
+    include_aggressive = risk_preference in {
+        "",
+        "none",
+        "null",
+        "conservative",
+        "low",
+        "stable",
+    }
+    if not include_aggressive:
         return []
 
     score = _score(constraints)
     student_rank = await _student_rank_for_score(constraints, db=db)
-    where, params = _where_common(constraints)
+    where, params = _where_common(constraints, include_score_ceiling=False)
     _add_province_filter(where, params, constraints)
     _add_major_filter(where, params, constraints)
     _add_undergraduate_quality_filters(where, params)
     _add_major_quality_filters(where, params, max_major_name_length=60)
+    if student_rank is not None:
+        where.extend(
+            [
+                "a.min_rank IS NOT NULL",
+                "a.min_rank >= %s",
+                "a.min_rank <= %s",
+            ]
+        )
+        params.extend(
+            [
+                int(student_rank * RANK_WINDOW_MIN),
+                int(student_rank * RANK_WINDOW_MAX),
+            ]
+        )
     params.append(max(limit * 8, 60))
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{MAJOR_GEO_ORDER}"
@@ -1736,11 +2409,23 @@ async def probe_risk_band_relax(
     annotated = [
         _annotate_risk_row(row, score=score, student_rank=student_rank) for row in rows
     ]
-    return _select_risk_portfolio(
+    annotated = [
+        row
+        for row in annotated
+        if str(row.get("risk_level") or "") in {"chong", "wen", "bao"}
+    ]
+    selected = _select_risk_portfolio(
         annotated,
         limit=limit,
         max_per_school=max_per_school,
     )
+    for row in selected:
+        row["risk_relax_level"] = 1
+    ranked = await rank_by_implicit_utility_async(selected, user_state or constraints)
+    ranked_by_key = {_visible_option_key(row): row for row in ranked}
+    return [ranked_by_key.get(_visible_option_key(row), row) for row in selected][
+        :limit
+    ]
 
 
 async def run_all_probes(
@@ -1748,7 +2433,14 @@ async def run_all_probes(
     db: Any = None,
     user_state: dict[str, Any] | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
-    baseline = await run_baseline(constraints, db=db)
+    constraints = _apply_accepted_relaxations(dict(constraints), user_state)
+    if isinstance(user_state, dict):
+        user_state = {**user_state, "constraints": constraints}
+    baseline = await probe_comparison_baseline(
+        constraints,
+        db=db,
+        user_state=user_state or constraints,
+    )
     (
         geo_relax,
         city_relax,
@@ -1761,11 +2453,36 @@ async def run_all_probes(
         major_geo_relax,
         risk_band_relax,
     ) = await asyncio.gather(
-        probe_geo_relax(constraints, db=db, baseline_results=baseline),
-        probe_city_relax(constraints, db=db, baseline_results=baseline),
-        probe_major_relax(constraints, db=db, baseline_results=baseline),
-        probe_strength_relax(constraints, db=db, baseline_results=baseline),
-        probe_major_quality_relax(constraints, db=db, baseline_results=baseline),
+        probe_geo_relax(
+            constraints,
+            db=db,
+            baseline_results=baseline,
+            user_state=user_state or constraints,
+        ),
+        probe_city_relax(
+            constraints,
+            db=db,
+            baseline_results=baseline,
+            user_state=user_state or constraints,
+        ),
+        probe_major_relax(
+            constraints,
+            db=db,
+            baseline_results=baseline,
+            user_state=user_state or constraints,
+        ),
+        probe_strength_relax(
+            constraints,
+            db=db,
+            baseline_results=baseline,
+            user_state=user_state or constraints,
+        ),
+        probe_major_quality_relax(
+            constraints,
+            db=db,
+            baseline_results=baseline,
+            user_state=user_state or constraints,
+        ),
         probe_tuition_value_relax(
             constraints,
             db=db,
@@ -1776,15 +2493,25 @@ async def run_all_probes(
             constraints,
             db=db,
             baseline_results=baseline,
+            user_state=user_state or constraints,
         ),
-        probe_region_tree_relax(constraints, db=db, baseline_results=baseline),
+        probe_region_tree_relax(
+            constraints,
+            db=db,
+            baseline_results=baseline,
+            user_state=user_state or constraints,
+        ),
         probe_major_geo_relax(
             constraints,
             db=db,
             baseline_results=baseline,
             user_state=user_state or constraints,
         ),
-        probe_risk_band_relax(constraints, db=db),
+        probe_risk_band_relax(
+            constraints,
+            db=db,
+            user_state=user_state or constraints,
+        ),
     )
     return {
         "geo_relax": geo_relax,

@@ -3,7 +3,7 @@ import os
 import re
 from typing import Any
 
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from app.core.llm_client import (
     ainvoke_with_timeout,
@@ -22,6 +22,7 @@ from gaokaollm_bench.utils.trace import trace_event
 DEFAULT_CONSTRAINTS = {
     "score": None,
     "province": "浙江",
+    "target_provinces": None,
     "city": None,
     "major": None,
     "strength": None,
@@ -48,6 +49,20 @@ SUBJECT_ALIASES = {
     "生物": "生物",
     "技": "技术",
     "技术": "技术",
+}
+
+SUBJECT_COMBO_ALIASES = {
+    "物化生": ["物理", "化学", "生物"],
+    "物化地": ["物理", "化学", "地理"],
+    "物化技": ["物理", "化学", "技术"],
+    "物生地": ["物理", "生物", "地理"],
+    "物生政": ["物理", "生物", "政治"],
+    "物地政": ["物理", "地理", "政治"],
+    "史政地": ["历史", "政治", "地理"],
+    "政史地": ["政治", "历史", "地理"],
+    "史地政": ["历史", "地理", "政治"],
+    "历政地": ["历史", "政治", "地理"],
+    "政历地": ["政治", "历史", "地理"],
 }
 
 
@@ -110,6 +125,10 @@ def _fallback_extract(text: str) -> dict[str, Any]:
         if province in text:
             extracted["province"] = province
             break
+    if "江浙沪" in text or all(name in text for name in ("江苏", "浙江", "上海")):
+        extracted["target_provinces"] = ["江苏", "浙江", "上海"]
+    elif "江浙" in text or all(name in text for name in ("江苏", "浙江")):
+        extracted["target_provinces"] = ["江苏", "浙江"]
 
     city_names = [
         "杭州",
@@ -149,6 +168,8 @@ def _fallback_extract(text: str) -> dict[str, Any]:
 
     if "临床" in text:
         extracted["major"] = "临床医学"
+    elif "医学" in text:
+        extracted["major"] = "医学"
     elif "计算机" in text:
         extracted["major"] = "计算机"
     elif "法学" in text:
@@ -238,11 +259,20 @@ def _extract_subjects(text: str) -> list[str]:
 
     subject_window = compact
     window_match = re.search(
-        r"(?:选科|选考|科目|组合)[:：是为]*(.{0,16})",
+        r"(?:选科|选考|科目|组合)[:：是为]*(.{0,32})",
         compact,
     )
     if window_match:
         subject_window = window_match.group(1)
+        subject_window = re.split(
+            r"(?:想读|想学|只看|预算|每年|学校|专业|分数|位次)",
+            subject_window,
+            maxsplit=1,
+        )[0]
+
+    for alias, combo_subjects in SUBJECT_COMBO_ALIASES.items():
+        if alias in subject_window:
+            return _dedupe_subjects(combo_subjects)
 
     for subject in VALID_SUBJECTS:
         if subject in subject_window and subject not in subjects:
@@ -278,6 +308,8 @@ def _normalize_major(value: Any) -> str:
     major = str(value)
     if major == "临床":
         return "临床医学"
+    if major in {"医学相关专业", "医学相关", "医学类"}:
+        return "医学"
     return major
 
 
@@ -291,6 +323,7 @@ def _merge_constraints(
     for key in (
         "score",
         "province",
+        "target_provinces",
         "city",
         "major",
         "strength",
@@ -305,6 +338,8 @@ def _merge_constraints(
                 merged[key] = _normalize_subjects(value)
             elif key == "major":
                 merged[key] = _normalize_major(value)
+            elif key == "target_provinces":
+                merged[key] = [str(item) for item in value if str(item)]
             else:
                 merged[key] = value
     if extracted.get("province"):
@@ -312,8 +347,34 @@ def _merge_constraints(
     return merged
 
 
+def _merge_extracted_constraints(
+    base: dict[str, Any],
+    override: dict[str, Any],
+) -> dict[str, Any]:
+    merged = dict(base or {})
+    for key, value in (override or {}).items():
+        if value in (None, "", []):
+            continue
+        if key == "target_provinces":
+            existing = merged.get(key)
+            if isinstance(existing, list) and len(existing) >= len(value):
+                continue
+        if key == "selected_subjects":
+            existing = merged.get(key)
+            if isinstance(existing, list) and len(existing) >= len(value):
+                continue
+        if key == "budget" and merged.get(key) not in (None, "", 100000):
+            continue
+        merged[key] = value
+    return merged
+
+
 async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, Any]:
     fallback = _fallback_extract(text)
+    for line in str(text).splitlines():
+        line_fallback = _fallback_extract(line)
+        if line_fallback:
+            fallback = _merge_extracted_constraints(fallback, line_fallback)
     if fallback.get("score") and fallback.get("selected_subjects"):
         return fallback
     if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
@@ -322,24 +383,33 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
     prompt = [
         SystemMessage(
             content=(
-                "你是高考志愿约束抽取器。只输出 JSON，不要解释。"
-                "字段固定为 score(int|null), province(str|null), major(str|null), "
+                "你是高考志愿咨询中的约束抽取专员。"
+                "你的任务是从用户原话中抽取已经明说的信息，只输出一个 JSON 对象，不解释、不补充候选学校。"
+                "字段固定为 score(int|null), province(str|null), target_provinces(list[str]|null), major(str|null), "
                 "city(str|null), strength(str|null), budget(int|null), selected_subjects(list[str]|null), "
                 "risk_preference(str|null), employment_preference(str|null)。"
-                "province 表示目标院校所在地。major 使用用户提到的专业关键词。"
-                "city 表示用户明确限定的目标学校城市，例如杭州、宁波、南京。"
-                "strength 表示用户明确关注学科实力、专业排名、强校或重点学科时的偏好。"
-                "budget 表示用户明确提出的每年学费或费用上限，例如6000以内。"
-                "如果用户明确表示外省、全国或地域不限，province 输出 null。"
-                "如果用户明确表示只求稳、保守、不要冲，risk_preference 输出 conservative。"
-                "如果用户明确关注就业、薪资、行业、岗位或职业发展，employment_preference 输出 employment_outcome。"
-                "selected_subjects 只能从政治、历史、地理、物理、化学、生物、技术中抽取。"
+                'province 是考生所在省份，用于分数位次换算；target_provinces 是目标院校所在地，例如江浙沪输出["江苏","浙江","上海"]。'
+                "major 使用用户明说的专业关键词；city 只记录用户明确限定的目标城市。"
+                "strength 只在用户明确提到学科实力、专业排名、强校或重点学科时填写。"
+                "budget 表示每年学费或费用上限。selected_subjects 只能从政治、历史、地理、物理、化学、生物、技术中抽取。"
+                "用户表示外省、全国或地域不限时，target_provinces 可为空；不要把考生所在省份清空。"
+                "用户表示只求稳、保守、不要冲时，risk_preference 输出 conservative。"
+                "用户关注就业、薪资、行业、岗位或职业发展时，employment_preference 输出 employment_outcome。"
             )
         ),
-        SystemMessage(
-            content=f"当前已知约束: {json.dumps(current or {}, ensure_ascii=False)}"
+        HumanMessage(
+            content=(
+                "请抽取以下输入中的高考志愿约束，只返回 JSON：\n"
+                + json.dumps(
+                    {
+                        "当前已知约束": current or {},
+                        "用户最新消息": text,
+                    },
+                    ensure_ascii=False,
+                    default=str,
+                )
+            )
         ),
-        SystemMessage(content=f"用户最新消息: {text}"),
     ]
     try:
         response = await ainvoke_with_timeout(
@@ -355,7 +425,8 @@ async def _extract_constraints(text: str, current: dict[str, Any]) -> dict[str, 
             f"{type(exc).__name__}; using fallback extractor"
         )
         parsed = {}
-    return {**fallback, **{k: v for k, v in parsed.items() if v not in (None, "")}}
+    parsed = {k: v for k, v in parsed.items() if v not in (None, "", [])}
+    return _merge_extracted_constraints(fallback, parsed)
 
 
 async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
@@ -382,6 +453,10 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
     current = state.get("constraints", {})
     extracted = await _extract_constraints(text, current)
     constraints = _merge_constraints(current, extracted)
+    original_constraints = dict(state.get("original_constraints") or {})
+    for key, value in constraints.items():
+        if key not in original_constraints and value not in (None, "", []):
+            original_constraints[key] = value
 
     missing = []
     if not constraints.get("score"):
@@ -400,6 +475,7 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
         output = {
             "messages": [message],
             "constraints": constraints,
+            "original_constraints": original_constraints,
             "baseline_results": [],
             "score_waste": 0,
             "pareto_opportunities": {},
@@ -410,6 +486,10 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
             "latest_human_feedback": None,
             "latest_agent_probe_question": None,
             "latest_pareto_diff": None,
+            "latest_question_kind": None,
+            "latest_probe_target_dimension": None,
+            "force_final_recommendation": False,
+            "navigation_intent": None,
         }
         trace_event(
             "gatekeeper",
@@ -431,6 +511,7 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
     print(f"[gatekeeper] baseline={len(baseline)} score_waste={score_waste}")
     output = {
         "constraints": constraints,
+        "original_constraints": original_constraints,
         "baseline_results": baseline,
         "score_waste": score_waste,
         "pareto_opportunities": {},
@@ -441,6 +522,10 @@ async def gatekeeper_node(state: AgentState) -> dict[str, Any]:
         "latest_human_feedback": None,
         "latest_agent_probe_question": None,
         "latest_pareto_diff": None,
+        "latest_question_kind": None,
+        "latest_probe_target_dimension": None,
+        "force_final_recommendation": False,
+        "navigation_intent": None,
     }
     trace_event(
         "gatekeeper",

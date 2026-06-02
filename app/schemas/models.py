@@ -12,3 +12,4 @@ class UserConstraints(BaseModel):
 class ChatRequest(BaseModel):
     thread_id: str
     message: str
+    action: str | None = None

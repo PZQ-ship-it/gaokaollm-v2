@@ -1,9 +1,10 @@
+import ast
 import json
 import os
 import re
 from typing import Any
 
-from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.types import interrupt
 
 from app.core.llm_client import (
@@ -24,6 +25,12 @@ COMPACT_FIELDS = (
     "major_name",
     "min_score",
     "min_rank",
+    "subject_requirement",
+    "requirement_normalized",
+    "requirement_type",
+    "is_985",
+    "is_211",
+    "is_double_first_class",
     "tier",
     "ranking",
     "risk_level",
@@ -60,6 +67,10 @@ COMPACT_FIELDS = (
     "target_region_name",
     "region_tree_confidence",
     "region_tree_evidence",
+    "major_similarity_score",
+    "major_similarity_target",
+    "major_similarity_method",
+    "major_similarity_label",
 )
 NEGOTIATION_VARIANCE_THRESHOLD = 1.5
 MAX_NEGOTIATION_TURNS = 3
@@ -78,18 +89,111 @@ OPPORTUNITY_KEYS = (
 )
 
 GLOBAL_BASELINE_PROBE = "probe_global_baseline"
-PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
+PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo", "risk")
+RELAXABLE_COST_DIMENSIONS = ("geo", "major", "tuition", "risk")
+BENEFIT_ONLY_DIMENSIONS = ("school", "quality")
+PROBE_COST_DIMENSIONS = {
+    "major_geo_relax": ("geo", "major"),
+    "geo_relax": ("geo",),
+    "city_relax": ("geo",),
+    "region_tree_relax": ("geo",),
+    "major_relax": ("major",),
+    "tuition_value_relax": ("tuition",),
+    "risk_band_relax": ("risk",),
+    "major_quality_relax": ("major", "geo", "tuition"),
+    "employment_outcome_relax": ("major", "geo"),
+    "strength_relax": ("geo", "major", "tuition", "risk"),
+}
+PROBE_BENEFIT_DIMENSIONS = {
+    "major_geo_relax": ("school", "quality", "risk"),
+    "geo_relax": ("school", "quality", "major", "risk"),
+    "city_relax": ("school", "quality", "major", "risk"),
+    "region_tree_relax": ("school", "quality", "major", "risk"),
+    "major_relax": ("school", "quality", "geo", "risk"),
+    "tuition_value_relax": ("school", "quality", "major", "risk"),
+    "risk_band_relax": ("school", "quality", "major"),
+    "major_quality_relax": ("quality", "school", "risk"),
+    "employment_outcome_relax": ("quality", "school", "major"),
+    "strength_relax": ("school", "quality", "major", "risk"),
+}
+QUESTION_KIND_TRADEOFF = "tradeoff"
+QUESTION_KIND_NO_SIGNIFICANT_TRADEOFF = "no_significant_tradeoff"
+QUESTION_KIND_FINALIZE_OFFER = "finalize_offer"
 GLOBAL_BASELINE_BUCKETS = ("reach", "match", "safety")
 DIMENSION_LABELS = {
-    "school": "学校层次(school)",
-    "major": "专业匹配(major)",
-    "tuition": "学费预算(tuition)",
-    "quality": "培养质量(quality)",
-    "geo": "地域距离(geo)",
+    "school": "学校层次",
+    "major": "专业匹配",
+    "tuition": "学费预算",
+    "quality": "学科与培养质量",
+    "geo": "地域范围",
+    "risk": "录取风险弹性",
+}
+USER_DIMENSION_LABELS = {
+    **DIMENSION_LABELS,
+    "school": "学校平台与综合排名证据",
+}
+
+
+def _user_dimension_label(dimension: str) -> str:
+    return USER_DIMENSION_LABELS.get(
+        dimension, DIMENSION_LABELS.get(dimension, dimension)
+    )
+
+
+OPPORTUNITY_RELAXATION_LABELS = {
+    "major_geo_relax": "专业或地域边界",
+    "tuition_value_relax": "学费预算",
+    "major_quality_relax": "地域或专业细分",
+    "employment_outcome_relax": "专业/地域细节",
+    "region_tree_relax": "地域圈层",
+    "risk_band_relax": "风险偏好",
+    "strength_relax": "非核心条件",
+    "geo_relax": "地域范围",
+    "city_relax": "城市范围",
+    "major_relax": "专业邻近度",
+}
+OPPORTUNITY_RELAXATION_BENEFITS = {
+    "major_geo_relax": "学校平台标签、综合排名或培养质量上的可比变化",
+    "tuition_value_relax": "学校平台标签、综合排名或培养质量上的可比变化",
+    "major_quality_relax": "更高学科质量、评级或专业排名",
+    "employment_outcome_relax": "更强就业画像",
+    "region_tree_relax": "学校平台标签、综合排名或地域替代上的可比变化",
+    "risk_band_relax": "更完整的冲稳保组合",
+    "strength_relax": "学校平台标签或综合排名上的可比变化",
+    "geo_relax": "学校平台标签、综合排名或录取余量",
+    "city_relax": "更多可比较候选",
+    "major_relax": "学校平台标签、综合排名或风险收益",
 }
 
 # Backward-compatible test hook retained for older negotiator tests.
 get_chat_model = get_structured_chat_model
+
+
+async def _ainvoke_text_required(
+    llm: Any,
+    prompt: list[Any],
+    *,
+    timeout: float,
+    label: str,
+) -> str:
+    response = await ainvoke_with_timeout(
+        llm,
+        prompt,
+        timeout=timeout,
+        label=label,
+    )
+    content = str(getattr(response, "content", response)).strip()
+    if not content:
+        response_meta = getattr(response, "response_metadata", None) or {}
+        additional_kwargs = getattr(response, "additional_kwargs", None) or {}
+        meta_keys = sorted(str(key) for key in response_meta.keys())[:8]
+        additional_keys = sorted(str(key) for key in additional_kwargs.keys())[:8]
+        raise RuntimeError(
+            f"{label} returned empty content "
+            f"(response_metadata_keys={meta_keys}, additional_kwargs_keys={additional_keys})."
+        )
+    return content
+
 
 MAJOR_NOTE_PATTERN = re.compile(
     r"[\(（][^()（）]*(?:学院|校区|班|方向)[^()（）]*[\)）]"
@@ -128,49 +232,388 @@ def _compact(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _score_text(row: dict[str, Any]) -> str:
-    parts = [
-        str(row.get("school") or row.get("school_name") or ""),
-        f"({row.get('province') or row.get('school_province') or ''}/{row.get('city') or row.get('school_city') or ''})",
-        _display_major(row.get("major") or row.get("major_name") or ""),
-        f"min_score={row.get('min_score')}",
-    ]
-    if row.get("min_rank") is not None:
-        parts.append(f"min_rank={row.get('min_rank')}")
-    if row.get("tier") is not None:
-        parts.append(f"tier={row.get('tier')}")
-    if row.get("ranking") is not None:
-        parts.append(f"ranking={row.get('ranking')}")
-    return " ".join(part for part in parts if part)
+    return _candidate_evidence_text(row, compact=True)
 
 
 def _join(rows: list[dict[str, Any]], *, limit: int = 3) -> str:
     if not rows:
-        return "no verified option"
-    return "；".join(_score_text(row) for row in rows[:limit])
+        return "暂无可核验候选"
+    return "；".join(_candidate_evidence_text(row) for row in rows[:limit])
 
 
-def _candidate_evidence_text(row: dict[str, Any]) -> str:
-    parts: list[str] = [_score_text(row)]
-    for key in (
-        "score_margin",
-        "rank_gap",
-        "risk_level",
-        "tuition",
-        "tuition_delta",
-        "quality_score",
-        "quality_gain",
-        "best_rating",
-        "best_major_rank",
-        "outcome_score",
-        "outcome_gain",
-        "employment_rank",
-        "top_industry",
-        "salary_distribution",
-    ):
-        value = row.get(key)
-        if value not in (None, ""):
-            parts.append(f"{key}={value}")
-    return " ".join(parts)
+def _location_text(row: dict[str, Any]) -> str:
+    province = _short_display(
+        _first_present(row, ("school_province", "province")) or "",
+        max_len=16,
+    )
+    city = _short_display(
+        _first_present(row, ("school_city", "city")) or "", max_len=16
+    )
+    if province and city:
+        return f"{province}/{city}"
+    return province or city or "所在地待确认"
+
+
+def _school_level_text(row: dict[str, Any]) -> str:
+    tags: list[str] = []
+    explicit = _first_present(
+        row, ("school_tier", "school_level", "tier_label", "education_tier")
+    )
+    if explicit is not None:
+        text = str(explicit).strip()
+        if (
+            text
+            and text not in {"未给出", "None", "null"}
+            and "tier" not in text.lower()
+        ):
+            tags.append(text)
+    if bool(row.get("is_985")):
+        tags.append("985")
+    if bool(row.get("is_211")):
+        tags.append("211")
+    if bool(row.get("is_double_first_class")):
+        tags.append("双一流")
+    if not tags and row.get("tier") is not None:
+        try:
+            tier = int(float(row["tier"]))
+        except (TypeError, ValueError):
+            tier = 0
+        if tier >= 4:
+            tags.append("985 层次")
+        elif tier >= 3:
+            tags.append("211/双一流层次")
+        elif tier >= 2:
+            tags.append("重点本科层次")
+        elif tier >= 1:
+            tags.append("普通本科层次")
+    return " / ".join(dict.fromkeys(tags)) if tags else "学校层级待确认"
+
+
+def _safe_float(value: Any) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _ranking_value(row: dict[str, Any]) -> float | None:
+    return _safe_float(_first_present(row, ("ranking",)))
+
+
+def _school_tier_value(row: dict[str, Any]) -> float | None:
+    if bool(row.get("is_985")):
+        return 4.0
+    if bool(row.get("is_211")) or bool(row.get("is_double_first_class")):
+        return 3.0
+    return _safe_float(row.get("tier"))
+
+
+def _school_evidence_comparison(
+    option_a: dict[str, Any],
+    option_b: dict[str, Any],
+) -> dict[str, Any]:
+    title_a = _option_title(option_a, "当前候选")
+    title_b = _option_title(option_b, "放宽候选")
+    level_a = _school_level_text(option_a)
+    level_b = _school_level_text(option_b)
+    tier_a = _school_tier_value(option_a)
+    tier_b = _school_tier_value(option_b)
+    ranking_a = _ranking_value(option_a)
+    ranking_b = _ranking_value(option_b)
+
+    platform_relation = "insufficient"
+    if tier_a is not None and tier_b is not None:
+        if tier_b > tier_a:
+            platform_relation = "b_higher"
+        elif tier_b < tier_a:
+            platform_relation = "b_lower"
+        else:
+            platform_relation = "similar"
+    elif level_a != "学校层级待确认" or level_b != "学校层级待确认":
+        platform_relation = "evidence_only"
+
+    ranking_relation = "insufficient"
+    if ranking_a is not None and ranking_b is not None:
+        if ranking_b < ranking_a:
+            ranking_relation = "b_better"
+        elif ranking_b > ranking_a:
+            ranking_relation = "b_worse"
+        else:
+            ranking_relation = "similar"
+    elif ranking_a is not None or ranking_b is not None:
+        ranking_relation = "evidence_only"
+
+    parts: list[str] = []
+    if platform_relation == "b_higher":
+        parts.append(
+            f"{title_b} 的学校平台标签更突出（{level_b}；参照项为 {level_a}）。"
+        )
+    elif platform_relation == "b_lower":
+        parts.append(
+            f"{title_b} 的学校平台标签不占优（{level_b}；参照项为 {level_a}）。"
+        )
+    elif platform_relation == "similar":
+        parts.append(f"两边学校平台标签接近（{level_a}）。")
+    elif platform_relation == "evidence_only":
+        parts.append(f"学校平台标签：{title_a} 为 {level_a}，{title_b} 为 {level_b}。")
+
+    if ranking_relation == "b_better":
+        parts.append(
+            f"{title_b} 的综合排名参考更靠前（第 {_format_numeric(ranking_b)} 名；参照项约第 {_format_numeric(ranking_a)} 名）。"
+        )
+    elif ranking_relation == "b_worse":
+        parts.append(
+            f"{title_b} 的综合排名参考不比参照项靠前（第 {_format_numeric(ranking_b)} 名；参照项约第 {_format_numeric(ranking_a)} 名）。"
+        )
+    elif ranking_relation == "similar":
+        parts.append(f"两边综合排名参考接近（约第 {_format_numeric(ranking_a)} 名）。")
+    elif ranking_relation == "evidence_only":
+        if ranking_a is not None:
+            parts.append(f"{title_a} 综合排名参考第 {_format_numeric(ranking_a)} 名。")
+        if ranking_b is not None:
+            parts.append(f"{title_b} 综合排名参考第 {_format_numeric(ranking_b)} 名。")
+
+    caution = ""
+    if platform_relation == "b_higher" and ranking_relation == "b_worse":
+        caution = (
+            "这里不能说成“综合排名更好”；更准确的是平台标签更突出，但排名参考不占优。"
+        )
+    elif platform_relation == "b_higher" and ranking_relation in {
+        "insufficient",
+        "evidence_only",
+    }:
+        caution = "这里只能说平台标签更突出，不能推断综合排名也更好。"
+    elif ranking_relation == "b_better" and platform_relation not in {
+        "b_higher",
+        "similar",
+    }:
+        caution = "这里主要是综合排名参考更靠前，不等同于学校平台标签更高。"
+
+    brief = (
+        "".join(parts)
+        if parts
+        else "学校平台标签与综合排名证据不足，不能作强收益表述。"
+    )
+    if caution:
+        brief = f"{brief}{caution}"
+    return {
+        "platform_relation": platform_relation,
+        "ranking_relation": ranking_relation,
+        "platform_a": level_a,
+        "platform_b": level_b,
+        "ranking_a": ranking_a,
+        "ranking_b": ranking_b,
+        "brief": brief,
+        "caution": caution,
+    }
+
+
+def _subject_requirement_text(row: dict[str, Any]) -> str:
+    value = _first_present(row, ("subject_requirement", "requirement_normalized"))
+    return str(value).strip() if value is not None else "选科要求待确认"
+
+
+def _tuition_text(row: dict[str, Any]) -> str:
+    tuition = _first_present(row, ("tuition", "tuition_fee"))
+    if tuition is None:
+        return "学费待确认"
+    return f"约 {_format_numeric(tuition)} 元/年"
+
+
+def _ranking_text(row: dict[str, Any]) -> str | None:
+    ranking = _first_present(row, ("ranking",))
+    if ranking is None:
+        return None
+    return f"综合排名参考第 {_format_numeric(ranking)} 名"
+
+
+def _major_quality_text(row: dict[str, Any]) -> str | None:
+    parts: list[str] = []
+    rating = _first_present(row, ("major_strength_rating", "best_rating"))
+    rank = _first_present(row, ("major_strength_rank", "best_major_rank"))
+    level = _first_present(row, ("major_strength_level", "quality_tier"))
+    if rating is not None:
+        parts.append(f"评级 {rating}")
+    if rank is not None:
+        parts.append(f"学科/专业排名参考第 {_format_numeric(rank)} 名")
+    if level is not None:
+        parts.append(f"层级 {level}")
+    if not parts and row.get("quality_score") is not None:
+        parts.append("培养质量画像有可比证据")
+    if row.get("has_key_major"):
+        parts.append("含重点专业证据")
+    if row.get("has_featured_major"):
+        parts.append("含特色专业证据")
+    return "，".join(parts) if parts else None
+
+
+def _major_fit_text(row: dict[str, Any]) -> str | None:
+    score = _safe_float(row.get("major_similarity_score"))
+    if score is None:
+        return None
+    target = str(row.get("major_similarity_target") or "").strip()
+    label = str(row.get("major_similarity_label") or "").strip()
+    score_text = f"约 {round(max(0.0, min(1.0, score)) * 100)}%"
+    parts = [f"专业贴合度{score_text}"]
+    if label:
+        parts.append(label)
+    if target:
+        parts.append(f"相对“{_short_display(target, max_len=18)}”")
+    return "，".join(parts)
+
+
+def _employment_text(row: dict[str, Any]) -> str | None:
+    parts: list[str] = []
+    if row.get("employment_rank_desc"):
+        parts.append(str(row["employment_rank_desc"]))
+    elif row.get("employment_rank") is not None:
+        parts.append(f"就业排名参考第 {_format_numeric(row['employment_rank'])} 名")
+    if row.get("top_industry"):
+        parts.append(f"主要行业：{row['top_industry']}")
+    if row.get("salary_distribution"):
+        parts.append(f"薪资画像：{row['salary_distribution']}")
+    if not parts and row.get("outcome_score") is not None:
+        parts.append("就业画像有可比证据")
+    return "，".join(parts) if parts else None
+
+
+def _budget_delta_text(row: dict[str, Any]) -> str | None:
+    delta = _first_present(row, ("tuition_delta", "budget_delta"))
+    if delta is None:
+        return None
+    try:
+        number = float(delta)
+    except (TypeError, ValueError):
+        return f"相对预算差额约 {delta} 元/年"
+    if abs(number) < 1e-9:
+        return "学费与预算基本持平"
+    direction = "高于" if number > 0 else "低于"
+    return f"学费约{direction}预算 {_format_numeric(abs(number))} 元/年"
+
+
+def _candidate_evidence_text(row: dict[str, Any], *, compact: bool = False) -> str:
+    school = _short_display(
+        _first_present(row, ("school_name", "school")) or "未知学校",
+        max_len=26,
+    )
+    major = _display_major(_first_present(row, ("major_name", "major")) or "专业待确认")
+    parts: list[str] = [f"{school}，{major}"]
+    parts.append(f"所在地 {_location_text(row)}")
+    if row.get("min_score") is not None:
+        parts.append(f"最低录取分 {_format_numeric(row['min_score'])}")
+    if row.get("min_rank") is not None:
+        parts.append(f"最低录取位次 {_format_numeric(row['min_rank'])}")
+    if not compact:
+        parts.append(_subject_requirement_text(row))
+    if row.get("tuition") is not None or row.get("tuition_fee") is not None:
+        parts.append(f"学费{_tuition_text(row)}")
+    if not compact:
+        parts.append(f"学校平台/标签 {_school_level_text(row)}")
+    ranking = _ranking_text(row)
+    if ranking:
+        parts.append(ranking)
+    if not compact:
+        quality = _major_quality_text(row)
+        if quality:
+            parts.append(f"学科/专业证据：{quality}")
+        major_fit = _major_fit_text(row)
+        if major_fit:
+            parts.append(major_fit)
+        employment = _employment_text(row)
+        if employment:
+            parts.append(f"就业画像：{employment}")
+    budget_delta = _budget_delta_text(row)
+    if budget_delta:
+        parts.append(budget_delta)
+    risk = _first_present(row, ("risk_label", "risk_level", "risk_bucket"))
+    if risk and str(risk) in {"reach", "match", "safety"}:
+        risk = {"reach": "冲", "match": "稳", "safety": "保"}[str(risk)]
+    if risk:
+        parts.append(f"风险标签 {risk}")
+    return "，".join(str(part) for part in parts if part)
+
+
+RAW_OUTPUT_REPLACEMENTS = {
+    "min_score": "最低录取分",
+    "min_rank": "最低录取位次",
+    "ranking": "综合排名参考",
+    "tuition_delta": "相对预算差额",
+    "quality_score": "培养质量画像参考",
+    "quality_gain": "培养质量提升",
+    "outcome_score": "就业画像参考",
+    "outcome_gain": "就业画像提升",
+    "score_margin": "分数余量",
+    "rank_gap": "位次差距",
+}
+
+
+def _extract_user_text_from_llm_output(value: Any) -> str:
+    if isinstance(value, dict):
+        for key in ("text", "question", "content", "message"):
+            text = value.get(key)
+            if isinstance(text, str) and text.strip():
+                return text
+        return str(value)
+    cleaned = str(value).strip()
+    if cleaned.startswith("{") and cleaned.endswith("}"):
+        for parser in (json.loads, ast.literal_eval):
+            try:
+                parsed = parser(cleaned)
+            except Exception:
+                continue
+            if isinstance(parsed, dict):
+                for key in ("text", "question", "content", "message"):
+                    text = parsed.get(key)
+                    if isinstance(text, str) and text.strip():
+                        return text
+                return str(parsed)
+        match = re.search(
+            r"""['"](?:text|question|content|message)['"]\s*:\s*(['"])(.*?)\1""",
+            cleaned,
+            flags=re.DOTALL,
+        )
+        if match:
+            return match.group(2).strip()
+    return cleaned
+
+
+def _sanitize_user_output(text: str) -> str:
+    cleaned = _extract_user_text_from_llm_output(text)
+    cleaned = cleaned.replace("\\n", "\n")
+
+    def replace_tier(match: re.Match[str]) -> str:
+        tier_value = match.group(1)
+        return f"学校平台/标签：{_school_level_text({'tier': tier_value})}"
+
+    cleaned = re.sub(r"\btier\s*=\s*([0-9.]+)", replace_tier, cleaned)
+    cleaned = re.sub(r"\btier\s+([0-9.]+)", replace_tier, cleaned)
+    cleaned = re.sub(
+        r"\b(?:_implicit_utility|_semantic_score|_lexicographic_tier|"
+        r"_lexicographic_epsilon|semantic_score|utility|rank_ratio)\s*=\s*"
+        r"[-+]?\d+(?:\.\d+)?",
+        "",
+        cleaned,
+    )
+    cleaned = re.sub(
+        r"\bc/r\s*[:=]?\s*[-+]?\d+(?:\.\d+)?",
+        "",
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    for raw, label in RAW_OUTPUT_REPLACEMENTS.items():
+        cleaned = re.sub(rf"\b{re.escape(raw)}\s*=\s*", f"{label} ", cleaned)
+    cleaned = cleaned.replace("major_geo_relax", "专业或地域边界放宽")
+    cleaned = cleaned.replace("risk_band_relax", "冲稳保组合")
+    cleaned = cleaned.replace("tuition_value_relax", "学费预算放宽")
+    cleaned = cleaned.replace("major_quality_relax", "学科质量放宽")
+    cleaned = cleaned.replace("employment_outcome_relax", "就业结果放宽")
+    cleaned = cleaned.replace("region_tree_relax", "区域圈层放宽")
+    cleaned = cleaned.replace("geo_relax", "地域范围放宽")
+    cleaned = cleaned.replace("city_relax", "城市范围放宽")
+    cleaned = cleaned.replace("major_relax", "专业邻近度放宽")
+    cleaned = cleaned.replace("strength_relax", "学校实力优先放宽")
+    cleaned = cleaned.replace("chong/wen/bao", "冲稳保")
+    return cleaned
 
 
 def _total_variance(state: AgentState) -> float:
@@ -215,6 +658,53 @@ def _all_opportunity_rows(opportunities: dict[str, Any]) -> list[dict[str, Any]]
     return rows
 
 
+def _row_has_value(row: dict[str, Any], key: str) -> bool:
+    value = row.get(key)
+    return value is not None and str(value).strip() != ""
+
+
+def _merge_candidate_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    merged: dict[tuple[str, str], dict[str, Any]] = {}
+    order: list[tuple[str, str]] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        key = _candidate_identity(row)
+        if not any(key):
+            continue
+        current = merged.get(key)
+        if current is None:
+            merged[key] = dict(row)
+            order.append(key)
+            continue
+        for field, value in row.items():
+            if value is None or str(value).strip() == "":
+                continue
+            if (
+                field == "_opportunity_key"
+                and current.get(field) == GLOBAL_BASELINE_PROBE
+            ):
+                current[field] = value
+                continue
+            if not _row_has_value(current, field):
+                current[field] = value
+                continue
+            if field == "tuition" and not _row_has_value(current, "tuition"):
+                current[field] = value
+        current_utility = current.get("_implicit_utility")
+        row_utility = row.get("_implicit_utility")
+        try:
+            if row_utility is not None and (
+                current_utility is None or float(row_utility) > float(current_utility)
+            ):
+                current["_implicit_utility"] = row_utility
+                if isinstance(row.get("_phi_features"), dict):
+                    current["_phi_features"] = row["_phi_features"]
+        except (TypeError, ValueError):
+            pass
+    return [merged[key] for key in order]
+
+
 def _utility_sort_key(row: dict[str, Any]) -> tuple[float, int, str]:
     utility = row.get("_implicit_utility")
     try:
@@ -244,14 +734,147 @@ def _current_probe_name(state: AgentState) -> str:
     return f"probe_{probe}" if probe else ""
 
 
+def _current_opportunity_key(state: AgentState) -> str:
+    probe_name = _current_probe_name(state)
+    if probe_name.startswith("probe_"):
+        return probe_name.removeprefix("probe_")
+    return probe_name
+
+
+def _opportunity_rows_for_key(
+    opportunities: dict[str, Any],
+    key: str,
+) -> list[dict[str, Any]]:
+    if not key:
+        return []
+    rows: list[dict[str, Any]] = []
+    for row in _iter_rows(opportunities.get(key)):
+        if isinstance(row, dict):
+            enriched = dict(row)
+            enriched.setdefault("_opportunity_key", key)
+            rows.append(enriched)
+    return sorted(_merge_candidate_rows(rows), key=_utility_sort_key, reverse=True)
+
+
 def _candidate_rows(state: AgentState) -> list[dict[str, Any]]:
     explicit = state.get("candidates") or []
+    global_rows = _iter_rows(
+        (state.get("pareto_opportunities", {}) or {}).get("global_baseline")
+    )
+    baseline_rows = _iter_rows(state.get("baseline_results") or [])
     if explicit:
-        return _iter_rows(explicit)
-    return sorted(
-        _all_opportunity_rows(state.get("pareto_opportunities", {}) or {}),
-        key=_utility_sort_key,
-        reverse=True,
+        rows = [*_iter_rows(explicit), *global_rows, *baseline_rows]
+        deduped = _merge_candidate_rows(rows)
+        return sorted(deduped, key=_utility_sort_key, reverse=True)
+    rows = [
+        *_all_opportunity_rows(state.get("pareto_opportunities", {}) or {}),
+        *baseline_rows,
+    ]
+    deduped = _merge_candidate_rows(rows)
+    return sorted(deduped, key=_utility_sort_key, reverse=True)
+
+
+def _focused_candidate_rows(state: AgentState) -> list[dict[str, Any]]:
+    opportunities = state.get("pareto_opportunities", {}) or {}
+    if not isinstance(opportunities, dict):
+        return []
+    return _opportunity_rows_for_key(opportunities, _current_opportunity_key(state))
+
+
+def _anchor_candidate_rows(state: AgentState) -> list[dict[str, Any]]:
+    opportunities = state.get("pareto_opportunities", {}) or {}
+    accepted_rows = [
+        row
+        for row in _iter_rows(state.get("candidates") or [])
+        if row.get("_accepted_relaxation")
+    ]
+    global_rows: list[dict[str, Any]] = []
+    global_result = (
+        opportunities.get("global_baseline")
+        if isinstance(opportunities, dict)
+        else None
+    )
+    if isinstance(global_result, dict):
+        for bucket in GLOBAL_BASELINE_BUCKETS:
+            for row in _iter_rows(global_result.get(bucket) or []):
+                enriched = dict(row)
+                enriched.setdefault("risk_bucket", bucket)
+                global_rows.append(enriched)
+
+    current_rows = global_rows or _iter_rows(state.get("baseline_results") or [])
+    rows = [*accepted_rows, *current_rows]
+    deduped = _merge_candidate_rows([row for row in rows if isinstance(row, dict)])
+    return deduped[:9]
+
+
+def _new_challenger_rows(
+    challenger_rows: list[dict[str, Any]],
+    anchor_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    anchor_keys = {
+        _candidate_identity(row)
+        for row in anchor_rows
+        if isinstance(row, dict) and any(_candidate_identity(row))
+    }
+    return [
+        row
+        for row in challenger_rows
+        if isinstance(row, dict) and _candidate_identity(row) not in anchor_keys
+    ]
+
+
+def _unique_dimensions(dimensions: tuple[str, ...] | list[str]) -> tuple[str, ...]:
+    ordered: list[str] = []
+    for dimension in dimensions:
+        key = str(dimension or "").strip()
+        if key in PREFERENCE_KEYS and key not in ordered:
+            ordered.append(key)
+    return tuple(ordered)
+
+
+def _cost_dimensions_for_probe(
+    opportunity_key: str,
+    target_dimension: str | None,
+) -> tuple[str, ...]:
+    if opportunity_key in PROBE_COST_DIMENSIONS:
+        configured = PROBE_COST_DIMENSIONS[opportunity_key]
+        if target_dimension in configured:
+            return (str(target_dimension),)
+        return configured
+    if target_dimension in RELAXABLE_COST_DIMENSIONS:
+        return (str(target_dimension),)
+    return RELAXABLE_COST_DIMENSIONS
+
+
+def _available_cost_dimensions_for_state(
+    state: AgentState,
+    opportunity_key: str,
+    target_dimension: str | None,
+) -> tuple[str, ...]:
+    costs = _cost_dimensions_for_probe(opportunity_key, target_dimension)
+    blocked = {
+        str(item)
+        for item in (state.get("factual_blocked_dimensions") or [])
+        if str(item) in RELAXABLE_COST_DIMENSIONS
+    }
+    filtered = tuple(item for item in costs if item not in blocked)
+    return filtered or costs
+
+
+def _benefit_dimensions_for_probe(
+    opportunity_key: str,
+    target_dimension: str | None,
+    cost_dimensions: tuple[str, ...],
+) -> tuple[str, ...]:
+    preferred: list[str] = []
+    if target_dimension in BENEFIT_ONLY_DIMENSIONS:
+        preferred.append(str(target_dimension))
+    elif target_dimension in ("major", "risk"):
+        preferred.append(str(target_dimension))
+    preferred.extend(PROBE_BENEFIT_DIMENSIONS.get(opportunity_key, ()))
+    preferred.extend(("school", "quality", "major", "risk", "geo"))
+    return _unique_dimensions(
+        [dimension for dimension in preferred if dimension not in cost_dimensions]
     )
 
 
@@ -299,6 +922,10 @@ def _candidate_identity(row: dict[str, Any]) -> tuple[str, str]:
     return school, major
 
 
+def _same_display_option(a: dict[str, Any], b: dict[str, Any]) -> bool:
+    return bool(a and b and _candidate_identity(a) == _candidate_identity(b))
+
+
 def _candidate_school(row: dict[str, Any]) -> str:
     return str(row.get("school_name") or row.get("school") or "").strip()
 
@@ -308,7 +935,7 @@ def _same_visible_candidate(a: dict[str, Any], b: dict[str, Any]) -> bool:
     school_b = _candidate_school(b)
     if school_a and school_b and school_a == school_b:
         return True
-    return _candidate_identity(a) == _candidate_identity(b)
+    return _same_display_option(a, b)
 
 
 def select_max_divergence_pair(
@@ -381,14 +1008,66 @@ def select_forced_tradeoff_pair(
     top_k: int = 10,
     previous_delta_phi: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, float]]:
+    option_a, option_b, delta_phi, _cost, _benefit = select_constrained_tradeoff_pair(
+        candidates,
+        cost_dimensions=(cost_dimension,),
+        benefit_dimensions=tuple(
+            key for key in PREFERENCE_KEYS if key != cost_dimension
+        ),
+        top_k=top_k,
+        previous_delta_phi=previous_delta_phi,
+    )
+    return option_a, option_b, delta_phi
+
+
+def select_constrained_tradeoff_pair(
+    candidates: list[dict[str, Any]],
+    *,
+    cost_dimensions: tuple[str, ...],
+    benefit_dimensions: tuple[str, ...],
+    challenger_rows: list[dict[str, Any]] | None = None,
+    anchor_rows: list[dict[str, Any]] | None = None,
+    top_k: int = 10,
+    previous_delta_phi: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, float], str | None, str | None]:
     rows = sorted(
         [dict(row) for row in candidates if isinstance(row, dict)],
         key=_utility_sort_key,
         reverse=True,
     )
     if not rows:
-        return {}, {}, {key: 0.0 for key in PREFERENCE_KEYS}
-    option_a = rows[0]
+        return {}, {}, {key: 0.0 for key in PREFERENCE_KEYS}, None, None
+    costs = _unique_dimensions(
+        [
+            dimension
+            for dimension in cost_dimensions
+            if dimension in RELAXABLE_COST_DIMENSIONS
+        ]
+    )
+    if not costs:
+        costs = RELAXABLE_COST_DIMENSIONS
+    benefits = _unique_dimensions(
+        [dimension for dimension in benefit_dimensions if dimension not in costs]
+    )
+    if not benefits:
+        benefits = tuple(key for key in PREFERENCE_KEYS if key not in costs)
+
+    anchors = sorted(
+        [dict(row) for row in (anchor_rows or rows) if isinstance(row, dict)],
+        key=_utility_sort_key,
+        reverse=True,
+    )[:top_k]
+    challengers = sorted(
+        [dict(row) for row in (challenger_rows or rows) if isinstance(row, dict)],
+        key=_utility_sort_key,
+        reverse=True,
+    )[:top_k]
+    if not anchors:
+        anchors = rows[:top_k]
+    if not challengers:
+        challengers = rows[:top_k]
+
+    default_a = anchors[0] if anchors else rows[0]
     previous: dict[str, float] = {}
     if isinstance(previous_delta_phi, dict):
         for key in PREFERENCE_KEYS:
@@ -399,40 +1078,77 @@ def select_forced_tradeoff_pair(
 
     best_b: dict[str, Any] = {}
     best_delta = {key: 0.0 for key in PREFERENCE_KEYS}
+    best_cost: str | None = None
+    best_benefit: str | None = None
     best_score = -1.0
-    for candidate in rows[1:top_k]:
-        if _same_visible_candidate(option_a, candidate):
-            continue
-        delta = _phi_delta_b_minus_a(option_a, candidate)
-        try:
-            cost_delta = float(delta.get(cost_dimension, 0.0))
-        except (TypeError, ValueError):
-            cost_delta = 0.0
-        positive_gain = max(
-            (
-                float(value)
-                for key, value in delta.items()
-                if key != cost_dimension
-                and isinstance(value, (int, float))
-                and float(value) > 0.05
-            ),
-            default=0.0,
-        )
-        if cost_delta >= -0.05 or positive_gain <= 0.05:
-            continue
-        if previous:
-            repeat_distance = sum(
-                abs(delta.get(key, 0.0) - previous.get(key, 0.0))
-                for key in PREFERENCE_KEYS
-            )
-            if repeat_distance < 0.08:
+    option_a = default_a
+    for baseline in anchors:
+        for candidate in challengers:
+            if baseline is candidate or _same_visible_candidate(baseline, candidate):
                 continue
-        score = abs(cost_delta) + positive_gain + sum(abs(v) for v in delta.values())
-        if score > best_score:
-            best_b = candidate
-            best_delta = delta
-            best_score = score
-    return option_a, best_b, best_delta
+            delta = _phi_delta_b_minus_a(baseline, candidate)
+            if previous:
+                repeat_distance = sum(
+                    abs(delta.get(key, 0.0) - previous.get(key, 0.0))
+                    for key in PREFERENCE_KEYS
+                )
+                if repeat_distance < 0.08:
+                    continue
+            for cost_dimension in costs:
+                if not (
+                    _has_dimension_evidence(baseline, cost_dimension)
+                    and _has_dimension_evidence(candidate, cost_dimension)
+                ):
+                    continue
+                try:
+                    cost_delta = float(delta.get(cost_dimension, 0.0))
+                except (TypeError, ValueError):
+                    cost_delta = 0.0
+                if cost_delta >= -0.05:
+                    continue
+                gains: list[tuple[str, float]] = []
+                for benefit_dimension in benefits:
+                    if benefit_dimension == cost_dimension:
+                        continue
+                    if not (
+                        _has_dimension_evidence(baseline, benefit_dimension)
+                        and _has_dimension_evidence(candidate, benefit_dimension)
+                    ):
+                        continue
+                    try:
+                        gain = float(delta.get(benefit_dimension, 0.0))
+                    except (TypeError, ValueError):
+                        gain = 0.0
+                    if gain > 0.05:
+                        gains.append((benefit_dimension, gain))
+                if not gains:
+                    continue
+                benefit_dimension, positive_gain = max(gains, key=lambda item: item[1])
+                baseline_utility = 0.0
+                candidate_utility = 0.0
+                try:
+                    baseline_utility = float(baseline.get("_implicit_utility") or 0.0)
+                except (TypeError, ValueError):
+                    baseline_utility = 0.0
+                try:
+                    candidate_utility = float(candidate.get("_implicit_utility") or 0.0)
+                except (TypeError, ValueError):
+                    candidate_utility = 0.0
+                score = (
+                    candidate_utility
+                    + 0.25 * baseline_utility
+                    + 2.0 * positive_gain
+                    + abs(cost_delta)
+                    + 0.05 * sum(abs(v) for v in delta.values())
+                )
+                if score > best_score:
+                    option_a = baseline
+                    best_b = candidate
+                    best_delta = delta
+                    best_cost = cost_dimension
+                    best_benefit = benefit_dimension
+                    best_score = score
+    return option_a, best_b, best_delta, best_cost, best_benefit
 
 
 def _pareto_prompt_payload(
@@ -445,6 +1161,31 @@ def _pareto_prompt_payload(
         "option_b": _compact([option_b])[0] if option_b else {},
         "delta_phi_b_minus_a": delta_phi,
     }
+
+
+def _tradeoff_pair_payload(
+    option_a: dict[str, Any],
+    option_b: dict[str, Any],
+    delta_phi: dict[str, float] | None,
+    *,
+    opportunity_key: str | None = None,
+    cost_dimension: str | None = None,
+    question_kind: str | None = None,
+) -> dict[str, Any] | None:
+    if not option_a and not option_b:
+        return None
+    diff = {key: float((delta_phi or {}).get(key, 0.0)) for key in PREFERENCE_KEYS}
+    pair = {
+        "option_a": dict(option_a) if option_a else {},
+        "option_b": dict(option_b) if option_b else {},
+        "delta_phi_b_minus_a": diff,
+        "opportunity_key": opportunity_key or option_b.get("_opportunity_key") or "",
+        "cost_dimension": cost_dimension,
+        "question_kind": question_kind,
+    }
+    if pair["option_b"] and pair["opportunity_key"]:
+        pair["option_b"].setdefault("_opportunity_key", pair["opportunity_key"])
+    return pair
 
 
 def _first_present(row: dict[str, Any], keys: tuple[str, ...]) -> Any:
@@ -470,8 +1211,9 @@ def _phi_text(row: dict[str, Any], dimension: str) -> str:
     if isinstance(features, dict):
         value = features.get(dimension)
         if value is not None:
-            return f"效用特征={_format_numeric(value)}"
-    return "候选字段缺失"
+            label = _user_dimension_label(dimension)
+            return f"{label}有可比较证据"
+    return "该项证据待确认"
 
 
 def _dimension_value_text(row: dict[str, Any], dimension: str) -> str:
@@ -480,16 +1222,13 @@ def _dimension_value_text(row: dict[str, Any], dimension: str) -> str:
             _first_present(row, ("school_name", "school")) or "未知学校",
             max_len=24,
         )
-        tier = _first_present(
-            row, ("school_tier", "school_level", "tier_label", "tier")
-        )
-        return f"{school}，层次={tier}" if tier is not None else str(school)
+        level = _school_level_text(row)
+        return f"{school}，{level}" if level != "学校层级待确认" else str(school)
     if dimension == "major":
         major = _display_major(
             _first_present(row, ("major_name", "major")) or "未知专业"
         )
-        level = _first_present(row, ("major_relax_level", "relaxation_stage"))
-        return f"{major}，放宽层级={level}" if level is not None else str(major)
+        return str(major)
     if dimension == "geo":
         province = _short_display(
             _first_present(row, ("school_province", "province")) or "未知省份",
@@ -497,16 +1236,15 @@ def _dimension_value_text(row: dict[str, Any], dimension: str) -> str:
         )
         raw_city = _first_present(row, ("school_city", "city"))
         city = _short_display(raw_city, max_len=16) if raw_city else None
-        level = _first_present(row, ("geo_relax_level", "region_relax_level"))
         location = f"{province}/{city}" if city else str(province)
-        return f"{location}，地域放宽层级={level}" if level is not None else location
+        return location
     if dimension == "tuition":
         tuition = _first_present(row, ("tuition", "tuition_fee"))
         delta = _first_present(row, ("tuition_delta", "budget_delta"))
         if tuition is not None and delta is not None:
-            return f"学费={_format_numeric(tuition)}，预算差={_format_numeric(delta)}"
+            return f"{_tuition_text(row)}，{_budget_delta_text(row)}"
         if tuition is not None:
-            return f"学费={_format_numeric(tuition)}"
+            return _tuition_text(row)
         return _phi_text(row, dimension)
     if dimension == "quality":
         quality = _first_present(
@@ -517,9 +1255,9 @@ def _dimension_value_text(row: dict[str, Any], dimension: str) -> str:
         )
         parts = []
         if quality is not None:
-            parts.append(f"质量分/评级={_format_numeric(quality)}")
+            parts.append(f"质量或评级参考 {_format_numeric(quality)}")
         if ranking is not None:
-            parts.append(f"排名={_format_numeric(ranking)}")
+            parts.append(f"排名参考第 {_format_numeric(ranking)} 名")
         return "，".join(parts) if parts else _phi_text(row, dimension)
     return _phi_text(row, dimension)
 
@@ -553,9 +1291,8 @@ def _delta_effect_text(delta_phi: dict[str, float], dimension: str) -> str:
     except (TypeError, ValueError):
         delta = 0.0
     if abs(delta) < 0.005:
-        return "特征差值接近 0"
-    direction = "提升" if delta > 0 else "下降"
-    return f"{direction} {abs(delta):.2f} 个标准化效用点"
+        return "两边差异不明显"
+    return "这一维度吸引力更强" if delta > 0 else "这一维度需要让步"
 
 
 def _choose_benefit_dimension(
@@ -580,15 +1317,29 @@ def _choose_cost_dimension(
     diff: dict[str, Any],
     forced_cost_dimension: str | None,
 ) -> str:
-    if forced_cost_dimension in PREFERENCE_KEYS:
+    if forced_cost_dimension in RELAXABLE_COST_DIMENSIONS:
         return str(forced_cost_dimension)
     negative = [
         (key, float(value))
         for key, value in diff.items()
-        if isinstance(value, (int, float)) and float(value) < -0.05
+        if key in RELAXABLE_COST_DIMENSIONS
+        and isinstance(value, (int, float))
+        and float(value) < -0.05
     ]
     if negative:
         return min(negative, key=lambda item: item[1])[0]
+    return "geo"
+
+
+def _fallback_cost_dimension_for_probe(
+    opportunity_key: str,
+    target_dimension: str | None,
+) -> str:
+    costs = _cost_dimensions_for_probe(opportunity_key, target_dimension)
+    if costs:
+        return costs[0]
+    if target_dimension in RELAXABLE_COST_DIMENSIONS:
+        return str(target_dimension)
     return "geo"
 
 
@@ -599,23 +1350,160 @@ def _has_real_benefit(diff: dict[str, Any], cost: str) -> bool:
     )
 
 
+def _has_dimension_evidence(row: dict[str, Any], dimension: str) -> bool:
+    if not isinstance(row, dict):
+        return False
+    if dimension == "tuition":
+        return _first_present(row, ("tuition", "tuition_fee")) is not None
+    if dimension == "school":
+        return bool(
+            _first_present(
+                row,
+                (
+                    "school_name",
+                    "school",
+                    "school_tier",
+                    "school_level",
+                    "tier_label",
+                    "education_tier",
+                    "tier",
+                    "ranking",
+                ),
+            )
+            is not None
+        )
+    if dimension == "major":
+        return bool(_first_present(row, ("major_name", "major")) is not None)
+    if dimension == "geo":
+        return bool(
+            _first_present(row, ("school_province", "province", "school_city", "city"))
+            is not None
+        )
+    if dimension == "quality":
+        return bool(
+            _first_present(
+                row,
+                (
+                    "quality_score",
+                    "major_strength_rating",
+                    "best_rating",
+                    "major_strength_rank",
+                    "best_major_rank",
+                ),
+            )
+            is not None
+        )
+    if dimension == "risk":
+        return bool(
+            _first_present(
+                row,
+                ("risk_label", "risk_level", "risk_bucket", "min_rank", "rank_gap"),
+            )
+            is not None
+        )
+    return True
+
+
+def _has_real_tradeoff(
+    option_a: dict[str, Any],
+    option_b: dict[str, Any],
+    diff: dict[str, Any],
+    cost: str,
+) -> bool:
+    if not option_a or not option_b or _same_display_option(option_a, option_b):
+        return False
+    if not (
+        _has_dimension_evidence(option_a, cost)
+        and _has_dimension_evidence(option_b, cost)
+    ):
+        return False
+    try:
+        cost_delta = float(diff.get(cost, 0.0))
+    except (TypeError, ValueError):
+        cost_delta = 0.0
+    if cost_delta > -0.05:
+        return False
+    return any(
+        key != cost
+        and isinstance(value, (int, float))
+        and float(value) > 0.05
+        and _has_dimension_evidence(option_a, key)
+        and _has_dimension_evidence(option_b, key)
+        for key, value in diff.items()
+    )
+
+
+def _classify_question_kind(
+    option_a: dict[str, Any],
+    option_b: dict[str, Any],
+    delta_phi: dict[str, float],
+    forced_cost_dimension: str | None,
+) -> str:
+    cost = _choose_cost_dimension(delta_phi or {}, forced_cost_dimension)
+    if _has_real_tradeoff(option_a, option_b, delta_phi or {}, cost):
+        return QUESTION_KIND_TRADEOFF
+    return QUESTION_KIND_NO_SIGNIFICANT_TRADEOFF
+
+
+def _no_significant_tradeoff_question(
+    option_a: dict[str, Any],
+    option_b: dict[str, Any],
+    delta_phi: dict[str, float],
+    *,
+    forced_cost_dimension: str | None = None,
+    feedback_analysis: dict[str, Any] | None = None,
+) -> str:
+    diff = delta_phi or {}
+    cost = _choose_cost_dimension(diff, forced_cost_dimension)
+    cost_label = _user_dimension_label(cost)
+    alternatives = _alternative_tradeoff_text(cost)
+    evidence = ""
+    if option_a:
+        current = _dimension_value_text(option_a, cost)
+        title = _option_title(option_a, "当前候选")
+        evidence = f"以 {title} 为参照，当前只看到{cost_label}边界在「{current}」。"
+    if option_b and not _same_visible_candidate(option_a, option_b):
+        title_b = _option_title(option_b, "另一候选")
+        transition = _dimension_transition_text(option_a, option_b, cost, verb="变化")
+        evidence = f"对照 {title_b} 后，主要变化仍集中在{cost_label}：{transition}。"
+    feedback = feedback_analysis if isinstance(feedback_analysis, dict) else {}
+    prior_intent = str(feedback.get("intent") or "").strip().lower()
+    prior_sentence = ""
+    if prior_intent == "accept":
+        prior_dimension = str(feedback.get("target_dimension") or "").strip()
+        prior_label = _user_dimension_label(prior_dimension)
+        if prior_label:
+            prior_sentence = f"你刚才接受的“{prior_label}”放宽会继续保留在当前比较里。"
+    elif prior_intent == "reject":
+        prior_dimension = str(feedback.get("target_dimension") or cost).strip()
+        prior_label = _user_dimension_label(prior_dimension)
+        prior_sentence = f"你刚才保留的“{prior_label}”底线我会继续尊重。"
+    return (
+        f"{prior_sentence}"
+        f"这一轮没有看到值得为了{cost_label}让步的明显收益。"
+        f"{evidence}"
+        "我建议先不把这条作为偏好调整依据。"
+        f"要直接看最终推荐，还是换到{alternatives}方向再查一轮？"
+    )
+
+
 def _locked_preference_text(dimension: str) -> str:
     return {
         "major": "专业不偏离",
         "geo": "地域不越界",
         "tuition": "预算不突破",
-        "school": "学校层次不下降",
+        "school": "学校平台与排名证据不下降",
         "quality": "培养质量不下降",
     }.get(dimension, "这项偏好不放宽")
 
 
 def _alternative_tradeoff_text(dimension: str) -> str:
     return {
-        "major": "地域/学校层次",
-        "geo": "专业/学校层次",
-        "tuition": "学校层次/培养质量",
+        "major": "地域/学校平台与排名证据",
+        "geo": "专业/学校平台与排名证据",
+        "tuition": "学校平台与排名证据/培养质量",
         "school": "专业/培养质量",
-        "quality": "学校层次/专业",
+        "quality": "学校平台与排名证据/专业",
     }.get(dimension, "其他维度")
 
 
@@ -628,8 +1516,8 @@ def _tradeoff_fact_sentence(
 ) -> str:
     title_a = _option_title(option_a, "方案A")
     title_b = _option_title(option_b, "方案B")
-    cost_label = DIMENSION_LABELS.get(cost, cost)
-    benefit_label = DIMENSION_LABELS.get(benefit, benefit)
+    cost_label = _user_dimension_label(cost)
+    benefit_label = _user_dimension_label(benefit)
     cost_transition = _dimension_transition_text(
         option_a,
         option_b,
@@ -644,10 +1532,14 @@ def _tradeoff_fact_sentence(
     )
     kept_cost = _dimension_value_text(option_a, cost)
     benefit_effect = _delta_effect_text(delta_phi, benefit)
+    school_note = ""
+    if benefit == "school" or cost == "school":
+        school_note = _school_evidence_comparison(option_a, option_b)["brief"]
     return (
         f"如果保留 {title_a}，你保留 {cost_label}：{kept_cost}；"
         f"如果改看 {title_b}，需要你牺牲/放宽 {cost_label}：{cost_transition}，"
-        f"但能换取 {benefit_label}：{benefit_transition}（{benefit_effect}）。"
+        f"可比较的 {benefit_label} 变化是：{benefit_transition}（{benefit_effect}）。"
+        f"{school_note}"
     )
 
 
@@ -655,13 +1547,21 @@ def _single_option_probe_question(
     option: dict[str, Any],
     cost: str,
 ) -> str:
-    cost_label = DIMENSION_LABELS.get(cost, cost)
+    opportunity_key = str(option.get("_opportunity_key") or "")
+    cost_label = OPPORTUNITY_RELAXATION_LABELS.get(
+        opportunity_key
+    ) or _user_dimension_label(cost)
+    benefit_label = OPPORTUNITY_RELAXATION_BENEFITS.get(opportunity_key)
     evidence = _candidate_evidence_text(option)
+    benefit_text = (
+        f"可能换来{benefit_label}。"
+        if benefit_label
+        else "可以作为一条有分数、位次和费用依据的对照方案。"
+    )
     return (
-        "我先不用抽象讨论，直接给一个真实可核验的探针候选："
-        f"{evidence}。"
-        f"它会触碰你当前的 {cost_label} 底线，但给出了学校、专业、最低分/位次等证据。"
-        f"如果这类候选确实可达且收益明确，你是否愿意小幅放宽 {cost_label}？"
+        f"在你当前条件内，系统已经列出冲稳保候选。为了判断边界值不值得调整，我再拿一条对照方案给你看：{evidence}。"
+        f"这条方案需要小幅放宽{cost_label}，但{benefit_text}"
+        f"如果这个收益对你有吸引力，你愿意继续比较这类放宽方案吗？"
     )
 
 
@@ -676,43 +1576,29 @@ def _fallback_pareto_question(
     diff = payload.get("delta_phi_b_minus_a") or {}
     cost = _choose_cost_dimension(diff, forced_cost_dimension)
     benefit = _choose_benefit_dimension(diff, cost)
-    has_real_benefit = _has_real_benefit(diff, cost)
-    benefit_label = DIMENSION_LABELS.get(benefit, benefit)
-    cost_label = DIMENSION_LABELS.get(cost, cost)
-    school_a = _short_display((payload.get("option_a") or {}).get("school") or "方案A")
+    has_real_tradeoff = _has_real_tradeoff(option_a, option_b, diff, cost)
+    benefit_label = _user_dimension_label(benefit)
+    cost_label = _user_dimension_label(cost)
     if not option_b:
-        if (
-            option_a
-            and (option_a.get("school_name") or option_a.get("school"))
-            and option_a.get("min_score") not in (None, "")
-        ):
-            return _single_option_probe_question(option_a, cost)
-        current_cost = _dimension_value_text(option_a, cost)
-        return (
-            f"本轮候选不足以形成取舍。以 {school_a} 为参照，"
-            f"目前只看到 {cost_label} 边界在「{current_cost}」，"
-            f"但没有可验证收益维度可供换取；我不建议你牺牲/放宽 {cost_label} "
-            f"去换取不存在的收益，这属于低信息量探测。"
-            f"你是否先保留 {cost_label}，让我下一轮改看其他候选？"
+        return _no_significant_tradeoff_question(
+            option_a,
+            option_b,
+            delta_phi,
+            forced_cost_dimension=forced_cost_dimension,
         )
     if option_b and _same_visible_candidate(option_a, option_b):
-        current_cost = _dimension_value_text(option_a, cost)
-        return (
-            f"本轮候选不足以形成取舍。两个候选在可见学校上过于接近，"
-            f"目前只看到 {cost_label} 边界在「{current_cost}」，"
-            f"但没有可验证收益维度可供换取；我不建议你牺牲/放宽 {cost_label} "
-            f"去换取不存在的收益，这属于低信息量探测。"
-            f"你是否先保留 {cost_label}，让我下一轮改看其他候选？"
+        return _no_significant_tradeoff_question(
+            option_a,
+            option_b,
+            delta_phi,
+            forced_cost_dimension=forced_cost_dimension,
         )
-    if not has_real_benefit:
-        cost_transition = _dimension_transition_text(
-            option_a, option_b, cost, verb="放宽"
-        )
-        return (
-            f"本轮候选不足以形成取舍。候选之间只显示出牺牲/放宽 {cost_label}："
-            f"{cost_transition}，但没有可验证收益维度可供换取；"
-            f"我不建议你用这项放宽换取不存在的收益，这属于低信息量探测。"
-            f"你是否先保留 {cost_label}，让我下一轮改看其他候选？"
+    if not has_real_tradeoff:
+        return _no_significant_tradeoff_question(
+            option_a,
+            option_b,
+            delta_phi,
+            forced_cost_dimension=forced_cost_dimension,
         )
     fact_sentence = _tradeoff_fact_sentence(
         option_a, option_b, cost, benefit, delta_phi
@@ -731,6 +1617,7 @@ def _followup_pareto_question(
     *,
     option_a: dict[str, Any] | None = None,
     option_b: dict[str, Any] | None = None,
+    feedback_analysis: dict[str, Any] | None = None,
 ) -> str:
     positive = [
         (key, value)
@@ -743,20 +1630,45 @@ def _followup_pareto_question(
             (key for key, _value in positive if key != forced_cost_dimension),
             "quality" if forced_cost_dimension != "quality" else "school",
         )
-    cost_label = DIMENSION_LABELS.get(forced_cost_dimension, forced_cost_dimension)
-    benefit_label = DIMENSION_LABELS.get(benefit, benefit)
+    cost_label = _user_dimension_label(forced_cost_dimension)
+    benefit_label = _user_dimension_label(benefit)
     locked_text = _locked_preference_text(forced_cost_dimension)
-    alternatives = _alternative_tradeoff_text(forced_cost_dimension)
     round_number = negotiation_turns + 1
-    has_real_benefit = _has_real_benefit(delta_phi, forced_cost_dimension)
     reply_hint = {
         "major": "专业不能偏太远",
         "geo": "不能出省或离目标地域太远",
         "tuition": "预算不能超",
-        "school": "学校层次不能降",
+        "school": "学校平台与排名证据不能降",
         "quality": "培养质量不能弱",
     }.get(forced_cost_dimension, "这条底线不能轻易动")
-    if option_a and option_b and has_real_benefit:
+    feedback = feedback_analysis if isinstance(feedback_analysis, dict) else {}
+    prior_intent = str(feedback.get("intent") or "").strip().lower()
+    prior_dimension = str(feedback.get("target_dimension") or "").strip()
+    prior_label = (
+        _user_dimension_label(prior_dimension) if prior_dimension else cost_label
+    )
+    if prior_intent == "accept":
+        prior_sentence = (
+            f"你刚才接受了围绕“{prior_label}”的小幅放宽。"
+            f"第 {round_number} 轮我会先把这类方案纳入当前比较范围，"
+        )
+    elif prior_intent == "hesitate":
+        prior_sentence = (
+            f"你刚才对“{prior_label}”还没有完全定下来。"
+            f"第 {round_number} 轮我先继续用事实对照帮你判断，"
+        )
+    else:
+        prior_sentence = f"你刚才拒绝了“{reply_hint}”。第 {round_number} 轮我按“{locked_text}”先锁定，"
+    if (
+        option_a
+        and option_b
+        and _has_real_tradeoff(
+            option_a,
+            option_b,
+            delta_phi,
+            forced_cost_dimension,
+        )
+    ):
         fact_sentence = _tradeoff_fact_sentence(
             option_a,
             option_b,
@@ -765,26 +1677,149 @@ def _followup_pareto_question(
             delta_phi,
         )
         return (
-            f"你刚才拒绝了“{reply_hint}”。第 {round_number} 轮我按“{locked_text}”先锁定，"
-            f"再看这组事实取舍："
+            f"{prior_sentence}再看这组事实取舍："
             f"{fact_sentence}"
             f"如果仍要牺牲/放宽 {cost_label} 换取 {benefit_label}，"
             f"你更不能接受哪一项？"
         )
-    elif option_a:
-        current = _dimension_value_text(option_a, forced_cost_dimension)
+    return prior_sentence + _no_significant_tradeoff_question(
+        option_a or {},
+        option_b or {},
+        delta_phi,
+        forced_cost_dimension=forced_cost_dimension,
+    )
+
+
+def _feedback_analysis_payload(state: AgentState) -> dict[str, Any]:
+    analysis = state.get("feedback_analysis")
+    if isinstance(analysis, dict):
+        return {
+            "intent": str(analysis.get("intent") or "unknown"),
+            "target_dimension": str(analysis.get("target_dimension") or "unknown"),
+        }
+    return {"intent": "unknown", "target_dimension": "unknown"}
+
+
+def _pareto_generation_instruction(state: AgentState) -> str:
+    negotiation_turns = int(state.get("negotiation_turns") or 0)
+    question_kind = str(state.get("latest_question_kind") or "").strip()
+    if question_kind == QUESTION_KIND_NO_SIGNIFICANT_TRADEOFF:
         return (
-            f"你刚才拒绝了“{reply_hint}”。第 {round_number} 轮我按“{locked_text}”先锁定；"
-            f"本轮候选不足以形成能牺牲/放宽 {cost_label} 换取其他收益的事实取舍，"
-            f"目前只看到 {cost_label} 边界在「{current}」。"
-            f"是否改看 {alternatives} 上的取舍？"
+            "你是面向浙江高考考生的志愿咨询顾问。"
+            "当前底层事实探针没有找到显著的代价-收益跃迁。"
+            "请把它表达成事实边界诊断，而不是偏好取舍题。"
+            "说明本轮没有足够证据支持继续放宽，不诱导用户接受放宽。"
+            "可以建议用户直接看最终推荐，或换一个方向继续查。"
+            "不要输出 tier、c/r、utility、phi、MRS、rank_ratio、semantic_score、"
+            "_semantic_score、_lexicographic_tier、_implicit_utility 等内部字段名。"
+            "回复控制在 160 字以内。"
         )
-    else:
+    if negotiation_turns <= 0:
         return (
-            f"你刚才拒绝了“{reply_hint}”。第 {round_number} 轮我按“{locked_text}”先锁定；"
-            f"本轮候选不足以形成能牺牲/放宽 {cost_label} 换取 {benefit_label} 的事实取舍。"
-            f"是否改看 {alternatives} 上的取舍？"
+            "你是面向浙江高考考生的志愿咨询顾问。"
+            "请基于候选事实，向用户发起一轮自然、克制、可解释的边界确认。"
+            "首轮也要写成真实咨询对话，不要拼接模板；"
+            "不要照抄 payload.user_visible_fact_sentence，不要使用“如果保留……如果改看……”句式。"
+            "你要像真实系统现场沟通，不要说内部术语，不要输出 tier、c/r、utility、phi、MRS、"
+            "rank_ratio、semantic_score、_semantic_score、_lexicographic_tier、_implicit_utility 等字段名。"
+            "学校相关证据必须拆开说：学校平台标签和综合排名是两条不同证据。"
+            "只有同时有证据支持时，才可以说学校整体更占优；"
+            "如果只是 985、211、双一流等平台标签更突出，但综合排名不靠前或未知，"
+            "就说“平台标签更突出/更明确”，不要说“排名更好”“学校更好”“学校层次比某校更高”。"
+            "如果专业方向明显变化，要把专业贴合度一起说清楚，不要只谈学校。"
+            "如果有可验证收益，可以说明放宽的具体维度和换来的优势；"
+            "如果没有可验证收益，不要编造收益。"
+            "语气要像真实咨询：先把两个候选的核心差异讲明白，再问用户更看重哪一边。"
+            "避免“极度、精准、更好学校、换取更强、牌子更好”等推销式措辞；"
+            "优先说“平台标签更明确、专业贴合度变化、地域变化、学费变化、录取余量变化”。"
+            "回复控制在 180 字以内，最后给出一个明确问题。"
         )
+    return (
+        "你是面向浙江高考考生的志愿咨询顾问。"
+        "现在是用户反馈后的下一轮追问，必须严格依据 payload.previous_feedback 复述上一轮用户态度："
+        "intent=accept 时说用户已接受该放宽，并说明会把这类方案纳入当前比较；"
+        "intent=reject 时说会保留对应底线；"
+        "intent=hesitate 或 unknown 时说先继续用事实对照帮助判断。"
+        "不要把接受说成拒绝，也不要把拒绝说成接受。"
+        "请基于候选事实生成自然语言追问，不要使用写死模板口吻；"
+        "不要输出 tier、c/r、utility、phi、MRS、rank_ratio、semantic_score、"
+        "_semantic_score、_lexicographic_tier、_implicit_utility 等内部字段名。"
+        "学校相关证据必须拆开说：学校平台标签和综合排名是两条不同证据。"
+        "如果只是平台标签更突出，不能说成综合排名更好；如果排名不占优，要明说排名参考不占优或另作参考。"
+        "如果专业或地域也变了，要把这些代价放进问题里，而不是只问用户是否接受“更好学校”。"
+        "如果候选事实不足以支撑取舍，就直接说明证据不足，不要把它包装成放宽建议。"
+        "避免“极度、精准、更好学校、换取更强、牌子更好”等推销式措辞；优先使用候选事实本身。"
+        "回复控制在 200 字以内，最后给出一个明确问题。"
+    )
+
+
+def _pareto_generation_payload(
+    state: AgentState,
+    option_a: dict[str, Any],
+    option_b: dict[str, Any],
+    delta_phi: dict[str, float],
+    *,
+    forced_cost_dimension: str | None,
+) -> dict[str, Any]:
+    payload = _pareto_prompt_payload(option_a, option_b, delta_phi)
+    cost = _choose_cost_dimension(
+        payload.get("delta_phi_b_minus_a") or {},
+        forced_cost_dimension,
+    )
+    benefit = _choose_benefit_dimension(
+        payload.get("delta_phi_b_minus_a") or {},
+        cost,
+    )
+    has_real_tradeoff = _has_real_tradeoff(
+        option_a,
+        option_b,
+        payload.get("delta_phi_b_minus_a") or {},
+        cost,
+    )
+    school_evidence = (
+        _school_evidence_comparison(option_a, option_b) if option_b else {}
+    )
+    return {
+        "round": int(state.get("negotiation_turns") or 0) + 1,
+        "previous_feedback": _feedback_analysis_payload(state),
+        "focus_dimension": forced_cost_dimension or cost,
+        "focus_dimension_label": USER_DIMENSION_LABELS.get(
+            forced_cost_dimension or cost,
+            forced_cost_dimension or cost,
+        ),
+        "candidate_a_user_facing": _candidate_evidence_text(option_a)
+        if option_a
+        else "",
+        "candidate_b_user_facing": _candidate_evidence_text(option_b)
+        if option_b
+        else "",
+        "option_a": payload.get("option_a") or {},
+        "option_b": payload.get("option_b") or {},
+        "suggested_cost_dimension": cost,
+        "suggested_benefit_dimension": benefit,
+        "suggested_cost_label": _user_dimension_label(cost),
+        "suggested_benefit_label": _user_dimension_label(benefit),
+        "school_evidence_comparison": school_evidence,
+        "speaking_rules": [
+            "学校平台标签与综合排名必须分开表达，不得互相替代。",
+            "平台标签更突出但综合排名不占优时，只能说平台标签更突出，不能说排名更好或学校整体更好。",
+            "专业贴合度来自候选与用户专业需求的语义相近程度，只能作为辅助排序和解释证据，不要说成硬性录取条件。",
+            "专业贴合度下降时，必须把它作为代价说出来；不能只强调学校平台标签或学费变化。",
+            "若放宽候选的专业方向、地域或学费也有变化，必须同时呈现这些代价。",
+            "问题应让用户在具体事实之间取舍，而不是劝用户接受一个抽象的更好学校。",
+        ],
+        "has_real_benefit": has_real_tradeoff,
+        "user_visible_fact_sentence": _tradeoff_fact_sentence(
+            option_a,
+            option_b,
+            cost,
+            benefit,
+            delta_phi,
+        )
+        if has_real_tradeoff
+        else "",
+        "delta_phi_b_minus_a": payload.get("delta_phi_b_minus_a") or {},
+    }
 
 
 def _xai_fallback_text(
@@ -797,24 +1832,28 @@ def _xai_fallback_text(
         key=lambda item: item[1],
         reverse=True,
     )
-    weight_text = "，".join(f"{key}={value:.2f}" for key, value in sorted_weights)
+    weight_text = "、".join(
+        f"{_user_dimension_label(key)}相对更重要"
+        for key, value in sorted_weights
+        if value > 0
+    )
     lines = [
-        f"偏好解释：系统根据多轮反馈推断出的权重为 {weight_text}。这意味着最终推荐会优先尊重权重更高的维度，同时避免已识别的硬性底线。",
+        f"偏好解释：系统会按你当前表达出的取舍偏好重新排序；这一轮主要体现为{weight_text or '各维度均衡'}，同时保留已经识别的硬性底线。",
         "最终推荐名单：",
     ]
     matrix = recommendation_matrix or {}
     if any(matrix.get(bucket) for bucket in GLOBAL_BASELINE_BUCKETS):
-        labels = {"reach": "Reach", "match": "Match", "safety": "Safety"}
+        labels = {"reach": "冲", "match": "稳", "safety": "保"}
         for bucket in GLOBAL_BASELINE_BUCKETS:
             bucket_rows = matrix.get(bucket) or []
             if not bucket_rows:
                 continue
             lines.append(f"{labels[bucket]}:")
             for index, row in enumerate(bucket_rows[:3], start=1):
-                lines.append(f"{index}. {_score_text(row)}")
+                lines.append(f"{index}. {_candidate_evidence_text(row)}")
     else:
         for index, row in enumerate(candidates[:5], start=1):
-            lines.append(f"{index}. {_score_text(row)}")
+            lines.append(f"{index}. {_candidate_evidence_text(row)}")
     return "\n".join(lines)
 
 
@@ -840,9 +1879,37 @@ def _global_recommendation_matrix(state: AgentState) -> dict[str, list[dict[str,
     return matrix
 
 
+def _should_use_pareto_fallback(
+    state: AgentState,
+    *,
+    question_factory_is_monkeypatched: bool,
+) -> bool:
+    del state
+    if question_factory_is_monkeypatched:
+        return False
+    if os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1":
+        raise RuntimeError(
+            "LLM question generation is required; "
+            "GAOKAOLLM_OFFLINE_DETERMINISTIC=1 disables it."
+        )
+    if os.getenv("GAOKAOLLM_SKIP_LLM_PARETO_QUESTION") != "1":
+        return False
+    raise RuntimeError(
+        "LLM question generation is required; "
+        "GAOKAOLLM_SKIP_LLM_PARETO_QUESTION=1 disables it."
+    )
+
+
 async def _generate_pareto_question(
     state: AgentState,
-) -> tuple[str, dict[str, float]]:
+) -> tuple[
+    str,
+    dict[str, float] | None,
+    str,
+    str | None,
+    dict[str, Any] | None,
+    str,
+]:
     if str(state.get("planner_source") or "").startswith("ablation:no_ucb"):
         probe = _current_probe_name(state)
         generic_questions = {
@@ -866,14 +1933,62 @@ async def _generate_pareto_question(
             probe,
             "我先随机看一个非定向方案：你愿意接受这个方向上的小幅妥协吗？",
         )
-        return question, {key: 0.0 for key in PREFERENCE_KEYS}
+        return (
+            question,
+            {key: 0.0 for key in PREFERENCE_KEYS},
+            QUESTION_KIND_TRADEOFF,
+            None,
+            None,
+            "ablation",
+        )
 
-    forced_cost_dimension = state.get("ucb_target_dimension")
+    target_dimension = state.get("ucb_target_dimension")
+    opportunity_key = _current_opportunity_key(state)
+    focused_rows = _focused_candidate_rows(state)
+    anchor_rows = _anchor_candidate_rows(state)
+    focused_challengers = _new_challenger_rows(focused_rows, anchor_rows)
     rows = _candidate_rows(state)
-    if forced_cost_dimension in PREFERENCE_KEYS:
+    candidate_pool = _merge_candidate_rows([*anchor_rows, *focused_challengers, *rows])
+    cost_dimensions = _available_cost_dimensions_for_state(
+        state,
+        opportunity_key,
+        str(target_dimension) if target_dimension else None,
+    )
+    benefit_dimensions = _benefit_dimensions_for_probe(
+        opportunity_key,
+        str(target_dimension) if target_dimension else None,
+        cost_dimensions,
+    )
+    forced_cost_dimension: str | None = None
+    if focused_challengers and anchor_rows:
+        (
+            option_a,
+            option_b,
+            delta_phi,
+            selected_cost_dimension,
+            _selected_benefit_dimension,
+        ) = select_constrained_tradeoff_pair(
+            candidate_pool,
+            cost_dimensions=cost_dimensions,
+            benefit_dimensions=benefit_dimensions,
+            challenger_rows=focused_challengers,
+            anchor_rows=anchor_rows or rows,
+            previous_delta_phi=state.get("latest_pareto_diff"),
+        )
+        forced_cost_dimension = selected_cost_dimension
+    elif focused_rows:
+        option_a = anchor_rows[0] if anchor_rows else {}
+        option_b = {}
+        delta_phi = {key: 0.0 for key in PREFERENCE_KEYS}
+        forced_cost_dimension = _cost_dimensions_for_probe(
+            opportunity_key,
+            str(target_dimension) if target_dimension else None,
+        )[0]
+    elif target_dimension in RELAXABLE_COST_DIMENSIONS:
+        forced_cost_dimension = str(target_dimension)
         option_a, option_b, delta_phi = select_forced_tradeoff_pair(
             rows,
-            str(forced_cost_dimension),
+            forced_cost_dimension,
             previous_delta_phi=state.get("latest_pareto_diff"),
         )
     else:
@@ -881,73 +1996,110 @@ async def _generate_pareto_question(
             rows,
             previous_delta_phi=state.get("latest_pareto_diff"),
         )
-    fallback = _fallback_pareto_question(
+        forced_cost_dimension = _choose_cost_dimension(delta_phi, None)
+    if forced_cost_dimension is None:
+        forced_cost_dimension = _fallback_cost_dimension_for_probe(
+            opportunity_key,
+            str(target_dimension) if target_dimension else None,
+        )
+    question_kind = _classify_question_kind(
         option_a,
         option_b,
         delta_phi,
-        forced_cost_dimension=(
-            str(forced_cost_dimension) if forced_cost_dimension else None
-        ),
+        forced_cost_dimension,
     )
-    if (
-        forced_cost_dimension in PREFERENCE_KEYS
-        and int(state.get("negotiation_turns") or 0) > 0
-    ):
-        fallback = _followup_pareto_question(
-            delta_phi,
-            str(forced_cost_dimension),
-            int(state.get("negotiation_turns") or 0),
-            option_a=option_a,
-            option_b=option_b,
-        )
-    if forced_cost_dimension in PREFERENCE_KEYS:
-        # UCB-directed probes intentionally ask about the probed cost dimension.
-        # Store a crisp one-dimensional counterfactual so the BT tracker updates
-        # the same bottom-line dimension even when the SQL pair has unrelated
-        # quality/school/tuition differences. Keeping the raw SQL residual here
-        # leaks irrelevant tradeoffs into the Bradley-Terry gradient and makes the
-        # no-tracker baseline look artificially strong.
-        delta_phi = {key: 0.0 for key in PREFERENCE_KEYS}
-        delta_phi[str(forced_cost_dimension)] = -1.0
-    instruction = (
-        "你是一个谈判专家。请基于方案A和B的特征差异，向用户发起一个简短的"
-        "‘二选一帕累托权衡提问’。只有当方案B在代价维度真实下降、且另一个维度真实上升时，"
-        "才使用‘牺牲/放宽 [代价维度] 换取 [收益维度]’这种边际替代率（MRS）句式；"
-        "如果没有真实收益，必须说明候选不足以形成取舍，不能伪造收益。"
-        "直接提问，绝不要寒暄或做最终推荐！"
-    )
+    learning_delta: dict[str, float] | None = None
+    if question_kind == QUESTION_KIND_TRADEOFF:
+        learning_delta = {
+            key: float(delta_phi.get(key, 0.0)) for key in PREFERENCE_KEYS
+        }
+    else:
+        learning_delta = None
+
+    transient_state = dict(state)
+    transient_state["latest_question_kind"] = question_kind
+    transient_state["latest_probe_target_dimension"] = forced_cost_dimension
+    instruction = _pareto_generation_instruction(transient_state)
     question_factory_is_monkeypatched = get_chat_model is not get_structured_chat_model
-    if (
-        os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1"
-        or os.getenv("GAOKAOLLM_SKIP_LLM_PARETO_QUESTION", "1") == "1"
-    ) and not question_factory_is_monkeypatched:
-        return fallback, delta_phi
-    llm = get_chat_model()
+    _should_use_pareto_fallback(
+        state,
+        question_factory_is_monkeypatched=question_factory_is_monkeypatched,
+    )
+    llm = (
+        get_chat_model()
+        if question_factory_is_monkeypatched
+        else get_structured_chat_model(max_retries=1)
+    )
+    payload_text = json.dumps(
+        _pareto_generation_payload(
+            transient_state,
+            option_a,
+            option_b,
+            delta_phi,
+            forced_cost_dimension=forced_cost_dimension,
+        ),
+        ensure_ascii=False,
+        default=str,
+    )
     prompt = [
         SystemMessage(content=instruction),
-        SystemMessage(
-            content=json.dumps(
-                _pareto_prompt_payload(option_a, option_b, delta_phi),
-                ensure_ascii=False,
-                default=str,
+        HumanMessage(
+            content=(
+                "请严格依据以下 JSON 中的真实候选事实，生成给用户看的中文追问：\n"
+                f"{payload_text}"
             )
         ),
     ]
     try:
-        response = await ainvoke_with_timeout(
-            llm,
-            prompt,
-            timeout=structured_timeout_seconds(),
-            label="negotiator_pareto_question",
+        try:
+            question = await _ainvoke_text_required(
+                llm,
+                prompt,
+                timeout=(
+                    structured_timeout_seconds()
+                    if question_factory_is_monkeypatched
+                    else structured_timeout_seconds()
+                ),
+                label="negotiator_pareto_question",
+            )
+        except RuntimeError:
+            if question_factory_is_monkeypatched:
+                raise
+            retry_prompt = [
+                SystemMessage(content=instruction),
+                HumanMessage(
+                    content=(
+                        "上一轮模型没有输出内容。请必须输出 80 到 180 字中文，"
+                        "只使用 JSON 里的学校和专业，不要编造候选：\n"
+                        f"{payload_text}"
+                    )
+                ),
+            ]
+            question = await _ainvoke_text_required(
+                get_reasoning_chat_model(max_retries=1),
+                retry_prompt,
+                timeout=reasoning_timeout_seconds(),
+                label="negotiator_pareto_question_retry",
+            )
+        return (
+            _sanitize_user_output(question),
+            learning_delta,
+            question_kind,
+            forced_cost_dimension,
+            _tradeoff_pair_payload(
+                option_a,
+                option_b,
+                delta_phi,
+                opportunity_key=opportunity_key,
+                cost_dimension=forced_cost_dimension,
+                question_kind=question_kind,
+            ),
+            "llm",
         )
-        question = str(response.content).strip()
-        return question or fallback, delta_phi
     except Exception as exc:
-        print(
-            "[negotiator] pareto_question_failed="
-            f"{type(exc).__name__}; using fallback question"
-        )
-        return fallback, delta_phi
+        raise RuntimeError(
+            f"LLM Pareto question generation failed: {type(exc).__name__}: {exc}"
+        ) from exc
 
 
 async def _generate_xai_recommendation(state: AgentState) -> str:
@@ -955,59 +2107,89 @@ async def _generate_xai_recommendation(state: AgentState) -> str:
     recommendation_matrix = _global_recommendation_matrix(state)
     matrix_candidates = _iter_rows(recommendation_matrix)
     candidates = (matrix_candidates or _candidate_rows(state))[:9]
-    fallback = _xai_fallback_text(weights, candidates, recommendation_matrix)
     instruction = (
-        "探测已收敛，请输出最终志愿表。你必须在报告的第一段进行‘显示性偏好解释’："
-        "用极具专业感和体贴的自然语言，向用户解释系统推断出的真实偏好权重"
-        "（如：系统发现您极度看重核心专业，但对地域具有较高的妥协弹性）。"
-        "然后再基于此模型展示最终推荐名单。"
-    )
-    instruction = (
-        instruction
-        + "\nEndgame matrix requirement: when reach/match/safety buckets are present, "
-        "write the final report in three clear layers: Reach, Match, and Safety."
+        "你是面向浙江高考考生的志愿咨询顾问。"
+        "探测已收敛，请输出一份可直接给考生看的最终推荐。"
+        "第一段做简短的显示性偏好解释：只说明从多轮取舍中观察到的偏好倾向，"
+        "不要说“精准推断”“真实权重”“极度看重”，不要写口号式总结。"
+        "表达要克制、可核验，例如“目前排序更偏向专业贴合和录取稳妥，同时保留已接受的放宽条件”。"
+        "随后按推荐矩阵展示候选。"
+        "\n当 reach/match/safety 分桶存在时，必须按 冲、稳、保 三层组织。"
+        "每层最多 3 个候选；每个候选写学校、专业、所在地、最低分/位次、选科要求、学费、专业贴合或学校证据中的关键项。"
+        "\n不要暴露内部字段名，例如 tier、c/r、utility、min_score、min_rank、tuition_delta、"
+        "rank_ratio、semantic_score、_semantic_score、_lexicographic_tier、_implicit_utility。"
+        "不要编造 JSON 中没有的学校、专业、分数、位次或结论。"
+        "学校平台标签和综合排名分开说；平台标签更明确但排名不占优时，不要说学校整体更好。"
     )
     xai_factory_is_monkeypatched = get_chat_model is not get_structured_chat_model
     if (
         os.getenv("GAOKAOLLM_OFFLINE_DETERMINISTIC") == "1"
-        or os.getenv("GAOKAOLLM_SKIP_LLM_XAI", "1") == "1"
-    ) and not xai_factory_is_monkeypatched:
-        return fallback
+        and not xai_factory_is_monkeypatched
+    ):
+        raise RuntimeError(
+            "LLM final recommendation generation is required; "
+            "GAOKAOLLM_OFFLINE_DETERMINISTIC=1 disables it."
+        )
+    if os.getenv("GAOKAOLLM_SKIP_LLM_XAI") == "1" and not xai_factory_is_monkeypatched:
+        raise RuntimeError(
+            "LLM final recommendation generation is required; "
+            "GAOKAOLLM_SKIP_LLM_XAI=1 disables it."
+        )
     llm = (
         get_chat_model() if xai_factory_is_monkeypatched else get_reasoning_chat_model()
     )
+    final_payload = json.dumps(
+        {
+            "implicit_weights": weights,
+            "recommendation_matrix": {
+                key: _compact(value) for key, value in recommendation_matrix.items()
+            },
+            "final_candidates": _compact(candidates),
+        },
+        ensure_ascii=False,
+        default=str,
+    )
     prompt = [
         SystemMessage(content=instruction),
-        SystemMessage(
-            content=json.dumps(
-                {
-                    "implicit_weights": weights,
-                    "recommendation_matrix": {
-                        key: _compact(value)
-                        for key, value in recommendation_matrix.items()
-                    },
-                    "final_candidates": _compact(candidates),
-                },
-                ensure_ascii=False,
-                default=str,
+        HumanMessage(
+            content=(
+                "请严格依据以下 JSON 中的真实候选事实，生成给用户看的最终推荐正文。"
+                "要求语气稳妥、像真实咨询系统，不要营销腔；不要输出空内容，不要编造 JSON 之外的学校或专业。\n"
+                f"{final_payload}"
             )
         ),
     ]
     try:
-        response = await ainvoke_with_timeout(
-            llm,
-            prompt,
-            timeout=reasoning_timeout_seconds(),
-            label="negotiator_xai_recommendation",
-        )
-        content = str(response.content).strip()
-        return content or fallback
+        try:
+            content = await _ainvoke_text_required(
+                llm,
+                prompt,
+                timeout=reasoning_timeout_seconds(),
+                label="negotiator_xai_recommendation",
+            )
+        except RuntimeError:
+            retry_prompt = [
+                SystemMessage(content=instruction),
+                HumanMessage(
+                    content=(
+                        "上一轮模型没有返回正文。请必须输出中文最终推荐正文："
+                        "先用一小段克制地解释当前偏好，再按 冲、稳、保 三层列出候选。"
+                        "只能使用下面 JSON 中出现的学校、专业和字段。\n"
+                        f"{final_payload}"
+                    )
+                ),
+            ]
+            content = await _ainvoke_text_required(
+                get_reasoning_chat_model(max_retries=1),
+                retry_prompt,
+                timeout=reasoning_timeout_seconds(),
+                label="negotiator_xai_recommendation_retry",
+            )
+        return _sanitize_user_output(content)
     except Exception as exc:
-        print(
-            "[negotiator] xai_recommendation_failed="
-            f"{type(exc).__name__}; using fallback recommendation"
-        )
-        return fallback
+        raise RuntimeError(
+            f"LLM final recommendation generation failed: {type(exc).__name__}: {exc}"
+        ) from exc
 
 
 def _final_recommendation_text(opportunities: dict[str, Any]) -> str:
@@ -1019,16 +2201,9 @@ def _final_recommendation_text(opportunities: dict[str, Any]) -> str:
     if not rows:
         return "当前没有足够的可核验证据形成最终推荐表。"
 
-    lines = ["偏好已经基本收敛，以下是按当前隐性效用排序的 Top-3 可核验候选："]
+    lines = ["偏好已经基本收敛，以下是按当前偏好重新排序后的 Top-3 可核验候选："]
     for index, row in enumerate(rows, start=1):
-        utility = row.get("_implicit_utility")
-        utility_text = ""
-        if utility is not None:
-            try:
-                utility_text = f" utility={float(utility):.3f}"
-            except (TypeError, ValueError):
-                utility_text = f" utility={utility}"
-        lines.append(f"{index}. {_score_text(row)}{utility_text}")
+        lines.append(f"{index}. {_candidate_evidence_text(row)}")
     return "\n".join(lines)
 
 
@@ -1051,20 +2226,20 @@ def _question_for_axis(state: AgentState) -> str:
     top = rows[0] if rows and isinstance(rows[0], dict) else {}
     school = top.get("school_name") or top.get("school") or "更高收益方案"
     province = top.get("school_province") or top.get("province") or ""
-    tier = top.get("tier")
     tuition = top.get("tuition")
     tuition_delta = top.get("tuition_delta")
 
     if key in {"major_geo_relax", "geo_relax", "city_relax", "major_relax"}:
         place = f"{province}" if province else "外省/新地域"
-        tier_text = f" tier={tier}" if tier is not None else ""
+        level = _school_level_text(top)
+        level_text = f"，{level}" if level != "学校层级待确认" else ""
         return (
-            f"我发现如果放宽地域或专业边界，可以看到 {school}（{place}{tier_text}）。"
-            "你能接受这类跨地域/相近专业的妥协吗？"
+            f"我发现如果放宽地域或专业边界，可以看到 {school}（{place}{level_text}）。"
+            "你能接受这类跨地域/相近专业的对照吗？"
         )
     if key == "tuition_value_relax":
         delta_text = (
-            f"学费增加约 {tuition_delta}"
+            _budget_delta_text(top) or f"学费约 {tuition}"
             if tuition_delta is not None
             else f"学费约 {tuition}"
         )
@@ -1074,14 +2249,12 @@ def _question_for_axis(state: AgentState) -> str:
     if key == "risk_band_relax":
         return "我可以把方案从单一求稳扩展成冲稳保组合。你能接受保留少量冲刺志愿吗？"
     if key in {"major_quality_relax", "strength_relax"}:
-        return f"我发现 {school} 的专业/学校质量证据更强。你愿意优先考虑质量提升吗？"
+        return f"我发现 {school} 的专业或学校证据有可比变化。你愿意优先看质量证据吗？"
     if key == "employment_outcome_relax":
         return f"我发现 {school} 的就业结果证据更强。你愿意把就业表现作为更高优先级吗？"
     if key == "region_tree_relax":
         return "我可以按地域树放宽到相近城市圈或城市层级。你能接受这种地域替代吗？"
-    return (
-        "我还不确定你更愿意牺牲哪一项约束。你能接受小幅放宽地域来换取更高学校层次吗？"
-    )
+    return "我还不确定你更愿意调整哪一项约束。你想先比较地域、专业、预算，还是录取风险弹性？"
 
 
 def _fallback_reply(evidence: dict[str, Any]) -> str:
@@ -1092,66 +2265,43 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
     risk = evidence.get("risk_band_relax") or []
 
     if major_quality:
-        text = "；".join(
-            f"{_score_text(row)} quality_score={row.get('quality_score')} "
-            f"quality_gain={row.get('quality_gain')} best_major_rank={row.get('best_major_rank')} "
-            f"best_rating={row.get('best_rating')}"
-            for row in major_quality[:3]
-        )
+        text = "；".join(_candidate_evidence_text(row) for row in major_quality[:3])
         return (
             "我先不替你做决定，只给出可核验的专业质量证据。\n"
-            f"major_quality_relax：{text}\n"
+            f"学科质量放宽：{text}\n"
             "这些候选仍需满足分数、选科和预算等硬约束，差异在于专业排名、学科评估、特色重点或满意度证据更强。"
         )
 
     if tuition:
-        text = "；".join(
-            f"{_score_text(row)} tuition={row.get('tuition')} "
-            f"tuition_delta={row.get('tuition_delta')}"
-            for row in tuition[:3]
-        )
+        text = "；".join(_candidate_evidence_text(row) for row in tuition[:3])
         return (
             "我先不替你做决定，只给出可核验的学费性价比证据。\n"
-            f"tuition_value_relax：{text}\n"
-            "这些方案只是在原预算附近小幅放宽学费，学校收益仍按 tier/ranking 与最低分证据判断。"
+            f"学费预算放宽：{text}\n"
+            "这些方案只是在原预算附近小幅放宽学费，重点把学校平台标签、综合排名、最低分和最低位次拆开比较。"
         )
 
     if employment:
-        text = "；".join(
-            f"{_score_text(row)} outcome_score={row.get('outcome_score')} "
-            f"outcome_gain={row.get('outcome_gain')} employment_rank={row.get('employment_rank')} "
-            f"top_industry={row.get('top_industry')} salary={row.get('salary_distribution')}"
-            for row in employment[:3]
-        )
+        text = "；".join(_candidate_evidence_text(row) for row in employment[:3])
         return (
             "我先不替你做决定，只给出可核验的就业结果证据。\n"
-            f"employment_outcome_relax：{text}\n"
+            f"就业结果放宽：{text}\n"
             "这些候选仍需满足分数、选科和预算等硬约束，差异在于就业排名、行业、岗位或薪资证据更清楚。"
         )
 
     if region_tree:
-        text = "；".join(
-            f"{_score_text(row)} strategy={row.get('region_relax_strategy')} "
-            f"region={row.get('source_region_name')}->{row.get('target_region_name')} "
-            f"confidence={row.get('region_tree_confidence')}"
-            for row in region_tree[:3]
-        )
+        text = "；".join(_candidate_evidence_text(row) for row in region_tree[:3])
         return (
             "我先不替你做决定，只给出可核验的地域树证据。\n"
-            f"region_tree_relax：{text}\n"
-            "这里的地域证据来自 reviewed region tree；城市层级本身不直接计入收益，学校收益仍按 tier/ranking 改善计算。"
+            f"区域圈层放宽：{text}\n"
+            "这里的地域证据来自已审核的区域关系；城市层级本身不直接作为收益，仍要结合学校平台标签、综合排名和录取证据判断。"
         )
 
     if risk:
-        text = "；".join(
-            f"{_score_text(row)} risk={row.get('risk_level')} "
-            f"score_margin={row.get('score_margin')} rank_gap={row.get('rank_gap')}"
-            for row in risk[:6]
-        )
+        text = "；".join(_candidate_evidence_text(row) for row in risk[:6])
         return (
             "我先不替你做决定，只给出可核验的冲稳保证据。\n"
-            f"risk_band_relax：{text}\n"
-            "这些方案保留地域、专业、选科和预算，只把单一保守偏好放宽成 chong/wen/bao 组合。"
+            f"冲稳保组合：{text}\n"
+            "这些方案保留地域、专业、选科和预算，只把单一保守偏好扩展成冲、稳、保组合。"
         )
 
     sections = {
@@ -1162,8 +2312,11 @@ def _fallback_reply(evidence: dict[str, Any]) -> str:
         "major_geo_relax": _join(evidence.get("major_geo_relax") or [], limit=5),
     }
     return (
-        "我先不替你做决定，只给出可核验的 Pareto 放宽证据。\n"
-        + "\n".join(f"{name}：{value}" for name, value in sections.items())
+        "我先不替你做决定，只给出可核验的放宽证据。\n"
+        + "\n".join(
+            f"{_sanitize_user_output(name)}：{_sanitize_user_output(value)}"
+            for name, value in sections.items()
+        )
         + "\n你可以先挑一个最不排斥的方向，我再继续收窄。"
     )
 
@@ -1191,72 +2344,49 @@ def _fallback_reply_v2(evidence: dict[str, Any]) -> str:
     def section_major_geo() -> str:
         rows = major_geo or geo or major or city
         return (
-            "major_geo_relax: "
+            "专业或地域边界放宽："
             + _join(rows, limit=5)
-            + "\nThis is a joint major/region Pareto opportunity with real min_score evidence."
+            + "\n这组候选用于判断：专业邻近度或地域边界是否值得小幅调整。"
         )
 
     def section_risk() -> str:
-        text = "; ".join(
-            f"{_score_text(row)} risk={row.get('risk_level')} "
-            f"score_margin={row.get('score_margin')} rank_gap={row.get('rank_gap')}"
-            for row in risk[:6]
-        )
+        text = "; ".join(_candidate_evidence_text(row) for row in risk[:6])
         return (
-            "risk_band_relax: "
+            "冲稳保组合："
             + text
-            + "\nThese options expand one conservative preference into a chong/wen/bao portfolio."
+            + "\n这组候选把单一保守偏好展开为冲、稳、保，便于比较风险层次。"
         )
 
     def section_quality() -> str:
-        text = "; ".join(
-            f"{_score_text(row)} quality_score={row.get('quality_score')} "
-            f"quality_gain={row.get('quality_gain')} best_major_rank={row.get('best_major_rank')} "
-            f"best_rating={row.get('best_rating')}"
-            for row in major_quality[:3]
-        )
+        text = "; ".join(_candidate_evidence_text(row) for row in major_quality[:3])
         return (
-            "major_quality_relax: "
+            "学科质量放宽："
             + text
-            + "\nThis section uses school-major quality evidence while score constraints remain checked."
+            + "\n这组候选强调学科、专业质量证据，分数和选科约束仍需同时满足。"
         )
 
     def section_tuition() -> str:
-        text = "; ".join(
-            f"{_score_text(row)} tuition={row.get('tuition')} "
-            f"tuition_delta={row.get('tuition_delta')}"
-            for row in tuition[:3]
-        )
+        text = "; ".join(_candidate_evidence_text(row) for row in tuition[:3])
         return (
-            "tuition_value_relax: "
+            "学费预算放宽："
             + text
-            + "\nThe budget is relaxed only in a small audited window with school/ranking evidence."
+            + "\n这组候选只在预算附近小幅放宽，并把学校平台标签、综合排名和录取证据拆开比较。"
         )
 
     def section_employment() -> str:
-        text = "; ".join(
-            f"{_score_text(row)} outcome_score={row.get('outcome_score')} "
-            f"outcome_gain={row.get('outcome_gain')} employment_rank={row.get('employment_rank')} "
-            f"top_industry={row.get('top_industry')} salary={row.get('salary_distribution')}"
-            for row in employment[:3]
-        )
+        text = "; ".join(_candidate_evidence_text(row) for row in employment[:3])
         return (
-            "employment_outcome_relax: "
+            "就业结果放宽："
             + text
-            + "\nThis section uses structured employment outcome evidence: rank, industry, job, or salary."
+            + "\n这组候选强调就业画像，例如就业排名、行业去向、岗位或薪资证据。"
         )
 
     def section_region() -> str:
-        text = "; ".join(
-            f"{_score_text(row)} strategy={row.get('region_relax_strategy')} "
-            f"region={row.get('source_region_name')}->{row.get('target_region_name')} "
-            f"confidence={row.get('region_tree_confidence')}"
-            for row in region_tree[:3]
-        )
+        text = "; ".join(_candidate_evidence_text(row) for row in region_tree[:3])
         return (
-            "region_tree_relax: "
+            "区域圈层放宽："
             + text
-            + "\nRegion nodes come from reviewed region trees; city tier itself is not counted as Pareto gain."
+            + "\n这组候选来自已审核的区域关系，用来判断相近城市圈或区域替代是否可接受。"
         )
 
     sections_by_key = {
@@ -1278,7 +2408,7 @@ def _fallback_reply_v2(evidence: dict[str, Any]) -> str:
         "employment_outcome_relax": lambda: section_employment() if employment else "",
         "region_tree_relax": lambda: section_region() if region_tree else "",
         "strength_relax": lambda: (
-            "strength_relax: " + _join(strength) if strength else ""
+            "学校实力优先放宽：" + _join(strength) if strength else ""
         ),
     }
     ranked_sections: list[str] = []
@@ -1311,24 +2441,22 @@ def _fallback_reply_v2(evidence: dict[str, Any]) -> str:
         selected = [factory() for present, factory in candidates if present][:2]
 
     if not selected:
-        selected = [
-            "No verified Pareto opportunity was found beyond the current hard constraints."
-        ]
+        selected = ["当前硬性条件之外还没有找到可核验的放宽机会。"]
 
-    option_labels = ["\u9009\u9879A", "\u9009\u9879B"]
+    option_labels = ["选项A", "选项B"]
     labelled_selected = [
         f"{option_labels[index]}: {section}" if index < len(option_labels) else section
         for index, section in enumerate(selected)
     ]
     prefix = ""
     if clarification_hint:
-        prefix = f"Clarification hint: {clarification_hint}\n\n"
+        prefix = f"澄清提示：{clarification_hint}\n\n"
 
     return (
         prefix
-        + "I will not decide for you; I will only expose auditable Pareto evidence.\n"
+        + "我不会替你直接拍板，只展示可核验的候选证据。\n"
         + "\n\n".join(labelled_selected)
-        + "\n\nAgent input is limited to explicit user constraints and verified DB evidence."
+        + "\n\n以上只使用你明确给出的约束和数据库中可核验的候选信息。"
     )
 
 
@@ -1341,18 +2469,25 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         "node_start",
         {
             "current_probe": current_probe,
+            "current_opportunity_key": _current_opportunity_key(state),
             "negotiation_turns": turns,
             "ucb_target_dimension": state.get("ucb_target_dimension"),
             "candidate_count": len(state.get("candidates") or []),
+            "focused_candidate_count": len(_focused_candidate_rows(state)),
             "opportunity_rankings": state.get("opportunity_rankings"),
         },
     )
     if current_probe == GLOBAL_BASELINE_PROBE:
-        content = await _generate_xai_recommendation(state)
+        content = _sanitize_user_output(await _generate_xai_recommendation(state))
         output = {
             "messages": [AIMessage(content=content)],
             "latest_human_feedback": None,
             "latest_agent_probe_question": None,
+            "latest_pareto_diff": None,
+            "latest_question_kind": QUESTION_KIND_FINALIZE_OFFER,
+            "latest_question_source": "llm",
+            "latest_probe_target_dimension": None,
+            "latest_tradeoff_pair": None,
         }
         trace_event(
             "negotiator",
@@ -1361,7 +2496,15 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         )
         return output
 
-    question_text, latest_pareto_diff = await _generate_pareto_question(state)
+    (
+        question_text,
+        latest_pareto_diff,
+        latest_question_kind,
+        latest_probe_target_dimension,
+        latest_tradeoff_pair,
+        latest_question_source,
+    ) = await _generate_pareto_question(state)
+    question_text = _sanitize_user_output(question_text)
     trace_event(
         "negotiator",
         "interrupt_question",
@@ -1369,13 +2512,29 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
             "current_probe": current_probe,
             "question_text": question_text,
             "latest_pareto_diff": latest_pareto_diff,
+            "latest_question_kind": latest_question_kind,
+            "latest_question_source": latest_question_source,
+            "latest_probe_target_dimension": latest_probe_target_dimension,
+            "latest_tradeoff_pair": latest_tradeoff_pair,
         },
     )
-    user_reply = interrupt(question_text)
+    interrupt_payload = {
+        "text": question_text,
+        "latest_tradeoff_pair": latest_tradeoff_pair,
+        "latest_pareto_diff": latest_pareto_diff,
+        "latest_question_kind": latest_question_kind,
+        "latest_question_source": latest_question_source,
+        "latest_probe_target_dimension": latest_probe_target_dimension,
+    }
+    user_reply = interrupt(interrupt_payload)
     output = {
         "latest_human_feedback": str(user_reply),
         "latest_agent_probe_question": question_text,
         "latest_pareto_diff": latest_pareto_diff,
+        "latest_question_kind": latest_question_kind,
+        "latest_question_source": latest_question_source,
+        "latest_probe_target_dimension": latest_probe_target_dimension,
+        "latest_tradeoff_pair": latest_tradeoff_pair,
         "negotiation_turns": turns + 1,
     }
     trace_event("negotiator", "node_end", {"mode": "resumed", **output})
@@ -1415,9 +2574,10 @@ async def legacy_negotiator_node(state: AgentState) -> dict[str, Any]:
             content=(
                 "你是高考志愿谈判 Agent。只能基于给定真实数据说话。"
                 "输出简洁中文，不替用户做最终决定。"
-                "如果存在 region_tree_relax，要说明这是按地理板块树或城市层级树的可审计地域放宽。"
-                "如果存在 major_geo_relax，要重点说明专业和地域联合放宽。"
-                "如果存在 risk_band_relax，要说明 chong/wen/bao 组合。"
+                "不要向用户输出内部字段名，例如 tier、c/r、utility、min_score、min_rank、tuition_delta 或 probe key。"
+                "如果存在区域圈层放宽，要说明这是按地理板块树或城市层级树的可审计地域放宽。"
+                "如果存在专业或地域边界放宽，要重点说明专业和地域联合放宽。"
+                "如果存在风险带放宽，要说明冲、稳、保组合。"
                 "必须给出具体学校、专业、最低分，并在可用时给出最低位次、树节点、学费、专业质量或就业证据。"
             )
         ),
@@ -1437,4 +2597,4 @@ async def legacy_negotiator_node(state: AgentState) -> dict[str, Any]:
             f"{type(exc).__name__}; using fallback reply"
         )
         content = _fallback_reply_v2(evidence)
-    return {"messages": [AIMessage(content=content)]}
+    return {"messages": [AIMessage(content=_sanitize_user_output(content))]}
