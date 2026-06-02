@@ -1,0 +1,84 @@
+{
+  "generated_at": "2026-06-01",
+  "workflow_status": "revision_required",
+  "latest_user_feedback": "align/ppt_user_feedback_v1.md",
+  "next_required_action": "revise_storyboard",
+  "blocked_next_stage": "ppt-render-qa-loop",
+  "notes": [
+    "User feedback rejects the current AI-generated chart-like method visuals.",
+    "Chart-like line/threshold/trend visuals should be rebuilt with real data or deterministic code/editable PPT objects.",
+    "The dense full-loop method figure must be split; exact split is a focused discussion item.",
+    "Some storyboard sections may need formulas instead of flow diagrams; detailed user feedback is pending."
+  ],
+  "stages": {
+    "ppt_production_brief": {
+      "status": "confirmed",
+      "latest_artifact": "align/ppt_production_brief_v0.md"
+    },
+    "material_fact_ledger": {
+      "status": "confirmed",
+      "latest_artifacts": [
+        "align/material_inventory_v0.md",
+        "align/fact_ledger_v0.md"
+      ]
+    },
+    "defense_narrative": {
+      "status": "confirmed",
+      "latest_artifact": "align/ppt_defense_narrative_v0.md"
+    },
+    "storyboard": {
+      "status": "unconfirmed",
+      "latest_artifact": "align/PPT_storyboard_v0.md",
+      "reset_reason": "Formula-vs-flow exhibit choices need revision after user feedback."
+    },
+    "speaker_notes_rehearsal": {
+      "status": "unconfirmed",
+      "latest_artifact": "align/ppt_speaker_notes_rehearsal_v0.md",
+      "reset_reason": "Depends on the now-unconfirmed storyboard."
+    },
+    "defense_qa_backup": {
+      "status": "unconfirmed",
+      "latest_artifact": "align/ppt_defense_qa_backup_v0.md",
+      "reset_reason": "Depends on revised storyboard and speaker notes; formula backup pages may change."
+    },
+    "asset_layout_plan": {
+      "status": "unconfirmed",
+      "latest_artifacts": [
+        "align/PPT_asset_audit_v0.md",
+        "align/visual_enrichment_plan_v0.md",
+        "align/ppt_layout_plan_v0.json"
+      ],
+      "reset_reason": "Figure 1 chart/trend mismatch, Figure 2 density, and formula-vs-flow storyboard feedback require replanning."
+    },
+    "academic_figure_prompt": {
+      "status": "unconfirmed",
+      "latest_artifact": "align/academic_figure_prompt_v0.md",
+      "reset_reason": "Current prompt should not be used for further AI generation."
+    },
+    "content_fidelity_qa": {
+      "status": "unconfirmed",
+      "latest_artifact": "align/ppt_content_fidelity_qa_v0.md",
+      "reset_reason": "Previous pass no longer applies to revised storyboard and visual route."
+    },
+    "deck_visual_refactor_plan": {
+      "status": "unconfirmed",
+      "latest_artifact": "align/ppt_deck_visual_refactor_plan_v0.md",
+      "reset_reason": "Formula-vs-flow storyboard choices and Slide 9/B16 method visual split must be reconsidered."
+    },
+    "deck_build": {
+      "status": "unconfirmed",
+      "latest_artifact": "align/ppt_deck_build_manifest_v0.md",
+      "pptx": "generated_pptx_test/gaokaollm_defense_deck_v0.pptx",
+      "reset_reason": "Existing PPTX remains traceable but is not accepted for render QA after storyboard and visual feedback."
+    },
+    "render_qa": {
+      "status": "blocked",
+      "latest_artifacts": [
+        "qa/rendered_pages",
+        "qa/contact_main_1_19.png",
+        "qa/contact_backup_20_36.png"
+      ],
+      "blocked_reason": "Requires revised storyboard, downstream replanning, and rebuilt deck."
+    }
+  }
+}
