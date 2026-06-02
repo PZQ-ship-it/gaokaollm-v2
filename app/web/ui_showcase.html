@@ -901,15 +901,15 @@
       <nav class="view-tabs" aria-label="界面切换">
         <a class="tab-elicitation" href="/ui-showcase?view=elicitation">C 端澄清</a>
         <a class="tab-report" href="/ui-showcase?view=report">决策报告</a>
-        <a class="tab-admin" href="/ui-showcase?view=admin">算法后台</a>
+        <a class="tab-admin" href="/ui-showcase?view=admin">测试后台</a>
       </nav>
     </header>
 
     <main id="elicitation" class="view">
       <div class="screen-head">
         <div>
-          <h2>C端智能混合倡议博弈舱</h2>
-          <p>历史状态、硬约束截断与非支配帕累托边缘对共同构成一次高信息量澄清。</p>
+          <h2>C端偏好澄清交互界面</h2>
+          <p>历史状态、硬约束截断与非支配帕累托候选对共同构成一次高信息量澄清。</p>
         </div>
         <div class="profile-strip">
           <span class="chip blue">浙江 612 分</span>
@@ -922,7 +922,7 @@
       <div class="elicitation-grid">
         <section class="panel">
           <div class="panel-head">
-            <h3>偏好澄清对话与极限帕累托对决</h3>
+            <h3>偏好澄清对话与帕累托候选对</h3>
             <span class="metric">第 2 轮</span>
           </div>
           <div class="panel-body">
@@ -946,7 +946,7 @@
 
             <div class="counter-panel">
               <div class="counter-title">
-                <h4>极限反事实探测对</h4>
+                <h4>反事实探测候选对</h4>
                 <span>Non-dominated Pareto Pair / 预计 EIG 高</span>
               </div>
               <div class="choice-grid">
@@ -1036,7 +1036,7 @@
     <main id="report" class="view">
       <div class="screen-head">
         <div>
-          <h2>C端“冲稳保”智能决策报告页</h2>
+          <h2>C端“冲稳保”推荐报告页</h2>
           <p>候选列表来自全局效用下推与重排，界面通过长列表、滚动条和渐隐项呈现大规模结果流。</p>
         </div>
         <div class="profile-strip">
@@ -1049,7 +1049,7 @@
 
       <div class="xai-summary">
         <section class="summary-card">
-          <h3>偏好 XAI 总结</h3>
+          <h3>偏好解释摘要</h3>
           <p>系统根据第 1 轮预算拒绝和第 2 轮帕累托取舍反馈，将“专业不可妥协”和“预算不突破”提升为高权重约束。最终报告按全局效用得分 U(x; w_final) 对冲刺、稳妥和保底候选分别重排。</p>
         </section>
         <aside class="summary-kpi">
@@ -1111,7 +1111,7 @@
             <article class="school-row">
               <h4>杭州电子科技大学</h4>
               <p class="major">计算机科学与技术</p>
-              <div class="xai-badge">🤖 XAI：完全契合第2轮【专业不可妥协】隐性底线，排至首位。</div>
+              <div class="xai-badge">偏好解释：契合第2轮【专业不可妥协】隐性底线，排至首位。</div>
               <div class="row-facts"><span>预估学费<b>6900 元/年</b></span><span>U(x; w_final)<b>0.913</b></span></div>
               <div class="utility"><span>全局效用得分</span><div class="utility-meter"><i style="width:91%"></i></div><b>91.3</b></div>
             </article>
@@ -1187,8 +1187,8 @@
     <main id="admin" class="view">
       <div class="screen-head">
         <div>
-          <h2>受控边界测试套件与状态审计大盘</h2>
-          <p>面向研发与评测人员，呈现 36 个受控样本的集成测试、边界追踪和日志审计。</p>
+          <h2>受控测试套件与日志审计界面</h2>
+          <p>面向研发与评测人员，呈现 180 条受控测试画像的自动化回归测试、边界追踪和日志审计。</p>
         </div>
         <div class="profile-strip">
           <span class="chip green">CI run #20260516</span>
@@ -1198,14 +1198,14 @@
       </div>
 
       <div class="overview-grid">
-        <section class="overview-card pass"><span>集成测试用例</span><b>36 / 36 Pass</b></section>
+        <section class="overview-card pass"><span>受控测试画像</span><b>180 / 180 Pass</b></section>
         <section class="overview-card f1"><span>隐性底线识别 F1 分数</span><b>0.833</b></section>
         <section class="overview-card mae"><span>偏好对齐误差 MAE</span><b>0.131</b></section>
       </div>
 
       <div class="admin-grid">
         <section class="admin-panel">
-          <div class="panel-head"><h3>Automated Evaluation Cases</h3><span class="metric">suite: 受控边界测试套件</span></div>
+          <div class="panel-head"><h3>Automated Evaluation Cases</h3><span class="metric">suite: 受控测试套件</span></div>
           <div class="panel-body" style="padding:0">
             <table class="test-table">
               <thead>
