@@ -9,7 +9,7 @@ from gaokaollm_bench.constrains.enums import ConversationRole
 from gaokaollm_bench.schemas import EvalReport, IcebergPersona, Transcript
 
 
-PREFERENCE_DIMS = ("school", "major", "tuition", "quality", "geo")
+PREFERENCE_DIMS = ("school", "major", "tuition", "quality", "geo", "risk")
 
 AXIS_ORACLE_RULES: dict[str, dict[str, Any]] = {
     "geo_tier": {
@@ -25,7 +25,7 @@ AXIS_ORACLE_RULES: dict[str, dict[str, Any]] = {
         "gain_fields": ["tier_delta", "quality_gain", "ranking_gain"],
     },
     "risk_tier": {
-        "acceptable_probe_dims": ["school"],
+        "acceptable_probe_dims": ["risk", "school"],
         "acceptable_probe_keys": ["risk_band_relax"],
         "required_evidence": ["school_score", "risk"],
         "gain_fields": ["tier_delta", "ranking_gain"],

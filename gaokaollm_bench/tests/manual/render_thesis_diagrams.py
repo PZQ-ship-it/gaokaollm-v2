@@ -496,7 +496,7 @@ def render_system_architecture() -> SvgCanvas:
         (85, 625, ["Interrupt 澄清", "帕累托边际替代提问"], COLORS["white"]),
         (85, 900, ["Resume 反馈", "接受 / 拒绝 / 犹豫"], COLORS["white"]),
         (85, 1185, ["推荐结果展示", "候选证据", "取舍解释"], COLORS["white"]),
-        (85, 1490, ["评测环境", "受控边界样本", "过程日志回放"], COLORS["white"]),
+        (85, 1490, ["评测环境", "受控测试画像", "过程日志回放"], COLORS["white"]),
     ]
     for x, y, lines, fill in interaction_nodes:
         stroke = (
@@ -767,7 +767,7 @@ def render_system_use_cases() -> SvgCanvas:
         "report": (565, 720, 270, 78, ["获取冲稳保志愿报告"]),
         "rerank": (930, 665, 300, 78, ["执行全局效用", "下推重排"]),
         "explain": (930, 800, 300, 78, ["生成显示性", "偏好解释"]),
-        "boundary_test": (1245, 555, 300, 78, ["执行受控边界", "测试用例"]),
+        "boundary_test": (1245, 555, 300, 78, ["执行受控测试", "画像回归"]),
         "audit": (1245, 675, 300, 78, ["审计偏好交互", "推理日志"]),
         "maintain": (1245, 795, 300, 78, ["维护专业树", "地域树与画像"]),
     }
@@ -1825,7 +1825,7 @@ def render_ucb_dispatch() -> SvgCanvas:
         380,
         310,
         120,
-        ["强制纳入目标探针", "规划器必须包含目标", "语言模型不能绕过"],
+        ["纳入目标探针", "规划器覆盖目标", "规划结果保持一致"],
         fill=COLORS["hidden"],
         stroke=COLORS["hidden_stroke"],
         size=20,

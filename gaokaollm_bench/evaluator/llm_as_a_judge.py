@@ -15,8 +15,29 @@ async def evaluate_process(
 ) -> EvalReport:
     """Ask an LLM judge to score process quality and return a validated report."""
 
-    return await evaluate_process_with_chain(
-        transcript=transcript,
-        persona=persona,
-        llm_client=llm_client,
+    try:
+        return await evaluate_process_with_chain(
+            transcript=transcript,
+            persona=persona,
+            llm_client=llm_client,
+        )
+    except Exception as exc:
+        return _fallback_eval_report(persona, exc)
+
+
+def _fallback_eval_report(persona: IcebergPersona, exc: Exception) -> EvalReport:
+    """Return a conservative report when the LLM judge emits invalid output."""
+
+    reason = str(exc).splitlines()[0] if str(exc) else type(exc).__name__
+    if len(reason) > 240:
+        reason = f"{reason[:237]}..."
+    return EvalReport(
+        case_id=persona.case_id,
+        hallucination_rate=0.0,
+        elicitation_success=False,
+        pareto_gain=0,
+        judge_reasoning=(
+            "LLM judge fallback: invalid or unavailable judge response; "
+            f"{type(exc).__name__}: {reason}"
+        ),
     )

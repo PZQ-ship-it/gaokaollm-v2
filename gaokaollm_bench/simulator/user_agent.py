@@ -23,10 +23,10 @@ from gaokaollm_bench.utils.trace import trace_event
 class SimulatorStep(BaseModel):
     """Structured output expected from the user-simulator LLM."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     thought: str = ""
-    is_persuaded: bool
+    is_persuaded: bool = False
     utterance: str = ""
 
 

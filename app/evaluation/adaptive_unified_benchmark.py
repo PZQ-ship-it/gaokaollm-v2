@@ -41,6 +41,9 @@ TRANSIENT_ERROR_TOKENS = (
     "APITimeout",
     "APIConnection",
     "Connection error",
+    "OperationalError",
+    "too many clients",
+    "connection timeout expired",
 )
 
 
@@ -621,7 +624,9 @@ def main() -> None:
     args.constraint_counts = parse_int_list(args.constraint_counts, (1, 2, 3, 4, 5, 6))
     args.simulator_model = args.simulator_model or os.getenv("SMALL_MODEL")
     args.judge_model = args.judge_model or os.getenv("SMALL_MODEL")
-    split_counts = sorted(set([*args.constraint_counts, args.probe_constraint_count]))
+    split_counts = list(args.constraint_counts)
+    if args.mode == "probe" or args.auto_tune:
+        split_counts = sorted(set([*split_counts, args.probe_constraint_count]))
     personas_by_count = ensure_constraint_splits(
         args.personas,
         args.split_dir,

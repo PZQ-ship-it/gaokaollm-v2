@@ -532,11 +532,11 @@ def _ucb_score_breakdown(
     weights: dict[str, float],
     variance: dict[str, float],
 ) -> dict[str, dict[str, float]]:
-    dimensions = ("school", "major", "tuition", "quality", "geo")
+    dimensions = ("school", "major", "tuition", "quality", "geo", "risk")
     exploration_coef = 1.5
     breakdown: dict[str, dict[str, float]] = {}
     for dim in dimensions:
-        mean_term = float(weights.get(dim, 0.2))
+        mean_term = float(weights.get(dim, 1.0 / len(dimensions)))
         var_term = max(0.0, float(variance.get(dim, 1.0)))
         uncertainty_bonus = exploration_coef * (var_term**0.5)
         breakdown[dim] = {

@@ -293,8 +293,12 @@ async def run_target_cases(
     report_path = config.output_dir / "reports" / f"{target_name}.jsonl"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     existing_ok_rows: list[dict[str, Any]] = []
+    archived_retry_rows = 0
+    had_existing_report = False
     if config.skip_existing_cases and report_path.exists():
-        existing_ok_rows = _existing_ok_rows(report_path)
+        had_existing_report = True
+        existing_ok_rows, retry_rows = _existing_rows_for_retry(report_path)
+        archived_retry_rows = _archive_retry_rows(report_path, retry_rows)
     elif report_path.exists():
         report_path.unlink()
 
@@ -303,13 +307,14 @@ async def run_target_cases(
     pending_personas = [
         persona for persona in personas if persona.case_id not in completed_case_ids
     ]
-    if config.skip_existing_cases and existing_ok_rows:
+    if config.skip_existing_cases and had_existing_report:
         with report_path.open("w", encoding="utf-8") as handle:
             for row in existing_ok_rows:
                 handle.write(json.dumps(row, ensure_ascii=False) + "\n")
         print(
             f"[agent_benchmark] {target_name}: "
             f"skipping {len(existing_ok_rows)} completed cases, "
+            f"archived {archived_retry_rows} failed retry rows, "
             f"running {len(pending_personas)} pending cases"
         )
     if not pending_personas:
@@ -387,12 +392,15 @@ async def run_target_cases(
     return rows
 
 
-def _existing_ok_rows(report_path: Path) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
+def _existing_rows_for_retry(
+    report_path: Path,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    ok_rows: list[dict[str, Any]] = []
+    retry_rows: list[dict[str, Any]] = []
     try:
         lines = report_path.read_text(encoding="utf-8").splitlines()
     except OSError:
-        return rows
+        return ok_rows, retry_rows
     seen: set[str] = set()
     for line in lines:
         if not line.strip():
@@ -400,18 +408,42 @@ def _existing_ok_rows(report_path: Path) -> list[dict[str, Any]]:
         try:
             row = json.loads(line)
         except json.JSONDecodeError:
+            retry_rows.append(
+                {
+                    "status": "failed",
+                    "error_type": "JSONDecodeError",
+                    "error": line,
+                }
+            )
             continue
         if row.get("status") != "ok":
+            retry_rows.append(row)
             continue
         case_id = str(row.get("case_id") or "")
         if not case_id or case_id in seen:
             continue
         transcript_path = str(row.get("transcript_path") or "")
         if transcript_path and not Path(transcript_path).exists():
+            retry_rows.append(row)
             continue
         seen.add(case_id)
-        rows.append(row)
-    return rows
+        ok_rows.append(row)
+    return ok_rows, retry_rows
+
+
+def _archive_retry_rows(report_path: Path, rows: list[dict[str, Any]]) -> int:
+    if not rows:
+        return 0
+    archive_path = report_path.with_name(f"{report_path.stem}.retry_failures.jsonl")
+    archived_at = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+    with archive_path.open("a", encoding="utf-8") as handle:
+        for row in rows:
+            payload = dict(row)
+            payload.setdefault("status", "failed")
+            payload["archived_at"] = archived_at
+            payload["source_report"] = str(report_path)
+            handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
+    return len(rows)
 
 
 async def _run_one_case(
@@ -589,9 +621,12 @@ def _is_probe_turn(state: dict[str, Any], content: str) -> bool:
 def _is_uniform_weights(value: Any) -> bool:
     if not isinstance(value, dict):
         return False
-    dimensions = ("school", "major", "tuition", "quality", "geo")
+    dimensions = ("school", "major", "tuition", "quality", "geo", "risk")
+    uniform = 1.0 / len(dimensions)
     try:
-        return all(abs(float(value.get(dim, -1.0)) - 0.2) <= 1e-9 for dim in dimensions)
+        return all(
+            abs(float(value.get(dim, -1.0)) - uniform) <= 1e-9 for dim in dimensions
+        )
     except (TypeError, ValueError):
         return False
 
@@ -599,7 +634,7 @@ def _is_uniform_weights(value: Any) -> bool:
 def _is_constant_variance(value: Any) -> bool:
     if not isinstance(value, dict):
         return False
-    dimensions = ("school", "major", "tuition", "quality", "geo")
+    dimensions = ("school", "major", "tuition", "quality", "geo", "risk")
     try:
         return all(abs(float(value.get(dim, -1.0)) - 1.0) <= 1e-9 for dim in dimensions)
     except (TypeError, ValueError):

@@ -7,7 +7,7 @@ from typing import Any
 from app.evaluation.schemas import IcebergProfile
 
 
-PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
+PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo", "risk")
 RESULTS_DIR = Path(__file__).parent / "results"
 CLASSIFICATION_FIELDS = (
     "profile_id",

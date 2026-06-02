@@ -30,7 +30,7 @@ DEFAULT_PROFILE_VIEW = APP_DATA_DIR / "unified_iceberg_profiles_1c6c_real_db_180
 DEFAULT_AUDIT_MD = OUTPUTS_DIR / "unified_iceberg_cases_1c6c_audit.md"
 DEFAULT_AUDIT_JSON = OUTPUTS_DIR / "unified_iceberg_cases_1c6c_audit.json"
 
-PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
+PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo", "risk")
 SOURCE_PERSONA_FILES = {
     count: SAMPLE_DATA_DIR / f"iceberg_personas_{count}constrain_real_db_30.json"
     for count in range(1, 7)
@@ -68,14 +68,15 @@ AXIS_CONFIG: dict[str, dict[str, Any]] = {
         },
     },
     "risk_tier": {
-        "probe_gold_dims": ["school"],
-        "weight_gold_dims": ["school"],
+        "probe_gold_dims": ["risk"],
+        "weight_gold_dims": ["risk", "school"],
         "weights": {
-            "school": 0.58,
-            "major": 0.12,
-            "tuition": 0.06,
-            "quality": 0.14,
-            "geo": 0.10,
+            "school": 0.40,
+            "major": 0.08,
+            "tuition": 0.04,
+            "quality": 0.07,
+            "geo": 0.05,
+            "risk": 0.36,
         },
     },
     "tuition_value": {
@@ -226,6 +227,7 @@ def _base_phi(candidate: dict[str, Any]) -> dict[str, float]:
         "tuition": 1.0,
         "quality": 0.5,
         "geo": 1.0,
+        "risk": 0.5,
     }
 
 
@@ -270,6 +272,9 @@ def _phi_pair(
     elif axis == "employment_outcome":
         gain = max(0.0, _float(audit.get("outcome_gain") or golden.get("outcome_gain")))
         phi_b["quality"] = min(1.0, 0.5 + gain / 70.0)
+    elif axis == "risk_tier":
+        phi_a["risk"] = 1.0
+        phi_b["risk"] = 0.25
 
     delta = {key: round(float(phi_b[key] - phi_a[key]), 8) for key in PREFERENCE_KEYS}
     msti = round(sum(abs(value) for value in delta.values()), 8)

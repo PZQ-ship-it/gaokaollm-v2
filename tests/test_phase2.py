@@ -6,6 +6,11 @@ import pytest
 
 from app.core.db_pg import close_pool
 from app.flows.probers import (
+    _MAJOR_SIMILARITY_CACHE,
+    _MAJOR_VECTOR_CACHE,
+    _major_similarity_text,
+    annotate_full_context_semantic_score,
+    annotate_major_similarity,
     classify_risk_band,
     extract_phi_features,
     probe_city_relax,
@@ -47,6 +52,7 @@ class CapturingDb:
                     "major_name": "临床医学",
                     "min_score": 580,
                     "tier": 2,
+                    "ranking": 180,
                 }
             ]
         return [
@@ -247,7 +253,7 @@ class RiskDb:
                 "major_id": 10,
                 "major_name": "涓村簥鍖诲",
                 "min_score": 598,
-                "min_rank": 52000,
+                "min_rank": 45000,
                 "ranking": 80,
                 "tier": 3,
             },
@@ -260,7 +266,7 @@ class RiskDb:
                 "major_id": 20,
                 "major_name": "涓村簥鍖诲",
                 "min_score": 588,
-                "min_rank": 60000,
+                "min_rank": 53000,
                 "ranking": 120,
                 "tier": 2,
             },
@@ -273,7 +279,7 @@ class RiskDb:
                 "major_id": 30,
                 "major_name": "涓村簥鍖诲",
                 "min_score": 570,
-                "min_rank": 75000,
+                "min_rank": 65000,
                 "ranking": 180,
                 "tier": 2,
             },
@@ -394,9 +400,166 @@ def test_extract_phi_features_handles_dirty_or_missing_values():
         {},
     )
 
-    assert set(features) == {"school", "major", "tuition", "quality", "geo"}
+    assert set(features) == {"school", "major", "tuition", "quality", "geo", "risk"}
     assert features["tuition"] == 1.0
     assert features["quality"] == 0.5
+
+
+def test_major_similarity_score_is_explanatory_not_primary_utility():
+    state = {"constraints": {"major": "医学"}}
+
+    close = extract_phi_features(
+        {"major_relax_level": 1, "major_similarity_score": 0.86},
+        state,
+    )
+    distant = extract_phi_features(
+        {"major_relax_level": 1, "major_similarity_score": 0.52},
+        state,
+    )
+    stage_only = extract_phi_features({"major_relax_level": 1}, state)
+
+    assert close["major"] == pytest.approx(stage_only["major"])
+    assert distant["major"] == pytest.approx(stage_only["major"])
+    assert stage_only["major"] > 0.0
+
+
+def test_major_similarity_text_keeps_semantic_parenthetical_content():
+    assert "水生动物医学" in _major_similarity_text("水产类(含水生动物医学)")
+    assert "校区" not in _major_similarity_text("动物医学(凤凰校区)")
+
+
+@pytest.mark.asyncio
+async def test_major_similarity_does_not_boost_broad_keyword_substrings(monkeypatch):
+    class FakeEmbeddingClient:
+        async def embed(self, texts):
+            vectors = []
+            for text in texts:
+                if text == "医学":
+                    vectors.append([1.0, 0.0])
+                elif "生物医学工程" in text:
+                    vectors.append([0.8, 0.6])
+                elif "水产类" in text:
+                    vectors.append([0.5, 0.866])
+                else:
+                    vectors.append([0.0, 1.0])
+            return vectors
+
+    from app.flows import probers
+
+    _MAJOR_VECTOR_CACHE.clear()
+    _MAJOR_SIMILARITY_CACHE.clear()
+    monkeypatch.delenv("PYTEST_CURRENT_TEST", raising=False)
+    monkeypatch.setenv("EMBEDDING_MODEL", "fake-embedding")
+    monkeypatch.setattr(
+        probers.embedding_client,
+        "OpenAIEmbeddingClient",
+        lambda: FakeEmbeddingClient(),
+    )
+
+    rows = await annotate_major_similarity(
+        [
+            {"major_name": "生物医学工程"},
+            {"major_name": "水产类(含水生动物医学)"},
+        ],
+        {"constraints": {"major": "医学"}},
+    )
+
+    biomedical, aquatic = rows
+    assert biomedical["major_similarity_score"] == pytest.approx(0.8)
+    assert aquatic["major_similarity_score"] == pytest.approx(0.5, abs=0.001)
+    assert aquatic["major_similarity_score"] < biomedical["major_similarity_score"]
+
+
+@pytest.mark.asyncio
+async def test_full_context_semantic_score_is_pgvector_annotation(monkeypatch):
+    async def fake_fetch(db, query, params):
+        assert "knowledge_documents" in query
+        return [
+            {
+                "admission_score_id": 1,
+                "school_id": 10,
+                "major_id": 100,
+                "major_name": "临床医学",
+                "semantic_score": 0.91,
+            },
+            {
+                "admission_score_id": 2,
+                "school_id": 20,
+                "major_id": 200,
+                "major_name": "水产类",
+                "semantic_score": 0.42,
+            },
+        ]
+
+    monkeypatch.setattr("app.flows.probers._fetch", fake_fetch)
+
+    rows = await annotate_full_context_semantic_score(
+        [
+            {
+                "admission_score_id": 1,
+                "school_id": 10,
+                "major_id": 100,
+                "major_name": "临床医学",
+            },
+            {
+                "admission_score_id": 2,
+                "school_id": 20,
+                "major_id": 200,
+                "major_name": "水产类",
+            },
+        ],
+        {"full_context_embedding": [1.0] * 1536},
+        db=object(),
+    )
+
+    assert rows[0]["semantic_score"] == pytest.approx(0.91)
+    assert rows[0]["semantic_score_source"] == "knowledge_documents_pgvector"
+    assert rows[1]["semantic_score"] == pytest.approx(0.42)
+
+
+def test_lexicographic_sort_uses_semantic_score_only_inside_epsilon():
+    state = {
+        "constraints": {"budget": 10000},
+        "lexicographic_epsilon": 0.01,
+        "implicit_weights": {
+            "school": 1.0,
+            "major": 0.0,
+            "tuition": 0.0,
+            "quality": 0.0,
+            "geo": 0.0,
+            "risk": 0.0,
+        },
+    }
+    ranked = rank_by_implicit_utility(
+        [
+            {
+                "school_name": "语义更贴合大学",
+                "tier": 2,
+                "quality_score": 80,
+                "tuition": 8000,
+                "semantic_score": 0.95,
+            },
+            {
+                "school_name": "语义稍弱大学",
+                "tier": 2,
+                "quality_score": 80,
+                "tuition": 8000,
+                "semantic_score": 0.20,
+            },
+            {
+                "school_name": "主效用更高大学",
+                "tier": 3,
+                "quality_score": 80,
+                "tuition": 8000,
+                "semantic_score": 0.01,
+            },
+        ],
+        state,
+    )
+
+    assert ranked[0]["school_name"] == "主效用更高大学"
+    assert ranked[1]["school_name"] == "语义更贴合大学"
+    assert ranked[2]["school_name"] == "语义稍弱大学"
 
 
 def test_rank_by_implicit_utility_vetoes_ghost_trap_option():
@@ -408,6 +571,7 @@ def test_rank_by_implicit_utility_vetoes_ghost_trap_option():
             "tuition": 0.25,
             "quality": 0.25,
             "geo": 0.25,
+            "risk": 0.0,
         },
     }
     ranked = rank_by_implicit_utility(
@@ -438,10 +602,12 @@ def test_rank_by_implicit_utility_vetoes_ghost_trap_option():
 
 
 def test_risk_band_classifier_uses_rank_then_score_margin():
-    assert classify_risk_band(score_margin=30, rank_gap=2500) == "chong"
+    assert classify_risk_band(score_margin=30, rank_ratio=0.90) == "chong"
+    assert classify_risk_band(score_margin=3, rank_ratio=1.05) == "wen"
+    assert classify_risk_band(score_margin=3, rank_ratio=1.25) == "bao"
+    assert classify_risk_band(score_margin=3, rank_ratio=1.50) == "dian"
+    assert classify_risk_band(score_margin=3, rank_gap=-3000) == "chong"
     assert classify_risk_band(score_margin=3, rank_gap=10000) == "wen"
-    assert classify_risk_band(score_margin=3, rank_gap=25000) == "bao"
-    assert classify_risk_band(score_margin=3, rank_gap=45000) == "dian"
     assert classify_risk_band(score_margin=4) == "chong"
     assert classify_risk_band(score_margin=18) == "wen"
     assert classify_risk_band(score_margin=35) == "bao"
@@ -464,15 +630,55 @@ async def test_risk_band_relax_keeps_hard_filters_and_returns_portfolio():
     assert constraints["province"] in probe_params
     assert f"%{constraints['major']}%" in probe_params
     assert [row["risk_level"] for row in rows] == ["chong", "wen", "bao"]
+    assert rows[0]["risk_relax_level"] == 1
+    assert rows[0]["_phi_features"]["risk"] != rows[-1]["_phi_features"]["risk"]
     assert rows[0]["score_margin"] == 2
-    assert rows[0]["rank_gap"] == 2000
+    assert rows[0]["student_rank"] == 50100
+    assert rows[0]["rank_gap"] == -5100
+    assert rows[0]["rank_ratio"] == pytest.approx(0.8982, abs=0.0001)
 
 
 @pytest.mark.asyncio
-async def test_risk_band_relax_requires_conservative_signal():
+async def test_risk_band_relax_runs_as_default_elasticity_probe():
     rows = await probe_risk_band_relax(STRICT_CONSTRAINTS, db=RiskDb(), limit=3)
 
-    assert rows == []
+    assert [row["risk_level"] for row in rows] == ["chong", "wen", "bao"]
+
+
+@pytest.mark.asyncio
+async def test_run_all_probes_applies_accepted_geo_major_relaxations():
+    calls: list[tuple[str, tuple[object, ...]]] = []
+
+    async def fake_db(query, *params):
+        calls.append((query, params))
+        if "score_rank_segments" in query:
+            return [{"rank_min": 52000, "rank_max": 52529}]
+        return []
+
+    constraints = {
+        **STRICT_CONSTRAINTS,
+        "target_provinces": ["江苏", "浙江", "上海"],
+        "city": "杭州",
+    }
+    await run_all_probes(
+        constraints,
+        db=fake_db,
+        user_state={
+            "constraints": constraints,
+            "accepted_relaxations": [
+                {"dimension": "geo"},
+                {"dimension": "major"},
+            ],
+        },
+    )
+
+    combined_queries = "\n".join(query for query, _params in calls)
+    combined_params = [param for _query, params in calls for param in params]
+    assert "s.province = ANY(%s::text[])" not in combined_queries
+    assert "s.city = ANY(%s::text[])" not in combined_queries
+    assert "a.major_name_raw LIKE %s" not in combined_queries
+    assert ["江苏", "浙江", "上海"] not in combined_params
+    assert "%临床医学%" not in combined_params
 
 
 @pytest.mark.asyncio
@@ -491,6 +697,29 @@ async def test_baseline_respects_city_constraint():
         isinstance(param, list) and constraints["city"] in param for param in params
     )
     assert f"%{constraints['major']}%" in params
+
+
+@pytest.mark.asyncio
+async def test_baseline_uses_target_provinces_when_present():
+    db = CityDb()
+    constraints = {
+        **STRICT_CONSTRAINTS,
+        "target_provinces": ["江苏", "浙江", "上海"],
+        "major": "医学",
+        "budget": 5500,
+    }
+
+    await run_baseline(constraints, db=db)
+
+    query, params = db.calls[-1]
+    assert "s.province = ANY(%s::text[])" in query
+    assert "s.province = %s" not in query
+    assert "plan.min_tuition IS NOT NULL" in query
+    assert "plan.min_tuition <= %s" in query
+    assert ["江苏", "浙江", "上海"] in params
+    assert "浙江" not in params
+    assert 5500 in params
+    assert "%医学%" in params
 
 
 @pytest.mark.asyncio
@@ -648,12 +877,17 @@ async def test_major_geo_relax_drops_province_filter_and_selects_candidates():
     assert "s.province = %s" not in probe_query
     assert "s.province <> %s" not in probe_query
     assert "a.major_name_raw NOT LIKE %s" in probe_query
+    assert "s.ranking IS NOT NULL AND s.ranking < %s" in probe_query
     assert "%临床医学%" in probe_params
     assert len(rows) == 2
     assert rows[0]["school_id"] == 2
     assert rows[0]["major_id"] == 20
     assert rows[0]["relaxation_stage"] == 5
     assert rows[0]["relaxation_strategy"] == "any_major"
+    assert rows[0]["geo_relax_level"] == 1
+    assert rows[0]["major_relax_level"] == 5
+    assert rows[0]["_phi_features"]["geo"] < 1.0
+    assert rows[0]["_phi_features"]["major"] < 1.0
     assert "_phi_features" in rows[0]
     assert "_implicit_utility" in rows[0]
     assert rows[1]["school_id"] == 3

@@ -67,8 +67,9 @@ DIMENSION_LABELS = {
     "tuition": "学费",
     "quality": "质量",
     "geo": "地域",
+    "risk": "风险",
 }
-DIMENSIONS = ["school", "major", "tuition", "quality", "geo"]
+DIMENSIONS = ["school", "major", "tuition", "quality", "geo", "risk"]
 CJK_FONT_FILES = [
     Path(r"C:\Windows\Fonts\simhei.ttf"),
     Path(r"C:\Windows\Fonts\NotoSansSC-VF.ttf"),
@@ -879,7 +880,7 @@ def figure_posterior_trajectory(logs: list[dict[str, Any]]) -> None:
     thread = "robust_major_extreme_full_r1"
     rows = [row for row in logs if row.get("thread_id") == thread]
     points = []
-    initial = {dim: 0.2 for dim in DIMENSIONS}
+    initial = {dim: 1.0 / len(DIMENSIONS) for dim in DIMENSIONS}
     points.append({"step": "先验", **initial})
     for row in rows:
         if row.get("status") in {"interrupt", "final"}:
@@ -905,7 +906,7 @@ def figure_posterior_trajectory(logs: list[dict[str, Any]]) -> None:
         )
     ax.set_ylim(0.08, 0.52)
     ax.set_ylabel("后验权重")
-    ax.legend(ncol=5, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.12))
+    ax.legend(ncol=6, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.12))
     ax.grid(axis="y", alpha=0.28)
     savefig(fig, "fig_6_6_posterior_trajectory")
 

@@ -13,13 +13,14 @@ from app.evaluation.schemas import IcebergProfile
 DATA_DIR = Path(__file__).parent / "data"
 DEFAULT_OUTPUT = DATA_DIR / "synthetic_pressure_profiles_60.jsonl"
 DEFAULT_REPORT = DATA_DIR / "synthetic_pressure_profiles_60_report.md"
-PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
+PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo", "risk")
 DIMENSION_NAMES = {
     "school": "学校层次",
     "major": "专业匹配",
     "tuition": "学费预算",
     "quality": "培养质量",
     "geo": "地域偏好",
+    "risk": "风险弹性",
 }
 
 
@@ -57,7 +58,14 @@ VARIANTS = (
         "score_delta": 13,
         "talk_style": "plain_rephrasing",
         "query_tail": "请先给我一个稳妥建议，我再决定哪些条件能让步。",
-        "weight_shift": {"major": 0.01, "quality": 0.01, "school": -0.01, "geo": -0.01},
+        "weight_shift": {
+            "major": 0.01,
+            "quality": 0.01,
+            "risk": 0.01,
+            "school": -0.01,
+            "geo": -0.01,
+            "tuition": -0.01,
+        },
     },
 )
 

@@ -1,10 +1,24 @@
 from typing import Any
 
+from langchain_core.messages import AIMessage
+
 from app.evaluation.sandbox import run_sandbox_evaluation
 from app.evaluation.schemas import IcebergProfile
 from app.evaluation.simulator import UserSimulator
 from app.graphs.nodes.preference_tracker import FeedbackAnalysis
 from app.graphs.workflow import build_graph
+
+
+class FakeLLM:
+    async def ainvoke(self, prompt):
+        text = "\n".join(str(getattr(message, "content", "")) for message in prompt)
+        if "最终志愿表" in text:
+            return AIMessage(
+                content="偏好解释：系统根据当前取舍重新排序。最终推荐：终局推荐大学。"
+            )
+        return AIMessage(
+            content="我看到一个可比较的放宽方案。你愿意继续比较这个方向吗？"
+        )
 
 
 def _candidate(school: str, utility: float = 1.0) -> dict[str, Any]:
@@ -22,6 +36,7 @@ def _candidate(school: str, utility: float = 1.0) -> dict[str, Any]:
             "tuition": 1.0,
             "quality": 0.7,
             "geo": 0.4,
+            "risk": 0.7,
         },
     }
 
@@ -45,7 +60,7 @@ def _opportunities() -> dict[str, list[dict[str, Any]]]:
 
 
 def test_auto_sandbox_episode(monkeypatch):
-    monkeypatch.setenv("GAOKAOLLM_OFFLINE_DETERMINISTIC", "1")
+    monkeypatch.delenv("GAOKAOLLM_OFFLINE_DETERMINISTIC", raising=False)
 
     async def fake_run_baseline(constraints):
         return [{"school_name": "基准大学", "min_score": 590, "tier": 2}]
@@ -74,6 +89,7 @@ def test_auto_sandbox_episode(monkeypatch):
         "app.graphs.nodes.preference_tracker.analyze_feedback_with_llm",
         fake_analyze_feedback,
     )
+    monkeypatch.setattr("app.graphs.nodes.negotiator.get_chat_model", lambda: FakeLLM())
 
     profile = IcebergProfile(
         profile_id="iceberg-smoke-001",
@@ -85,6 +101,7 @@ def test_auto_sandbox_episode(monkeypatch):
             "major": 0.4,
             "tuition": 0.0,
             "quality": 0.0,
+            "risk": 0.0,
         },
     )
     simulator = UserSimulator(

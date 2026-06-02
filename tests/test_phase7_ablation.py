@@ -53,6 +53,7 @@ def _candidate(school: str, utility: float = 1.0) -> dict[str, Any]:
             "tuition": 1.0,
             "quality": 0.7,
             "geo": 0.4,
+            "risk": 0.7,
         },
     }
 
@@ -100,11 +101,12 @@ async def test_ucb_ablation_bypasses_forced_probe(monkeypatch):
             "baseline_results": [{"school_name": "基准大学", "min_score": 590}],
             "score_waste": 5,
             "implicit_weights": {
-                "school": 0.25,
-                "major": 0.25,
-                "tuition": 0.25,
-                "quality": 0.25,
-                "geo": 0.25,
+                "school": 1 / 6,
+                "major": 1 / 6,
+                "tuition": 1 / 6,
+                "quality": 1 / 6,
+                "geo": 1 / 6,
+                "risk": 1 / 6,
             },
             "weight_variance": {
                 "tuition": 2.0,
@@ -112,6 +114,7 @@ async def test_ucb_ablation_bypasses_forced_probe(monkeypatch):
                 "major": 0.1,
                 "quality": 0.1,
                 "geo": 0.1,
+                "risk": 0.1,
             },
         },
         config={"configurable": {"ablation_mode": "no_ucb"}},
@@ -140,6 +143,7 @@ async def test_tracker_ablation_keeps_weights_and_variance(monkeypatch):
         "tuition": 0.1,
         "quality": 0.2,
         "geo": 0.1,
+        "risk": 0.0,
     }
     variance = {
         "school": 0.3,
@@ -147,6 +151,7 @@ async def test_tracker_ablation_keeps_weights_and_variance(monkeypatch):
         "tuition": 0.5,
         "quality": 0.6,
         "geo": 0.7,
+        "risk": 0.8,
     }
 
     result = await preference_tracker_node(

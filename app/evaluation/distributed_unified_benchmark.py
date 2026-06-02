@@ -34,7 +34,13 @@ DEFAULT_LOG_DIR = Path("app/evaluation/results/logs/c2c5_distributed")
 DEFAULT_MANIFEST = Path("app/evaluation/results/distributed_c2c5_manifest.json")
 DEFAULT_HEALTH_JSON = Path("app/evaluation/results/llm_lanes_healthcheck.json")
 DEFAULT_HEALTH_MD = Path("app/evaluation/results/llm_lanes_healthcheck.md")
+DEFAULT_C6_SHARD_DIR = Path("gaokaollm_bench/sample_data/unified_c6_shards")
+DEFAULT_C6_SPLIT_ROOT = Path("gaokaollm_bench/sample_data/unified_c6_split_by_lane")
+DEFAULT_C6_OUTPUT_ROOT = Path("gaokaollm_bench/outputs/unified_distributed_c6_sharded")
+DEFAULT_C6_LOG_DIR = Path("app/evaluation/results/logs/c6_distributed")
+DEFAULT_C6_MANIFEST = Path("app/evaluation/results/distributed_c6_manifest.json")
 DEFAULT_BASELINE_TARGETS = ("app_pareto", "v1_prompt_direct", "v1_prompt_cot")
+DEFAULT_MAINLINE_BASELINE_TARGETS = ("app_pareto", "v1_prompt_direct")
 DEFAULT_ABLATION_TARGETS = (
     "app_pareto_full",
     "app_pareto_no_ucb",
@@ -46,6 +52,7 @@ DEFAULT_CONSTRAINT_LANES = {
     4: "aliyun_1",
     5: "aliyun_2",
 }
+DEFAULT_LANE_ORDER = ("siliconflow_1", "siliconflow_2", "aliyun_1", "aliyun_2")
 
 
 @dataclass(frozen=True)
@@ -77,6 +84,27 @@ def parse_ints(values: list[str] | None, default: tuple[int, ...]) -> list[int]:
             if part.strip():
                 parsed.append(int(part.strip()))
     return parsed
+
+
+def load_persona_items(path: str | Path) -> list[dict[str, Any]]:
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    if isinstance(data, dict) and isinstance(data.get("items"), list):
+        data = data["items"]
+    if not isinstance(data, list):
+        raise ValueError("personas file must contain a list or {'items': [...]}")
+    return [item for item in data if isinstance(item, dict)]
+
+
+def persona_constraint_count(persona: dict[str, Any]) -> int | None:
+    background = persona.get("background") if isinstance(persona, dict) else {}
+    try:
+        return int((background or {}).get("constraint_count"))
+    except (TypeError, ValueError):
+        return None
+
+
+def shard_path_for_lane(shard_dir: str | Path, constraint: int, lane_id: str) -> Path:
+    return Path(shard_dir) / f"c{constraint}_{lane_id}.json"
 
 
 def command_str(command: list[str]) -> str:
@@ -319,7 +347,7 @@ def build_adaptive_command(
         "-m",
         "app.evaluation.adaptive_unified_benchmark",
         "--mode",
-        "all",
+        args.mode,
         "--personas",
         str(args.personas),
         "--models-file",
@@ -366,6 +394,60 @@ def build_adaptive_command(
     if args.override_concurrency is not None:
         command.extend(["--override-concurrency", str(args.override_concurrency)])
     return command
+
+
+def cmd_shard_cases(args: argparse.Namespace) -> int:
+    lane_ids = list(args.lane_ids or DEFAULT_LANE_ORDER)
+    if args.shards != len(lane_ids):
+        raise ValueError(
+            f"--shards={args.shards} must match lane id count={len(lane_ids)}"
+        )
+    rows = [
+        item
+        for item in load_persona_items(args.personas)
+        if persona_constraint_count(item) == args.constraint_count
+    ]
+    if not rows:
+        raise ValueError(
+            f"no personas found for constraint_count={args.constraint_count}"
+        )
+
+    buckets: dict[str, list[dict[str, Any]]] = {lane_id: [] for lane_id in lane_ids}
+    for index, item in enumerate(rows):
+        buckets[lane_ids[index % len(lane_ids)]].append(item)
+
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    manifest_jobs: list[dict[str, Any]] = []
+    for lane_id in lane_ids:
+        out = shard_path_for_lane(output_dir, args.constraint_count, lane_id)
+        out.write_text(
+            json.dumps(buckets[lane_id], ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        manifest_jobs.append(
+            {
+                "lane_id": lane_id,
+                "path": str(out),
+                "cases": len(buckets[lane_id]),
+            }
+        )
+        print(f"[shard-cases] {lane_id} cases={len(buckets[lane_id])} -> {out}")
+
+    manifest = {
+        "created_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "personas": str(args.personas),
+        "constraint_count": args.constraint_count,
+        "total_cases": len(rows),
+        "shards": manifest_jobs,
+    }
+    manifest_path = output_dir / f"c{args.constraint_count}_shards_manifest.json"
+    manifest_path.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    print(f"[shard-cases] wrote {manifest_path}")
+    return 0
 
 
 def run_lane_job(
@@ -439,6 +521,88 @@ def run_lane_job(
     }
 
 
+def run_shard_job(
+    *,
+    args: argparse.Namespace,
+    lane: ProviderLane,
+    constraint: int,
+    run_id: str,
+) -> dict[str, Any]:
+    started = time.monotonic()
+    shard_path = shard_path_for_lane(args.shard_dir, constraint, lane.lane_id)
+    if not shard_path.exists():
+        raise FileNotFoundError(f"shard not found for {lane.lane_id}: {shard_path}")
+    models_file = write_runtime_models_file(
+        lane,
+        runtime_root=args.runtime_root,
+        run_id=run_id,
+    )
+    job_output_root = Path(args.output_root) / lane.lane_id
+    job_split_dir = Path(args.split_root) / lane.lane_id
+    job_args = argparse.Namespace(**vars(args))
+    job_args.personas = str(shard_path)
+    job_args.output_root = str(job_output_root)
+    job_args.split_dir = str(job_split_dir)
+    command = build_adaptive_command(
+        args=job_args,
+        lane=lane,
+        constraint=constraint,
+        models_file=models_file,
+    )
+    job = {
+        "constraint": constraint,
+        "lane": lane.safe_summary(),
+        "shard_path": str(shard_path),
+        "output_root": str(job_output_root),
+        "split_dir": str(job_split_dir),
+        "models_file": str(models_file),
+        "command": command,
+        "started_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+    }
+    if args.dry_run:
+        print(
+            f"[dry-run] C{constraint} shard={shard_path.name} -> {lane.lane_id} "
+            f"output_root={job_output_root}"
+        )
+        print(f"[dry-run] {command_str(command)}")
+        return {**job, "returncode": None, "elapsed_seconds": 0.0, "dry_run": True}
+
+    log_dir = Path(args.log_dir)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    job_output_root.mkdir(parents=True, exist_ok=True)
+    job_split_dir.mkdir(parents=True, exist_ok=True)
+    stdout_path = log_dir / f"distributed_c{constraint}_{lane.lane_id}_shard.stdout.log"
+    stderr_path = log_dir / f"distributed_c{constraint}_{lane.lane_id}_shard.stderr.log"
+    print(
+        f"[distributed] starting C{constraint} shard={shard_path.name} "
+        f"lane={lane.lane_id} provider={lane.provider}"
+    )
+    with (
+        stdout_path.open("a", encoding="utf-8") as stdout,
+        stderr_path.open("a", encoding="utf-8") as stderr,
+    ):
+        completed = subprocess.run(
+            command,
+            check=False,
+            env=lane.env(),
+            stdout=stdout,
+            stderr=stderr,
+        )
+    elapsed = round(time.monotonic() - started, 3)
+    print(
+        f"[distributed] finished C{constraint} shard={shard_path.name} "
+        f"lane={lane.lane_id} returncode={completed.returncode} elapsed={elapsed:.1f}s"
+    )
+    return {
+        **job,
+        "returncode": completed.returncode,
+        "elapsed_seconds": elapsed,
+        "stdout": str(stdout_path),
+        "stderr": str(stderr_path),
+        "dry_run": False,
+    }
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     lanes = lanes_by_id(load_lanes(args.config))
     constraints = parse_ints(args.constraints, (2, 3, 4, 5))
@@ -489,6 +653,56 @@ def cmd_run(args: argparse.Namespace) -> int:
     return 0 if all(job.get("returncode") == 0 for job in results) else 1
 
 
+def cmd_run_shards(args: argparse.Namespace) -> int:
+    lanes = lanes_by_id(load_lanes(args.config))
+    lane_ids = list(args.lane_ids or DEFAULT_LANE_ORDER)
+    missing = [lane_id for lane_id in lane_ids if lane_id not in lanes]
+    if missing:
+        raise ValueError(f"unknown lane ids: {', '.join(missing)}")
+    run_id = args.run_id or utc_run_id()
+    jobs = [lanes[lane_id] for lane_id in lane_ids]
+
+    Path(args.output_root).mkdir(parents=True, exist_ok=True)
+    Path(args.split_root).mkdir(parents=True, exist_ok=True)
+    Path(args.log_dir).mkdir(parents=True, exist_ok=True)
+    Path(args.runtime_root).mkdir(parents=True, exist_ok=True)
+    results: list[dict[str, Any]] = []
+    with ThreadPoolExecutor(
+        max_workers=max(1, min(args.parallel_lanes, len(jobs)))
+    ) as executor:
+        futures = [
+            executor.submit(
+                run_shard_job,
+                args=args,
+                lane=lane,
+                constraint=args.constraint,
+                run_id=run_id,
+            )
+            for lane in jobs
+        ]
+        for future in as_completed(futures):
+            results.append(future.result())
+    results.sort(key=lambda item: item["lane"]["lane_id"])
+    manifest = {
+        "run_id": run_id,
+        "created_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "mode": "sharded",
+        "constraint": args.constraint,
+        "shard_dir": str(args.shard_dir),
+        "output_root": str(args.output_root),
+        "split_root": str(args.split_root),
+        "log_dir": str(args.log_dir),
+        "jobs": results,
+    }
+    out = Path(args.manifest)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[distributed] wrote {out}")
+    if args.dry_run:
+        return 0
+    return 0 if all(job.get("returncode") == 0 for job in results) else 1
+
+
 def read_jsonl_stats(path: Path) -> dict[str, int]:
     rows = ok = failed = 0
     if not path.exists():
@@ -522,8 +736,9 @@ def cmd_status(args: argparse.Namespace) -> int:
     for job in manifest.get("jobs", []):
         constraint = int(job["constraint"])
         lane_id = job["lane"]["lane_id"]
+        job_output_root = Path(job.get("output_root") or output_root)
         for suite in ("baseline", "ablation"):
-            suite_dir = output_root / f"c{constraint}" / suite
+            suite_dir = job_output_root / f"c{constraint}" / suite
             if not suite_dir.exists():
                 continue
             for model_dir in sorted(
@@ -573,8 +788,21 @@ def build_parser() -> argparse.ArgumentParser:
     health.add_argument("--fail-fast", action="store_true")
     health.set_defaults(func=cmd_healthcheck)
 
+    shard = sub.add_parser("shard-cases")
+    shard.add_argument("--personas", default=str(DEFAULT_PERSONAS))
+    shard.add_argument("--constraint-count", type=int, default=6)
+    shard.add_argument("--shards", type=int, default=len(DEFAULT_LANE_ORDER))
+    shard.add_argument("--output-dir", default=str(DEFAULT_C6_SHARD_DIR))
+    shard.add_argument("--lane-ids", nargs="*", default=list(DEFAULT_LANE_ORDER))
+    shard.set_defaults(func=cmd_shard_cases)
+
     run = sub.add_parser("run")
     run.add_argument("--config", default=str(DEFAULT_CONFIG_PATH))
+    run.add_argument(
+        "--mode",
+        choices=("all", "baseline", "ablation"),
+        default="all",
+    )
     run.add_argument("--constraints", nargs="*", default=None)
     run.add_argument("--personas", default=str(DEFAULT_PERSONAS))
     run.add_argument("--output-root", default=str(DEFAULT_OUTPUT_ROOT))
@@ -604,6 +832,44 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--run-id", default=None)
     run.add_argument("--dry-run", action="store_true")
     run.set_defaults(func=cmd_run)
+
+    run_shards = sub.add_parser("run-shards")
+    run_shards.add_argument("--config", default=str(DEFAULT_CONFIG_PATH))
+    run_shards.add_argument(
+        "--mode",
+        choices=("all", "baseline", "ablation"),
+        default="all",
+    )
+    run_shards.add_argument("--constraint", type=int, default=6)
+    run_shards.add_argument("--shard-dir", default=str(DEFAULT_C6_SHARD_DIR))
+    run_shards.add_argument("--output-root", default=str(DEFAULT_C6_OUTPUT_ROOT))
+    run_shards.add_argument("--split-root", default=str(DEFAULT_C6_SPLIT_ROOT))
+    run_shards.add_argument("--log-dir", default=str(DEFAULT_C6_LOG_DIR))
+    run_shards.add_argument("--manifest", default=str(DEFAULT_C6_MANIFEST))
+    run_shards.add_argument("--runtime-root", default=str(DEFAULT_RUNTIME_ROOT))
+    run_shards.add_argument("--lane-ids", nargs="*", default=list(DEFAULT_LANE_ORDER))
+    run_shards.add_argument(
+        "--baseline-targets", nargs="+", default=list(DEFAULT_MAINLINE_BASELINE_TARGETS)
+    )
+    run_shards.add_argument(
+        "--ablation-targets", nargs="+", default=list(DEFAULT_ABLATION_TARGETS)
+    )
+    run_shards.add_argument("--parallel-lanes", type=int, default=4)
+    run_shards.add_argument("--parallel-models", type=int, default=5)
+    run_shards.add_argument("--initial-concurrency", type=int, default=10)
+    run_shards.add_argument("--override-concurrency", type=int, default=None)
+    run_shards.add_argument("--min-concurrency", type=int, default=2)
+    run_shards.add_argument("--batch-attempts", type=int, default=6)
+    run_shards.add_argument("--case-retries", type=int, default=2)
+    run_shards.add_argument("--request-timeout", type=float, default=120.0)
+    run_shards.add_argument("--case-timeout", type=float, default=600.0)
+    run_shards.add_argument("--failure-threshold", type=float, default=0.30)
+    run_shards.add_argument("--timeout-threshold", type=float, default=0.20)
+    run_shards.add_argument("--max-turns", type=int, default=6)
+    run_shards.add_argument("--max-models", type=int, default=None)
+    run_shards.add_argument("--run-id", default=None)
+    run_shards.add_argument("--dry-run", action="store_true")
+    run_shards.set_defaults(func=cmd_run_shards)
 
     status = sub.add_parser("status")
     status.add_argument("--manifest", default=str(DEFAULT_MANIFEST))

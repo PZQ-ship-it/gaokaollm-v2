@@ -28,7 +28,7 @@ from app.evaluation.classification_metrics import (
 from app.evaluation.schemas import IcebergProfile
 
 
-PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo")
+PREFERENCE_KEYS = ("school", "major", "tuition", "quality", "geo", "risk")
 RESULTS_DIR = Path(__file__).parent / "results"
 REFERENCE_FIELDS = (
     "dataset",
@@ -45,11 +45,12 @@ V1_HYBRID_BASELINE = "v1_hybrid_candidate_proxy"
 
 
 class InitialPreferenceWeights(BaseModel):
-    school: float = 0.2
-    major: float = 0.2
-    tuition: float = 0.2
-    quality: float = 0.2
-    geo: float = 0.2
+    school: float = 1 / 6
+    major: float = 1 / 6
+    tuition: float = 1 / 6
+    quality: float = 1 / 6
+    geo: float = 1 / 6
+    risk: float = 1 / 6
     rationale: str = ""
 
 
@@ -91,9 +92,9 @@ def normalize_weights(
     values: dict[str, float] = {}
     for key in PREFERENCE_KEYS:
         try:
-            value = float(raw.get(key, 0.2))
+            value = float(raw.get(key, 1.0 / len(PREFERENCE_KEYS)))
         except (TypeError, ValueError):
-            value = 0.2
+            value = 1.0 / len(PREFERENCE_KEYS)
         values[key] = max(0.0, min(1.0, value))
     total = sum(values.values())
     if not math.isfinite(total) or total <= 0.0:
@@ -214,6 +215,33 @@ def _quality_signal(row: dict[str, Any]) -> float:
     return 0.35
 
 
+def _risk_signal(row: dict[str, Any]) -> float:
+    label = str(
+        row.get("risk_label") or row.get("risk_level") or row.get("risk_bucket") or ""
+    )
+    if label in {"保", "bao", "safety", "dian"}:
+        return 1.0
+    if label in {"稳", "wen", "match"}:
+        return 0.7
+    if label in {"冲", "chong", "reach"}:
+        return 0.25
+    ratio = _safe_float(row.get("rank_ratio"), -1.0)
+    if ratio > 0:
+        if ratio < 0.85:
+            return 0.0
+        if ratio < 0.98:
+            return 0.25
+        if ratio <= 1.15:
+            return 0.7
+        if ratio <= 1.40:
+            return 1.0
+    student_rank = _safe_float(row.get("student_rank"), 0.0)
+    min_rank = _safe_float(row.get("min_rank"), 0.0)
+    if student_rank > 0 and min_rank > 0:
+        return _risk_signal({"rank_ratio": min_rank / student_rank})
+    return 0.5
+
+
 def infer_weights_from_v1_candidates(
     candidates: list[dict[str, Any]],
     *,
@@ -232,6 +260,7 @@ def infer_weights_from_v1_candidates(
             "tuition": _tuition_signal(row, query_text),
             "quality": _quality_signal(row),
             "geo": _geo_signal(row, query_text),
+            "risk": _risk_signal(row),
         }
         for key, value in signals.items():
             evidence[key] += rank_weight * max(0.0, min(1.0, value))
@@ -338,7 +367,7 @@ async def infer_initial_weights_with_llm(
                 "agent. Use ONLY the user's explicit initial query. Do not infer "
                 "hidden bottom lines, do not use profile_id, do not use later "
                 "dialogue, and do not use ground-truth labels. Return five "
-                "non-negative weights for school, major, tuition, quality, and geo. "
+                "non-negative weights for school, major, tuition, quality, geo, and risk. "
                 "The weights may be unnormalized; the evaluator will normalize them."
             )
         ),

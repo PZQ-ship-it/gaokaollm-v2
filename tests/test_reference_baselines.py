@@ -28,6 +28,7 @@ def test_compute_mae_matches_sandbox_formula():
         "tuition": 0.2,
         "quality": 0.1,
         "geo": 0.1,
+        "risk": 0.0,
     }
     ground_truth = {
         "school": 0.2,
@@ -35,6 +36,7 @@ def test_compute_mae_matches_sandbox_formula():
         "tuition": 0.1,
         "quality": 0.2,
         "geo": 0.1,
+        "risk": 0.0,
     }
 
     assert compute_mae(weights, ground_truth) == pytest.approx(
@@ -55,7 +57,14 @@ def test_random_dirichlet_baseline_is_reproducible_and_valid():
 
 def test_normalize_weights_clips_and_sums_to_one():
     normalized = normalize_weights(
-        {"school": 2.0, "major": "bad", "tuition": -1.0, "quality": 0.0, "geo": 0.0}
+        {
+            "school": 2.0,
+            "major": "bad",
+            "tuition": -1.0,
+            "quality": 0.0,
+            "geo": 0.0,
+            "risk": 0.0,
+        }
     )
 
     assert sum(normalized.values()) == pytest.approx(1.0)
@@ -151,6 +160,7 @@ async def test_initial_llm_baseline_uses_structured_output(monkeypatch):
                 tuition=0.1,
                 quality=0.1,
                 geo=0.0,
+                risk=0.0,
                 rationale="explicitly asks for computer major",
             )
 
@@ -188,6 +198,7 @@ async def test_reference_baseline_csv_and_error_modes(monkeypatch):
             "tuition": 0.2,
             "quality": 0.1,
             "geo": 0.1,
+            "risk": 0.0,
         }
 
     monkeypatch.setattr(
@@ -257,6 +268,7 @@ async def test_reference_baseline_can_include_mocked_v1_hybrid(monkeypatch):
             "tuition": 0.2,
             "quality": 0.1,
             "geo": 0.1,
+            "risk": 0.0,
         }
 
     async def fake_v1(profile: Any, *, timeout_seconds: float = 180.0):
@@ -267,6 +279,7 @@ async def test_reference_baseline_can_include_mocked_v1_hybrid(monkeypatch):
             "tuition": 0.10,
             "quality": 0.10,
             "geo": 0.10,
+            "risk": 0.00,
         }
 
     monkeypatch.setattr(

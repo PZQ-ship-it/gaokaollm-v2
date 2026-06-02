@@ -41,6 +41,7 @@ def _candidate(
             "tuition": 1.0,
             "quality": 0.7,
             "geo": geo_phi,
+            "risk": 0.7,
         },
     }
 
@@ -71,6 +72,7 @@ async def test_radar_halting_routes_to_global_baseline(monkeypatch):
                 "tuition": 0.1,
                 "quality": 0.1,
                 "geo": 0.1,
+                "risk": 0.1,
             },
             "negotiation_turns": 1,
         }
@@ -104,9 +106,9 @@ async def test_negotiator_pareto_question_interrupts_with_mrs_prompt(monkeypatch
         await negotiator_node(state)
 
     prompt_text = "\n".join(message.content for message in fake_llm.prompts[0])
-    assert "帕累托权衡" in prompt_text
-    assert "牺牲/放宽" in prompt_text
-    assert "换取" in prompt_text
+    assert "交互式推荐助手" in prompt_text
+    assert "不要输出 tier" in prompt_text
+    assert "candidate_a_user_facing" in prompt_text
 
 
 @pytest.mark.asyncio
@@ -127,6 +129,7 @@ async def test_negotiator_global_baseline_outputs_xai_without_interrupt(monkeypa
                 "tuition": 0.1,
                 "quality": 0.2,
                 "geo": 0.1,
+                "risk": 0.0,
             },
             "weight_variance": {
                 "school": 0.1,
@@ -134,6 +137,7 @@ async def test_negotiator_global_baseline_outputs_xai_without_interrupt(monkeypa
                 "tuition": 0.1,
                 "quality": 0.1,
                 "geo": 0.1,
+                "risk": 0.1,
             },
         }
     )

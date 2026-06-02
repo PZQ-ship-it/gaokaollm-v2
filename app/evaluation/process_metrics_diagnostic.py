@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-DIMENSIONS = ("school", "major", "tuition", "quality", "geo")
+DIMENSIONS = ("school", "major", "tuition", "quality", "geo", "risk")
 DEFAULT_INPUT = Path(
     "app/evaluation/results/unified_micro_oracle_v3_ablation_results.csv"
 )

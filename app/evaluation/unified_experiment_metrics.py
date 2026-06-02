@@ -21,13 +21,14 @@ from app.evaluation.reference_baselines import (
     _geo_signal,
     _major_signal,
     _quality_signal,
+    _risk_signal,
     _school_signal,
     _tuition_signal,
     infer_weights_from_v1_candidates,
 )
 
 
-DIMENSIONS = ("school", "major", "tuition", "quality", "geo")
+DIMENSIONS = ("school", "major", "tuition", "quality", "geo", "risk")
 RECOMMENDATION_TOP_N = 3
 RECOMMENDATION_TOP_NS = (1, 3, 5, 10)
 STATIC_RECALL_FIELDS = (
@@ -80,6 +81,23 @@ DEFAULT_CASES = Path(
 DEFAULT_BASELINE_ROOT = Path("gaokaollm_bench/outputs/unified_baseline_arena")
 DEFAULT_ABLATION_ROOT = Path("gaokaollm_bench/outputs/unified_ablation_arena")
 DEFAULT_RESULTS_DIR = Path("app/evaluation/results")
+MODEL_ALIASES = {
+    "Pro/zai-org/GLM-5.1": "GLM-5.1",
+    "glm-5.1": "GLM-5.1",
+    "Pro/deepseek-ai/DeepSeek-V3.2": "DeepSeek-V3.2",
+    "deepseek-v3.2": "DeepSeek-V3.2",
+    "Pro/MiniMaxAI/MiniMax-M2.5": "MiniMax-M2.5",
+    "MiniMax-M2.5": "MiniMax-M2.5",
+    "Pro/moonshotai/Kimi-K2.6": "Kimi-K2.6",
+    "kimi-k2.6": "Kimi-K2.6",
+    "Qwen/Qwen3.6-35B-A3B": "Qwen3.6",
+    "qwen3.6-plus": "Qwen3.6",
+}
+
+
+def model_alias(model: Any) -> str:
+    value = str(model or "")
+    return MODEL_ALIASES.get(value, value)
 
 
 def read_cases(path: str | Path) -> dict[str, UnifiedIcebergCase]:
@@ -342,6 +360,7 @@ def candidate_feature_vector(row: dict[str, Any], query_text: str) -> dict[str, 
         "tuition": _tuition_signal(row, query_text),
         "quality": _quality_signal(row),
         "geo": _geo_signal(row, query_text),
+        "risk": _risk_signal(row),
     }
 
 
@@ -833,6 +852,9 @@ def build_baseline_rows(
                 row = {
                     "suite": str(meta.get("suite") or "baseline"),
                     "model": str(meta.get("model") or run_dir.parent.name),
+                    "model_alias": model_alias(
+                        meta.get("model") or run_dir.parent.name
+                    ),
                     "target": target,
                     "case_id": case.case_id,
                     "status": report.get("status"),
@@ -898,6 +920,9 @@ def build_ablation_rows(
                 row = {
                     "suite": str(meta.get("suite") or "ablation"),
                     "model": str(meta.get("model") or run_dir.parent.name),
+                    "model_alias": model_alias(
+                        meta.get("model") or run_dir.parent.name
+                    ),
                     "target": target,
                     "ablation_mode": TARGET_TO_MODE.get(target, target),
                     "case_id": case.case_id,
@@ -1043,7 +1068,7 @@ def write_summary(
     baseline_rows: list[dict[str, Any]],
     ablation_rows: list[dict[str, Any]],
 ) -> None:
-    baseline_by_target = group_rows(baseline_rows, ("model", "target"))
+    baseline_by_target = group_rows(baseline_rows, ("model_alias", "target"))
     baseline_by_constraint = group_rows(
         baseline_rows,
         ("target", "constraint_count"),
@@ -1064,7 +1089,7 @@ def write_summary(
         *markdown_table(
             baseline_by_target,
             [
-                "model",
+                "model_alias",
                 "target",
                 "n",
                 "completed",
