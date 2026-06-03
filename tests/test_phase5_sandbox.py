@@ -5,7 +5,6 @@ from langchain_core.messages import AIMessage
 from app.evaluation.sandbox import run_sandbox_evaluation
 from app.evaluation.schemas import IcebergProfile
 from app.evaluation.simulator import UserSimulator
-from app.graphs.nodes.preference_tracker import FeedbackAnalysis
 from app.graphs.workflow import build_graph
 
 
@@ -68,26 +67,19 @@ def test_auto_sandbox_episode(monkeypatch):
     async def fake_run_all_probes(constraints, db=None, user_state=None):
         return _opportunities()
 
-    async def fake_probe_global_baseline(user_state, db=None, limit=5):
+    async def fake_probe_global_baseline(
+        user_state,
+        db=None,
+        limit=5,
+        total_limit=None,
+    ):
         return [_candidate("终局推荐大学", utility=1.3)]
-
-    feedback_calls = {"count": 0}
-
-    async def fake_analyze_feedback(state):
-        feedback_calls["count"] += 1
-        if feedback_calls["count"] == 1:
-            return FeedbackAnalysis(intent="accept", target_dimension="school")
-        return FeedbackAnalysis(intent="reject", target_dimension="tuition")
 
     monkeypatch.setattr("app.graphs.nodes.gatekeeper.run_baseline", fake_run_baseline)
     monkeypatch.setattr("app.graphs.nodes.radar.run_all_probes", fake_run_all_probes)
     monkeypatch.setattr(
         "app.graphs.nodes.radar.probe_global_baseline",
         fake_probe_global_baseline,
-    )
-    monkeypatch.setattr(
-        "app.graphs.nodes.preference_tracker.analyze_feedback_with_llm",
-        fake_analyze_feedback,
     )
     monkeypatch.setattr("app.graphs.nodes.negotiator.get_chat_model", lambda: FakeLLM())
 

@@ -38,6 +38,15 @@ def _current_probe_name(values: dict[str, Any]) -> str:
     return str(first.get("probe_name") or first.get("probe") or "")
 
 
+def _feedback_signal_from_reply(reply: str) -> str:
+    text = str(reply or "")
+    if any(token in text for token in ("接受", "可以", "愿意", "考虑", "纳入")):
+        return "ACCEPT"
+    if any(token in text for token in ("拒绝", "不能接受", "不接受", "不行", "绝对不")):
+        return "REJECT"
+    return "HESITATE"
+
+
 def _mae(
     inferred_weights: dict[str, Any],
     ground_truth_weights: dict[str, float],
@@ -105,6 +114,7 @@ async def arun_sandbox_evaluation(
 
         print(f"[Agent]: {question}")
         reply = simulator.generate_reply(question)
+        feedback_signal = _feedback_signal_from_reply(reply)
         print(f"[Simulator]: {reply}")
         values = getattr(snapshot, "values", {}) or {}
         append_episode_log(
@@ -119,13 +129,14 @@ async def arun_sandbox_evaluation(
                 "ucb_target_dimension": values.get("ucb_target_dimension"),
                 "question": question,
                 "simulator_reply": reply,
+                "feedback_signal": feedback_signal,
                 "latest_pareto_diff": values.get("latest_pareto_diff"),
                 "inferred_weights": values.get("implicit_weights"),
                 "status": "interrupt",
             },
             log_output_dir,
         )
-        payload = Command(resume=reply)
+        payload = Command(resume=feedback_signal)
 
     final_state = agent_app.get_state(config).values
     inferred_weights = dict(final_state.get("implicit_weights") or {})

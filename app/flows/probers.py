@@ -47,6 +47,9 @@ RANK_BUCKET_RANGES = {
 RANK_WINDOW_MIN = 0.85
 RANK_WINDOW_MAX = 1.40
 RANK_WINDOW_RELAXED_MIN = 0.75
+RISK_RELAX_MAX_RANK_RATIO = 0.95
+RISK_RELAX_MIN_SCORE_DEFICIT = 5
+RISK_RELAX_MIN_RANK_GAP = 2500
 SPECIAL_MAJOR_TERMS = (
     "中外合作",
     "合作办学",
@@ -1184,6 +1187,19 @@ def _annotate_risk_row(
     return annotated
 
 
+def _is_material_risk_relaxation(row: dict[str, Any]) -> bool:
+    rank_ratio = _coerce_float(row.get("rank_ratio"))
+    if rank_ratio is not None:
+        return rank_ratio <= RISK_RELAX_MAX_RANK_RATIO
+    rank_gap = _coerce_float(row.get("rank_gap"))
+    if rank_gap is not None:
+        return rank_gap <= -RISK_RELAX_MIN_RANK_GAP
+    score_margin = _coerce_float(row.get("score_margin"))
+    if score_margin is not None:
+        return score_margin <= -RISK_RELAX_MIN_SCORE_DEFICIT
+    return False
+
+
 def _risk_selection_key(row: dict[str, Any]) -> tuple[Any, ...]:
     ranking = row.get("ranking")
     score_margin = row.get("score_margin")
@@ -1598,6 +1614,7 @@ def build_recommendation_matrix(
     user_state: dict[str, Any] | None,
     *,
     limit_per_bucket: int = 3,
+    total_limit: int | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     matrix: dict[str, list[dict[str, Any]]] = {
         key: [] for key in GLOBAL_BASELINE_BUCKETS
@@ -1629,7 +1646,51 @@ def build_recommendation_matrix(
             key=_lexicographic_sort_key,
             reverse=True,
         )[:limit_per_bucket]
+    if total_limit is not None:
+        matrix = _limit_recommendation_matrix_total(matrix, total_limit)
     return matrix
+
+
+def _limit_recommendation_matrix_total(
+    matrix: dict[str, list[dict[str, Any]]],
+    total_limit: int,
+) -> dict[str, list[dict[str, Any]]]:
+    total_limit = max(0, int(total_limit))
+    if total_limit <= 0:
+        return {key: [] for key in GLOBAL_BASELINE_BUCKETS}
+    total_count = sum(
+        len(matrix.get(bucket) or []) for bucket in GLOBAL_BASELINE_BUCKETS
+    )
+    if total_count <= total_limit:
+        return {
+            bucket: list(matrix.get(bucket) or []) for bucket in GLOBAL_BASELINE_BUCKETS
+        }
+
+    base_quota = total_limit // len(GLOBAL_BASELINE_BUCKETS)
+    remainder = total_limit % len(GLOBAL_BASELINE_BUCKETS)
+    limited: dict[str, list[dict[str, Any]]] = {
+        bucket: [] for bucket in GLOBAL_BASELINE_BUCKETS
+    }
+    for index, bucket in enumerate(GLOBAL_BASELINE_BUCKETS):
+        quota = base_quota + (1 if index < remainder else 0)
+        rows = matrix.get(bucket) or []
+        limited[bucket] = list(rows[:quota])
+
+    remaining = total_limit - sum(len(rows) for rows in limited.values())
+    while remaining > 0:
+        progressed = False
+        for bucket in GLOBAL_BASELINE_BUCKETS:
+            rows = matrix.get(bucket) or []
+            if len(limited[bucket]) >= len(rows):
+                continue
+            limited[bucket].append(rows[len(limited[bucket])])
+            remaining -= 1
+            progressed = True
+            if remaining <= 0:
+                break
+        if not progressed:
+            break
+    return limited
 
 
 async def probe_global_baseline(
@@ -1637,6 +1698,7 @@ async def probe_global_baseline(
     db: Any = None,
     limit: int = 5,
     pool_size: int = 500,
+    total_limit: int | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Search hard constraints, bucket by rank ratio, then rank by implicit utility."""
 
@@ -1685,10 +1747,14 @@ async def probe_global_baseline(
     ]
     ranked = await rank_by_implicit_utility_async(candidates, user_state)
     ranked = _dedupe_visible_options(ranked)
+    limit_per_bucket = (
+        max(1, limit) if total_limit is not None else max(1, min(3, limit))
+    )
     return build_recommendation_matrix(
         ranked,
         user_state,
-        limit_per_bucket=max(1, min(3, limit)),
+        limit_per_bucket=limit_per_bucket,
+        total_limit=total_limit,
     )
 
 
@@ -2413,6 +2479,7 @@ async def probe_risk_band_relax(
         row
         for row in annotated
         if str(row.get("risk_level") or "") in {"chong", "wen", "bao"}
+        and _is_material_risk_relaxation(row)
     ]
     selected = _select_risk_portfolio(
         annotated,

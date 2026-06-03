@@ -120,6 +120,13 @@ QUESTION_KIND_TRADEOFF = "tradeoff"
 QUESTION_KIND_NO_SIGNIFICANT_TRADEOFF = "no_significant_tradeoff"
 QUESTION_KIND_FINALIZE_OFFER = "finalize_offer"
 GLOBAL_BASELINE_BUCKETS = ("reach", "match", "safety")
+GLOBAL_BASELINE_BUCKET_LABELS = {
+    "reach": "冲",
+    "match": "稳",
+    "safety": "保",
+}
+FINAL_RECOMMENDATION_TABLE_LIMIT = 80
+FINAL_EXPLANATION_PER_BUCKET = 2
 DIMENSION_LABELS = {
     "school": "学校层次",
     "major": "专业匹配",
@@ -1866,7 +1873,12 @@ def _global_recommendation_matrix(state: AgentState) -> dict[str, list[dict[str,
     )
     if isinstance(global_result, dict):
         return {
-            key: _iter_rows(global_result.get(key)) for key in GLOBAL_BASELINE_BUCKETS
+            key: sorted(
+                _iter_rows(global_result.get(key)),
+                key=_utility_sort_key,
+                reverse=True,
+            )
+            for key in GLOBAL_BASELINE_BUCKETS
         }
     rows = _candidate_rows(state)
     matrix: dict[str, list[dict[str, Any]]] = {
@@ -1876,7 +1888,140 @@ def _global_recommendation_matrix(state: AgentState) -> dict[str, list[dict[str,
         bucket = str(row.get("risk_bucket") or row.get("risk_level") or "")
         if bucket in matrix:
             matrix[bucket].append(row)
+    for bucket in GLOBAL_BASELINE_BUCKETS:
+        matrix[bucket] = sorted(matrix[bucket], key=_utility_sort_key, reverse=True)
     return matrix
+
+
+def _limit_final_recommendation_matrix(
+    matrix: dict[str, list[dict[str, Any]]],
+    *,
+    total_limit: int = FINAL_RECOMMENDATION_TABLE_LIMIT,
+) -> dict[str, list[dict[str, Any]]]:
+    total_limit = max(0, int(total_limit))
+    if total_limit <= 0:
+        return {bucket: [] for bucket in GLOBAL_BASELINE_BUCKETS}
+    total_count = sum(
+        len(matrix.get(bucket) or []) for bucket in GLOBAL_BASELINE_BUCKETS
+    )
+    if total_count <= total_limit:
+        return {
+            bucket: list(matrix.get(bucket) or []) for bucket in GLOBAL_BASELINE_BUCKETS
+        }
+    base_quota = total_limit // len(GLOBAL_BASELINE_BUCKETS)
+    remainder = total_limit % len(GLOBAL_BASELINE_BUCKETS)
+    limited: dict[str, list[dict[str, Any]]] = {
+        bucket: [] for bucket in GLOBAL_BASELINE_BUCKETS
+    }
+    for index, bucket in enumerate(GLOBAL_BASELINE_BUCKETS):
+        quota = base_quota + (1 if index < remainder else 0)
+        limited[bucket] = list((matrix.get(bucket) or [])[:quota])
+    remaining = total_limit - sum(len(rows) for rows in limited.values())
+    while remaining > 0:
+        progressed = False
+        for bucket in GLOBAL_BASELINE_BUCKETS:
+            rows = matrix.get(bucket) or []
+            if len(limited[bucket]) >= len(rows):
+                continue
+            limited[bucket].append(rows[len(limited[bucket])])
+            remaining -= 1
+            progressed = True
+            if remaining <= 0:
+                break
+        if not progressed:
+            break
+    return limited
+
+
+def _admission_text(row: dict[str, Any]) -> str:
+    parts: list[str] = []
+    if row.get("min_score") is not None:
+        parts.append(f"{_format_numeric(row['min_score'])} 分")
+    if row.get("min_rank") is not None:
+        parts.append(f"位次 {_format_numeric(row['min_rank'])}")
+    return " / ".join(parts) if parts else "待确认"
+
+
+def _final_evidence_text(row: dict[str, Any]) -> str:
+    parts = [
+        item
+        for item in (
+            _ranking_text(row),
+            _major_quality_text(row),
+            _major_fit_text(row),
+            _employment_text(row),
+        )
+        if item
+    ]
+    return "；".join(parts[:2]) if parts else "暂无额外证据"
+
+
+def _final_reason_text(row: dict[str, Any]) -> str:
+    parts: list[str] = []
+    major_fit = _major_fit_text(row)
+    if major_fit:
+        parts.append(major_fit)
+    level = _school_level_text(row)
+    if level != "学校层级待确认":
+        parts.append(level)
+    ranking = _ranking_text(row)
+    if ranking:
+        parts.append(ranking)
+    quality = _major_quality_text(row)
+    if quality:
+        parts.append(quality)
+    budget_delta = _budget_delta_text(row)
+    if budget_delta:
+        parts.append(budget_delta)
+    return "；".join(dict.fromkeys(parts[:3])) or "按当前偏好权重排序靠前"
+
+
+def _final_table_row(row: dict[str, Any], bucket: str, index: int) -> dict[str, Any]:
+    return {
+        "bucket": bucket,
+        "bucket_label": GLOBAL_BASELINE_BUCKET_LABELS.get(bucket, bucket),
+        "order": index,
+        "school": _short_display(
+            _first_present(row, ("school_name", "school")) or "学校待确认",
+            max_len=36,
+        ),
+        "major": _display_major(
+            _first_present(row, ("major_name", "major")) or "专业待确认"
+        ),
+        "location": _location_text(row),
+        "admission": _admission_text(row),
+        "subjects": _subject_requirement_text(row),
+        "tuition": _tuition_text(row),
+        "school_level": _school_level_text(row),
+        "evidence": _final_evidence_text(row),
+        "reason": _final_reason_text(row),
+    }
+
+
+def _final_recommendation_table_matrix(
+    state: AgentState,
+) -> dict[str, list[dict[str, Any]]]:
+    matrix = _limit_final_recommendation_matrix(_global_recommendation_matrix(state))
+    return {
+        bucket: [
+            _final_table_row(row, bucket, index)
+            for index, row in enumerate(matrix.get(bucket) or [], start=1)
+        ]
+        for bucket in GLOBAL_BASELINE_BUCKETS
+    }
+
+
+def _final_recommendation_highlights(
+    matrix: dict[str, list[dict[str, Any]]],
+) -> dict[str, list[dict[str, Any]]]:
+    return {
+        bucket: list((matrix.get(bucket) or [])[:FINAL_EXPLANATION_PER_BUCKET])
+        for bucket in GLOBAL_BASELINE_BUCKETS
+    }
+
+
+def _final_recommendation_count(matrix: dict[str, list[dict[str, Any]]]) -> int:
+    return sum(len(matrix.get(bucket) or []) for bucket in GLOBAL_BASELINE_BUCKETS)
 
 
 def _should_use_pareto_fallback(
@@ -2102,20 +2247,25 @@ async def _generate_pareto_question(
         ) from exc
 
 
-async def _generate_xai_recommendation(state: AgentState) -> str:
+async def _generate_xai_recommendation(
+    state: AgentState,
+    *,
+    final_recommendation_matrix: dict[str, list[dict[str, Any]]],
+    final_recommendation_highlights: dict[str, list[dict[str, Any]]],
+) -> str:
     weights = state.get("implicit_weights") or {}
-    recommendation_matrix = _global_recommendation_matrix(state)
-    matrix_candidates = _iter_rows(recommendation_matrix)
-    candidates = (matrix_candidates or _candidate_rows(state))[:9]
+    table_count = _final_recommendation_count(final_recommendation_matrix)
     instruction = (
         "你是面向浙江高考考生的志愿咨询顾问。"
         "探测已收敛，请输出一份可直接给考生看的最终推荐。"
         "第一段做简短的显示性偏好解释：只说明从多轮取舍中观察到的偏好倾向，"
         "不要说“精准推断”“真实权重”“极度看重”，不要写口号式总结。"
         "表达要克制、可核验，例如“目前排序更偏向专业贴合和录取稳妥，同时保留已接受的放宽条件”。"
-        "随后按推荐矩阵展示候选。"
-        "\n当 reach/match/safety 分桶存在时，必须按 冲、稳、保 三层组织。"
-        "每层最多 3 个候选；每个候选写学校、专业、所在地、最低分/位次、选科要求、学费、专业贴合或学校证据中的关键项。"
+        "随后只讲解每个冲、稳、保分桶中最值得关注的前 1 到 2 个重点项。"
+        "完整志愿表会由系统界面单独展示，你不要复制完整名单，不要输出 Markdown 表格。"
+        "\n当 reach/match/safety 分桶存在时，必须按 冲、稳、保 三层组织重点解释。"
+        "只能引用 final_recommendation_highlights 中出现的学校和专业；"
+        "可以说明完整志愿表共有多少条，但不要逐条重写。"
         "\n不要暴露内部字段名，例如 tier、c/r、utility、min_score、min_rank、tuition_delta、"
         "rank_ratio、semantic_score、_semantic_score、_lexicographic_tier、_implicit_utility。"
         "不要编造 JSON 中没有的学校、专业、分数、位次或结论。"
@@ -2141,10 +2291,8 @@ async def _generate_xai_recommendation(state: AgentState) -> str:
     final_payload = json.dumps(
         {
             "implicit_weights": weights,
-            "recommendation_matrix": {
-                key: _compact(value) for key, value in recommendation_matrix.items()
-            },
-            "final_candidates": _compact(candidates),
+            "final_recommendation_count": table_count,
+            "final_recommendation_highlights": final_recommendation_highlights,
         },
         ensure_ascii=False,
         default=str,
@@ -2173,8 +2321,8 @@ async def _generate_xai_recommendation(state: AgentState) -> str:
                 HumanMessage(
                     content=(
                         "上一轮模型没有返回正文。请必须输出中文最终推荐正文："
-                        "先用一小段克制地解释当前偏好，再按 冲、稳、保 三层列出候选。"
-                        "只能使用下面 JSON 中出现的学校、专业和字段。\n"
+                        "先用一小段克制地解释当前偏好，再按 冲、稳、保 三层讲每层前 1 到 2 个重点项。"
+                        "不要输出完整表格；只能使用下面 JSON 中出现的学校、专业和字段。\n"
                         f"{final_payload}"
                     )
                 ),
@@ -2478,7 +2626,17 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         },
     )
     if current_probe == GLOBAL_BASELINE_PROBE:
-        content = _sanitize_user_output(await _generate_xai_recommendation(state))
+        final_recommendation_matrix = _final_recommendation_table_matrix(state)
+        final_recommendation_highlights = _final_recommendation_highlights(
+            final_recommendation_matrix
+        )
+        content = _sanitize_user_output(
+            await _generate_xai_recommendation(
+                state,
+                final_recommendation_matrix=final_recommendation_matrix,
+                final_recommendation_highlights=final_recommendation_highlights,
+            )
+        )
         output = {
             "messages": [AIMessage(content=content)],
             "latest_human_feedback": None,
@@ -2488,11 +2646,20 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
             "latest_question_source": "llm",
             "latest_probe_target_dimension": None,
             "latest_tradeoff_pair": None,
+            "final_recommendation_matrix": final_recommendation_matrix,
+            "final_recommendation_highlights": final_recommendation_highlights,
+            "final_recommendation_count": _final_recommendation_count(
+                final_recommendation_matrix
+            ),
         }
         trace_event(
             "negotiator",
             "node_end",
-            {"mode": "final_recommendation", "content": content},
+            {
+                "mode": "final_recommendation",
+                "content": content,
+                "final_recommendation_count": output["final_recommendation_count"],
+            },
         )
         return output
 

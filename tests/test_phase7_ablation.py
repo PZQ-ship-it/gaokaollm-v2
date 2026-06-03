@@ -130,13 +130,6 @@ async def test_ucb_ablation_bypasses_forced_probe(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_tracker_ablation_keeps_weights_and_variance(monkeypatch):
-    async def fail_if_called(state):
-        raise AssertionError("no_tracker must not parse feedback")
-
-    monkeypatch.setattr(
-        "app.graphs.nodes.preference_tracker.analyze_feedback_with_llm",
-        fail_if_called,
-    )
     weights = {
         "school": 0.4,
         "major": 0.2,
@@ -158,7 +151,7 @@ async def test_tracker_ablation_keeps_weights_and_variance(monkeypatch):
         {
             "implicit_weights": dict(weights),
             "weight_variance": dict(variance),
-            "latest_human_feedback": "可以接受",
+            "latest_human_feedback": "ACCEPT",
             "latest_agent_probe_question": "是否牺牲地域换取学校？",
             "latest_pareto_diff": {"school": 0.5, "geo": -0.4},
         },

@@ -614,7 +614,7 @@ def test_risk_band_classifier_uses_rank_then_score_margin():
 
 
 @pytest.mark.asyncio
-async def test_risk_band_relax_keeps_hard_filters_and_returns_portfolio():
+async def test_risk_band_relax_keeps_hard_filters_and_returns_material_risk_options():
     db = RiskDb()
     constraints = {
         **STRICT_CONSTRAINTS,
@@ -629,9 +629,8 @@ async def test_risk_band_relax_keeps_hard_filters_and_returns_portfolio():
     assert "s.province <> %s" not in probe_query
     assert constraints["province"] in probe_params
     assert f"%{constraints['major']}%" in probe_params
-    assert [row["risk_level"] for row in rows] == ["chong", "wen", "bao"]
+    assert [row["risk_level"] for row in rows] == ["chong"]
     assert rows[0]["risk_relax_level"] == 1
-    assert rows[0]["_phi_features"]["risk"] != rows[-1]["_phi_features"]["risk"]
     assert rows[0]["score_margin"] == 2
     assert rows[0]["student_rank"] == 50100
     assert rows[0]["rank_gap"] == -5100
@@ -642,7 +641,34 @@ async def test_risk_band_relax_keeps_hard_filters_and_returns_portfolio():
 async def test_risk_band_relax_runs_as_default_elasticity_probe():
     rows = await probe_risk_band_relax(STRICT_CONSTRAINTS, db=RiskDb(), limit=3)
 
-    assert [row["risk_level"] for row in rows] == ["chong", "wen", "bao"]
+    assert [row["risk_level"] for row in rows] == ["chong"]
+
+
+@pytest.mark.asyncio
+async def test_marginal_one_point_reach_is_not_risk_relaxation():
+    class MildRiskDb:
+        async def __call__(self, query, *params):
+            if "score_rank_segments" in query:
+                return [{"rank_min": 52000, "rank_max": 52529}]
+            return [
+                {
+                    "year": 2025,
+                    "school_id": 1,
+                    "school_name": "Mild Reach Medical University",
+                    "school_province": "黑龙江",
+                    "school_city": "哈尔滨",
+                    "major_id": 10,
+                    "major_name": "精神医学",
+                    "min_score": 601,
+                    "min_rank": 51129,
+                    "ranking": 125,
+                    "tier": 2,
+                }
+            ]
+
+    rows = await probe_risk_band_relax(STRICT_CONSTRAINTS, db=MildRiskDb(), limit=3)
+
+    assert rows == []
 
 
 @pytest.mark.asyncio

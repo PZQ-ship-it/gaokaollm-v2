@@ -19,11 +19,11 @@ DEFAULT_QUERY = (
     "只看江浙沪的学校，预算每年5500元以内。"
 )
 DEFAULT_REPLIES = [
-    "可以接受这一轮提到的小幅放宽，请把这个方向纳入后续比较。",
-    "先不要结束，换一个非预算方向继续查一轮。",
-    "继续换方向查，优先看看地域或专业放宽有没有更好的学校或专业。",
-    "继续，不要只看预算，也试试更高录取弹性。",
-    "再查最后一轮，然后给我最终推荐。",
+    "ACCEPT",
+    "REJECT",
+    "HESITATE",
+    "REJECT",
+    "HESITATE",
 ]
 NON_BUDGET_OPPORTUNITIES = {
     "major_geo_relax",
@@ -125,6 +125,26 @@ def _opportunity_counts(values: dict[str, Any]) -> dict[str, int]:
     if not isinstance(opportunities, dict):
         return {}
     return {key: len(_iter_rows(value)) for key, value in opportunities.items()}
+
+
+def _bucket_counts(value: Any) -> dict[str, int]:
+    if not isinstance(value, dict):
+        return {}
+    return {
+        str(bucket): len(rows) if isinstance(rows, list) else len(_iter_rows(rows))
+        for bucket, rows in value.items()
+    }
+
+
+def _final_recommendation_count(values: dict[str, Any]) -> int:
+    explicit = values.get("final_recommendation_count")
+    try:
+        count = int(explicit)
+    except (TypeError, ValueError):
+        count = 0
+    if count > 0:
+        return count
+    return sum(_bucket_counts(values.get("final_recommendation_matrix")).values())
 
 
 def _candidate_preview(values: dict[str, Any], key: str) -> list[dict[str, Any]]:
@@ -1017,6 +1037,11 @@ async def run_trace(args: argparse.Namespace) -> dict[str, Any]:
             ],
             "final_question_kind": None,
             "final_probe_plan": None,
+            "final_recommendation_count": 0,
+            "final_recommendation_bucket_counts": {},
+            "final_recommendation_highlight_counts": {},
+            "final_recommendation_matrix": {},
+            "final_recommendation_highlights": {},
             "final_weights": None,
             "final_variance": None,
             "final_reply": "",
@@ -1102,6 +1127,19 @@ async def run_trace(args: argparse.Namespace) -> dict[str, Any]:
         "errors": errors,
         "final_question_kind": final_values.get("latest_question_kind"),
         "final_probe_plan": final_values.get("probe_plan"),
+        "final_recommendation_count": _final_recommendation_count(final_values),
+        "final_recommendation_bucket_counts": _bucket_counts(
+            final_values.get("final_recommendation_matrix")
+        ),
+        "final_recommendation_highlight_counts": _bucket_counts(
+            final_values.get("final_recommendation_highlights")
+        ),
+        "final_recommendation_matrix": final_values.get("final_recommendation_matrix")
+        or {},
+        "final_recommendation_highlights": final_values.get(
+            "final_recommendation_highlights"
+        )
+        or {},
         "final_weights": final_values.get("implicit_weights"),
         "final_variance": final_values.get("weight_variance"),
         "final_reply": _latest_ai_message_text(final_values),

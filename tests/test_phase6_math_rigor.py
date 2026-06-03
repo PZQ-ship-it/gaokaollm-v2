@@ -160,6 +160,41 @@ def test_bradley_terry_update_does_not_create_global_variance_collapse():
     assert sum(variance.values()) == pytest.approx(5.25)
 
 
+def test_bradley_terry_clips_hard_veto_sentinel_for_learning_delta():
+    weights = _uniform_preferences()
+    variance = {key: 1.0 for key in PREFERENCE_KEYS}
+    physical_delta_phi = {
+        "school": 0.3,
+        "major": 0.0,
+        "tuition": -10000.0,
+        "quality": 0.0,
+        "geo": 0.0,
+        "risk": -0.5,
+    }
+    learning_delta_phi = {
+        "school": 0.3,
+        "major": 0.0,
+        "tuition": -1.0,
+        "quality": 0.0,
+        "geo": 0.0,
+        "risk": -0.5,
+    }
+
+    new_weights, new_variance = apply_feedback_update(
+        weights,
+        variance,
+        FeedbackAnalysis(intent="reject", target_dimension="tuition"),
+        physical_delta_phi,
+    )
+
+    assert new_weights == pytest.approx(
+        _bt_expected(weights, learning_delta_phi, label=0.0)
+    )
+    assert new_weights["tuition"] > 0.30
+    assert round(new_weights["tuition"], 2) != round(weights["tuition"], 2)
+    assert new_variance["tuition"] == pytest.approx(0.5)
+
+
 def test_hesitate_inflates_uncertainty_by_delta_phi_only():
     weights = _uniform_preferences()
     variance = {key: 0.4 for key in PREFERENCE_KEYS}
@@ -293,6 +328,70 @@ async def test_global_baseline_returns_reach_match_safety_matrix(monkeypatch):
     assert "a.min_score <= %s" not in baseline_query
     assert int(student_rank * 0.85) in baseline_params
     assert int(student_rank * 1.40) in baseline_params
+
+
+@pytest.mark.asyncio
+async def test_global_baseline_final_table_can_return_up_to_80(monkeypatch):
+    student_rank = 10000
+    rows: list[dict[str, Any]] = []
+    for index in range(30):
+        rows.append(
+            _candidate(
+                f"Reach {index}",
+                0.0,
+                {},
+                min_rank=8600 + index,
+                quality_score=100 - index,
+            )
+        )
+        rows.append(
+            _candidate(
+                f"Match {index}",
+                0.0,
+                {},
+                min_rank=9900 + index,
+                quality_score=100 - index,
+            )
+        )
+        rows.append(
+            _candidate(
+                f"Safety {index}",
+                0.0,
+                {},
+                min_rank=11600 + index,
+                quality_score=100 - index,
+            )
+        )
+
+    async def fake_fetch(
+        db: Any, query: str, params: list[Any]
+    ) -> list[dict[str, Any]]:
+        if "score_rank_segments" in query:
+            return [{"rank_min": 9900, "rank_max": student_rank}]
+        return rows
+
+    monkeypatch.setattr("app.flows.probers._fetch", fake_fetch)
+
+    matrix = await probe_global_baseline(
+        {
+            "constraints": {
+                "score": 600,
+                "province": "浙江",
+                "major": "计算机",
+                "budget": 10000,
+                "selected_subjects": ["物理", "化学", "生物"],
+            }
+        },
+        db=object(),
+        limit=80,
+        total_limit=80,
+    )
+
+    assert sum(len(bucket_rows) for bucket_rows in matrix.values()) == 80
+    assert len(matrix["reach"]) == 27
+    assert len(matrix["match"]) == 27
+    assert len(matrix["safety"]) == 26
+    assert all(len(bucket_rows) > 3 for bucket_rows in matrix.values())
 
 
 @pytest.mark.asyncio

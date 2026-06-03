@@ -1,5 +1,8 @@
+import json
+
 from app.graphs.nodes.negotiator import (
     _candidate_evidence_text,
+    _final_table_row,
     _sanitize_user_output,
     _score_text,
     _school_evidence_comparison,
@@ -88,6 +91,29 @@ def test_score_text_and_final_fallback_do_not_expose_internal_fields() -> None:
     )
 
     _assert_user_facing(text)
+
+
+def test_final_table_row_uses_user_facing_columns() -> None:
+    row = _final_table_row(_sample_candidate(), "reach", 1)
+
+    assert row["bucket_label"] == "冲"
+    assert row["school"] == "江苏大学"
+    assert row["major"] == "医学检验技术"
+    assert row["admission"] == "597 分 / 位次 45643"
+    assert row["subjects"] == "物理、化学"
+    assert row["tuition"] == "约 7480 元/年"
+    assert "重点本科层次" in row["school_level"]
+    assert "专业贴合度约 82%" in row["reason"]
+    assert not {
+        "min_score",
+        "min_rank",
+        "tier",
+        "tuition_delta",
+        "_implicit_utility",
+        "_semantic_score",
+        "_lexicographic_tier",
+    }.intersection(row)
+    _assert_user_facing(json.dumps(row, ensure_ascii=False))
 
 
 def test_sanitize_user_output_rewrites_legacy_probe_jargon() -> None:

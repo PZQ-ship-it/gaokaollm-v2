@@ -56,5 +56,8 @@ class AgentState(TypedDict, total=False):
     accepted_relaxations: NotRequired[list[dict[str, Any]]]
     factual_blocked_dimensions: NotRequired[list[str]]
     force_final_recommendation: NotRequired[bool]
+    final_recommendation_matrix: NotRequired[dict[str, list[dict[str, Any]]]]
+    final_recommendation_highlights: NotRequired[dict[str, list[dict[str, Any]]]]
+    final_recommendation_count: NotRequired[int]
     navigation_intent: NotRequired[str | None]
     clarification_hint: NotRequired[str | None]

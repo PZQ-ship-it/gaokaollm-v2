@@ -99,7 +99,23 @@ async def test_graph_invocation_outputs_final_recommendations_when_converged(
                             "min_score": 598,
                             "tier": 3,
                             "_implicit_utility": 1.1,
-                        }
+                        },
+                        {
+                            "school_name": "重点大学",
+                            "school_province": "浙江",
+                            "major_name": "软件工程",
+                            "min_score": 599,
+                            "tier": 3,
+                            "_implicit_utility": 1.0,
+                        },
+                        {
+                            "school_name": "表格大学",
+                            "school_province": "上海",
+                            "major_name": "数据科学与大数据技术",
+                            "min_score": 596,
+                            "tier": 2,
+                            "_implicit_utility": 0.9,
+                        },
                     ],
                     "match": [],
                     "safety": [],
@@ -125,6 +141,14 @@ async def test_graph_invocation_outputs_final_recommendations_when_converged(
     final_message = result["messages"][-1].content
     assert "偏好解释" in final_message
     assert "收敛大学" in final_message
+    assert result["final_recommendation_count"] == 3
+    assert result["final_recommendation_matrix"]["reach"][0]["school"] == "收敛大学"
+    assert result["final_recommendation_matrix"]["reach"][2]["school"] == "表格大学"
+    assert (
+        result["final_recommendation_highlights"]["reach"][0]["major"]
+        == "计算机科学与技术"
+    )
+    assert len(result["final_recommendation_highlights"]["reach"]) == 2
     assert result["latest_question_source"] == "llm"
     assert fake_llm.prompts
     prompt = fake_llm.prompts[-1]
@@ -132,6 +156,9 @@ async def test_graph_invocation_outputs_final_recommendations_when_converged(
     system_text = "\n".join(str(getattr(message, "content", "")) for message in prompt)
     assert "不要说“精准推断”“真实权重”“极度看重”" in system_text
     assert "不要营销腔" in system_text
+    assert "final_recommendation_highlights" in system_text
+    assert "final_recommendation_matrix" not in system_text
+    assert "表格大学" not in system_text
 
 
 @pytest.mark.asyncio

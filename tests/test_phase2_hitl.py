@@ -2,7 +2,6 @@ import pytest
 from langchain_core.messages import HumanMessage
 from langgraph.types import Command
 
-from app.graphs.nodes.preference_tracker import FeedbackAnalysis
 from app.graphs.workflow import build_graph
 
 
@@ -70,7 +69,7 @@ async def test_hitl_interrupt_resume_updates_preference_state(monkeypatch):
     monkeypatch.delenv("GAOKAOLLM_OFFLINE_DETERMINISTIC", raising=False)
     fake_llm = FakeLLM()
 
-    async def fake_run_baseline(constraints):
+    async def fake_run_baseline(constraints, **kwargs):
         return [
             {
                 "school_name": "基准大学",
@@ -94,17 +93,10 @@ async def test_hitl_interrupt_resume_updates_preference_state(monkeypatch):
     async def fake_run_all_probes(constraints, db=None, user_state=None):
         return _opportunities()
 
-    async def fake_analyze_feedback(state):
-        return FeedbackAnalysis(intent="accept", target_dimension="geo")
-
     monkeypatch.setattr("app.graphs.nodes.gatekeeper.run_baseline", fake_run_baseline)
     monkeypatch.setattr("app.graphs.nodes.radar.run_all_probes", fake_run_all_probes)
     monkeypatch.setattr(
         "app.graphs.nodes.radar.probe_global_baseline", fake_run_baseline
-    )
-    monkeypatch.setattr(
-        "app.graphs.nodes.preference_tracker.analyze_feedback_with_llm",
-        fake_analyze_feedback,
     )
     monkeypatch.setattr("app.graphs.nodes.negotiator.get_chat_model", lambda: fake_llm)
 
@@ -155,7 +147,7 @@ async def test_hitl_interrupt_resume_updates_preference_state(monkeypatch):
     assert "外省跃迁大学" in question
     assert interrupt_value["latest_question_source"] == "llm"
 
-    resume_text = "行，我可以接受出省"
+    resume_text = "ACCEPT"
     print(f"[resume] {resume_text}")
     resume_events = [
         event
@@ -188,7 +180,7 @@ async def test_accepting_tuition_relaxation_records_accepted_candidate(monkeypat
     monkeypatch.delenv("GAOKAOLLM_OFFLINE_DETERMINISTIC", raising=False)
     fake_llm = FakeLLM()
 
-    async def fake_run_baseline(constraints):
+    async def fake_run_baseline(constraints, **kwargs):
         return [
             {
                 "school_name": "基准大学",
@@ -261,17 +253,10 @@ async def test_accepting_tuition_relaxation_records_accepted_candidate(monkeypat
             "risk_band_relax": [],
         }
 
-    async def fake_analyze_feedback(state):
-        return FeedbackAnalysis(intent="accept", target_dimension="tuition")
-
     monkeypatch.setattr("app.graphs.nodes.gatekeeper.run_baseline", fake_run_baseline)
     monkeypatch.setattr("app.graphs.nodes.radar.run_all_probes", fake_run_all_probes)
     monkeypatch.setattr(
         "app.graphs.nodes.radar.probe_global_baseline", fake_run_baseline
-    )
-    monkeypatch.setattr(
-        "app.graphs.nodes.preference_tracker.analyze_feedback_with_llm",
-        fake_analyze_feedback,
     )
     monkeypatch.setattr("app.graphs.nodes.negotiator.get_chat_model", lambda: fake_llm)
 
@@ -316,10 +301,7 @@ async def test_accepting_tuition_relaxation_records_accepted_candidate(monkeypat
     assert "江苏大学" in interrupt_value["text"]
     assert interrupt_value["latest_question_source"] == "llm"
     resume_events = [
-        event
-        async for event in app.astream(
-            Command(resume="可以接受这个预算放宽"), config=config
-        )
+        event async for event in app.astream(Command(resume="ACCEPT"), config=config)
     ]
     assert any("preference_tracker" in event for event in resume_events)
 

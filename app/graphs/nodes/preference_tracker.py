@@ -1,18 +1,10 @@
 from copy import deepcopy
-import json
 import math
-import re
 from typing import Any, Literal
 
-from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 from pydantic import BaseModel
 
-from app.core.llm_client import (
-    ainvoke_with_timeout,
-    get_structured_chat_model,
-    structured_timeout_seconds,
-)
 from app.evaluation.ablation import get_ablation_mode
 from app.schemas.state import (
     DEFAULT_IMPLICIT_WEIGHTS,
@@ -41,11 +33,20 @@ QUESTION_KIND_NO_SIGNIFICANT_TRADEOFF = "no_significant_tradeoff"
 NAVIGATION_FINALIZE = "finalize"
 NAVIGATION_CONTINUE = "continue"
 NAVIGATION_UNKNOWN = "unknown"
+FEEDBACK_SIGNAL_ACCEPT = "ACCEPT"
+FEEDBACK_SIGNAL_REJECT = "REJECT"
+FEEDBACK_SIGNAL_HESITATE = "HESITATE"
+FEEDBACK_SIGNALS = {
+    FEEDBACK_SIGNAL_ACCEPT,
+    FEEDBACK_SIGNAL_REJECT,
+    FEEDBACK_SIGNAL_HESITATE,
+}
 BT_TAU = 3.0
 BT_LEARNING_RATE = 0.75
 UNCERTAINTY_INFLATION_GAMMA = 0.2
 UNCERTAINTY_CONTRACTION_FACTOR = 0.5
 UNCERTAINTY_TOUCH_THRESHOLD = 0.05
+LEARNING_DELTA_CLIP = 1.0
 
 
 class FeedbackAnalysis(BaseModel):
@@ -110,9 +111,9 @@ def _safe_delta_phi(
         # The proposal is a relaxation of the target bottom line, so the challenger
         # is worse on that dimension regardless of whether the user accepts it.
         delta[target] = -1.0
-        return delta
+        return _clip_learning_delta(delta)
     if has_signal:
-        return delta
+        return _clip_learning_delta(delta)
 
     if target in PREFERENCE_KEYS:
         # Compatibility fallback for old tests/threads without a stored Pareto diff.
@@ -120,7 +121,16 @@ def _safe_delta_phi(
     else:
         delta["school"] = 1.0
         delta["geo"] = -1.0
-    return delta
+    return _clip_learning_delta(delta)
+
+
+def _clip_learning_delta(delta: dict[str, float]) -> dict[str, float]:
+    """Project physical Pareto residuals into the BT learning feature space."""
+
+    return {
+        key: max(-LEARNING_DELTA_CLIP, min(LEARNING_DELTA_CLIP, float(delta[key])))
+        for key in PREFERENCE_KEYS
+    }
 
 
 def _inflate_uncertainty(
@@ -163,106 +173,23 @@ def _contract_uncertainty(
     return contracted
 
 
-def _target_dimension_from_text(text: str) -> TargetDimension:
-    lowered = text.lower()
-    if any(
-        token in lowered
-        for token in ("专业", "专业匹配", "调剂", "major", "computer", "计算机")
-    ):
-        return "major"
-    if any(token in lowered for token in ("学费", "预算", "费用", "tuition", "budget")):
-        return "tuition"
-    if any(
-        token in lowered
-        for token in ("地域", "外省", "出省", "跨省", "省内", "geo", "城市")
-    ):
-        return "geo"
-    if any(
-        token in lowered
-        for token in (
-            "风险",
-            "冲刺",
-            "冲一冲",
-            "稳妥",
-            "保底",
-            "求稳",
-            "录取弹性",
-            "risk",
-        )
-    ):
-        return "risk"
-    if any(
-        token in lowered for token in ("学校", "985", "211", "层次", "名校", "school")
-    ):
-        return "school"
-    if any(
-        token in lowered for token in ("质量", "实力", "排名", "quality", "strength")
-    ):
-        return "quality"
-    return "unknown"
-
-
-def _tradeoff_cost_dimension(proposal: str) -> TargetDimension:
-    patterns = (
-        r"牺牲/放宽\s*([^\s，,。！？?]{1,12})",
-        r"(?:牺牲|放宽)\s*([^\s，,。！？?]{1,12})",
-        r"(?:sacrifice|relax)\s+([a-z_]{2,16})",
+def _feedback_analysis_from_signal(state: AgentState) -> FeedbackAnalysis:
+    signal = str(state.get("latest_human_feedback") or "").strip().upper()
+    if signal not in FEEDBACK_SIGNALS:
+        raise ValueError("feedback_signal_must_be_accept_reject_or_hesitate")
+    target = str(state.get("latest_probe_target_dimension") or "").strip()
+    target_dimension: TargetDimension = (
+        target if target in PREFERENCE_KEYS else "unknown"
+    )  # type: ignore[assignment]
+    intent_by_signal: dict[str, IntentLabel] = {
+        FEEDBACK_SIGNAL_ACCEPT: "accept",
+        FEEDBACK_SIGNAL_REJECT: "reject",
+        FEEDBACK_SIGNAL_HESITATE: "hesitate",
+    }
+    return FeedbackAnalysis(
+        intent=intent_by_signal[signal],
+        target_dimension=target_dimension,
     )
-    for pattern in patterns:
-        match = re.search(pattern, proposal, flags=re.I)
-        if match:
-            dimension = _target_dimension_from_text(match.group(1))
-            if dimension != "unknown":
-                return dimension
-    return _target_dimension_from_text(proposal)
-
-
-def _rule_based_feedback_analysis(
-    proposal: str,
-    user_reply: str,
-    default_target_dimension: str | None = None,
-) -> FeedbackAnalysis | None:
-    reply = user_reply.strip()
-    if not reply:
-        return FeedbackAnalysis(intent="hesitate", target_dimension="unknown")
-
-    reject_words = (
-        "不行",
-        "拒绝",
-        "绝不",
-        "不能接受",
-        "不接受",
-        "不换",
-        "不调剂",
-        "不能偏",
-        "太远",
-        "太贵",
-        "不能超",
-        "必须压住",
-    )
-    accept_words = ("接受", "可以", "能接受", "愿意")
-    hesitate_words = ("犹豫", "不确定", "再看看", "关系不大", "还想", "保留")
-    default_target = (
-        default_target_dimension
-        if default_target_dimension in PREFERENCE_KEYS
-        else None
-    )
-    target = default_target or _tradeoff_cost_dimension(proposal)
-    reply_target = _target_dimension_from_text(reply)
-    if reply_target != "unknown" and any(
-        word in reply for word in (*reject_words, *accept_words, *hesitate_words)
-    ):
-        target = reply_target
-    elif target == "unknown":
-        target = _target_dimension_from_text(reply)
-
-    if any(word in reply for word in reject_words):
-        return FeedbackAnalysis(intent="reject", target_dimension=target)
-    if any(word in reply for word in hesitate_words):
-        return FeedbackAnalysis(intent="hesitate", target_dimension=target)
-    if any(word in reply for word in accept_words):
-        return FeedbackAnalysis(intent="accept", target_dimension=target)
-    return None
 
 
 def apply_feedback_update(
@@ -305,14 +232,6 @@ def apply_feedback_update(
         for key in PREFERENCE_KEYS
     }
     return _normalized(new_weights), new_variance
-
-
-def _latest_message_text(state: AgentState) -> str:
-    for message in reversed(state.get("messages", [])):
-        content = getattr(message, "content", None)
-        if content:
-            return str(content)
-    return ""
 
 
 def _candidate_identity(row: dict[str, Any]) -> str:
@@ -408,50 +327,6 @@ def _accepted_relaxations_update(
     return current
 
 
-def _navigation_intent_from_reply(reply: str) -> str:
-    text = str(reply or "").strip()
-    if not text:
-        return NAVIGATION_UNKNOWN
-    if any(
-        token in text
-        for token in ("最终", "终局", "推荐", "看结果", "直接看", "不用再问")
-    ):
-        return NAVIGATION_FINALIZE
-    if any(
-        token in text
-        for token in ("换", "继续", "再查", "再看", "另一个", "其他方向", "方向")
-    ):
-        return NAVIGATION_CONTINUE
-    if any(token in text for token in ("愿意", "可以", "接受")):
-        return NAVIGATION_CONTINUE
-    return NAVIGATION_UNKNOWN
-
-
-def _is_pure_navigation_reply(reply: str, navigation_intent: str) -> bool:
-    text = str(reply or "").strip()
-    if not text:
-        return False
-    if navigation_intent == NAVIGATION_FINALIZE:
-        return True
-    if navigation_intent != NAVIGATION_CONTINUE:
-        return False
-    navigation_tokens = ("换", "继续", "再查", "再看", "另一个", "其他方向", "方向")
-    preference_tokens = (
-        "接受",
-        "愿意",
-        "可以接受",
-        "不能接受",
-        "不接受",
-        "拒绝",
-        "不行",
-        "犹豫",
-        "不确定",
-    )
-    return any(token in text for token in navigation_tokens) and not any(
-        token in text for token in preference_tokens
-    )
-
-
 def _current_probe_key(state: AgentState) -> str:
     probe_plan = state.get("probe_plan") or []
     if not probe_plan or not isinstance(probe_plan[0], dict):
@@ -487,68 +362,7 @@ def _should_block_current_dimension(
         return False
     if analysis.intent == "reject":
         return True
-    if navigation_intent == NAVIGATION_CONTINUE and analysis.intent != "accept":
-        return True
     return False
-
-
-async def analyze_feedback_with_llm(state: AgentState) -> FeedbackAnalysis:
-    user_reply = str(state.get("latest_human_feedback") or "")
-    proposal = str(state.get("latest_agent_probe_question") or "").strip()
-    if not proposal:
-        proposal = _latest_message_text(state)
-
-    rule_result = _rule_based_feedback_analysis(
-        proposal,
-        user_reply,
-        default_target_dimension=state.get("latest_probe_target_dimension"),
-    )
-    if rule_result is not None:
-        return rule_result
-
-    prompt = [
-        SystemMessage(
-            content=(
-                "你是高考志愿咨询中的反馈判断员。"
-                "只判断用户对上一轮取舍提问的态度，不评价候选好坏，不生成新建议。"
-                "intent 只能是 accept、reject、hesitate。"
-                "target_dimension 只能是 school、major、geo、tuition、quality、risk、unknown。"
-                "如果用户只是要求换方向或直接看结果，应使用 hesitate/unknown。"
-                "请输出符合结构化字段的结果。"
-            )
-        ),
-        HumanMessage(
-            content=(
-                "请判断这次反馈语义：\n"
-                + json.dumps(
-                    {
-                        "上一轮提问": proposal,
-                        "用户反馈": user_reply,
-                    },
-                    ensure_ascii=False,
-                    default=str,
-                )
-            )
-        ),
-    ]
-    try:
-        llm = get_structured_chat_model()
-        structured_llm = llm.with_structured_output(FeedbackAnalysis)
-        result = await ainvoke_with_timeout(
-            structured_llm,
-            prompt,
-            timeout=structured_timeout_seconds(),
-            label="preference_tracker",
-        )
-        if isinstance(result, FeedbackAnalysis):
-            return result
-        if isinstance(result, dict):
-            return FeedbackAnalysis.model_validate(result)
-        return FeedbackAnalysis.model_validate(result)
-    except Exception as exc:
-        raise RuntimeError(
-            f"LLM feedback parsing failed: {type(exc).__name__}: {exc}"
-        ) from exc
 
 
 async def preference_tracker_node(
@@ -588,8 +402,15 @@ async def preference_tracker_node(
 
     question_kind = str(state.get("latest_question_kind") or "").strip()
     if question_kind == QUESTION_KIND_NO_SIGNIFICANT_TRADEOFF:
-        navigation_intent = _navigation_intent_from_reply(
-            str(state.get("latest_human_feedback") or "")
+        signal = str(state.get("latest_human_feedback") or "").strip().upper()
+        if signal not in FEEDBACK_SIGNALS:
+            raise ValueError("feedback_signal_must_be_accept_reject_or_hesitate")
+        navigation_intent = (
+            NAVIGATION_FINALIZE
+            if signal == FEEDBACK_SIGNAL_ACCEPT
+            else NAVIGATION_CONTINUE
+            if signal == FEEDBACK_SIGNAL_REJECT
+            else NAVIGATION_UNKNOWN
         )
         output = {
             "implicit_weights": dict(state.get("implicit_weights") or {}),
@@ -619,25 +440,14 @@ async def preference_tracker_node(
         )
         return output
 
-    navigation_intent = _navigation_intent_from_reply(
-        str(state.get("latest_human_feedback") or "")
+    navigation_intent = NAVIGATION_CONTINUE
+    analysis = _feedback_analysis_from_signal(state)
+    weights, variance = apply_feedback_update(
+        state.get("implicit_weights"),
+        state.get("weight_variance"),
+        analysis,
+        state.get("latest_pareto_diff"),
     )
-    pure_navigation = _is_pure_navigation_reply(
-        str(state.get("latest_human_feedback") or ""),
-        navigation_intent,
-    )
-    if pure_navigation:
-        analysis = FeedbackAnalysis(intent="hesitate", target_dimension="unknown")
-        weights = dict(state.get("implicit_weights") or DEFAULT_IMPLICIT_WEIGHTS)
-        variance = dict(state.get("weight_variance") or DEFAULT_WEIGHT_VARIANCE)
-    else:
-        analysis = await analyze_feedback_with_llm(state)
-        weights, variance = apply_feedback_update(
-            state.get("implicit_weights"),
-            state.get("weight_variance"),
-            analysis,
-            state.get("latest_pareto_diff"),
-        )
     blocked_dimensions = state.get("factual_blocked_dimensions") or []
     if _should_block_current_dimension(state, analysis, navigation_intent):
         blocked_dimensions = _blocked_dimensions_update(state)

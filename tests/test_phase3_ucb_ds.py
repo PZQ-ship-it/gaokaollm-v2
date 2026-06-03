@@ -152,13 +152,14 @@ def test_ds_hesitate_keeps_weights_and_raises_variance():
     assert new_variance["geo"] > variance["geo"]
 
 
-def test_rule_feedback_prefers_structured_probe_dimension_over_question_keywords():
-    from app.graphs.nodes.preference_tracker import _rule_based_feedback_analysis
+def test_feedback_signal_prefers_structured_probe_dimension_over_question_keywords():
+    from app.graphs.nodes.preference_tracker import _feedback_analysis_from_signal
 
-    analysis = _rule_based_feedback_analysis(
-        "上海海洋大学的水产类专业学费更高，但学校层次更好，是否接受？",
-        "我愿意小幅放宽当前问题里的底线。",
-        default_target_dimension="tuition",
+    analysis = _feedback_analysis_from_signal(
+        {
+            "latest_human_feedback": "ACCEPT",
+            "latest_probe_target_dimension": "tuition",
+        }
     )
 
     assert analysis is not None
@@ -211,16 +212,9 @@ async def test_continue_after_accepted_tuition_explores_other_axes(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_continue_switch_direction_blocks_current_dimension(monkeypatch):
-    async def fake_feedback(state):
-        return FeedbackAnalysis(intent="hesitate", target_dimension="major")
-
-    monkeypatch.setattr(
-        "app.graphs.nodes.preference_tracker.analyze_feedback_with_llm",
-        fake_feedback,
-    )
+async def test_reject_blocks_current_dimension(monkeypatch):
     state = {
-        "latest_human_feedback": "继续换方向查，优先看看地域或风险",
+        "latest_human_feedback": "REJECT",
         "latest_agent_probe_question": "是否愿意放宽专业匹配换学校层次？",
         "latest_question_kind": "tradeoff",
         "latest_probe_target_dimension": "major",
@@ -242,7 +236,7 @@ async def test_continue_switch_direction_blocks_current_dimension(monkeypatch):
             "risk": 1 / 6,
         },
         "weight_variance": {
-            "major": 2.0,
+            "major": 0.4,
             "risk": 1.5,
             "geo": 1.0,
             "school": 0.1,
@@ -257,19 +251,16 @@ async def test_continue_switch_direction_blocks_current_dimension(monkeypatch):
     assert updated["navigation_intent"] == "continue"
     assert "major" in updated["factual_blocked_dimensions"]
     assert "geo" in updated["factual_blocked_dimensions"]
+    assert updated["feedback_analysis"] == {
+        "intent": "reject",
+        "target_dimension": "major",
+    }
 
 
 @pytest.mark.asyncio
-async def test_pure_continue_navigation_does_not_call_feedback_llm(monkeypatch):
-    async def fake_feedback(state):
-        raise AssertionError("pure navigation should not call feedback LLM")
-
-    monkeypatch.setattr(
-        "app.graphs.nodes.preference_tracker.analyze_feedback_with_llm",
-        fake_feedback,
-    )
+async def test_hesitate_feedback_inflates_uncertainty_without_blocking(monkeypatch):
     state = {
-        "latest_human_feedback": "请换一个方向继续查一轮。",
+        "latest_human_feedback": "HESITATE",
         "latest_agent_probe_question": "是否愿意放宽专业匹配换学校层次？",
         "latest_question_kind": "tradeoff",
         "latest_probe_target_dimension": "major",
@@ -291,7 +282,7 @@ async def test_pure_continue_navigation_does_not_call_feedback_llm(monkeypatch):
             "risk": 1 / 6,
         },
         "weight_variance": {
-            "major": 2.0,
+            "major": 0.4,
             "risk": 1.5,
             "geo": 1.0,
             "school": 0.1,
@@ -305,23 +296,17 @@ async def test_pure_continue_navigation_does_not_call_feedback_llm(monkeypatch):
 
     assert updated["navigation_intent"] == "continue"
     assert updated["force_final_recommendation"] is False
-    assert "major" in updated["factual_blocked_dimensions"]
-    assert "geo" in updated["factual_blocked_dimensions"]
+    assert updated["factual_blocked_dimensions"] == []
+    assert updated["implicit_weights"] == state["implicit_weights"]
+    assert updated["weight_variance"]["major"] > state["weight_variance"]["major"]
     assert updated["feedback_analysis"] == {
         "intent": "hesitate",
-        "target_dimension": "unknown",
+        "target_dimension": "major",
     }
 
 
 @pytest.mark.asyncio
 async def test_finalize_navigation_does_not_update_tradeoff_weights(monkeypatch):
-    async def fake_feedback(state):
-        raise AssertionError("finalize navigation should not call feedback LLM")
-
-    monkeypatch.setattr(
-        "app.graphs.nodes.preference_tracker.analyze_feedback_with_llm",
-        fake_feedback,
-    )
     weights = {
         "school": 1 / 6,
         "major": 1 / 6,
@@ -339,9 +324,9 @@ async def test_finalize_navigation_does_not_update_tradeoff_weights(monkeypatch)
         "risk": 0.4,
     }
     state = {
-        "latest_human_feedback": "请直接进入最终推荐。",
+        "latest_human_feedback": "ACCEPT",
         "latest_agent_probe_question": "是否愿意放宽专业匹配换学校层次？",
-        "latest_question_kind": "tradeoff",
+        "latest_question_kind": "no_significant_tradeoff",
         "latest_probe_target_dimension": "major",
         "probe_plan": [{"probe": "major_geo_relax"}],
         "latest_pareto_diff": {
@@ -448,7 +433,9 @@ def test_empty_required_probe_is_skipped_when_other_opportunities_exist():
     opportunities = {
         "strength_relax": [],
         "major_geo_relax": [{"school_name": "非预算跃迁"}],
-        "risk_band_relax": [{"school_name": "风险候选", "risk_level": "chong"}],
+        "risk_band_relax": [
+            {"school_name": "风险候选", "risk_level": "chong", "risk_relax_level": 1}
+        ],
     }
 
     adjusted = _plan_with_available_opportunities(plan, opportunities)
@@ -467,7 +454,9 @@ def test_blocked_probe_dimensions_are_skipped_when_other_opportunities_exist():
     }
     opportunities = {
         "major_geo_relax": [{"school_name": "非预算跃迁"}],
-        "risk_band_relax": [{"school_name": "风险候选", "risk_level": "chong"}],
+        "risk_band_relax": [
+            {"school_name": "风险候选", "risk_level": "chong", "risk_relax_level": 1}
+        ],
     }
 
     adjusted = _plan_with_available_opportunities(
@@ -490,8 +479,8 @@ def test_single_bucket_risk_probe_can_compare_against_global_baseline():
     }
     opportunities = {
         "risk_band_relax": [
-            {"school_name": "风险候选1", "risk_level": "chong"},
-            {"school_name": "风险候选2", "risk_level": "chong"},
+            {"school_name": "风险候选1", "risk_level": "chong", "risk_relax_level": 1},
+            {"school_name": "风险候选2", "risk_level": "chong", "risk_relax_level": 1},
         ],
         "major_geo_relax": [{"school_name": "非预算跃迁"}],
     }

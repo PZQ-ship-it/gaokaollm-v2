@@ -42,6 +42,7 @@ UCB_EXPLORATION_COEF = 1.5
 HALTING_VARIANCE_THRESHOLD = 1.5
 MAX_NEGOTIATION_TURNS = 3
 GLOBAL_BASELINE_PROBE = "probe_global_baseline"
+FINAL_RECOMMENDATION_TABLE_LIMIT = 80
 PROBE_MAPPING: dict[str, str] = {
     "school": "strength_relax",
     "major": "major_geo_relax",
@@ -190,18 +191,9 @@ def _opportunity_is_usable(key: str, value: Any) -> bool:
     if not rows:
         return False
     if key == "risk_band_relax":
-        relaxed_buckets = {"chong", "reach", "wen", "match"}
         for row in rows:
-            bucket = str(row.get("risk_bucket") or row.get("risk_level") or "")
-            if bucket in relaxed_buckets:
+            if row.get("risk_relax_level") == 1:
                 return True
-            features = row.get("_phi_features")
-            if isinstance(features, dict):
-                try:
-                    if float(features.get("risk", 1.0)) < 0.95:
-                        return True
-                except (TypeError, ValueError):
-                    pass
         return False
     return True
 
@@ -996,7 +988,11 @@ async def radar_node(
     plan = await _build_probe_plan(state, config)
 
     if _is_global_baseline_plan(plan):
-        global_result: Any = await probe_global_baseline(dict(state))
+        global_result: Any = await probe_global_baseline(
+            dict(state),
+            limit=FINAL_RECOMMENDATION_TABLE_LIMIT,
+            total_limit=FINAL_RECOMMENDATION_TABLE_LIMIT,
+        )
         global_result = _merge_accepted_into_baseline(global_result, state)
         opportunities: dict[str, Any] = {"global_baseline": global_result}
         candidates = _iter_rows(global_result)
@@ -1028,7 +1024,7 @@ async def radar_node(
         opportunities = dict(EMPTY_OPPORTUNITIES)
     opportunities = _without_accepted_relaxation_candidates(opportunities, state)
     try:
-        global_result: Any = await probe_global_baseline(dict(state))
+        global_result = await probe_global_baseline(dict(state), limit=3)
         global_result = _merge_accepted_into_baseline(global_result, state)
     except Exception as exc:
         print(f"[radar] global_baseline_preview_failed={type(exc).__name__}")
@@ -1037,6 +1033,12 @@ async def radar_node(
     opportunities = _without_global_baseline_duplicates(opportunities, global_result)
     plan = _plan_with_available_opportunities(plan, opportunities, state)
     if _is_global_baseline_plan(plan):
+        global_result = await probe_global_baseline(
+            dict(state),
+            limit=FINAL_RECOMMENDATION_TABLE_LIMIT,
+            total_limit=FINAL_RECOMMENDATION_TABLE_LIMIT,
+        )
+        global_result = _merge_accepted_into_baseline(global_result, state)
         opportunities["global_baseline"] = global_result
         candidates = _iter_rows(global_result)
         print(f"[radar] global_baseline={len(candidates)} after_opportunity_filter")

@@ -16,6 +16,7 @@ graph = build_graph()
 
 CHAT_ACTION_FEEDBACK = "feedback"
 CHAT_ACTION_CONTINUE = "continue"
+FEEDBACK_SIGNALS = {"ACCEPT", "REJECT", "HESITATE"}
 
 _RUNS: dict[str, dict[str, Any]] = {}
 _NODE_ORDER = [
@@ -57,6 +58,16 @@ def _graph_config(thread_id: str) -> dict:
     return {"configurable": {"thread_id": thread_id}}
 
 
+def _feedback_signal(message: str) -> str:
+    signal = str(message or "").strip().upper()
+    if signal not in FEEDBACK_SIGNALS:
+        raise HTTPException(
+            status_code=400,
+            detail="反馈必须是 ACCEPT、REJECT 或 HESITATE。",
+        )
+    return signal
+
+
 def _snapshot(thread_id: str) -> object:
     return graph.get_state(_graph_config(thread_id))
 
@@ -77,9 +88,10 @@ async def _apply_feedback_update(req: ChatRequest, pending_value: object) -> dic
     snapshot = graph.get_state(config)
     values = dict(snapshot.values or {})
     pending_meta = _interrupt_meta(pending_value)
+    feedback_signal = _feedback_signal(req.message)
     values.update(
         {
-            "latest_human_feedback": req.message,
+            "latest_human_feedback": feedback_signal,
             "latest_agent_probe_question": _interrupt_text_from_value(pending_value)
             or values.get("latest_agent_probe_question"),
             "latest_pareto_diff": pending_meta.get("latest_pareto_diff")
@@ -274,6 +286,11 @@ def _payload_from_values(
         "accepted_relaxations": result.get("accepted_relaxations", []),
         "factual_blocked_dimensions": result.get("factual_blocked_dimensions", []),
         "force_final_recommendation": result.get("force_final_recommendation", False),
+        "final_recommendation_matrix": result.get("final_recommendation_matrix", {}),
+        "final_recommendation_highlights": result.get(
+            "final_recommendation_highlights", {}
+        ),
+        "final_recommendation_count": result.get("final_recommendation_count", 0),
         "navigation_intent": result.get("navigation_intent"),
         "ucb_target_dimension": result.get("ucb_target_dimension"),
         "implicit_weights": result.get("implicit_weights", {}),
@@ -389,7 +406,7 @@ async def start_chat_run(req: ChatRequest) -> dict:
             payload: object = Command(goto="radar")
             mode = "continue"
         elif pending_interrupt:
-            payload = Command(resume=req.message)
+            payload = Command(resume=_feedback_signal(req.message))
             mode = "resume"
         else:
             payload = {"messages": [HumanMessage(content=req.message)]}
@@ -433,7 +450,9 @@ async def chat(req: ChatRequest) -> dict:
             return _response_payload(req, result, mode="continue")
 
         if pending_interrupt and action != CHAT_ACTION_CONTINUE:
-            result = await graph.ainvoke(Command(resume=req.message), config=config)
+            result = await graph.ainvoke(
+                Command(resume=_feedback_signal(req.message)), config=config
+            )
             return _response_payload(req, result, mode="resume")
 
         result = await graph.ainvoke(

@@ -63,7 +63,16 @@ async def fake_negotiator_node(state: AgentState) -> dict:
 
 
 async def fake_preference_tracker_node(state: AgentState) -> dict:
-    return {"negotiation_turns": 1}
+    return {
+        "latest_human_feedback": None,
+        "feedback_analysis": {
+            "intent": "reject"
+            if state.get("latest_human_feedback") == "REJECT"
+            else "accept",
+            "target_dimension": state.get("latest_probe_target_dimension"),
+        },
+        "negotiation_turns": 1,
+    }
 
 
 @pytest.mark.asyncio
@@ -110,6 +119,31 @@ async def test_async_chat_run_exposes_intermediate_state(monkeypatch):
                 final = payload
                 break
             await asyncio.sleep(0.03)
+
+        invalid_feedback = await client.post(
+            "/api/v1/chat",
+            json={
+                "thread_id": thread_id,
+                "message": "不能接受这个取舍，请保留我的底线。",
+                "action": "feedback",
+            },
+        )
+        assert invalid_feedback.status_code == 400
+
+        feedback = await client.post(
+            "/api/v1/chat",
+            json={
+                "thread_id": thread_id,
+                "message": "REJECT",
+                "action": "feedback",
+            },
+        )
+        assert feedback.status_code == 200
+        feedback_payload = feedback.json()
+        assert feedback_payload["feedback_analysis"] == {
+            "intent": "reject",
+            "target_dimension": "tuition",
+        }
 
     assert final is not None
     assert final["pending_interrupt"] == ("你是否愿意小幅放宽预算，换取更高学校层次？")

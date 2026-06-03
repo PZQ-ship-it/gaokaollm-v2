@@ -85,11 +85,20 @@ def _round_has_interrupt_meta(row: dict[str, Any]) -> bool:
     )
 
 
+def _int_value(value: Any) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
 def _diagnose_trace(path: Path) -> dict[str, Any]:
     trace = _load_json(path)
     rounds = [row for row in trace.get("rounds") or [] if isinstance(row, dict)]
     analysis = trace.get("analysis") or {}
     final_reply = str(trace.get("final_reply") or "")
+    final_question_kind = str(trace.get("final_question_kind") or "")
+    final_recommendation_count = _int_value(trace.get("final_recommendation_count"))
     errors = _classify_errors(trace)
     analysis_status = str(analysis.get("status") or "").lower()
     failures = [str(item) for item in analysis.get("failures") or []]
@@ -121,6 +130,11 @@ def _diagnose_trace(path: Path) -> dict[str, Any]:
         for row in rounds
         if isinstance(row.get("turn_latency_seconds"), (int, float))
     ]
+    final_table_missing = (
+        final_question_kind == "finalize_offer"
+        and bool(final_reply.strip())
+        and final_recommendation_count <= 0
+    )
 
     return {
         "path": str(path),
@@ -128,15 +142,27 @@ def _diagnose_trace(path: Path) -> dict[str, Any]:
         "mode": trace.get("mode") or "graph",
         "round_count": len(rounds),
         "analysis_status": analysis_status,
+        "final_recommendation_count": final_recommendation_count,
+        "final_recommendation_bucket_counts": trace.get(
+            "final_recommendation_bucket_counts"
+        )
+        or {},
+        "final_table_missing": final_table_missing,
         "task_completion": "pass"
-        if not errors and (final_reply or analysis_status == "ok")
+        if not errors
+        and not final_table_missing
+        and (final_reply or analysis_status == "ok")
         else "fail",
         "tool_reliability": "fail" if errors else "pass",
         "output_contract": _status_from_failures(
             internal_hits,
             output_style_hits,
         ),
-        "state_integrity": "warning" if missing_interrupt_meta else "pass",
+        "state_integrity": "fail"
+        if final_table_missing
+        else "warning"
+        if missing_interrupt_meta
+        else "pass",
         "loop_resistance": "pass"
         if len(rounds) <= 6 and not any("repeat" in item.lower() for item in failures)
         else "warning",
@@ -229,6 +255,25 @@ def _aggregate(reports: list[dict[str, Any]]) -> dict[str, Any]:
                 ],
                 "confidence": "medium",
                 "fix": "从 interrupt payload 直接记录 question_kind、target_dimension、tradeoff_pair。",
+            }
+        )
+    if any(report.get("final_table_missing") for report in reports):
+        root_causes.append(
+            {
+                "rank": len(root_causes) + 1,
+                "cause": "最终推荐缺少结构化志愿表",
+                "evidence": [
+                    {
+                        "path": report["path"],
+                        "final_recommendation_count": report.get(
+                            "final_recommendation_count"
+                        ),
+                    }
+                    for report in reports
+                    if report.get("final_table_missing")
+                ],
+                "confidence": "high",
+                "fix": "让 trace 和 API state 同步记录 final_recommendation_matrix/count。",
             }
         )
 

@@ -619,6 +619,101 @@
       font-weight: 800;
     }
 
+    .final-results {
+      display: grid;
+      gap: 13px;
+    }
+
+    .final-summary {
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid var(--blue);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: #f8fbff;
+      color: #1e3a8a;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .volunteer-bucket {
+      display: grid;
+      gap: 8px;
+    }
+
+    .volunteer-bucket h3 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: #0f172a;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .volunteer-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .volunteer-table {
+      width: 100%;
+      min-width: 1120px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .volunteer-table th,
+    .volunteer-table td {
+      padding: 8px 9px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.45;
+    }
+
+    .volunteer-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f8fafc;
+      color: #475569;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .volunteer-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .volunteer-table .num {
+      width: 44px;
+      color: #64748b;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .volunteer-table .school-cell {
+      min-width: 132px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+
+    .volunteer-table .major-cell {
+      min-width: 170px;
+      color: #334155;
+      font-weight: 800;
+    }
+
+    .volunteer-table .reason-cell {
+      min-width: 230px;
+      color: #1e3a8a;
+    }
+
     .weight-list {
       display: grid;
       gap: 9px;
@@ -777,19 +872,19 @@
           <div class="choice-title">当前取舍问题</div>
           <div id="choice-copy" class="choice-copy">等待系统生成可比较的取舍问题。</div>
           <div class="choice-actions">
-            <button class="choice-btn accept" data-role="accept" data-feedback="我愿意小幅放宽当前问题里的底线。">偏向接受</button>
-            <button class="choice-btn reject" data-role="reject" data-feedback="不能接受这个取舍，请保留我的底线。">保留底线</button>
-            <button class="choice-btn unsure" data-role="unsure" data-feedback="我还不确定，想再看一轮证据。">仍不确定</button>
+            <button class="choice-btn accept" data-role="accept" data-feedback="ACCEPT" data-display="我愿意小幅放宽当前问题里的底线。">偏向接受</button>
+            <button class="choice-btn reject" data-role="reject" data-feedback="REJECT" data-display="不能接受这个取舍，请保留我的底线。">保留底线</button>
+            <button class="choice-btn unsure" data-role="unsure" data-feedback="HESITATE" data-display="我还不确定，想再看一轮证据。">仍不确定</button>
           </div>
         </div>
 
         <div class="panel">
           <div class="panel-head">
-            <h2>当前候选与放宽引导</h2>
+            <h2 id="candidate-panel-title">当前候选与放宽引导</h2>
             <span id="candidate-count" class="metric">0 个候选</span>
           </div>
           <div class="panel-body">
-            <div class="candidate-compare">
+            <div id="candidate-compare" class="candidate-compare">
               <section>
                 <div class="section-label" style="margin-top:0">当前范围内前几个候选</div>
                 <div id="current-cards" class="current-cards">
@@ -803,7 +898,7 @@
                 </div>
               </section>
             </div>
-            <div class="section-label">本轮放宽后出现的新选项</div>
+            <div id="additional-cards-title" class="section-label">本轮放宽后出现的新选项</div>
             <div id="cards" class="cards">
               <p class="empty">等待数据库探针返回候选。</p>
             </div>
@@ -852,7 +947,13 @@
       risk: "风险弹性"
     };
 
-    const samples = {
+    const feedbackSignals = {
+      accept: "ACCEPT",
+      reject: "REJECT",
+      unsure: "HESITATE"
+    };
+
+    const feedbackDisplay = {
       accept: "我愿意小幅放宽当前问题里的底线。",
       reject: "不能接受这个取舍，请保留我的底线。",
       unsure: "我还不确定，想再看一轮证据。"
@@ -918,6 +1019,9 @@
       dialogue: document.getElementById("dialogue"),
       choiceCopy: document.getElementById("choice-copy"),
       choicePanel: document.getElementById("choice-panel"),
+      candidatePanelTitle: document.getElementById("candidate-panel-title"),
+      candidateCompare: document.getElementById("candidate-compare"),
+      additionalCardsTitle: document.getElementById("additional-cards-title"),
       currentCards: document.getElementById("current-cards"),
       relaxedCard: document.getElementById("relaxed-card"),
       cards: document.getElementById("cards"),
@@ -1207,6 +1311,99 @@
       const rows = baselineRows(data);
       const value = rows.find((row) => row.student_rank !== undefined)?.student_rank;
       return value === undefined ? null : value;
+    }
+
+    function finalBuckets(data) {
+      const matrix = data?.final_recommendation_matrix || {};
+      return ["reach", "match", "safety"].map((bucket) => ({
+        bucket,
+        label: bucketLabels[bucket] || bucket,
+        rows: Array.isArray(matrix[bucket]) ? matrix[bucket] : []
+      }));
+    }
+
+    function finalRecommendationCount(data) {
+      const explicit = Number(data?.final_recommendation_count || 0);
+      if (explicit > 0) return explicit;
+      return finalBuckets(data).reduce((sum, item) => sum + item.rows.length, 0);
+    }
+
+    function isFinalRecommendation(data) {
+      return finalRecommendationCount(data) > 0 || data?.latest_question_kind === "finalize_offer";
+    }
+
+    function finalValue(row, key, fallback = "待确认") {
+      const value = row?.[key];
+      return value === undefined || value === null || value === "" ? fallback : valueText(value);
+    }
+
+    function renderVolunteerRows(rows) {
+      return rows.map((row, index) => `
+        <tr>
+          <td class="num">${escapeHtml(valueText(row.order || index + 1))}</td>
+          <td class="school-cell">${escapeHtml(finalValue(row, "school"))}</td>
+          <td class="major-cell">${escapeHtml(finalValue(row, "major"))}</td>
+          <td>${escapeHtml(finalValue(row, "location"))}</td>
+          <td>${escapeHtml(finalValue(row, "admission"))}</td>
+          <td>${escapeHtml(shortText(finalValue(row, "subjects"), 30))}</td>
+          <td>${escapeHtml(finalValue(row, "tuition"))}</td>
+          <td>${escapeHtml(shortText(finalValue(row, "school_level"), 34))}</td>
+          <td>${escapeHtml(shortText(finalValue(row, "evidence"), 46))}</td>
+          <td class="reason-cell">${escapeHtml(shortText(finalValue(row, "reason"), 58))}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderFinalRecommendations(data) {
+      if (!isFinalRecommendation(data)) return false;
+      const buckets = finalBuckets(data);
+      const total = finalRecommendationCount(data);
+      el.candidatePanelTitle.textContent = "最终推荐志愿表";
+      el.additionalCardsTitle.textContent = "完整志愿表（最多 80 个）";
+      el.candidateCompare.style.display = "none";
+      el.cards.className = "final-results";
+      el.candidateCount.textContent = total > 0 ? `${total} 个最终志愿候选` : "暂无最终志愿候选";
+
+      if (!total) {
+        el.cards.innerHTML = '<p class="empty">当前没有足够的可核验证据形成最终志愿表。</p>';
+        return true;
+      }
+
+      const summary = data?.reply
+        ? `<section class="final-summary"><strong>AI 重点解读</strong>\n${escapeHtml(data.reply)}</section>`
+        : "";
+      const sections = buckets
+        .filter((item) => item.rows.length)
+        .map((item) => `
+          <section class="volunteer-bucket">
+            <h3>
+              <span>${escapeHtml(item.label)}档候选</span>
+              <span class="source-pill ${escapeHtml(item.bucket)}">${item.rows.length} 个</span>
+            </h3>
+            <div class="volunteer-table-wrap">
+              <table class="volunteer-table">
+                <thead>
+                  <tr>
+                    <th>序号</th>
+                    <th>院校</th>
+                    <th>专业/专业组</th>
+                    <th>地区</th>
+                    <th>最低分/位次</th>
+                    <th>选科</th>
+                    <th>学费</th>
+                    <th>学校层次</th>
+                    <th>排名/学科证据</th>
+                    <th>推荐依据</th>
+                  </tr>
+                </thead>
+                <tbody>${renderVolunteerRows(item.rows)}</tbody>
+              </table>
+            </div>
+          </section>
+        `)
+        .join("");
+      el.cards.innerHTML = `${summary}${sections}`;
+      return true;
     }
 
     function dimensionInfo(key, row) {
@@ -1548,6 +1745,11 @@
     }
 
     function renderCards(data) {
+      if (renderFinalRecommendations(data)) return;
+      el.candidatePanelTitle.textContent = "当前候选与放宽引导";
+      el.additionalCardsTitle.textContent = "本轮放宽后出现的新选项";
+      el.candidateCompare.style.display = "";
+      el.cards.className = "cards";
       const baseline = dedupeRows([...acceptedRelaxationRows(data), ...baselineRows(data)]);
       const relaxed = relaxedRows(data);
       const spotlight = selectRelaxedCandidate(data);
@@ -1608,11 +1810,22 @@
     }
 
     function renderChoice(data) {
+      const title = document.querySelector(".choice-title");
+      if (isFinalRecommendation(data)) {
+        if (title) title.textContent = "最终推荐已生成";
+        el.choiceCopy.innerHTML = `
+          <div class="choice-summary">
+            <strong>已按当前偏好生成最终志愿表。</strong>
+            <span>AI 只解释冲、稳、保各档前几个重点项；完整候选已在下方表格列出。</span>
+          </div>
+        `;
+        for (const btn of [...document.querySelectorAll(".choice-btn")]) btn.disabled = true;
+        return;
+      }
       const pending = data?.pending_interrupt || data?.latest_agent_probe_question || "";
       const inferredNoLeap = pending.includes("没有看到值得") || pending.includes("不把这条作为偏好调整依据") || pending.includes("事实边界") || pending.includes("不足以形成取舍");
       const kind = data?.latest_question_kind || (inferredNoLeap ? "no_significant_tradeoff" : "");
       const noLeap = kind === "no_significant_tradeoff";
-      const title = document.querySelector(".choice-title");
       if (title) title.textContent = noLeap ? "本轮证据诊断" : "当前取舍问题";
       if (!pending) {
         el.choiceCopy.textContent = "等待系统生成可比较的取舍问题。";
@@ -1622,27 +1835,29 @@
       const buttons = [...document.querySelectorAll(".choice-btn")];
       if (noLeap) {
         const labels = {
-          accept: ["直接看最终推荐", "请直接进入最终推荐。"],
-          reject: ["换个方向看看", "请换一个方向继续查一轮。"],
-          unsure: ["我补充条件", "我想先补充更多条件。"]
+          accept: ["直接看最终推荐", feedbackSignals.accept, "直接看最终推荐。"],
+          reject: ["换个方向看看", feedbackSignals.reject, "换个方向继续查一轮。"],
+          unsure: ["暂不判断", feedbackSignals.unsure, "暂不把本轮作为偏好更新依据。"]
         };
         for (const btn of buttons) {
           const role = btn.dataset.role || "";
           if (!labels[role]) continue;
           btn.textContent = labels[role][0];
           btn.dataset.feedback = labels[role][1];
+          btn.dataset.display = labels[role][2];
         }
       } else {
         const labels = {
-          accept: ["偏向接受", samples.accept],
-          reject: ["保留底线", samples.reject],
-          unsure: ["仍不确定", samples.unsure]
+          accept: ["偏向接受", feedbackSignals.accept, feedbackDisplay.accept],
+          reject: ["保留底线", feedbackSignals.reject, feedbackDisplay.reject],
+          unsure: ["仍不确定", feedbackSignals.unsure, feedbackDisplay.unsure]
         };
         for (const btn of buttons) {
           const role = btn.dataset.role || "";
           if (!labels[role]) continue;
           btn.textContent = labels[role][0];
           btn.dataset.feedback = labels[role][1];
+          btn.dataset.display = labels[role][2];
         }
       }
       const disabled = !pending || el.send.disabled;
@@ -1659,6 +1874,7 @@
           ? data.opportunity_rankings.map(displayProbeName).slice(0, 5)
           : [],
         候选概况: el.candidateCount.textContent,
+        最终志愿数: finalRecommendationCount(data),
         交互类型: data?.latest_question_kind || "none",
         追问来源: data?.latest_question_source || "none",
         运行状态: data?.run_status || data?.status || "idle",
@@ -1793,13 +2009,13 @@
       });
     }
 
-    async function submitFeedback(feedback) {
-      const message = (feedback || "").trim();
+    async function submitFeedback(feedback, displayText = null) {
+      const message = (feedback || "").trim().toUpperCase();
       if (!message) return;
       el.send.disabled = true;
       for (const btn of document.querySelectorAll(".choice-btn")) btn.disabled = true;
       setStatus("busy", "正在提交偏好反馈");
-      dialogue.push({role: "user", text: message});
+      dialogue.push({role: "user", text: displayText || message});
       renderDialogue();
       try {
         const feedbackStarted = performance.now();
@@ -1858,9 +2074,10 @@
     }
     for (const btn of document.querySelectorAll(".choice-btn")) {
       btn.addEventListener("click", () => {
-        const feedback = btn.dataset.feedback || samples.unsure;
-        el.message.value = feedback;
-        submitFeedback(feedback);
+        const feedback = btn.dataset.feedback || feedbackSignals.unsure;
+        const displayText = btn.dataset.display || feedbackDisplay.unsure;
+        el.message.value = displayText;
+        submitFeedback(feedback, displayText);
       });
     }
 

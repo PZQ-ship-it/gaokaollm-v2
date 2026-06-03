@@ -26,6 +26,13 @@ def test_diagnose_success_trace_with_interrupt_metadata(tmp_path: Path) -> None:
             ],
             "analysis": {"status": "ok", "failures": []},
             "errors": [],
+            "final_question_kind": "finalize_offer",
+            "final_recommendation_count": 6,
+            "final_recommendation_bucket_counts": {
+                "reach": 2,
+                "match": 2,
+                "safety": 2,
+            },
             "final_reply": "根据你的偏好，推荐优先考虑这些候选。",
         },
     )
@@ -37,6 +44,7 @@ def test_diagnose_success_trace_with_interrupt_metadata(tmp_path: Path) -> None:
     assert report["output_contract"] == "pass"
     assert report["state_integrity"] == "pass"
     assert report["observability"] == "pass"
+    assert report["final_recommendation_count"] == 6
 
 
 def test_diagnose_output_style_and_runtime_timeout(tmp_path: Path) -> None:
@@ -74,3 +82,26 @@ def test_diagnose_output_style_and_runtime_timeout(tmp_path: Path) -> None:
     assert reports[1]["tool_reliability"] == "fail"
     assert aggregate["dimension_rollup"]["output_contract"]["warning"] == 1
     assert aggregate["root_causes"][0]["evidence"]["runtime_timeout"] >= 1
+
+
+def test_diagnose_final_offer_requires_structured_table(tmp_path: Path) -> None:
+    path = _write_trace(
+        tmp_path / "missing-final-table.json",
+        {
+            "thread_id": "missing-final-table",
+            "rounds": [],
+            "analysis": {"status": "ok", "failures": []},
+            "errors": [],
+            "final_question_kind": "finalize_offer",
+            "final_recommendation_count": 0,
+            "final_reply": "已经生成最终推荐。",
+        },
+    )
+
+    report = _diagnose_trace(path)
+    aggregate = _aggregate([report])
+
+    assert report["task_completion"] == "fail"
+    assert report["state_integrity"] == "fail"
+    assert report["final_table_missing"] is True
+    assert aggregate["root_causes"][0]["cause"] == "最终推荐缺少结构化志愿表"
