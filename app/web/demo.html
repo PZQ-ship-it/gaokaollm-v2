@@ -406,6 +406,51 @@
       gap: 8px;
     }
 
+    .risk-window {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 12px;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .risk-window-main {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      align-items: center;
+      font-weight: 800;
+    }
+
+    .risk-window-main b,
+    .risk-window-bands b {
+      color: #0f172a;
+    }
+
+    .risk-window-bands {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .risk-window-bands span {
+      min-height: 25px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #dbeafe;
+      border-radius: 7px;
+      padding: 3px 7px;
+      background: #fff;
+      color: #1d4ed8;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
     .mini-candidate,
     .relaxed-card {
       border: 1px solid var(--line);
@@ -884,6 +929,7 @@
             <span id="candidate-count" class="metric">0 个候选</span>
           </div>
           <div class="panel-body">
+            <div id="risk-window" class="risk-window" style="display:none"></div>
             <div id="candidate-compare" class="candidate-compare">
               <section>
                 <div class="section-label" style="margin-top:0">当前范围内前几个候选</div>
@@ -968,6 +1014,14 @@
       bao: "保"
     };
 
+    const riskRankRatios = {
+      initialMin: 0.85,
+      relaxedMin: 0.75,
+      reachUpper: 0.98,
+      matchUpper: 1.15,
+      max: 1.40
+    };
+
     const probeLabels = {
       global_baseline: "生成冲稳保候选",
       probe_global_baseline: "生成冲稳保候选",
@@ -1022,6 +1076,7 @@
       candidatePanelTitle: document.getElementById("candidate-panel-title"),
       candidateCompare: document.getElementById("candidate-compare"),
       additionalCardsTitle: document.getElementById("additional-cards-title"),
+      riskWindow: document.getElementById("risk-window"),
       currentCards: document.getElementById("current-cards"),
       relaxedCard: document.getElementById("relaxed-card"),
       cards: document.getElementById("cards"),
@@ -1140,13 +1195,19 @@
     function globalBaselineRows(data) {
       const global = data?.pareto_opportunities?.global_baseline;
       if (!global || typeof global !== "object") return [];
+      const relaxed = acceptedRiskRelaxed(data);
       return ["reach", "match", "safety"].flatMap((bucket) => {
         const rows = flattenRows(global[bucket] || []);
-        return rows.map((row) => ({
-          ...row,
-          risk_bucket: row.risk_bucket || bucket,
-          risk_label: row.risk_label || bucketLabels[bucket] || bucket
-        }));
+        return rows
+          .filter((row) => {
+            const ratio = numberOrNull(row?.rank_ratio);
+            return relaxed || ratio === null || ratio >= riskRankRatios.initialMin;
+          })
+          .map((row) => ({
+            ...row,
+            risk_bucket: row.risk_bucket || bucket,
+            risk_label: row.risk_label || bucketLabels[bucket] || bucket
+          }));
       });
     }
 
@@ -1186,6 +1247,80 @@
       const numeric = numberOrNull(value);
       if (numeric === null) return null;
       return numeric > 0 ? `+${numeric}` : String(numeric);
+    }
+
+    function rankText(value) {
+      const numeric = numberOrNull(value);
+      if (numeric === null) return "待确认";
+      return Math.round(numeric).toLocaleString("zh-CN");
+    }
+
+    function acceptedRiskRelaxed(data) {
+      return (data?.accepted_relaxations || []).some((item) => {
+        const dimension = String(item?.dimension || "");
+        return dimension === "risk" || dimension === "risk_band_relax";
+      });
+    }
+
+    function estimatedRank(data) {
+      const direct = data?.estimated_rank ?? data?.student_rank ?? data?.constraints?.student_rank;
+      if (numberOrNull(direct) !== null) return numberOrNull(direct);
+      const rows = [
+        ...baselineRows(data),
+        ...opportunityEntries(data),
+        ...acceptedRelaxationRows(data),
+        ...flattenRows(data?.candidates)
+      ];
+      const row = rows.find((item) => numberOrNull(item?.student_rank) !== null);
+      return row ? numberOrNull(row.student_rank) : null;
+    }
+
+    function riskWindowInfo(data) {
+      const rank = estimatedRank(data);
+      if (rank === null || rank <= 0) return null;
+      const relaxed = acceptedRiskRelaxed(data);
+      const lowerRatio = relaxed ? riskRankRatios.relaxedMin : riskRankRatios.initialMin;
+      const bands = [
+        ["冲", lowerRatio, riskRankRatios.reachUpper],
+        ["稳", riskRankRatios.reachUpper, riskRankRatios.matchUpper],
+        ["保", riskRankRatios.matchUpper, riskRankRatios.max]
+      ].map(([label, lower, upper]) => ({
+        label,
+        lower: rank * lower,
+        upper: rank * upper
+      }));
+      return {
+        rank,
+        relaxed,
+        lower: rank * lowerRatio,
+        initialLower: rank * riskRankRatios.initialMin,
+        upper: rank * riskRankRatios.max,
+        bands
+      };
+    }
+
+    function renderRiskWindow(data) {
+      if (!el.riskWindow) return;
+      const info = riskWindowInfo(data);
+      if (!info) {
+        el.riskWindow.style.display = "none";
+        el.riskWindow.innerHTML = "";
+        return;
+      }
+      el.riskWindow.style.display = "";
+      const mode = info.relaxed ? "已单侧上探" : "当前风险窗口";
+      const boundary = info.relaxed
+        ? `上探边界 ${rankText(info.initialLower)} -> ${rankText(info.lower)}，保底边界仍为 ${rankText(info.upper)}`
+        : `上探边界 ${rankText(info.lower)}，保底边界 ${rankText(info.upper)}`;
+      el.riskWindow.innerHTML = `
+        <div class="risk-window-main">
+          <span>当前预估位次 <b>${rankText(info.rank)}</b></span>
+          <span>${escapeHtml(mode)} · ${escapeHtml(boundary)}</span>
+        </div>
+        <div class="risk-window-bands">
+          ${info.bands.map((band) => `<span>${escapeHtml(band.label)} <b>${rankText(band.lower)}-${rankText(band.upper)}</b></span>`).join("")}
+        </div>
+      `;
     }
 
     function schoolLevel(row) {
@@ -1307,12 +1442,6 @@
       return row.risk_label || bucketLabels[row.risk_bucket] || bucketLabels[row.risk_level] || row.risk_bucket || row.risk_level || "候选";
     }
 
-    function estimatedRank(data) {
-      const rows = baselineRows(data);
-      const value = rows.find((row) => row.student_rank !== undefined)?.student_rank;
-      return value === undefined ? null : value;
-    }
-
     function finalBuckets(data) {
       const matrix = data?.final_recommendation_matrix || {};
       return ["reach", "match", "safety"].map((bucket) => ({
@@ -1330,6 +1459,10 @@
 
     function isFinalRecommendation(data) {
       return finalRecommendationCount(data) > 0 || data?.latest_question_kind === "finalize_offer";
+    }
+
+    function hasConfirmedQuestion(data) {
+      return Boolean(data?.pending_interrupt || data?.latest_agent_probe_question || isFinalRecommendation(data));
     }
 
     function finalValue(row, key, fallback = "待确认") {
@@ -1362,6 +1495,7 @@
       el.additionalCardsTitle.textContent = "完整志愿表（最多 80 个）";
       el.candidateCompare.style.display = "none";
       el.cards.className = "final-results";
+      renderRiskWindow(data);
       el.candidateCount.textContent = total > 0 ? `${total} 个最终志愿候选` : "暂无最终志愿候选";
 
       if (!total) {
@@ -1407,6 +1541,8 @@
     }
 
     function dimensionInfo(key, row) {
+      const geoRelaxed = Number(row?.geo_relax_level || 0) > 0;
+      const majorRelaxed = Number(row?.major_relax_level || 0) > 0;
       const map = {
         tuition_value_relax: {
           label: "学费预算小幅放宽",
@@ -1456,7 +1592,7 @@
         risk_band_relax: {
           label: "风险带放宽",
           action: "放宽风险偏好",
-          reason: "从单一稳妥扩展为冲稳保组合，增加上探空间。"
+          reason: "只把冲刺上探边界向前打开，保底边界保持不动。"
         },
         global_baseline: {
           label: "全局可达候选",
@@ -1469,6 +1605,24 @@
         action: "放宽一个候选维度",
         reason: "系统在事实库中发现了可供取舍判断的候选。"
       };
+      if (key === "major_geo_relax") {
+        if (geoRelaxed && !majorRelaxed) {
+          return {
+            ...info,
+            label: "地域范围放宽",
+            action: "放宽地域",
+            reason: "专业方向仍在目标大类附近，本轮主要比较离开原地域范围后是否换来学校平台标签、综合排名或培养质量收益。"
+          };
+        }
+        if (majorRelaxed && !geoRelaxed) {
+          return {
+            ...info,
+            label: "专业邻近度放宽",
+            action: "放宽专业",
+            reason: "地域范围基本保留，本轮主要比较接受相近专业后是否换来学校平台标签、综合排名或培养质量收益。"
+          };
+        }
+      }
       if (row?.relaxation_stage_label) {
         return {...info, label: row.relaxation_stage_label};
       }
@@ -1630,6 +1784,25 @@
       el.dialogue.scrollTop = el.dialogue.scrollHeight;
     }
 
+    function appendSystemPlaceholder(text = "") {
+      dialogue.push({role: "system", text});
+      renderDialogue();
+      return dialogue.length - 1;
+    }
+
+    function updateDialogueText(index, text) {
+      if (!dialogue[index]) return;
+      dialogue[index].text = text;
+      renderDialogue();
+    }
+
+    function removeEmptyDialogue(index) {
+      if (dialogue[index] && !dialogue[index].text) {
+        dialogue.splice(index, 1);
+        renderDialogue();
+      }
+    }
+
     function renderChips(target, data, color = "") {
       target.innerHTML = "";
       if (!data || (Array.isArray(data) && !data.length) || (typeof data === "object" && !Object.keys(data).length)) {
@@ -1750,6 +1923,18 @@
       el.additionalCardsTitle.textContent = "本轮放宽后出现的新选项";
       el.candidateCompare.style.display = "";
       el.cards.className = "cards";
+      if (!hasConfirmedQuestion(data)) {
+        el.candidateCount.textContent = "候选核验中";
+        if (el.riskWindow) {
+          el.riskWindow.style.display = "none";
+          el.riskWindow.innerHTML = "";
+        }
+        el.currentCards.innerHTML = '<p class="empty">候选正在核验，正式取舍问题生成后展示。</p>';
+        el.relaxedCard.className = "relaxed-card relaxed-empty";
+        el.relaxedCard.innerHTML = "候选正在核验，正式取舍问题生成后展示。";
+        el.cards.innerHTML = '<p class="empty">候选正在核验，正式取舍问题生成后展示。</p>';
+        return;
+      }
       const baseline = dedupeRows([...acceptedRelaxationRows(data), ...baselineRows(data)]);
       const relaxed = relaxedRows(data);
       const spotlight = selectRelaxedCandidate(data);
@@ -1760,7 +1945,8 @@
         .slice(0, 6);
       const total = dedupeRows([...baseline, ...relaxed]).length;
       const rank = estimatedRank(data);
-      el.candidateCount.textContent = `${baseline.length} 个范围内候选 · ${relaxed.length} 个放宽候选${rank ? ` · 估计位次 ${rank}` : ""}`;
+      el.candidateCount.textContent = `${baseline.length} 个范围内候选 · ${relaxed.length} 个放宽候选${rank ? ` · 估计位次 ${rankText(rank)}` : ""}`;
+      renderRiskWindow(data);
       renderCurrentCandidates(data);
       renderRelaxedSpotlight(data);
       if (!total) {
@@ -1933,6 +2119,93 @@
       });
     }
 
+    async function postChatRunStream(message, action = null, {dialogueIndex = null, started = performance.now()} = {}) {
+      const response = await fetch("/api/v1/chat/runs/stream", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          thread_id: threadId,
+          message,
+          ...(action ? {action} : {})
+        })
+      });
+      if (!response.ok) {
+        let detail = "";
+        try {
+          const errorPayload = await response.json();
+          detail = errorPayload?.detail ? `：${errorPayload.detail}` : "";
+        } catch (_error) {
+          detail = "";
+        }
+        throw new Error(`HTTP ${response.status}${detail}`);
+      }
+      if (!response.body) throw new Error("当前浏览器不支持流式读取。");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+      let streamedText = "";
+      let finalData = null;
+
+      const handleEvent = (raw) => {
+        const lines = raw.split("\n");
+        let eventType = "message";
+        const dataLines = [];
+        for (const line of lines) {
+          if (line.startsWith("event:")) {
+            eventType = line.slice(6).trim();
+          } else if (line.startsWith("data:")) {
+            dataLines.push(line.slice(5).trimStart());
+          }
+        }
+        if (!dataLines.length) return;
+        const payload = JSON.parse(dataLines.join("\n"));
+        if (eventType === "state") {
+          render(payload);
+          if (payload.status === "running" || payload.run_status === "running") {
+            const elapsed = Math.round(performance.now() - started);
+            setStatus("busy", `推荐流程运行中 · ${elapsed}ms`);
+          }
+          return;
+        }
+        if (eventType === "delta") {
+          streamedText += payload.text || "";
+          if (dialogueIndex !== null) updateDialogueText(dialogueIndex, streamedText);
+          const elapsed = Math.round(performance.now() - started);
+          setStatus("busy", `正在生成回复 · ${elapsed}ms`);
+          return;
+        }
+        if (eventType === "final" || eventType === "error") {
+          finalData = payload;
+        }
+      };
+
+      while (true) {
+        const {value, done} = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, {stream: true});
+        const events = buffer.split("\n\n");
+        buffer = events.pop() || "";
+        for (const raw of events) {
+          if (raw.trim()) handleEvent(raw);
+        }
+      }
+      buffer += decoder.decode();
+      if (buffer.trim()) handleEvent(buffer);
+      if (!finalData) throw new Error("流式调用结束但没有收到最终状态。");
+      render(finalData);
+      if (dialogueIndex !== null) {
+        updateDialogueText(
+          dialogueIndex,
+          finalData.reply || streamedText || "系统未返回文本回复。"
+        );
+      }
+      if (finalData.status === "error" || finalData.run_status === "error") {
+        throw new Error(finalData.run_error || "后台推荐流程失败");
+      }
+      return finalData;
+    }
+
     async function getChatState() {
       return fetchJson(`/api/v1/chat/state/${encodeURIComponent(threadId)}`);
     }
@@ -1981,13 +2254,17 @@
       setStatus("busy", "正在启动真实推荐系统");
       dialogue.push({role: "user", text: message});
       renderDialogue();
+      const replyIndex = appendSystemPlaceholder("");
       try {
         const started = performance.now();
-        const initialData = await postChatRun(message);
-        render(initialData);
-        setStatus("busy", "流程已启动，正在读取中间状态");
-        await pollUntilSettled(started);
+        const data = await postChatRunStream(message, null, {
+          dialogueIndex: replyIndex,
+          started
+        });
+        const elapsed = Math.round(performance.now() - started);
+        setStatus("ok", `${data.status === "interrupt" ? "等待用户取舍反馈" : "调用完成"} · ${elapsed}ms`);
       } catch (error) {
+        removeEmptyDialogue(replyIndex);
         dialogue.push({role: "system", text: `调用失败：${error.message}`, error: true});
         renderDialogue();
         setStatus("err", "调用失败，请检查服务、数据库或模型配置");
@@ -2017,6 +2294,7 @@
       setStatus("busy", "正在提交偏好反馈");
       dialogue.push({role: "user", text: displayText || message});
       renderDialogue();
+      let replyIndex = -1;
       try {
         const feedbackStarted = performance.now();
         const feedbackData = await postChat(message, "feedback");
@@ -2030,10 +2308,15 @@
         setStatus("busy", `偏好已更新 · ${feedbackElapsed}ms，正在生成下一轮问题`);
 
         const continueStarted = performance.now();
-        const initialData = await postChatRun("继续生成下一轮取舍问题。", "continue");
-        render(initialData);
-        await pollUntilSettled(continueStarted);
+        replyIndex = appendSystemPlaceholder("");
+        const data = await postChatRunStream("继续生成下一轮取舍问题。", "continue", {
+          dialogueIndex: replyIndex,
+          started: continueStarted
+        });
+        const elapsed = Math.round(performance.now() - continueStarted);
+        setStatus("ok", `${data.status === "interrupt" ? "等待用户取舍反馈" : "调用完成"} · ${elapsed}ms`);
       } catch (error) {
+        removeEmptyDialogue(replyIndex);
         dialogue.push({role: "system", text: `调用失败：${error.message}`, error: true});
         renderDialogue();
         setStatus("err", "调用失败，请检查服务、数据库或模型配置");

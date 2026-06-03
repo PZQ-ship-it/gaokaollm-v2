@@ -2,6 +2,7 @@ from app.graphs.nodes.negotiator import (
     _anchor_candidate_rows,
     _available_cost_dimensions_for_state,
     _cost_dimensions_for_probe,
+    _final_recommendation_table_matrix,
     _new_challenger_rows,
     select_constrained_tradeoff_pair,
 )
@@ -153,3 +154,30 @@ def test_focused_rows_are_not_used_as_anchor_when_current_candidates_empty():
 
     assert anchors == []
     assert challengers == [hidden_probe]
+
+
+def test_final_table_uses_aggressive_slots_after_risk_acceptance():
+    def row(bucket: str, index: int) -> dict[str, object]:
+        return _candidate(
+            f"{bucket}-{index}",
+            "临床医学",
+            1.0 - index * 0.01,
+            {"school": 0.7, "major": 1.0, "tuition": 1.0, "quality": 0.7, "geo": 1.0},
+        )
+
+    matrix = _final_recommendation_table_matrix(
+        {
+            "accepted_relaxations": [{"dimension": "risk_band_relax"}],
+            "pareto_opportunities": {
+                "global_baseline": {
+                    "reach": [row("reach", index) for index in range(50)],
+                    "match": [row("match", index) for index in range(30)],
+                    "safety": [row("safety", index) for index in range(30)],
+                }
+            },
+        }
+    )
+
+    assert len(matrix["reach"]) == 45
+    assert len(matrix["match"]) == 18
+    assert len(matrix["safety"]) == 17

@@ -8,11 +8,11 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.types import interrupt
 
 from app.core.llm_client import (
-    ainvoke_with_timeout,
+    ainvoke_text_with_timeout,
     get_reasoning_chat_model,
     get_structured_chat_model,
     reasoning_timeout_seconds,
-    structured_timeout_seconds,
+    user_visible_timeout_seconds,
 )
 from app.schemas.state import DEFAULT_WEIGHT_VARIANCE, AgentState
 from gaokaollm_bench.utils.trace import trace_event
@@ -127,6 +127,11 @@ GLOBAL_BASELINE_BUCKET_LABELS = {
 }
 FINAL_RECOMMENDATION_TABLE_LIMIT = 80
 FINAL_EXPLANATION_PER_BUCKET = 2
+AGGRESSIVE_RISK_BUCKET_WEIGHTS = {
+    "reach": 5,
+    "match": 2,
+    "safety": 2,
+}
 DIMENSION_LABELS = {
     "school": "学校层次",
     "major": "专业匹配",
@@ -183,23 +188,32 @@ async def _ainvoke_text_required(
     timeout: float,
     label: str,
 ) -> str:
-    response = await ainvoke_with_timeout(
+    content = (
+        await ainvoke_text_with_timeout(
+            llm,
+            prompt,
+            timeout=timeout,
+            label=label,
+        )
+    ).strip()
+    if content:
+        return content
+    raise RuntimeError(f"{label} returned empty content.")
+
+
+async def _ainvoke_text_optional(
+    llm: Any,
+    prompt: list[Any],
+    *,
+    timeout: float,
+    label: str,
+) -> str:
+    return await ainvoke_text_with_timeout(
         llm,
         prompt,
         timeout=timeout,
         label=label,
     )
-    content = str(getattr(response, "content", response)).strip()
-    if not content:
-        response_meta = getattr(response, "response_metadata", None) or {}
-        additional_kwargs = getattr(response, "additional_kwargs", None) or {}
-        meta_keys = sorted(str(key) for key in response_meta.keys())[:8]
-        additional_keys = sorted(str(key) for key in additional_kwargs.keys())[:8]
-        raise RuntimeError(
-            f"{label} returned empty content "
-            f"(response_metadata_keys={meta_keys}, additional_kwargs_keys={additional_keys})."
-        )
-    return content
 
 
 MAJOR_NOTE_PATTERN = re.compile(
@@ -746,6 +760,21 @@ def _current_opportunity_key(state: AgentState) -> str:
     if probe_name.startswith("probe_"):
         return probe_name.removeprefix("probe_")
     return probe_name
+
+
+def _accepted_dimensions(state: AgentState | dict[str, Any] | None) -> set[str]:
+    if not isinstance(state, dict):
+        return set()
+    accepted: set[str] = set()
+    for item in state.get("accepted_relaxations") or []:
+        if not isinstance(item, dict):
+            continue
+        dimension = str(item.get("dimension") or "").strip()
+        if dimension == "risk_band_relax":
+            dimension = "risk"
+        if dimension:
+            accepted.add(dimension)
+    return accepted
 
 
 def _opportunity_rows_for_key(
@@ -1897,6 +1926,7 @@ def _limit_final_recommendation_matrix(
     matrix: dict[str, list[dict[str, Any]]],
     *,
     total_limit: int = FINAL_RECOMMENDATION_TABLE_LIMIT,
+    aggressive_risk: bool = False,
 ) -> dict[str, list[dict[str, Any]]]:
     total_limit = max(0, int(total_limit))
     if total_limit <= 0:
@@ -1908,18 +1938,46 @@ def _limit_final_recommendation_matrix(
         return {
             bucket: list(matrix.get(bucket) or []) for bucket in GLOBAL_BASELINE_BUCKETS
         }
-    base_quota = total_limit // len(GLOBAL_BASELINE_BUCKETS)
-    remainder = total_limit % len(GLOBAL_BASELINE_BUCKETS)
+    weights = (
+        AGGRESSIVE_RISK_BUCKET_WEIGHTS
+        if aggressive_risk
+        else {bucket: 1 for bucket in GLOBAL_BASELINE_BUCKETS}
+    )
+    total_weight = sum(
+        max(0, int(weights.get(bucket, 0))) for bucket in GLOBAL_BASELINE_BUCKETS
+    )
+    if total_weight <= 0:
+        weights = {bucket: 1 for bucket in GLOBAL_BASELINE_BUCKETS}
+        total_weight = len(GLOBAL_BASELINE_BUCKETS)
+    raw_quotas = {
+        bucket: total_limit * max(0, int(weights.get(bucket, 0))) / total_weight
+        for bucket in GLOBAL_BASELINE_BUCKETS
+    }
+    quotas = {bucket: int(raw_quotas[bucket]) for bucket in GLOBAL_BASELINE_BUCKETS}
+    remainder = total_limit - sum(quotas.values())
+    quota_order = sorted(
+        GLOBAL_BASELINE_BUCKETS,
+        key=lambda bucket: (
+            int(weights.get(bucket, 0)),
+            raw_quotas[bucket] - quotas[bucket],
+            -GLOBAL_BASELINE_BUCKETS.index(bucket),
+        ),
+        reverse=True,
+    )
+    for bucket in quota_order[:remainder]:
+        quotas[bucket] += 1
+
     limited: dict[str, list[dict[str, Any]]] = {
         bucket: [] for bucket in GLOBAL_BASELINE_BUCKETS
     }
-    for index, bucket in enumerate(GLOBAL_BASELINE_BUCKETS):
-        quota = base_quota + (1 if index < remainder else 0)
+    for bucket in GLOBAL_BASELINE_BUCKETS:
+        quota = quotas.get(bucket, 0)
         limited[bucket] = list((matrix.get(bucket) or [])[:quota])
     remaining = total_limit - sum(len(rows) for rows in limited.values())
+    fill_order = tuple(quota_order) if aggressive_risk else GLOBAL_BASELINE_BUCKETS
     while remaining > 0:
         progressed = False
-        for bucket in GLOBAL_BASELINE_BUCKETS:
+        for bucket in fill_order:
             rows = matrix.get(bucket) or []
             if len(limited[bucket]) >= len(rows):
                 continue
@@ -2001,7 +2059,10 @@ def _final_table_row(row: dict[str, Any], bucket: str, index: int) -> dict[str, 
 def _final_recommendation_table_matrix(
     state: AgentState,
 ) -> dict[str, list[dict[str, Any]]]:
-    matrix = _limit_final_recommendation_matrix(_global_recommendation_matrix(state))
+    matrix = _limit_final_recommendation_matrix(
+        _global_recommendation_matrix(state),
+        aggressive_risk="risk" in _accepted_dimensions(state),
+    )
     return {
         bucket: [
             _final_table_row(row, bucket, index)
@@ -2170,10 +2231,11 @@ async def _generate_pareto_question(
         state,
         question_factory_is_monkeypatched=question_factory_is_monkeypatched,
     )
+    text_timeout = user_visible_timeout_seconds()
     llm = (
         get_chat_model()
         if question_factory_is_monkeypatched
-        else get_structured_chat_model(max_retries=1)
+        else get_structured_chat_model(timeout=text_timeout, max_retries=1)
     )
     payload_text = json.dumps(
         _pareto_generation_payload(
@@ -2200,11 +2262,7 @@ async def _generate_pareto_question(
             question = await _ainvoke_text_required(
                 llm,
                 prompt,
-                timeout=(
-                    structured_timeout_seconds()
-                    if question_factory_is_monkeypatched
-                    else structured_timeout_seconds()
-                ),
+                timeout=text_timeout,
                 label="negotiator_pareto_question",
             )
         except RuntimeError:
@@ -2395,7 +2453,7 @@ def _question_for_axis(state: AgentState) -> str:
             f"我发现小幅放宽预算后会出现 {school}，{delta_text}。你能接受小幅超预算吗？"
         )
     if key == "risk_band_relax":
-        return "我可以把方案从单一求稳扩展成冲稳保组合。你能接受保留少量冲刺志愿吗？"
+        return "我可以只把冲刺上探边界向前打开，同时保留稳妥和保底候选。你能接受更高一些的冲刺风险吗？"
     if key in {"major_quality_relax", "strength_relax"}:
         return f"我发现 {school} 的专业或学校证据有可比变化。你愿意优先看质量证据吗？"
     if key == "employment_outcome_relax":
@@ -2751,13 +2809,12 @@ async def legacy_negotiator_node(state: AgentState) -> dict[str, Any]:
         SystemMessage(content=json.dumps(evidence, ensure_ascii=False, default=str)),
     ]
     try:
-        response = await ainvoke_with_timeout(
+        content = await _ainvoke_text_optional(
             llm,
             prompt,
             timeout=reasoning_timeout_seconds(),
             label="legacy_negotiator",
         )
-        content = str(response.content)
     except Exception as exc:
         print(
             "[negotiator] llm_generation_failed="

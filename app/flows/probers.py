@@ -17,6 +17,8 @@ from app.core.embedding_client import (
 )
 from app.schemas.state import DEFAULT_IMPLICIT_WEIGHTS
 from gaokaollm_bench.data_gen.major_tree import build_relaxation_stages
+from gaokaollm_bench.data_gen.major_tree import load_major_tree
+from gaokaollm_bench.data_gen.major_tree import resolve_major_node_from_tree
 from gaokaollm_bench.data_gen.region_tree_relax import (
     annotate_region_row,
     build_region_relax_targets,
@@ -38,6 +40,11 @@ GLOBAL_BASELINE_BUCKET_LABELS = {
     "reach": "冲",
     "match": "稳",
     "safety": "保",
+}
+AGGRESSIVE_RISK_BUCKET_WEIGHTS = {
+    "reach": 5,
+    "match": 2,
+    "safety": 2,
 }
 RANK_BUCKET_RANGES = {
     "reach": (0.85, 0.98),
@@ -68,6 +75,7 @@ MAJOR_SIMILARITY_WEIGHT = 0.70
 MAJOR_STAGE_WEIGHT = 1.0 - MAJOR_SIMILARITY_WEIGHT
 _MAJOR_VECTOR_CACHE: dict[str, list[float]] = {}
 _MAJOR_SIMILARITY_CACHE: dict[tuple[str, str], float] = {}
+_MAJOR_TREE_CACHE: dict[str, dict[str, Any]] = {}
 DEFAULT_LEXICOGRAPHIC_EPSILON = 0.01
 SEMANTIC_SCORE_BATCH_SIZE = 200
 
@@ -132,6 +140,80 @@ def _major_similarity_label(score: float) -> str:
     if score >= 0.50:
         return "相关性偏弱"
     return "相关性较弱"
+
+
+def _major_tree_cache_key(path: str | Path | None) -> str:
+    return str(Path(path or DEFAULT_MAJOR_TREE_PATH))
+
+
+def _load_cached_major_tree(path: str | Path | None) -> dict[str, Any] | None:
+    cache_key = _major_tree_cache_key(path)
+    if cache_key not in _MAJOR_TREE_CACHE:
+        try:
+            _MAJOR_TREE_CACHE[cache_key] = load_major_tree(path)
+        except Exception:
+            return None
+    return _MAJOR_TREE_CACHE.get(cache_key)
+
+
+def _matches_major_tree_node(text: str, node: dict[str, Any]) -> bool:
+    if not text:
+        return False
+    if any(term and term in text for term in node.get("exclude_keywords", [])):
+        return False
+    label = str(node.get("label") or "")
+    if label and label in {text, f"{text}类", f"{text}大类"}:
+        return True
+    observed = node.get("observed_names") or node.get("real_names") or []
+    if any(name and (text == name or text.startswith(f"{name}(")) for name in observed):
+        return True
+    return any(term and term in text for term in node.get("include_keywords", []))
+
+
+def _candidate_matches_major_constraint(
+    candidate: dict[str, Any],
+    constraints: dict[str, Any],
+    *,
+    major_tree_path: str | Path | None = DEFAULT_MAJOR_TREE_PATH,
+) -> bool:
+    strict_major = str(constraints.get("major") or "").strip()
+    if not strict_major:
+        return True
+    major_name = str(candidate.get("major_name") or candidate.get("major") or "")
+
+    tree = _load_cached_major_tree(major_tree_path)
+    if not tree:
+        return strict_major in major_name
+    nodes = tree.get("nodes") or tree.get("clusters") or {}
+    try:
+        strict_node = resolve_major_node_from_tree(strict_major, tree)
+        current_node = resolve_major_node_from_tree(major_name, tree)
+    except Exception:
+        for node in nodes.values():
+            if not isinstance(node, dict):
+                continue
+            if _matches_major_tree_node(
+                strict_major, node
+            ) and _matches_major_tree_node(
+                major_name,
+                node,
+            ):
+                return True
+        return False
+
+    if strict_node.id == current_node.id:
+        return True
+    if strict_node.parent and strict_node.parent == current_node.parent:
+        return True
+    parent_id = strict_node.parent
+    while parent_id:
+        parent = nodes.get(parent_id)
+        if not isinstance(parent, dict):
+            break
+        if _matches_major_tree_node(major_name, parent):
+            return True
+        parent_id = parent.get("parent")
+    return False
 
 
 async def _embed_major_texts(texts: list[str]) -> None:
@@ -342,6 +424,8 @@ def _accepted_relaxed_dimensions(user_state: dict[str, Any] | None) -> set[str]:
         if not isinstance(item, dict):
             continue
         dimension = str(item.get("dimension") or "").strip()
+        if dimension == "risk_band_relax":
+            dimension = "risk"
         if dimension:
             dimensions.add(dimension)
     return dimensions
@@ -368,7 +452,9 @@ def _apply_accepted_relaxations(
     for item in accepted:
         if not isinstance(item, dict):
             continue
-        dimension = str(item.get("dimension") or "")
+        dimension = str(item.get("dimension") or "").strip()
+        if dimension == "risk_band_relax":
+            dimension = "risk"
         if dimension == "geo":
             adjusted.pop("target_provinces", None)
             adjusted.pop("city", None)
@@ -477,11 +563,10 @@ def _annotate_terminal_relaxation_features(
     ):
         row.setdefault("geo_relax_level", 1)
     major = constraints.get("major")
-    major_name = str(row.get("major_name") or row.get("major") or "")
     if (
         _has_accepted_relaxation(user_state, "major")
         and major
-        and str(major) not in major_name
+        and not _candidate_matches_major_constraint(row, constraints)
     ):
         row.setdefault("major_relax_level", 1)
     if _has_accepted_relaxation(user_state, "risk"):
@@ -495,18 +580,30 @@ def _annotate_major_geo_probe_features(
     candidate: dict[str, Any],
     constraints: dict[str, Any],
     stage: dict[str, Any],
+    *,
+    major_tree_path: str | Path | None = DEFAULT_MAJOR_TREE_PATH,
 ) -> dict[str, Any]:
     row = dict(candidate)
-    if not _candidate_matches_geo(row, constraints):
+    relaxes_geo = not _candidate_matches_geo(row, constraints)
+    if relaxes_geo:
         row.setdefault("geo_relax_level", 1)
 
-    strict_major = constraints.get("major")
-    major_name = str(row.get("major_name") or row.get("major") or "")
-    if strict_major and str(strict_major) not in major_name:
+    relaxes_major = not _candidate_matches_major_constraint(
+        row,
+        constraints,
+        major_tree_path=major_tree_path,
+    )
+    if relaxes_major:
         stage_level = _coerce_float(stage.get("stage"))
         if stage_level is None or stage_level <= 0:
             stage_level = 1.0
         row.setdefault("major_relax_level", stage_level)
+    if relaxes_geo and not relaxes_major:
+        row["relaxation_stage_label"] = "地域范围放宽"
+    elif relaxes_major and not relaxes_geo:
+        row["relaxation_stage_label"] = "专业邻近度放宽"
+    elif relaxes_geo and relaxes_major:
+        row["relaxation_stage_label"] = "专业与地域联合放宽"
     return row
 
 
@@ -1111,6 +1208,8 @@ def classify_risk_band(
 
     ratio = _coerce_float(rank_ratio)
     if ratio is not None:
+        if RANK_WINDOW_RELAXED_MIN <= ratio < RANK_WINDOW_MIN:
+            return "chong"
         bucket = _risk_bucket_from_rank_ratio(ratio)
         if bucket == "reach":
             return "chong"
@@ -1198,6 +1297,13 @@ def _is_material_risk_relaxation(row: dict[str, Any]) -> bool:
     if score_margin is not None:
         return score_margin <= -RISK_RELAX_MIN_SCORE_DEFICIT
     return False
+
+
+def _is_incremental_risk_relaxation(row: dict[str, Any]) -> bool:
+    rank_ratio = _coerce_float(row.get("rank_ratio"))
+    if rank_ratio is not None:
+        return RANK_WINDOW_RELAXED_MIN <= rank_ratio < RANK_WINDOW_MIN
+    return _is_material_risk_relaxation(row)
 
 
 def _risk_selection_key(row: dict[str, Any]) -> tuple[Any, ...]:
@@ -1580,6 +1686,7 @@ async def run_baseline(
     _add_province_filter(where, params, constraints)
     _add_city_filter(where, params, constraints)
     _add_major_filter(where, params, constraints)
+    _add_undergraduate_quality_filters(where, params)
     params.append(limit)
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{BASE_ORDER}"
@@ -1647,13 +1754,19 @@ def build_recommendation_matrix(
             reverse=True,
         )[:limit_per_bucket]
     if total_limit is not None:
-        matrix = _limit_recommendation_matrix_total(matrix, total_limit)
+        matrix = _limit_recommendation_matrix_total(
+            matrix,
+            total_limit,
+            aggressive_risk=risk_relaxed,
+        )
     return matrix
 
 
 def _limit_recommendation_matrix_total(
     matrix: dict[str, list[dict[str, Any]]],
     total_limit: int,
+    *,
+    aggressive_risk: bool = False,
 ) -> dict[str, list[dict[str, Any]]]:
     total_limit = max(0, int(total_limit))
     if total_limit <= 0:
@@ -1666,20 +1779,48 @@ def _limit_recommendation_matrix_total(
             bucket: list(matrix.get(bucket) or []) for bucket in GLOBAL_BASELINE_BUCKETS
         }
 
-    base_quota = total_limit // len(GLOBAL_BASELINE_BUCKETS)
-    remainder = total_limit % len(GLOBAL_BASELINE_BUCKETS)
+    weights = (
+        AGGRESSIVE_RISK_BUCKET_WEIGHTS
+        if aggressive_risk
+        else {bucket: 1 for bucket in GLOBAL_BASELINE_BUCKETS}
+    )
+    total_weight = sum(
+        max(0, int(weights.get(bucket, 0))) for bucket in GLOBAL_BASELINE_BUCKETS
+    )
+    if total_weight <= 0:
+        weights = {bucket: 1 for bucket in GLOBAL_BASELINE_BUCKETS}
+        total_weight = len(GLOBAL_BASELINE_BUCKETS)
+    raw_quotas = {
+        bucket: total_limit * max(0, int(weights.get(bucket, 0))) / total_weight
+        for bucket in GLOBAL_BASELINE_BUCKETS
+    }
+    quotas = {bucket: int(raw_quotas[bucket]) for bucket in GLOBAL_BASELINE_BUCKETS}
+    remainder = total_limit - sum(quotas.values())
+    quota_order = sorted(
+        GLOBAL_BASELINE_BUCKETS,
+        key=lambda bucket: (
+            int(weights.get(bucket, 0)),
+            raw_quotas[bucket] - quotas[bucket],
+            -GLOBAL_BASELINE_BUCKETS.index(bucket),
+        ),
+        reverse=True,
+    )
+    for bucket in quota_order[:remainder]:
+        quotas[bucket] += 1
+
     limited: dict[str, list[dict[str, Any]]] = {
         bucket: [] for bucket in GLOBAL_BASELINE_BUCKETS
     }
-    for index, bucket in enumerate(GLOBAL_BASELINE_BUCKETS):
-        quota = base_quota + (1 if index < remainder else 0)
+    for bucket in GLOBAL_BASELINE_BUCKETS:
+        quota = quotas.get(bucket, 0)
         rows = matrix.get(bucket) or []
         limited[bucket] = list(rows[:quota])
 
     remaining = total_limit - sum(len(rows) for rows in limited.values())
+    fill_order = tuple(quota_order) if aggressive_risk else GLOBAL_BASELINE_BUCKETS
     while remaining > 0:
         progressed = False
-        for bucket in GLOBAL_BASELINE_BUCKETS:
+        for bucket in fill_order:
             rows = matrix.get(bucket) or []
             if len(limited[bucket]) >= len(rows):
                 continue
@@ -2418,7 +2559,12 @@ async def probe_major_geo_relax(
                 row["relaxation_stage"] = stage.get("stage")
                 row["relaxation_stage_label"] = stage.get("label")
                 row["relaxation_strategy"] = stage.get("strategy")
-                annotated = _annotate_major_geo_probe_features(row, constraints, stage)
+                annotated = _annotate_major_geo_probe_features(
+                    row,
+                    constraints,
+                    stage,
+                    major_tree_path=major_tree_path,
+                )
                 row.update(annotated)
             break
 
@@ -2433,7 +2579,7 @@ async def probe_risk_band_relax(
     limit: int = 6,
     max_per_school: int = 2,
 ) -> list[dict[str, Any]]:
-    """Find a chong/wen/bao portfolio under existing hard constraints."""
+    """Find materially more aggressive reach options under existing hard constraints."""
 
     risk_preference = str(constraints.get("risk_preference") or "").lower()
     include_aggressive = risk_preference in {
@@ -2455,6 +2601,8 @@ async def probe_risk_band_relax(
     _add_undergraduate_quality_filters(where, params)
     _add_major_quality_filters(where, params, max_major_name_length=60)
     if student_rank is not None:
+        lower_rank = int(student_rank * RANK_WINDOW_RELAXED_MIN)
+        upper_rank = int(student_rank * RANK_WINDOW_MIN) - 1
         where.extend(
             [
                 "a.min_rank IS NOT NULL",
@@ -2462,12 +2610,7 @@ async def probe_risk_band_relax(
                 "a.min_rank <= %s",
             ]
         )
-        params.extend(
-            [
-                int(student_rank * RANK_WINDOW_MIN),
-                int(student_rank * RANK_WINDOW_MAX),
-            ]
-        )
+        params.extend([lower_rank, max(lower_rank, upper_rank)])
     params.append(max(limit * 8, 60))
 
     query = f"{BASE_SELECT}\nWHERE {' AND '.join(where)}\n{MAJOR_GEO_ORDER}"
@@ -2479,6 +2622,7 @@ async def probe_risk_band_relax(
         row
         for row in annotated
         if str(row.get("risk_level") or "") in {"chong", "wen", "bao"}
+        and _is_incremental_risk_relaxation(row)
         and _is_material_risk_relaxation(row)
     ]
     selected = _select_risk_portfolio(

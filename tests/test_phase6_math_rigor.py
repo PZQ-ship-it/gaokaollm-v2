@@ -395,6 +395,70 @@ async def test_global_baseline_final_table_can_return_up_to_80(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_accepted_risk_relaxation_allocates_more_reach_slots(monkeypatch):
+    student_rank = 10000
+    rows: list[dict[str, Any]] = []
+    for index in range(9):
+        rows.append(
+            _candidate(
+                f"Reach {index}",
+                0.0,
+                {},
+                min_rank=8600 + index,
+                quality_score=100 - index,
+            )
+        )
+        rows.append(
+            _candidate(
+                f"Match {index}",
+                0.0,
+                {},
+                min_rank=9900 + index,
+                quality_score=100 - index,
+            )
+        )
+        rows.append(
+            _candidate(
+                f"Safety {index}",
+                0.0,
+                {},
+                min_rank=11600 + index,
+                quality_score=100 - index,
+            )
+        )
+
+    async def fake_fetch(
+        db: Any, query: str, params: list[Any]
+    ) -> list[dict[str, Any]]:
+        if "score_rank_segments" in query:
+            return [{"rank_min": 9900, "rank_max": student_rank}]
+        return rows
+
+    monkeypatch.setattr("app.flows.probers._fetch", fake_fetch)
+
+    matrix = await probe_global_baseline(
+        {
+            "constraints": {
+                "score": 600,
+                "province": "浙江",
+                "major": "医学",
+                "budget": 10000,
+                "risk_preference": "stable",
+                "selected_subjects": ["物理", "化学", "生物"],
+            },
+            "accepted_relaxations": [{"dimension": "risk"}],
+        },
+        db=object(),
+        limit=9,
+        total_limit=9,
+    )
+
+    assert len(matrix["reach"]) == 5
+    assert len(matrix["match"]) == 2
+    assert len(matrix["safety"]) == 2
+
+
+@pytest.mark.asyncio
 async def test_accepted_risk_relaxation_extends_reach_window(monkeypatch):
     student_rank = 10000
     rows = [
@@ -568,7 +632,7 @@ def test_accepted_relaxation_still_uses_soft_feature_penalties():
     features = extract_phi_features(annotated, state)
 
     assert annotated["geo_relax_level"] == 1
-    assert annotated["major_relax_level"] == 1
+    assert "major_relax_level" not in annotated
     assert features["geo"] < 1.0
-    assert features["major"] < 1.0
+    assert features["major"] == 1.0
     assert 0.0 < features["tuition"] < 1.0

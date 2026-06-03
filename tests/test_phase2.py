@@ -8,6 +8,8 @@ from app.core.db_pg import close_pool
 from app.flows.probers import (
     _MAJOR_SIMILARITY_CACHE,
     _MAJOR_VECTOR_CACHE,
+    _annotate_major_geo_probe_features,
+    _candidate_matches_major_constraint,
     _major_similarity_text,
     annotate_full_context_semantic_score,
     annotate_major_similarity,
@@ -95,6 +97,20 @@ class CapturingDb:
 class EmptyDb:
     async def __call__(self, query, *params):
         return []
+
+
+@pytest.mark.asyncio
+async def test_baseline_query_filters_out_non_undergraduate_display_candidates():
+    db = CapturingDb()
+
+    await run_baseline(STRICT_CONSTRAINTS, db=db)
+
+    query, params = db.calls[0]
+    assert "s.education_level = '本科'" in query
+    assert "(s.name LIKE %s OR s.name LIKE %s)" in query
+    assert "NOT (s.name LIKE %s AND s.name NOT LIKE %s)" in query
+    assert "%大学%" in params
+    assert "%医学院%" in params
 
 
 class MajorQualityDb:
@@ -252,8 +268,8 @@ class RiskDb:
                 "school_city": "杭州",
                 "major_id": 10,
                 "major_name": "涓村簥鍖诲",
-                "min_score": 598,
-                "min_rank": 45000,
+                "min_score": 606,
+                "min_rank": 40000,
                 "ranking": 80,
                 "tier": 3,
             },
@@ -426,6 +442,38 @@ def test_major_similarity_score_is_explanatory_not_primary_utility():
 def test_major_similarity_text_keeps_semantic_parenthetical_content():
     assert "水生动物医学" in _major_similarity_text("水产类(含水生动物医学)")
     assert "校区" not in _major_similarity_text("动物医学(凤凰校区)")
+
+
+def test_medical_category_candidate_is_geo_not_major_relaxation():
+    constraints = {
+        "major": "医学",
+        "target_provinces": ["浙江", "江苏", "上海"],
+    }
+    row = {
+        "school_name": "西南大学",
+        "school_province": "重庆",
+        "school_city": "北碚区",
+        "major_name": "药学",
+    }
+
+    assert _candidate_matches_major_constraint(row, constraints)
+
+    annotated = _annotate_major_geo_probe_features(
+        row,
+        constraints,
+        {"stage": 5, "label": "去除专业限制", "strategy": "any_major"},
+    )
+
+    assert annotated["geo_relax_level"] == 1
+    assert "major_relax_level" not in annotated
+    assert annotated["relaxation_stage_label"] == "地域范围放宽"
+
+
+def test_medical_category_does_not_match_excluded_animal_medicine():
+    assert not _candidate_matches_major_constraint(
+        {"major_name": "动物医学"},
+        {"major": "医学"},
+    )
 
 
 @pytest.mark.asyncio
@@ -629,12 +677,15 @@ async def test_risk_band_relax_keeps_hard_filters_and_returns_material_risk_opti
     assert "s.province <> %s" not in probe_query
     assert constraints["province"] in probe_params
     assert f"%{constraints['major']}%" in probe_params
+    assert int(50100 * 0.75) in probe_params
+    assert int(50100 * 0.85) - 1 in probe_params
+    assert int(50100 * 1.40) not in probe_params
     assert [row["risk_level"] for row in rows] == ["chong"]
     assert rows[0]["risk_relax_level"] == 1
-    assert rows[0]["score_margin"] == 2
+    assert rows[0]["score_margin"] == -6
     assert rows[0]["student_rank"] == 50100
-    assert rows[0]["rank_gap"] == -5100
-    assert rows[0]["rank_ratio"] == pytest.approx(0.8982, abs=0.0001)
+    assert rows[0]["rank_gap"] == -10100
+    assert rows[0]["rank_ratio"] == pytest.approx(0.7984, abs=0.0001)
 
 
 @pytest.mark.asyncio
@@ -766,20 +817,20 @@ async def test_city_relax_drops_city_but_keeps_other_hard_filters():
         for param in probe_params
     )
     assert f"%{constraints['major']}%" in probe_params
-    assert rows == [
-        {
-            "year": 2025,
-            "school_id": 2,
-            "school_name": "宁波大学",
-            "school_province": "浙江",
-            "school_city": "宁波",
-            "major_id": 20,
-            "major_name": "临床医学",
-            "min_score": 598,
-            "ranking": 70,
-            "tier": 3,
-        }
-    ]
+    assert len(rows) == 1
+    for key, value in {
+        "year": 2025,
+        "school_id": 2,
+        "school_name": "宁波大学",
+        "school_province": "浙江",
+        "school_city": "宁波",
+        "major_id": 20,
+        "major_name": "临床医学",
+        "min_score": 598,
+        "ranking": 70,
+        "tier": 3,
+    }.items():
+        assert rows[0][key] == value
 
 
 @pytest.mark.asyncio

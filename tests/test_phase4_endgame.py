@@ -48,7 +48,7 @@ def _candidate(
 
 @pytest.mark.asyncio
 async def test_radar_halting_routes_to_global_baseline(monkeypatch):
-    async def fake_probe_global_baseline(user_state, db=None, limit=5):
+    async def fake_probe_global_baseline(user_state, db=None, limit=5, **kwargs):
         return [_candidate("全局收网大学", school_phi=0.85, geo_phi=0.7)]
 
     monkeypatch.setattr(
@@ -106,7 +106,7 @@ async def test_negotiator_pareto_question_interrupts_with_mrs_prompt(monkeypatch
         await negotiator_node(state)
 
     prompt_text = "\n".join(message.content for message in fake_llm.prompts[0])
-    assert "交互式推荐助手" in prompt_text
+    assert "志愿咨询顾问" in prompt_text
     assert "不要输出 tier" in prompt_text
     assert "candidate_a_user_facing" in prompt_text
 

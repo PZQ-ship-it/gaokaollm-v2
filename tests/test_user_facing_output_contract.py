@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from app.graphs.nodes.negotiator import (
     _candidate_evidence_text,
@@ -164,3 +165,45 @@ def test_school_evidence_comparison_separates_platform_and_ranking() -> None:
     assert "学校平台标签更突出" in brief
     assert "综合排名参考不比参照项靠前" in brief
     assert "不能说成“综合排名更好”" in brief
+
+
+def test_demo_label_prefers_actual_geo_relaxation_over_stale_major_stage() -> None:
+    source = Path("app/web/demo.html").read_text(encoding="utf-8")
+    geo_branch = "if (geoRelaxed && !majorRelaxed)"
+    stale_stage_branch = "if (row?.relaxation_stage_label)"
+
+    assert geo_branch in source
+    assert 'label: "地域范围放宽"' in source
+    assert source.index(geo_branch) < source.index(stale_stage_branch)
+
+
+def test_demo_displays_rank_window_and_risk_relaxation_boundary() -> None:
+    source = Path("app/web/demo.html").read_text(encoding="utf-8")
+
+    assert 'id="risk-window"' in source
+    assert "const riskRankRatios" in source
+    assert "initialMin: 0.85" in source
+    assert "relaxedMin: 0.75" in source
+    assert "max: 1.40" in source
+    assert "function acceptedRiskRelaxed(data)" in source
+    assert 'dimension === "risk"' in source
+    assert "当前预估位次" in source
+    assert "上探边界" in source
+    assert "保底边界" in source
+    assert "initialLower" in source
+    assert '["冲", lowerRatio, riskRankRatios.reachUpper]' in source
+    assert "ratio >= riskRankRatios.initialMin" in source
+    assert source.count("renderRiskWindow(data);") >= 2
+
+
+def test_demo_gates_candidates_until_confirmed_question() -> None:
+    source = Path("app/web/demo.html").read_text(encoding="utf-8")
+
+    assert "function hasConfirmedQuestion(data)" in source
+    assert "if (!hasConfirmedQuestion(data))" in source
+    assert "候选正在核验，正式取舍问题生成后展示。" in source
+    render_cards_start = source.index("function renderCards(data)")
+    assert source.index(
+        "if (!hasConfirmedQuestion(data))",
+        render_cards_start,
+    ) < source.index("const baseline = dedupeRows", render_cards_start)

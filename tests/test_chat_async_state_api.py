@@ -5,6 +5,7 @@ import pytest
 from langgraph.types import interrupt
 
 from app.api import chat_api
+from app.core.llm_client import emit_text_stream_delta
 from app.schemas.state import AgentState
 from main import app
 
@@ -48,6 +49,8 @@ async def fake_radar_node(state: AgentState) -> dict:
 
 async def fake_negotiator_node(state: AgentState) -> dict:
     await asyncio.sleep(0.01)
+    await emit_text_stream_delta("你是否愿意", label="fake_negotiator")
+    await emit_text_stream_delta("小幅放宽预算？", label="fake_negotiator")
     user_reply = interrupt(
         {
             "text": "你是否愿意小幅放宽预算，换取更高学校层次？",
@@ -62,6 +65,25 @@ async def fake_negotiator_node(state: AgentState) -> dict:
     }
 
 
+async def fake_long_unpunctuated_negotiator_node(state: AgentState) -> dict:
+    await emit_text_stream_delta(
+        "这是一段较长的取舍问题开头用于验证流式输出不必等待句末标点并且仍然保持连续可读",
+        label="fake_negotiator",
+    )
+    user_reply = interrupt(
+        {
+            "text": "这是一段较长的取舍问题开头用于验证流式输出不必等待句末标点并且仍然保持连续可读。",
+            "latest_question_kind": "tradeoff",
+            "latest_question_source": "llm",
+            "latest_probe_target_dimension": "tuition",
+        }
+    )
+    return {
+        "latest_human_feedback": str(user_reply),
+        "latest_agent_probe_question": "这是一段较长的取舍问题开头用于验证流式输出不必等待句末标点并且仍然保持连续可读。",
+    }
+
+
 async def fake_preference_tracker_node(state: AgentState) -> dict:
     return {
         "latest_human_feedback": None,
@@ -73,6 +95,54 @@ async def fake_preference_tracker_node(state: AgentState) -> dict:
         },
         "negotiation_turns": 1,
     }
+
+
+def test_running_payload_hides_draft_candidates_until_question():
+    thread_id = "draft-candidate-hide-test"
+    chat_api._RUNS[thread_id] = {
+        "status": "running",
+        "mode": "message",
+        "completed_nodes": ["semantic_normalizer", "gatekeeper", "radar"],
+    }
+    result = {
+        "baseline_results": [
+            {"school_name": "低分职业技术学院", "major_name": "护理", "min_score": 480}
+        ],
+        "pareto_opportunities": {
+            "tuition_value_relax": [
+                {"school_name": "中间探针候选", "major_name": "医学技术"}
+            ]
+        },
+        "candidates": [{"school_name": "中间候选池"}],
+    }
+
+    payload = chat_api._payload_from_values(
+        thread_id=thread_id,
+        result=result,
+        mode="message",
+        include_pending=False,
+    )
+
+    assert payload["workflow_progress"]["radar"] == "ok"
+    assert payload["baseline_results"] == []
+    assert payload["pareto_opportunities"] == {}
+    assert payload["candidates"] == []
+
+    payload_with_question = chat_api._payload_from_values(
+        thread_id=thread_id,
+        result={
+            **result,
+            "latest_agent_probe_question": "正式取舍问题已经生成。",
+        },
+        mode="message",
+        include_pending=False,
+    )
+
+    assert payload_with_question["baseline_results"][0]["school_name"] == (
+        "低分职业技术学院"
+    )
+    assert payload_with_question["pareto_opportunities"]
+    assert payload_with_question["candidates"]
 
 
 @pytest.mark.asyncio
@@ -153,3 +223,80 @@ async def test_async_chat_run_exposes_intermediate_state(monkeypatch):
     assert final["workflow_progress"]["negotiator"] == "ok"
     assert final["workflow_progress"]["preference_tracker"] == "waiting"
     assert final["baseline_results"][0]["school_name"] == "温州医科大学"
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_run_emits_text_deltas_and_final_state(monkeypatch):
+    monkeypatch.setattr(
+        "app.graphs.workflow.semantic_normalizer_node",
+        fake_semantic_normalizer_node,
+    )
+    monkeypatch.setattr("app.graphs.workflow.gatekeeper_node", fake_gatekeeper_node)
+    monkeypatch.setattr("app.graphs.workflow.radar_node", fake_radar_node)
+    monkeypatch.setattr("app.graphs.workflow.negotiator_node", fake_negotiator_node)
+    monkeypatch.setattr(chat_api, "graph", chat_api.build_graph())
+    chat_api._RUNS.clear()
+
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(
+        transport=transport,
+        base_url="http://testserver",
+    ) as client:
+        response = await client.post(
+            "/api/v1/chat/runs/stream",
+            json={
+                "thread_id": "stream-state-api-test",
+                "message": "我是浙江考生，分数600，选科物理、化学、生物。",
+            },
+        )
+
+    assert response.status_code == 200
+    body = response.text
+    assert "event: delta" in body
+    assert "你是否愿意小幅放宽预算？" in body
+    assert "event: state" in body
+    assert "event: final" in body
+    assert '"status": "interrupt"' in body
+
+
+def test_stream_flush_index_flushes_long_text_without_boundary():
+    text = "long user visible pareto question without sentence boundary yet"
+
+    flush_index = chat_api._stream_flush_index(text, 0)
+
+    assert 0 < flush_index < len(text)
+
+
+@pytest.mark.asyncio
+async def test_stream_chat_run_flushes_long_text_before_sentence_boundary(monkeypatch):
+    monkeypatch.setattr(
+        "app.graphs.workflow.semantic_normalizer_node",
+        fake_semantic_normalizer_node,
+    )
+    monkeypatch.setattr("app.graphs.workflow.gatekeeper_node", fake_gatekeeper_node)
+    monkeypatch.setattr("app.graphs.workflow.radar_node", fake_radar_node)
+    monkeypatch.setattr(
+        "app.graphs.workflow.negotiator_node",
+        fake_long_unpunctuated_negotiator_node,
+    )
+    monkeypatch.setattr(chat_api, "graph", chat_api.build_graph())
+    chat_api._RUNS.clear()
+
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(
+        transport=transport,
+        base_url="http://testserver",
+    ) as client:
+        response = await client.post(
+            "/api/v1/chat/runs/stream",
+            json={
+                "thread_id": "stream-long-text-api-test",
+                "message": "我是浙江考生，分数600，选科物理、化学、生物。",
+            },
+        )
+
+    assert response.status_code == 200
+    body = response.text
+    assert "event: delta" in body
+    assert "这是一段较长的取舍问题开头" in body
+    assert "event: final" in body

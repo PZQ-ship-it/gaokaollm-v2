@@ -1,6 +1,9 @@
 import os
 import argparse
 import asyncio
+import inspect
+from contextvars import ContextVar, Token
+from collections.abc import Callable
 from typing import Any
 
 from dotenv import load_dotenv
@@ -18,6 +21,15 @@ DEFAULT_REASONING_TIMEOUT_SECONDS = 180.0
 DEFAULT_MAX_RETRIES = 2
 DEFAULT_STRUCTURED_MAX_RETRIES = 0
 DEFAULT_STRUCTURED_MAX_COMPLETION_TOKENS = 256
+TextStreamCallback = Callable[[str, str], Any]
+_TEXT_STREAM_CALLBACK: ContextVar[TextStreamCallback | None] = ContextVar(
+    "gaokaollm_text_stream_callback",
+    default=None,
+)
+
+
+class _StreamStalledTimeout(TimeoutError):
+    pass
 
 
 def _float_env(name: str, default: float) -> float:
@@ -46,6 +58,7 @@ def describe_llm_config() -> dict[str, Any]:
         "timeout": _float_env("OPENAI_TIMEOUT", DEFAULT_TIMEOUT_SECONDS),
         "structured_timeout": structured_timeout_seconds(),
         "reasoning_timeout": reasoning_timeout_seconds(),
+        "user_visible_timeout": user_visible_timeout_seconds(),
         "max_retries": _int_env("OPENAI_MAX_RETRIES", DEFAULT_MAX_RETRIES),
         "structured_max_retries": _int_env(
             "OPENAI_STRUCTURED_MAX_RETRIES",
@@ -70,6 +83,10 @@ def reasoning_timeout_seconds() -> float:
         "OPENAI_REASONING_TIMEOUT",
         _float_env("OPENAI_TIMEOUT", DEFAULT_REASONING_TIMEOUT_SECONDS),
     )
+
+
+def user_visible_timeout_seconds() -> float:
+    return _float_env("OPENAI_USER_VISIBLE_TIMEOUT", reasoning_timeout_seconds())
 
 
 def get_chat_model(
@@ -150,6 +167,98 @@ async def ainvoke_with_timeout(
 ) -> Any:
     try:
         return await asyncio.wait_for(runnable.ainvoke(messages), timeout=timeout)
+    except asyncio.TimeoutError as exc:
+        raise TimeoutError(f"{label} timed out after {timeout:.1f}s") from exc
+
+
+def set_text_stream_callback(
+    callback: TextStreamCallback | None,
+) -> Token[TextStreamCallback | None]:
+    return _TEXT_STREAM_CALLBACK.set(callback)
+
+
+def reset_text_stream_callback(token: Token[TextStreamCallback | None]) -> None:
+    _TEXT_STREAM_CALLBACK.reset(token)
+
+
+async def emit_text_stream_delta(delta: str, *, label: str) -> None:
+    callback = _TEXT_STREAM_CALLBACK.get()
+    if callback is None or not delta:
+        return
+    maybe_awaitable = callback(delta, label)
+    if inspect.isawaitable(maybe_awaitable):
+        await maybe_awaitable
+
+
+def _content_to_text(content: Any) -> str:
+    if content is None:
+        return ""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict):
+                value = item.get("text") or item.get("content")
+                if value is not None:
+                    parts.append(str(value))
+            else:
+                parts.append(str(item))
+        return "".join(parts)
+    return str(content)
+
+
+async def ainvoke_text_with_timeout(
+    runnable: Any,
+    messages: Any,
+    *,
+    timeout: float,
+    label: str,
+) -> str:
+    callback = _TEXT_STREAM_CALLBACK.get()
+    if callback is None:
+        response = await ainvoke_with_timeout(
+            runnable,
+            messages,
+            timeout=timeout,
+            label=label,
+        )
+        return _content_to_text(getattr(response, "content", response))
+
+    async def _stream_text() -> str:
+        if not hasattr(runnable, "astream"):
+            response = await asyncio.wait_for(
+                runnable.ainvoke(messages),
+                timeout=timeout,
+            )
+            text = _content_to_text(getattr(response, "content", response))
+            await emit_text_stream_delta(text, label=label)
+            return text
+
+        parts: list[str] = []
+        stream = runnable.astream(messages).__aiter__()
+        while True:
+            try:
+                chunk = await asyncio.wait_for(stream.__anext__(), timeout=timeout)
+            except StopAsyncIteration:
+                break
+            except asyncio.TimeoutError as exc:
+                raise _StreamStalledTimeout(
+                    f"{label} stream stalled for {timeout:.1f}s"
+                ) from exc
+            delta = _content_to_text(getattr(chunk, "content", chunk))
+            if not delta:
+                continue
+            parts.append(delta)
+            await emit_text_stream_delta(delta, label=label)
+        return "".join(parts)
+
+    try:
+        return await _stream_text()
+    except _StreamStalledTimeout:
+        raise
     except asyncio.TimeoutError as exc:
         raise TimeoutError(f"{label} timed out after {timeout:.1f}s") from exc
 
