@@ -1,7 +1,7 @@
 ---
 stage: frontend_demo_runtime_commands
 stage_status: active
-updated_at: 2026-06-02
+updated_at: 2026-06-03
 demo_url: http://127.0.0.1:8000/demo
 ---
 
@@ -78,9 +78,20 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./scripts/configure_powe
 
 FastAPI 服务在启动终端按 `Ctrl+C` 停止。
 
+如果服务是后台启动或端口已被占用，可先按端口查出当前进程。下面命令默认查 `8000` 端口：
+
+```bash
+powershell.exe -NoProfile -Command '$ports = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue; $pids = $ports | Select-Object -ExpandProperty OwningProcess -Unique; foreach ($pidValue in $pids) { Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -eq $pidValue } | Select-Object ProcessId,CommandLine | Format-List }'
+```
+
+确认输出是本项目的 `uvicorn main:app --host 127.0.0.1 --port 8000` 后，再停止这些进程：
+
+```bash
+powershell.exe -NoProfile -Command '$ports = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue; $pids = $ports | Select-Object -ExpandProperty OwningProcess -Unique; foreach ($pidValue in $pids) { Stop-Process -Id $pidValue }'
+```
+
 如需停止项目 PostgreSQL：
 
 ```bash
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./db/stop_postgres.ps1
 ```
-

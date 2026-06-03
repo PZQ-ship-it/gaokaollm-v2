@@ -333,6 +333,19 @@
       line-height: 1.5;
     }
 
+    .choice-target {
+      display: block;
+      border: 1px solid #bbf7d0;
+      border-radius: 7px;
+      padding: 8px 9px;
+      background: #f0fdf4;
+      color: #047857;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.45;
+      white-space: normal;
+    }
+
     .choice-evidence {
       display: grid;
       gap: 7px;
@@ -354,7 +367,7 @@
 
     .choice-actions {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 9px;
       padding: 0 13px 13px;
     }
@@ -362,6 +375,27 @@
     .choice-btn.accept { background: var(--green); }
     .choice-btn.reject { background: var(--blue); }
     .choice-btn.unsure { background: #475569; }
+    .choice-btn.finalize { background: var(--amber); color: #fff; }
+
+    .choice-attribution {
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      padding: 0 13px 13px;
+    }
+
+    .choice-attribution.open {
+      display: grid;
+    }
+
+    .choice-attribution-note {
+      grid-column: 1 / -1;
+      margin: 0;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
 
     .chips {
       display: flex;
@@ -840,6 +874,7 @@
 
     @media (max-width: 1120px) {
       .shell { grid-template-columns: 1fr; }
+      .choice-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .candidate-compare { grid-template-columns: 1fr; }
       .mini-meta,
       .candidate-detail-grid { grid-template-columns: 1fr 1fr; }
@@ -920,6 +955,12 @@
             <button class="choice-btn accept" data-role="accept" data-feedback="ACCEPT" data-display="我愿意小幅放宽当前问题里的底线。">偏向接受</button>
             <button class="choice-btn reject" data-role="reject" data-feedback="REJECT" data-display="不能接受这个取舍，请保留我的底线。">保留底线</button>
             <button class="choice-btn unsure" data-role="unsure" data-feedback="HESITATE" data-display="我还不确定，想再看一轮证据。">仍不确定</button>
+            <button class="choice-btn finalize" data-role="finalize" data-feedback="FINALIZE" data-display="直接进入最终推荐。">最终推荐</button>
+          </div>
+          <div id="choice-attribution" class="choice-attribution" aria-live="polite">
+            <p id="choice-attribution-note" class="choice-attribution-note"></p>
+            <button id="reject-target" class="choice-btn reject" data-feedback="REJECT_TARGET">因为本轮目标维度</button>
+            <button id="reject-side" class="choice-btn unsure" data-feedback="REJECT_SIDE">因为旁支差异</button>
           </div>
         </div>
 
@@ -996,13 +1037,17 @@
     const feedbackSignals = {
       accept: "ACCEPT",
       reject: "REJECT",
-      unsure: "HESITATE"
+      rejectTarget: "REJECT_TARGET",
+      rejectSide: "REJECT_SIDE",
+      unsure: "HESITATE",
+      finalize: "FINALIZE"
     };
 
     const feedbackDisplay = {
       accept: "我愿意小幅放宽当前问题里的底线。",
       reject: "不能接受这个取舍，请保留我的底线。",
-      unsure: "我还不确定，想再看一轮证据。"
+      unsure: "我还不确定，想再看一轮证据。",
+      finalize: "直接进入最终推荐。"
     };
 
     const bucketLabels = {
@@ -1070,6 +1115,10 @@
       message: document.getElementById("message"),
       send: document.getElementById("send"),
       reset: document.getElementById("reset"),
+      attribution: document.getElementById("choice-attribution"),
+      attributionNote: document.getElementById("choice-attribution-note"),
+      rejectTarget: document.getElementById("reject-target"),
+      rejectSide: document.getElementById("reject-side"),
       dialogue: document.getElementById("dialogue"),
       choiceCopy: document.getElementById("choice-copy"),
       choicePanel: document.getElementById("choice-panel"),
@@ -1114,6 +1163,38 @@
 
     function displayProbeName(name) {
       return probeLabels[name] || labels[name] || String(name || "待规划");
+    }
+
+    function dimensionLabel(key) {
+      return labels[key] || String(key || "该维度");
+    }
+
+    function latestResidualNoise(data) {
+      const direct = data?.latest_residual_noise;
+      if (direct && typeof direct === "object") return direct;
+      const pairNoise = data?.latest_tradeoff_pair?.residual_noise;
+      return pairNoise && typeof pairNoise === "object" ? pairNoise : null;
+    }
+
+    function shouldAskRejectAttribution(data) {
+      const noise = latestResidualNoise(data);
+      if (!noise?.requires_attribution) return false;
+      const value = numberOrNull(noise.top_value);
+      const threshold = numberOrNull(noise.threshold) ?? 0.15;
+      return value !== null && value >= threshold;
+    }
+
+    function rejectAttributionCopy(data) {
+      const pair = data?.latest_tradeoff_pair || {};
+      const cost = pair.cost_dimension || data?.latest_probe_target_dimension || "当前目标";
+      const side = latestResidualNoise(data)?.top_dimension || "";
+      const optionB = pair?.option_b || {};
+      const majorName = optionB?.major_name || optionB?.major || "";
+      return {
+        note: `注意到这组方案在【${dimensionLabel(side)}】上也有明显差异。你的拒绝主要是因为【${dimensionLabel(cost)}】，还是因为旁支差异？`,
+        target: `因为${dimensionLabel(cost)}`,
+        side: majorName && side === "major" ? `不喜欢${majorName}` : `因为${dimensionLabel(side)}差异`
+      };
     }
 
     function flattenRows(value) {
@@ -1743,6 +1824,12 @@
       return deduped.slice(0, 5);
     }
 
+    function candidateInclusionQuestion(row) {
+      const school = shortText(row?.school_name || row?.school || "该学校", 28);
+      const major = shortText(row?.major_name || row?.major || "该专业", 46);
+      return `是否接受 ${school} · ${major} 纳入备选？`;
+    }
+
     function renderChoiceSummary(data, noLeap) {
       if (noLeap) {
         return `
@@ -1765,6 +1852,7 @@
       const info = dimensionInfo(relaxed._opportunity_key || "", relaxed);
       const facts = compareAgainstBaseline(relaxed, baseline, data).slice(1, 4);
       return `
+        <div class="choice-target">${escapeHtml(candidateInclusionQuestion(relaxed))}</div>
         <div class="choice-summary">
           <strong>关键取舍点：${escapeHtml(info.action)}</strong>
           <span>${escapeHtml(info.reason)}</span>
@@ -1997,6 +2085,7 @@
 
     function renderChoice(data) {
       const title = document.querySelector(".choice-title");
+      if (el.attribution) el.attribution.classList.remove("open");
       if (isFinalRecommendation(data)) {
         if (title) title.textContent = "最终推荐已生成";
         el.choiceCopy.innerHTML = `
@@ -2023,7 +2112,8 @@
         const labels = {
           accept: ["直接看最终推荐", feedbackSignals.accept, "直接看最终推荐。"],
           reject: ["换个方向看看", feedbackSignals.reject, "换个方向继续查一轮。"],
-          unsure: ["暂不判断", feedbackSignals.unsure, "暂不把本轮作为偏好更新依据。"]
+          unsure: ["暂不判断", feedbackSignals.unsure, "暂不把本轮作为偏好更新依据。"],
+          finalize: ["最终推荐", feedbackSignals.finalize, feedbackDisplay.finalize]
         };
         for (const btn of buttons) {
           const role = btn.dataset.role || "";
@@ -2036,7 +2126,8 @@
         const labels = {
           accept: ["偏向接受", feedbackSignals.accept, feedbackDisplay.accept],
           reject: ["保留底线", feedbackSignals.reject, feedbackDisplay.reject],
-          unsure: ["仍不确定", feedbackSignals.unsure, feedbackDisplay.unsure]
+          unsure: ["仍不确定", feedbackSignals.unsure, feedbackDisplay.unsure],
+          finalize: ["最终推荐", feedbackSignals.finalize, feedbackDisplay.finalize]
         };
         for (const btn of buttons) {
           const role = btn.dataset.role || "";
@@ -2048,6 +2139,16 @@
       }
       const disabled = !pending || el.send.disabled;
       for (const btn of buttons) btn.disabled = disabled;
+      const attributionCopy = rejectAttributionCopy(data);
+      if (el.attributionNote) el.attributionNote.textContent = attributionCopy.note;
+      if (el.rejectTarget) {
+        el.rejectTarget.textContent = attributionCopy.target;
+        el.rejectTarget.dataset.display = `不能接受，主要因为${attributionCopy.target.replace(/^因为/, "")}。`;
+      }
+      if (el.rejectSide) {
+        el.rejectSide.textContent = attributionCopy.side;
+        el.rejectSide.dataset.display = `不能接受，主要因为${attributionCopy.side.replace(/^因为/, "")}。`;
+      }
     }
 
     function renderDebug(data) {
@@ -2289,9 +2390,10 @@
     async function submitFeedback(feedback, displayText = null) {
       const message = (feedback || "").trim().toUpperCase();
       if (!message) return;
+      const wantsFinalize = message === feedbackSignals.finalize;
       el.send.disabled = true;
       for (const btn of document.querySelectorAll(".choice-btn")) btn.disabled = true;
-      setStatus("busy", "正在提交偏好反馈");
+      setStatus("busy", wantsFinalize ? "正在进入最终推荐" : "正在提交偏好反馈");
       dialogue.push({role: "user", text: displayText || message});
       renderDialogue();
       let replyIndex = -1;
@@ -2302,17 +2404,28 @@
         render(feedbackData);
         dialogue.push({
           role: "system",
-          text: `已更新偏好权重，正在基于新权重生成下一轮候选。`
+          text: wantsFinalize
+            ? "正在基于当前偏好生成最终推荐。"
+            : "已更新偏好权重，正在基于新权重生成下一轮候选。"
         });
         renderDialogue();
-        setStatus("busy", `偏好已更新 · ${feedbackElapsed}ms，正在生成下一轮问题`);
+        setStatus(
+          "busy",
+          wantsFinalize
+            ? `已进入最终推荐 · ${feedbackElapsed}ms，正在生成志愿表`
+            : `偏好已更新 · ${feedbackElapsed}ms，正在生成下一轮问题`
+        );
 
         const continueStarted = performance.now();
         replyIndex = appendSystemPlaceholder("");
-        const data = await postChatRunStream("继续生成下一轮取舍问题。", "continue", {
-          dialogueIndex: replyIndex,
-          started: continueStarted
-        });
+        const data = await postChatRunStream(
+          wantsFinalize ? "请基于当前偏好生成最终推荐。" : "继续生成下一轮取舍问题。",
+          "continue",
+          {
+            dialogueIndex: replyIndex,
+            started: continueStarted
+          }
+        );
         const elapsed = Math.round(performance.now() - continueStarted);
         setStatus("ok", `${data.status === "interrupt" ? "等待用户取舍反馈" : "调用完成"} · ${elapsed}ms`);
       } catch (error) {
@@ -2359,6 +2472,22 @@
       btn.addEventListener("click", () => {
         const feedback = btn.dataset.feedback || feedbackSignals.unsure;
         const displayText = btn.dataset.display || feedbackDisplay.unsure;
+        if (feedback === feedbackSignals.reject && shouldAskRejectAttribution(lastData)) {
+          const copy = rejectAttributionCopy(lastData);
+          if (el.attributionNote) el.attributionNote.textContent = copy.note;
+          if (el.attribution) el.attribution.classList.add("open");
+          if (el.rejectTarget) {
+            el.rejectTarget.textContent = copy.target;
+            el.rejectTarget.dataset.display = `不能接受，主要因为${copy.target.replace(/^因为/, "")}。`;
+            el.rejectTarget.disabled = false;
+          }
+          if (el.rejectSide) {
+            el.rejectSide.textContent = copy.side;
+            el.rejectSide.dataset.display = `不能接受，主要因为${copy.side.replace(/^因为/, "")}。`;
+            el.rejectSide.disabled = false;
+          }
+          return;
+        }
         el.message.value = displayText;
         submitFeedback(feedback, displayText);
       });

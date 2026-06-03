@@ -85,6 +85,108 @@ def test_constrained_tradeoff_prioritizes_current_probe_challenger():
     assert cost in {"geo", "major"}
 
 
+def test_constrained_tradeoff_prefers_minimal_pair_when_target_gain_match():
+    baseline = _candidate(
+        "Current",
+        "临床医学",
+        1.0,
+        {"school": 0.5, "major": 0.9, "tuition": 1.0, "quality": 0.5, "geo": 1.0},
+    )
+    noisy = _candidate(
+        "Noisy Better",
+        "土木工程",
+        1.1,
+        {"school": 0.8, "major": 0.1, "tuition": 0.6, "quality": 0.8, "geo": 0.2},
+    )
+    clean = _candidate(
+        "Clean Better",
+        "临床医学",
+        1.0,
+        {"school": 0.8, "major": 0.85, "tuition": 0.6, "quality": 0.52, "geo": 0.95},
+    )
+    baseline["tuition"] = 5500
+    noisy["tuition"] = 7000
+    clean["tuition"] = 7000
+
+    _option_a, option_b, delta, cost, benefit = select_constrained_tradeoff_pair(
+        [baseline, noisy, clean],
+        cost_dimensions=("tuition",),
+        benefit_dimensions=("school",),
+        challenger_rows=[noisy, clean],
+        anchor_rows=[baseline],
+    )
+
+    assert option_b["school_name"] == "Clean Better"
+    assert cost == "tuition"
+    assert benefit == "school"
+    assert abs(delta["major"]) < 0.1
+
+
+def test_constrained_tradeoff_skips_candidate_after_hesitate():
+    baseline = _candidate(
+        "西藏大学",
+        "临床医学",
+        1.0,
+        {"school": 0.5, "major": 1.0, "tuition": 1.0, "quality": 0.5, "geo": 0.7},
+    )
+    repeated_challenger = _candidate(
+        "宁波大学",
+        "土木工程",
+        1.4,
+        {"school": 0.85, "major": 0.2, "tuition": 1.0, "quality": 0.8, "geo": 1.0},
+    )
+    fresh_challenger = _candidate(
+        "石河子大学",
+        "口腔医学",
+        0.9,
+        {"school": 0.7, "major": 0.8, "tuition": 1.0, "quality": 0.65, "geo": 0.4},
+    )
+
+    _option_a, option_b, _delta, cost, _benefit = select_constrained_tradeoff_pair(
+        [baseline, repeated_challenger, fresh_challenger],
+        cost_dimensions=("geo", "major"),
+        benefit_dimensions=("school", "quality"),
+        challenger_rows=[repeated_challenger, fresh_challenger],
+        anchor_rows=[baseline],
+        tabu_candidate_signatures={"宁波大学|土木工程"},
+    )
+
+    assert option_b["school_name"] == "石河子大学"
+    assert cost in {"geo", "major"}
+
+
+def test_constrained_tradeoff_skips_reversed_probed_pair():
+    baseline = _candidate(
+        "A大学",
+        "临床医学",
+        1.0,
+        {"school": 0.5, "major": 1.0, "tuition": 1.0, "quality": 0.5, "geo": 0.8},
+    )
+    old_pair_challenger = _candidate(
+        "B大学",
+        "预防医学",
+        1.1,
+        {"school": 0.8, "major": 0.6, "tuition": 1.0, "quality": 0.6, "geo": 0.7},
+    )
+    fresh_challenger = _candidate(
+        "C大学",
+        "口腔医学",
+        0.9,
+        {"school": 0.7, "major": 0.7, "tuition": 1.0, "quality": 0.65, "geo": 0.6},
+    )
+
+    _option_a, option_b, _delta, _cost, _benefit = select_constrained_tradeoff_pair(
+        [baseline, old_pair_challenger, fresh_challenger],
+        cost_dimensions=("geo", "major"),
+        benefit_dimensions=("school", "quality"),
+        challenger_rows=[old_pair_challenger, fresh_challenger],
+        anchor_rows=[baseline],
+        tabu_pair_signatures={("A大学|临床医学", "B大学|预防医学")},
+    )
+
+    assert option_b["school_name"] == "C大学"
+
+
 def test_blocked_dimension_filters_joint_probe_costs():
     costs = _available_cost_dimensions_for_state(
         {"factual_blocked_dimensions": ["major"]},

@@ -21,7 +21,14 @@ graph = build_graph()
 
 CHAT_ACTION_FEEDBACK = "feedback"
 CHAT_ACTION_CONTINUE = "continue"
-FEEDBACK_SIGNALS = {"ACCEPT", "REJECT", "HESITATE"}
+FEEDBACK_SIGNALS = {
+    "ACCEPT",
+    "REJECT",
+    "REJECT_TARGET",
+    "REJECT_SIDE",
+    "HESITATE",
+    "FINALIZE",
+}
 
 _RUNS: dict[str, dict[str, Any]] = {}
 _STREAM_DONE = object()
@@ -73,7 +80,10 @@ def _feedback_signal(message: str) -> str:
     if signal not in FEEDBACK_SIGNALS:
         raise HTTPException(
             status_code=400,
-            detail="反馈必须是 ACCEPT、REJECT 或 HESITATE。",
+            detail=(
+                "反馈必须是 ACCEPT、REJECT、REJECT_TARGET、REJECT_SIDE、"
+                "HESITATE 或 FINALIZE。"
+            ),
         )
     return signal
 
@@ -117,6 +127,10 @@ async def _apply_feedback_update(req: ChatRequest, pending_value: object) -> dic
             or values.get("latest_probe_target_dimension"),
             "latest_tradeoff_pair": pending_meta.get("latest_tradeoff_pair")
             or values.get("latest_tradeoff_pair"),
+            "latest_intent_mask": pending_meta.get("latest_intent_mask")
+            or values.get("latest_intent_mask"),
+            "latest_residual_noise": pending_meta.get("latest_residual_noise")
+            or values.get("latest_residual_noise"),
         }
     )
     tracker_output = await preference_tracker_node(values)
@@ -316,6 +330,10 @@ def _payload_from_values(
         or result.get("latest_probe_target_dimension"),
         "latest_tradeoff_pair": pending_meta.get("latest_tradeoff_pair")
         or result.get("latest_tradeoff_pair"),
+        "latest_intent_mask": pending_meta.get("latest_intent_mask")
+        or result.get("latest_intent_mask"),
+        "latest_residual_noise": pending_meta.get("latest_residual_noise")
+        or result.get("latest_residual_noise"),
         "feedback_analysis": result.get("feedback_analysis"),
         "accepted_relaxations": result.get("accepted_relaxations", []),
         "factual_blocked_dimensions": result.get("factual_blocked_dimensions", []),

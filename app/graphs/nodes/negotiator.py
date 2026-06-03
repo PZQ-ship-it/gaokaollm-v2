@@ -119,6 +119,8 @@ PROBE_BENEFIT_DIMENSIONS = {
 QUESTION_KIND_TRADEOFF = "tradeoff"
 QUESTION_KIND_NO_SIGNIFICANT_TRADEOFF = "no_significant_tradeoff"
 QUESTION_KIND_FINALIZE_OFFER = "finalize_offer"
+RESIDUAL_NOISE_THRESHOLD = 0.15
+MINIMAL_PAIR_CONFUSION_LAMBDA = 1.25
 GLOBAL_BASELINE_BUCKETS = ("reach", "match", "safety")
 GLOBAL_BASELINE_BUCKET_LABELS = {
     "reach": "冲",
@@ -958,6 +960,134 @@ def _candidate_identity(row: dict[str, Any]) -> tuple[str, str]:
     return school, major
 
 
+def _candidate_tabu_signature(row: dict[str, Any]) -> str:
+    school = str(
+        row.get("school_name") or row.get("school") or row.get("school_id") or ""
+    ).strip()
+    major = str(
+        row.get("major_name") or row.get("major") or row.get("major_id") or ""
+    ).strip()
+    if not (school or major):
+        return ""
+    return "|".join((school, major)).strip("|")
+
+
+def _canonical_pair_signature(left: str, right: str) -> tuple[str, str]:
+    return tuple(sorted((left, right)))
+
+
+def _state_candidate_tabu_signatures(state: AgentState) -> set[str]:
+    return {
+        str(item)
+        for item in (state.get("probed_candidate_history") or [])
+        if str(item).strip()
+    }
+
+
+def _state_pair_tabu_signatures(state: AgentState) -> set[tuple[str, str]]:
+    signatures: set[tuple[str, str]] = set()
+    for item in state.get("probed_pairs_history") or []:
+        if not isinstance(item, (list, tuple)) or len(item) < 2:
+            continue
+        left = str(item[0]).strip()
+        right = str(item[1]).strip()
+        if left and right:
+            signatures.add(_canonical_pair_signature(left, right))
+    return signatures
+
+
+def _candidate_is_tabu(
+    row: dict[str, Any],
+    tabu_candidate_signatures: set[str],
+) -> bool:
+    signature = _candidate_tabu_signature(row)
+    return bool(signature and signature in tabu_candidate_signatures)
+
+
+def _filter_tabu_candidate_rows(
+    rows: list[dict[str, Any]],
+    tabu_candidate_signatures: set[str],
+) -> list[dict[str, Any]]:
+    if not tabu_candidate_signatures:
+        return rows
+    return [
+        row
+        for row in rows
+        if isinstance(row, dict)
+        and not _candidate_is_tabu(row, tabu_candidate_signatures)
+    ]
+
+
+def _pair_is_tabu(
+    left: dict[str, Any],
+    right: dict[str, Any],
+    *,
+    tabu_candidate_signatures: set[str],
+    tabu_pair_signatures: set[tuple[str, str]],
+) -> bool:
+    left_signature = _candidate_tabu_signature(left)
+    right_signature = _candidate_tabu_signature(right)
+    if (
+        left_signature
+        and left_signature in tabu_candidate_signatures
+        or right_signature
+        and right_signature in tabu_candidate_signatures
+    ):
+        return True
+    if left_signature and right_signature:
+        return (
+            _canonical_pair_signature(left_signature, right_signature)
+            in tabu_pair_signatures
+        )
+    return False
+
+
+def _zero_intent_mask() -> dict[str, float]:
+    return {key: 0.0 for key in PREFERENCE_KEYS}
+
+
+def _intent_mask_for_tradeoff(
+    cost_dimension: str | None,
+    benefit_dimension: str | None,
+) -> dict[str, float]:
+    mask = _zero_intent_mask()
+    for dimension in (cost_dimension, benefit_dimension):
+        if dimension in PREFERENCE_KEYS:
+            mask[str(dimension)] = 1.0
+    return mask
+
+
+def _residual_noise_payload(
+    delta_phi: dict[str, float] | None,
+    cost_dimension: str | None,
+    benefit_dimension: str | None,
+) -> dict[str, Any]:
+    active = {
+        dimension for dimension in (cost_dimension, benefit_dimension) if dimension
+    }
+    residuals: dict[str, float] = {}
+    for key in PREFERENCE_KEYS:
+        if key in active:
+            continue
+        try:
+            value = abs(float((delta_phi or {}).get(key, 0.0)))
+        except (TypeError, ValueError):
+            value = 0.0
+        residuals[key] = value
+    if not residuals:
+        top_dimension = None
+        top_value = 0.0
+    else:
+        top_dimension, top_value = max(residuals.items(), key=lambda item: item[1])
+    return {
+        "residuals": residuals,
+        "top_dimension": top_dimension,
+        "top_value": top_value,
+        "threshold": RESIDUAL_NOISE_THRESHOLD,
+        "requires_attribution": top_value >= RESIDUAL_NOISE_THRESHOLD,
+    }
+
+
 def _same_display_option(a: dict[str, Any], b: dict[str, Any]) -> bool:
     return bool(a and b and _candidate_identity(a) == _candidate_identity(b))
 
@@ -979,9 +1109,17 @@ def select_max_divergence_pair(
     *,
     top_k: int = 10,
     previous_delta_phi: dict[str, Any] | None = None,
+    tabu_candidate_signatures: set[str] | None = None,
+    tabu_pair_signatures: set[tuple[str, str]] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, float]]:
+    candidate_tabu = tabu_candidate_signatures or set()
+    pair_tabu = tabu_pair_signatures or set()
     rows = sorted(
-        [dict(row) for row in candidates if isinstance(row, dict)],
+        [
+            dict(row)
+            for row in candidates
+            if isinstance(row, dict) and not _candidate_is_tabu(row, candidate_tabu)
+        ],
         key=_utility_sort_key,
         reverse=True,
     )
@@ -1006,6 +1144,13 @@ def select_max_divergence_pair(
     fallback_delta = {key: 0.0 for key in PREFERENCE_KEYS}
     fallback_distance = 0.0
     for candidate in rows[1:top_k]:
+        if _pair_is_tabu(
+            option_a,
+            candidate,
+            tabu_candidate_signatures=candidate_tabu,
+            tabu_pair_signatures=pair_tabu,
+        ):
+            continue
         if _same_visible_candidate(option_a, candidate):
             continue
         delta = _phi_delta_b_minus_a(option_a, candidate)
@@ -1032,6 +1177,13 @@ def select_max_divergence_pair(
         best_delta = fallback_delta
     if not best_b:
         for candidate in rows[1:top_k]:
+            if _pair_is_tabu(
+                option_a,
+                candidate,
+                tabu_candidate_signatures=candidate_tabu,
+                tabu_pair_signatures=pair_tabu,
+            ):
+                continue
             if not _same_visible_candidate(option_a, candidate):
                 return option_a, candidate, _phi_delta_b_minus_a(option_a, candidate)
     return option_a, best_b, best_delta
@@ -1043,6 +1195,8 @@ def select_forced_tradeoff_pair(
     *,
     top_k: int = 10,
     previous_delta_phi: dict[str, Any] | None = None,
+    tabu_candidate_signatures: set[str] | None = None,
+    tabu_pair_signatures: set[tuple[str, str]] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, float]]:
     option_a, option_b, delta_phi, _cost, _benefit = select_constrained_tradeoff_pair(
         candidates,
@@ -1052,6 +1206,8 @@ def select_forced_tradeoff_pair(
         ),
         top_k=top_k,
         previous_delta_phi=previous_delta_phi,
+        tabu_candidate_signatures=tabu_candidate_signatures,
+        tabu_pair_signatures=tabu_pair_signatures,
     )
     return option_a, option_b, delta_phi
 
@@ -1065,9 +1221,17 @@ def select_constrained_tradeoff_pair(
     anchor_rows: list[dict[str, Any]] | None = None,
     top_k: int = 10,
     previous_delta_phi: dict[str, Any] | None = None,
+    tabu_candidate_signatures: set[str] | None = None,
+    tabu_pair_signatures: set[tuple[str, str]] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, float], str | None, str | None]:
+    candidate_tabu = tabu_candidate_signatures or set()
+    pair_tabu = tabu_pair_signatures or set()
     rows = sorted(
-        [dict(row) for row in candidates if isinstance(row, dict)],
+        [
+            dict(row)
+            for row in candidates
+            if isinstance(row, dict) and not _candidate_is_tabu(row, candidate_tabu)
+        ],
         key=_utility_sort_key,
         reverse=True,
     )
@@ -1089,12 +1253,20 @@ def select_constrained_tradeoff_pair(
         benefits = tuple(key for key in PREFERENCE_KEYS if key not in costs)
 
     anchors = sorted(
-        [dict(row) for row in (anchor_rows or rows) if isinstance(row, dict)],
+        [
+            dict(row)
+            for row in (anchor_rows or rows)
+            if isinstance(row, dict) and not _candidate_is_tabu(row, candidate_tabu)
+        ],
         key=_utility_sort_key,
         reverse=True,
     )[:top_k]
     challengers = sorted(
-        [dict(row) for row in (challenger_rows or rows) if isinstance(row, dict)],
+        [
+            dict(row)
+            for row in (challenger_rows or rows)
+            if isinstance(row, dict) and not _candidate_is_tabu(row, candidate_tabu)
+        ],
         key=_utility_sort_key,
         reverse=True,
     )[:top_k]
@@ -1116,10 +1288,17 @@ def select_constrained_tradeoff_pair(
     best_delta = {key: 0.0 for key in PREFERENCE_KEYS}
     best_cost: str | None = None
     best_benefit: str | None = None
-    best_score = -1.0
+    best_score = float("-inf")
     option_a = default_a
     for baseline in anchors:
         for candidate in challengers:
+            if _pair_is_tabu(
+                baseline,
+                candidate,
+                tabu_candidate_signatures=candidate_tabu,
+                tabu_pair_signatures=pair_tabu,
+            ):
+                continue
             if baseline is candidate or _same_visible_candidate(baseline, candidate):
                 continue
             delta = _phi_delta_b_minus_a(baseline, candidate)
@@ -1170,12 +1349,17 @@ def select_constrained_tradeoff_pair(
                     candidate_utility = float(candidate.get("_implicit_utility") or 0.0)
                 except (TypeError, ValueError):
                     candidate_utility = 0.0
+                residual_penalty = sum(
+                    abs(float(delta.get(key, 0.0)))
+                    for key in PREFERENCE_KEYS
+                    if key not in {cost_dimension, benefit_dimension}
+                )
                 score = (
                     candidate_utility
                     + 0.25 * baseline_utility
                     + 2.0 * positive_gain
                     + abs(cost_delta)
-                    + 0.05 * sum(abs(v) for v in delta.values())
+                    - MINIMAL_PAIR_CONFUSION_LAMBDA * residual_penalty
                 )
                 if score > best_score:
                     option_a = baseline
@@ -1206,6 +1390,9 @@ def _tradeoff_pair_payload(
     *,
     opportunity_key: str | None = None,
     cost_dimension: str | None = None,
+    benefit_dimension: str | None = None,
+    intent_mask: dict[str, float] | None = None,
+    residual_noise: dict[str, Any] | None = None,
     question_kind: str | None = None,
 ) -> dict[str, Any] | None:
     if not option_a and not option_b:
@@ -1217,6 +1404,14 @@ def _tradeoff_pair_payload(
         "delta_phi_b_minus_a": diff,
         "opportunity_key": opportunity_key or option_b.get("_opportunity_key") or "",
         "cost_dimension": cost_dimension,
+        "benefit_dimension": benefit_dimension,
+        "intent_mask": intent_mask
+        or _intent_mask_for_tradeoff(
+            cost_dimension,
+            benefit_dimension,
+        ),
+        "residual_noise": residual_noise
+        or _residual_noise_payload(diff, cost_dimension, benefit_dimension),
         "question_kind": question_kind,
     }
     if pair["option_b"] and pair["opportunity_key"]:
@@ -2114,6 +2309,8 @@ async def _generate_pareto_question(
     str,
     str | None,
     dict[str, Any] | None,
+    dict[str, float] | None,
+    dict[str, Any] | None,
     str,
 ]:
     if str(state.get("planner_source") or "").startswith("ablation:no_ucb"):
@@ -2145,11 +2342,15 @@ async def _generate_pareto_question(
             QUESTION_KIND_TRADEOFF,
             None,
             None,
+            None,
+            None,
             "ablation",
         )
 
     target_dimension = state.get("ucb_target_dimension")
     opportunity_key = _current_opportunity_key(state)
+    tabu_candidate_signatures = _state_candidate_tabu_signatures(state)
+    tabu_pair_signatures = _state_pair_tabu_signatures(state)
     focused_rows = _focused_candidate_rows(state)
     anchor_rows = _anchor_candidate_rows(state)
     focused_challengers = _new_challenger_rows(focused_rows, anchor_rows)
@@ -2172,7 +2373,7 @@ async def _generate_pareto_question(
             option_b,
             delta_phi,
             selected_cost_dimension,
-            _selected_benefit_dimension,
+            selected_benefit_dimension,
         ) = select_constrained_tradeoff_pair(
             candidate_pool,
             cost_dimensions=cost_dimensions,
@@ -2180,12 +2381,19 @@ async def _generate_pareto_question(
             challenger_rows=focused_challengers,
             anchor_rows=anchor_rows or rows,
             previous_delta_phi=state.get("latest_pareto_diff"),
+            tabu_candidate_signatures=tabu_candidate_signatures,
+            tabu_pair_signatures=tabu_pair_signatures,
         )
         forced_cost_dimension = selected_cost_dimension
     elif focused_rows:
-        option_a = anchor_rows[0] if anchor_rows else {}
+        eligible_anchors = _filter_tabu_candidate_rows(
+            anchor_rows,
+            tabu_candidate_signatures,
+        )
+        option_a = eligible_anchors[0] if eligible_anchors else {}
         option_b = {}
         delta_phi = {key: 0.0 for key in PREFERENCE_KEYS}
+        selected_benefit_dimension = None
         forced_cost_dimension = _cost_dimensions_for_probe(
             opportunity_key,
             str(target_dimension) if target_dimension else None,
@@ -2196,17 +2404,34 @@ async def _generate_pareto_question(
             rows,
             forced_cost_dimension,
             previous_delta_phi=state.get("latest_pareto_diff"),
+            tabu_candidate_signatures=tabu_candidate_signatures,
+            tabu_pair_signatures=tabu_pair_signatures,
+        )
+        selected_benefit_dimension = _choose_benefit_dimension(
+            delta_phi,
+            forced_cost_dimension,
         )
     else:
         option_a, option_b, delta_phi = select_max_divergence_pair(
             rows,
             previous_delta_phi=state.get("latest_pareto_diff"),
+            tabu_candidate_signatures=tabu_candidate_signatures,
+            tabu_pair_signatures=tabu_pair_signatures,
         )
         forced_cost_dimension = _choose_cost_dimension(delta_phi, None)
+        selected_benefit_dimension = _choose_benefit_dimension(
+            delta_phi,
+            forced_cost_dimension,
+        )
     if forced_cost_dimension is None:
         forced_cost_dimension = _fallback_cost_dimension_for_probe(
             opportunity_key,
             str(target_dimension) if target_dimension else None,
+        )
+    if selected_benefit_dimension is None and delta_phi:
+        selected_benefit_dimension = _choose_benefit_dimension(
+            delta_phi,
+            forced_cost_dimension,
         )
     question_kind = _classify_question_kind(
         option_a,
@@ -2214,11 +2439,22 @@ async def _generate_pareto_question(
         delta_phi,
         forced_cost_dimension,
     )
+    intent_mask = None
+    residual_noise = None
     learning_delta: dict[str, float] | None = None
     if question_kind == QUESTION_KIND_TRADEOFF:
         learning_delta = {
             key: float(delta_phi.get(key, 0.0)) for key in PREFERENCE_KEYS
         }
+        intent_mask = _intent_mask_for_tradeoff(
+            forced_cost_dimension,
+            selected_benefit_dimension,
+        )
+        residual_noise = _residual_noise_payload(
+            delta_phi,
+            forced_cost_dimension,
+            selected_benefit_dimension,
+        )
     else:
         learning_delta = None
 
@@ -2295,8 +2531,13 @@ async def _generate_pareto_question(
                 delta_phi,
                 opportunity_key=opportunity_key,
                 cost_dimension=forced_cost_dimension,
+                benefit_dimension=selected_benefit_dimension,
+                intent_mask=intent_mask,
+                residual_noise=residual_noise,
                 question_kind=question_kind,
             ),
+            intent_mask,
+            residual_noise,
             "llm",
         )
     except Exception as exc:
@@ -2727,6 +2968,8 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         latest_question_kind,
         latest_probe_target_dimension,
         latest_tradeoff_pair,
+        latest_intent_mask,
+        latest_residual_noise,
         latest_question_source,
     ) = await _generate_pareto_question(state)
     question_text = _sanitize_user_output(question_text)
@@ -2741,6 +2984,8 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
             "latest_question_source": latest_question_source,
             "latest_probe_target_dimension": latest_probe_target_dimension,
             "latest_tradeoff_pair": latest_tradeoff_pair,
+            "latest_intent_mask": latest_intent_mask,
+            "latest_residual_noise": latest_residual_noise,
         },
     )
     interrupt_payload = {
@@ -2750,6 +2995,8 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         "latest_question_kind": latest_question_kind,
         "latest_question_source": latest_question_source,
         "latest_probe_target_dimension": latest_probe_target_dimension,
+        "latest_intent_mask": latest_intent_mask,
+        "latest_residual_noise": latest_residual_noise,
     }
     user_reply = interrupt(interrupt_payload)
     output = {
@@ -2760,6 +3007,8 @@ async def negotiator_node(state: AgentState) -> dict[str, Any]:
         "latest_question_source": latest_question_source,
         "latest_probe_target_dimension": latest_probe_target_dimension,
         "latest_tradeoff_pair": latest_tradeoff_pair,
+        "latest_intent_mask": latest_intent_mask,
+        "latest_residual_noise": latest_residual_noise,
         "negotiation_turns": turns + 1,
     }
     trace_event("negotiator", "node_end", {"mode": "resumed", **output})

@@ -52,6 +52,10 @@ class AgentState(TypedDict, total=False):
     latest_question_source: str | None
     latest_probe_target_dimension: str | None
     latest_tradeoff_pair: NotRequired[dict[str, Any] | None]
+    latest_intent_mask: NotRequired[dict[str, float] | None]
+    latest_residual_noise: NotRequired[dict[str, Any] | None]
+    probed_pairs_history: NotRequired[list[list[str]]]
+    probed_candidate_history: NotRequired[list[str]]
     feedback_analysis: NotRequired[dict[str, Any] | None]
     accepted_relaxations: NotRequired[list[dict[str, Any]]]
     factual_blocked_dimensions: NotRequired[list[str]]

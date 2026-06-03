@@ -199,6 +199,7 @@ async def test_async_chat_run_exposes_intermediate_state(monkeypatch):
             },
         )
         assert invalid_feedback.status_code == 400
+        assert "FINALIZE" in invalid_feedback.json()["detail"]
 
         feedback = await client.post(
             "/api/v1/chat",
@@ -213,6 +214,7 @@ async def test_async_chat_run_exposes_intermediate_state(monkeypatch):
         assert feedback_payload["feedback_analysis"] == {
             "intent": "reject",
             "target_dimension": "tuition",
+            "attribution": "none",
         }
 
     assert final is not None

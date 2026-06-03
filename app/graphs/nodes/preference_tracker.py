@@ -35,11 +35,17 @@ NAVIGATION_CONTINUE = "continue"
 NAVIGATION_UNKNOWN = "unknown"
 FEEDBACK_SIGNAL_ACCEPT = "ACCEPT"
 FEEDBACK_SIGNAL_REJECT = "REJECT"
+FEEDBACK_SIGNAL_REJECT_TARGET = "REJECT_TARGET"
+FEEDBACK_SIGNAL_REJECT_SIDE = "REJECT_SIDE"
 FEEDBACK_SIGNAL_HESITATE = "HESITATE"
+FEEDBACK_SIGNAL_FINALIZE = "FINALIZE"
 FEEDBACK_SIGNALS = {
     FEEDBACK_SIGNAL_ACCEPT,
     FEEDBACK_SIGNAL_REJECT,
+    FEEDBACK_SIGNAL_REJECT_TARGET,
+    FEEDBACK_SIGNAL_REJECT_SIDE,
     FEEDBACK_SIGNAL_HESITATE,
+    FEEDBACK_SIGNAL_FINALIZE,
 }
 BT_TAU = 3.0
 BT_LEARNING_RATE = 0.75
@@ -52,6 +58,7 @@ LEARNING_DELTA_CLIP = 1.0
 class FeedbackAnalysis(BaseModel):
     intent: IntentLabel
     target_dimension: TargetDimension
+    attribution: Literal["target", "side", "none"] = "none"
 
 
 def _clamp(value: float, lower: float = 0.05, upper: float = 0.95) -> float:
@@ -64,6 +71,27 @@ def _normalized(weights: dict[str, float]) -> dict[str, float]:
     if total <= 0:
         return dict(DEFAULT_IMPLICIT_WEIGHTS)
     return {key: clamped[key] / total for key in PREFERENCE_KEYS}
+
+
+def _normalized_preserving_inactive(
+    weights: dict[str, float],
+    old_weights: dict[str, float],
+    active_keys: list[str],
+) -> dict[str, float]:
+    active = [key for key in active_keys if key in PREFERENCE_KEYS]
+    if not active:
+        return dict(old_weights)
+    inactive = [key for key in PREFERENCE_KEYS if key not in active]
+    inactive_total = sum(float(old_weights.get(key, 0.0)) for key in inactive)
+    active_budget = max(0.0, 1.0 - inactive_total)
+    active_values = {key: _clamp(float(weights.get(key, 0.0))) for key in active}
+    active_total = sum(active_values.values())
+    if active_total <= 0:
+        return dict(old_weights)
+    updated = dict(old_weights)
+    for key in active:
+        updated[key] = active_values[key] / active_total * active_budget
+    return updated
 
 
 def _safe_weights(raw_weights: dict[str, Any] | None) -> dict[str, float]:
@@ -175,7 +203,13 @@ def _contract_uncertainty(
 
 def _feedback_analysis_from_signal(state: AgentState) -> FeedbackAnalysis:
     signal = str(state.get("latest_human_feedback") or "").strip().upper()
-    if signal not in FEEDBACK_SIGNALS:
+    if signal not in {
+        FEEDBACK_SIGNAL_ACCEPT,
+        FEEDBACK_SIGNAL_REJECT,
+        FEEDBACK_SIGNAL_REJECT_TARGET,
+        FEEDBACK_SIGNAL_REJECT_SIDE,
+        FEEDBACK_SIGNAL_HESITATE,
+    }:
         raise ValueError("feedback_signal_must_be_accept_reject_or_hesitate")
     target = str(state.get("latest_probe_target_dimension") or "").strip()
     target_dimension: TargetDimension = (
@@ -184,11 +218,19 @@ def _feedback_analysis_from_signal(state: AgentState) -> FeedbackAnalysis:
     intent_by_signal: dict[str, IntentLabel] = {
         FEEDBACK_SIGNAL_ACCEPT: "accept",
         FEEDBACK_SIGNAL_REJECT: "reject",
+        FEEDBACK_SIGNAL_REJECT_TARGET: "reject",
+        FEEDBACK_SIGNAL_REJECT_SIDE: "hesitate",
         FEEDBACK_SIGNAL_HESITATE: "hesitate",
     }
+    attribution = "none"
+    if signal == FEEDBACK_SIGNAL_REJECT_TARGET:
+        attribution = "target"
+    elif signal == FEEDBACK_SIGNAL_REJECT_SIDE:
+        attribution = "side"
     return FeedbackAnalysis(
         intent=intent_by_signal[signal],
         target_dimension=target_dimension,
+        attribution=attribution,  # type: ignore[arg-type]
     )
 
 
@@ -197,11 +239,13 @@ def apply_feedback_update(
     variance: dict[str, Any] | None,
     analysis: FeedbackAnalysis,
     delta_phi: dict[str, Any] | None = None,
+    intent_mask: dict[str, Any] | None = None,
 ) -> tuple[dict[str, float], dict[str, float]]:
     old_weights = _normalized(_safe_weights(deepcopy(weights)))
     new_weights = dict(old_weights)
     new_variance = _safe_variance(deepcopy(variance))
     target = analysis.target_dimension
+    active_mask_keys: list[str] | None = None
 
     if analysis.intent == "hesitate":
         # Thesis alignment: hesitant feedback keeps the posterior mean unchanged
@@ -209,6 +253,21 @@ def apply_feedback_update(
         new_variance = _inflate_uncertainty(new_variance, delta_phi, analysis)
     elif analysis.intent in {"accept", "reject"}:
         delta = _safe_delta_phi(delta_phi, analysis)
+        if isinstance(intent_mask, dict):
+            masked_delta = {}
+            active_mask_keys = []
+            for key in PREFERENCE_KEYS:
+                try:
+                    mask_value = float(intent_mask.get(key, 0.0))
+                except (TypeError, ValueError):
+                    mask_value = 0.0
+                masked_delta[key] = delta.get(key, 0.0) * max(
+                    0.0,
+                    min(1.0, mask_value),
+                )
+                if mask_value > 0:
+                    active_mask_keys.append(key)
+            delta = masked_delta
         delta_u = sum(old_weights[key] * delta.get(key, 0.0) for key in PREFERENCE_KEYS)
         delta_u = max(-10.0, min(10.0, float(delta_u)))
         p_choose_b = 1.0 / (1.0 + math.exp(-BT_TAU * delta_u))
@@ -231,6 +290,11 @@ def apply_feedback_update(
         key: max(0.0, min(1.0, float(new_variance.get(key, 1.0))))
         for key in PREFERENCE_KEYS
     }
+    if active_mask_keys is not None:
+        return (
+            _normalized_preserving_inactive(new_weights, old_weights, active_mask_keys),
+            new_variance,
+        )
     return _normalized(new_weights), new_variance
 
 
@@ -245,6 +309,65 @@ def _candidate_identity(row: dict[str, Any]) -> str:
             "admission_score_id",
         )
     )
+
+
+def _candidate_tabu_signature(row: dict[str, Any]) -> str:
+    school = row.get("school_name") or row.get("school") or row.get("school_id") or ""
+    major = row.get("major_name") or row.get("major") or row.get("major_id") or ""
+    return "|".join((str(school).strip(), str(major).strip())).strip("|")
+
+
+def _canonical_pair_signature(left: str, right: str) -> list[str]:
+    return sorted([left, right])
+
+
+def _tradeoff_pair_identities(state: AgentState) -> tuple[str, str]:
+    pair = state.get("latest_tradeoff_pair")
+    if not isinstance(pair, dict):
+        return "", ""
+    option_a = pair.get("option_a")
+    option_b = pair.get("option_b")
+    left = _candidate_tabu_signature(option_a) if isinstance(option_a, dict) else ""
+    right = _candidate_tabu_signature(option_b) if isinstance(option_b, dict) else ""
+    return left, right
+
+
+def _history_after_feedback(
+    state: AgentState,
+    analysis: FeedbackAnalysis,
+) -> tuple[list[list[str]], list[str]]:
+    pair_history = [
+        [str(part) for part in item if str(part).strip()]
+        for item in (state.get("probed_pairs_history") or [])
+        if isinstance(item, (list, tuple))
+    ]
+    candidate_history = [
+        str(item)
+        for item in (state.get("probed_candidate_history") or [])
+        if str(item).strip()
+    ]
+    if analysis.intent != "hesitate" and analysis.attribution != "side":
+        return pair_history, candidate_history
+
+    left, right = _tradeoff_pair_identities(state)
+    for identity in (left, right):
+        if identity and identity not in candidate_history:
+            candidate_history.append(identity)
+    if left and right:
+        pair_key = _canonical_pair_signature(left, right)
+        if pair_key not in pair_history:
+            pair_history.append(pair_key)
+    return pair_history, candidate_history
+
+
+def _side_rejection_dimensions(state: AgentState) -> list[str]:
+    residual = state.get("latest_residual_noise")
+    if not isinstance(residual, dict):
+        return []
+    dimension = str(residual.get("top_dimension") or "").strip()
+    if dimension in PREFERENCE_KEYS:
+        return [dimension]
+    return []
 
 
 def _first_probe_candidate(state: AgentState, target_dimension: str) -> dict[str, Any]:
@@ -391,6 +514,10 @@ async def preference_tracker_node(
             "latest_question_kind": state.get("latest_question_kind"),
             "latest_probe_target_dimension": state.get("latest_probe_target_dimension"),
             "latest_tradeoff_pair": state.get("latest_tradeoff_pair"),
+            "latest_intent_mask": state.get("latest_intent_mask"),
+            "latest_residual_noise": state.get("latest_residual_noise"),
+            "probed_pairs_history": state.get("probed_pairs_history") or [],
+            "probed_candidate_history": state.get("probed_candidate_history") or [],
             "feedback_analysis": None,
             "accepted_relaxations": state.get("accepted_relaxations") or [],
             "factual_blocked_dimensions": state.get("factual_blocked_dimensions") or [],
@@ -407,7 +534,7 @@ async def preference_tracker_node(
             raise ValueError("feedback_signal_must_be_accept_reject_or_hesitate")
         navigation_intent = (
             NAVIGATION_FINALIZE
-            if signal == FEEDBACK_SIGNAL_ACCEPT
+            if signal in {FEEDBACK_SIGNAL_ACCEPT, FEEDBACK_SIGNAL_FINALIZE}
             else NAVIGATION_CONTINUE
             if signal == FEEDBACK_SIGNAL_REJECT
             else NAVIGATION_UNKNOWN
@@ -421,9 +548,14 @@ async def preference_tracker_node(
             "latest_question_kind": None,
             "latest_probe_target_dimension": None,
             "latest_tradeoff_pair": None,
+            "latest_intent_mask": None,
+            "latest_residual_noise": None,
+            "probed_pairs_history": state.get("probed_pairs_history") or [],
+            "probed_candidate_history": state.get("probed_candidate_history") or [],
             "feedback_analysis": {
                 "intent": "hesitate",
                 "target_dimension": "unknown",
+                "attribution": "none",
             },
             "accepted_relaxations": state.get("accepted_relaxations") or [],
             "factual_blocked_dimensions": _blocked_dimensions_update(state),
@@ -440,6 +572,41 @@ async def preference_tracker_node(
         )
         return output
 
+    signal = str(state.get("latest_human_feedback") or "").strip().upper()
+    if signal == FEEDBACK_SIGNAL_FINALIZE:
+        output = {
+            "implicit_weights": dict(state.get("implicit_weights") or {}),
+            "weight_variance": dict(state.get("weight_variance") or {}),
+            "latest_human_feedback": None,
+            "latest_agent_probe_question": None,
+            "latest_pareto_diff": state.get("latest_pareto_diff"),
+            "latest_question_kind": None,
+            "latest_probe_target_dimension": None,
+            "latest_tradeoff_pair": state.get("latest_tradeoff_pair"),
+            "latest_intent_mask": state.get("latest_intent_mask"),
+            "latest_residual_noise": state.get("latest_residual_noise"),
+            "probed_pairs_history": state.get("probed_pairs_history") or [],
+            "probed_candidate_history": state.get("probed_candidate_history") or [],
+            "feedback_analysis": {
+                "intent": "hesitate",
+                "target_dimension": "unknown",
+                "attribution": "none",
+            },
+            "accepted_relaxations": state.get("accepted_relaxations") or [],
+            "factual_blocked_dimensions": state.get("factual_blocked_dimensions") or [],
+            "force_final_recommendation": True,
+            "navigation_intent": NAVIGATION_FINALIZE,
+        }
+        trace_event(
+            "preference_tracker",
+            "node_end",
+            {
+                "explicit_finalize": True,
+                **output,
+            },
+        )
+        return output
+
     navigation_intent = NAVIGATION_CONTINUE
     analysis = _feedback_analysis_from_signal(state)
     weights, variance = apply_feedback_update(
@@ -447,10 +614,19 @@ async def preference_tracker_node(
         state.get("weight_variance"),
         analysis,
         state.get("latest_pareto_diff"),
+        state.get("latest_intent_mask"),
     )
     blocked_dimensions = state.get("factual_blocked_dimensions") or []
     if _should_block_current_dimension(state, analysis, navigation_intent):
         blocked_dimensions = _blocked_dimensions_update(state)
+    if analysis.attribution == "side":
+        for dimension in _side_rejection_dimensions(state):
+            if dimension not in blocked_dimensions:
+                blocked_dimensions.append(dimension)
+    probed_pairs_history, probed_candidate_history = _history_after_feedback(
+        state,
+        analysis,
+    )
 
     output = {
         "implicit_weights": weights,
@@ -461,6 +637,10 @@ async def preference_tracker_node(
         "latest_question_kind": None,
         "latest_probe_target_dimension": None,
         "latest_tradeoff_pair": state.get("latest_tradeoff_pair"),
+        "latest_intent_mask": state.get("latest_intent_mask"),
+        "latest_residual_noise": state.get("latest_residual_noise"),
+        "probed_pairs_history": probed_pairs_history,
+        "probed_candidate_history": probed_candidate_history,
         "feedback_analysis": analysis.model_dump()
         if hasattr(analysis, "model_dump")
         else dict(analysis),

@@ -207,3 +207,25 @@ def test_demo_gates_candidates_until_confirmed_question() -> None:
         "if (!hasConfirmedQuestion(data))",
         render_cards_start,
     ) < source.index("const baseline = dedupeRows", render_cards_start)
+
+
+def test_demo_choice_summary_names_candidate_for_inclusion_decision() -> None:
+    source = Path("app/web/demo.html").read_text(encoding="utf-8")
+    render_choice_start = source.index("function renderChoiceSummary(data, noLeap)")
+
+    assert "function candidateInclusionQuestion(row)" in source
+    assert "是否接受 ${school} · ${major} 纳入备选？" in source
+    assert '<div class="choice-target">' in source
+    assert source.index(
+        "candidateInclusionQuestion(relaxed)",
+        render_choice_start,
+    ) < source.index("关键取舍点", render_choice_start)
+
+
+def test_demo_has_explicit_finalize_button() -> None:
+    source = Path("app/web/demo.html").read_text(encoding="utf-8")
+
+    assert 'data-role="finalize"' in source
+    assert 'data-feedback="FINALIZE"' in source
+    assert 'finalize: "FINALIZE"' in source
+    assert "正在基于当前偏好生成最终推荐。" in source

@@ -167,6 +167,43 @@ def test_feedback_signal_prefers_structured_probe_dimension_over_question_keywor
     assert analysis.target_dimension == "tuition"
 
 
+def test_reject_target_feedback_uses_intent_mask_without_touching_side_axes():
+    weights = {
+        "school": 1 / 6,
+        "major": 1 / 6,
+        "tuition": 1 / 6,
+        "quality": 1 / 6,
+        "geo": 1 / 6,
+        "risk": 1 / 6,
+    }
+    variance = {key: 0.6 for key in weights}
+
+    new_weights, _new_variance = apply_feedback_update(
+        weights,
+        variance,
+        FeedbackAnalysis(
+            intent="reject",
+            target_dimension="tuition",
+            attribution="target",
+        ),
+        {
+            "school": 0.4,
+            "major": -0.8,
+            "tuition": -0.5,
+            "quality": 0.2,
+            "geo": -0.3,
+            "risk": 0.0,
+        },
+        {"school": 1.0, "tuition": 1.0},
+    )
+
+    assert new_weights["major"] == pytest.approx(weights["major"])
+    assert new_weights["geo"] == pytest.approx(weights["geo"])
+    assert new_weights["quality"] == pytest.approx(weights["quality"])
+    assert new_weights["school"] != pytest.approx(weights["school"])
+    assert new_weights["tuition"] != pytest.approx(weights["tuition"])
+
+
 @pytest.mark.asyncio
 async def test_continue_after_accepted_tuition_explores_other_axes(monkeypatch):
     monkeypatch.setenv("GAOKAOLLM_OFFLINE_DETERMINISTIC", "1")
@@ -254,6 +291,7 @@ async def test_reject_blocks_current_dimension(monkeypatch):
     assert updated["feedback_analysis"] == {
         "intent": "reject",
         "target_dimension": "major",
+        "attribution": "none",
     }
 
 
@@ -272,6 +310,10 @@ async def test_hesitate_feedback_inflates_uncertainty_without_blocking(monkeypat
             "quality": 0.0,
             "geo": -0.3,
             "risk": 0.0,
+        },
+        "latest_tradeoff_pair": {
+            "option_a": {"school_name": "西藏大学", "major_name": "临床医学"},
+            "option_b": {"school_name": "宁波大学", "major_name": "土木工程"},
         },
         "implicit_weights": {
             "school": 1 / 6,
@@ -299,9 +341,67 @@ async def test_hesitate_feedback_inflates_uncertainty_without_blocking(monkeypat
     assert updated["factual_blocked_dimensions"] == []
     assert updated["implicit_weights"] == state["implicit_weights"]
     assert updated["weight_variance"]["major"] > state["weight_variance"]["major"]
+    assert updated["probed_candidate_history"] == [
+        "西藏大学|临床医学",
+        "宁波大学|土木工程",
+    ]
+    assert updated["probed_pairs_history"] == [
+        ["宁波大学|土木工程", "西藏大学|临床医学"]
+    ]
     assert updated["feedback_analysis"] == {
         "intent": "hesitate",
         "target_dimension": "major",
+        "attribution": "none",
+    }
+
+
+@pytest.mark.asyncio
+async def test_side_reject_blocks_residual_dimension_without_weight_update(monkeypatch):
+    weights = {
+        "school": 1 / 6,
+        "major": 1 / 6,
+        "tuition": 1 / 6,
+        "quality": 1 / 6,
+        "geo": 1 / 6,
+        "risk": 1 / 6,
+    }
+    state = {
+        "latest_human_feedback": "REJECT_SIDE",
+        "latest_agent_probe_question": "是否愿意放宽预算换学校层次？",
+        "latest_question_kind": "tradeoff",
+        "latest_probe_target_dimension": "tuition",
+        "latest_pareto_diff": {
+            "school": 0.4,
+            "major": -0.8,
+            "tuition": -0.5,
+            "quality": 0.2,
+            "geo": 0.0,
+            "risk": 0.0,
+        },
+        "latest_residual_noise": {
+            "top_dimension": "major",
+            "top_value": 0.8,
+            "threshold": 0.15,
+            "requires_attribution": True,
+        },
+        "latest_tradeoff_pair": {
+            "option_a": {"school_name": "温州医科大学", "major_name": "临床医学"},
+            "option_b": {"school_name": "宁波大学", "major_name": "土木工程"},
+        },
+        "implicit_weights": dict(weights),
+        "weight_variance": {key: 0.4 for key in weights},
+        "factual_blocked_dimensions": [],
+    }
+
+    updated = await preference_tracker_node(state)
+
+    assert updated["implicit_weights"] == weights
+    assert "major" in updated["factual_blocked_dimensions"]
+    assert "宁波大学|土木工程" in updated["probed_candidate_history"]
+    assert updated["feedback_analysis"] == {
+        "intent": "hesitate",
+        "target_dimension": "tuition",
+        "attribution": "side",
     }
 
 
@@ -351,6 +451,59 @@ async def test_finalize_navigation_does_not_update_tradeoff_weights(monkeypatch)
     assert updated["feedback_analysis"] == {
         "intent": "hesitate",
         "target_dimension": "unknown",
+        "attribution": "none",
+    }
+
+
+@pytest.mark.asyncio
+async def test_explicit_finalize_signal_does_not_update_tradeoff_weights(monkeypatch):
+    weights = {
+        "school": 1 / 6,
+        "major": 1 / 6,
+        "tuition": 1 / 6,
+        "quality": 1 / 6,
+        "geo": 1 / 6,
+        "risk": 1 / 6,
+    }
+    variance = {
+        "school": 0.4,
+        "major": 0.4,
+        "tuition": 0.4,
+        "quality": 0.4,
+        "geo": 0.4,
+        "risk": 0.4,
+    }
+    state = {
+        "latest_human_feedback": "FINALIZE",
+        "latest_agent_probe_question": "是否愿意放宽专业匹配换学校层次？",
+        "latest_question_kind": "tradeoff",
+        "latest_probe_target_dimension": "major",
+        "latest_pareto_diff": {
+            "school": 0.3,
+            "major": -1.0,
+            "tuition": 0.0,
+            "quality": 0.0,
+            "geo": -0.3,
+            "risk": 0.0,
+        },
+        "implicit_weights": dict(weights),
+        "weight_variance": dict(variance),
+        "accepted_relaxations": [{"dimension": "geo"}],
+        "factual_blocked_dimensions": ["tuition"],
+    }
+
+    updated = await preference_tracker_node(state)
+
+    assert updated["navigation_intent"] == "finalize"
+    assert updated["force_final_recommendation"] is True
+    assert updated["implicit_weights"] == weights
+    assert updated["weight_variance"] == variance
+    assert updated["accepted_relaxations"] == [{"dimension": "geo"}]
+    assert updated["factual_blocked_dimensions"] == ["tuition"]
+    assert updated["feedback_analysis"] == {
+        "intent": "hesitate",
+        "target_dimension": "unknown",
+        "attribution": "none",
     }
 
 
