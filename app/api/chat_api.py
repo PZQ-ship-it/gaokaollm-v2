@@ -1,3 +1,7 @@
+import asyncio
+import time
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 from langchain_core.messages import HumanMessage
 from langgraph.types import Command
@@ -12,6 +16,15 @@ graph = build_graph()
 
 CHAT_ACTION_FEEDBACK = "feedback"
 CHAT_ACTION_CONTINUE = "continue"
+
+_RUNS: dict[str, dict[str, Any]] = {}
+_NODE_ORDER = [
+    "semantic_normalizer",
+    "gatekeeper",
+    "radar",
+    "negotiator",
+    "preference_tracker",
+]
 
 
 def _interrupt_value(result: dict) -> object | None:
@@ -40,8 +53,16 @@ def _interrupt_text(result: dict) -> str | None:
     return _interrupt_text_from_value(_interrupt_value(result))
 
 
+def _graph_config(thread_id: str) -> dict:
+    return {"configurable": {"thread_id": thread_id}}
+
+
+def _snapshot(thread_id: str) -> object:
+    return graph.get_state(_graph_config(thread_id))
+
+
 def _pending_interrupt_value(thread_id: str) -> object | None:
-    snapshot = graph.get_state({"configurable": {"thread_id": thread_id}})
+    snapshot = _snapshot(thread_id)
     for task in snapshot.tasks or ():
         interrupts = getattr(task, "interrupts", None) or ()
         if not interrupts:
@@ -52,7 +73,7 @@ def _pending_interrupt_value(thread_id: str) -> object | None:
 
 
 async def _apply_feedback_update(req: ChatRequest, pending_value: object) -> dict:
-    config = {"configurable": {"thread_id": req.thread_id}}
+    config = _graph_config(req.thread_id)
     snapshot = graph.get_state(config)
     values = dict(snapshot.values or {})
     pending_meta = _interrupt_meta(pending_value)
@@ -97,25 +118,92 @@ def _question_kind_from_text(text: str | None) -> str | None:
     return None
 
 
-def _response_payload(
-    req: ChatRequest,
+def _message_reply(result: dict) -> str | None:
+    messages = result.get("messages") or []
+    if not messages:
+        return None
+    return str(messages[-1].content)
+
+
+def _node_status_from_state(
     result: dict,
     *,
+    pending_interrupt: str | None,
+    run_record: dict[str, Any] | None,
+) -> dict[str, str]:
+    completed = set(run_record.get("completed_nodes", [])) if run_record else set()
+    progress = {
+        "semantic_normalizer": "ok"
+        if (
+            "semantic_normalizer" in completed
+            or result.get("rewritten_query")
+            or result.get("full_context_query")
+        )
+        else "pending",
+        "gatekeeper": "ok"
+        if (
+            "gatekeeper" in completed
+            or bool(result.get("constraints"))
+            or "missing_constraints" in result
+        )
+        else "pending",
+        "radar": "ok"
+        if (
+            "radar" in completed
+            or bool(result.get("probe_plan"))
+            or bool(result.get("baseline_results"))
+            or bool(result.get("pareto_opportunities"))
+            or bool(result.get("candidates"))
+        )
+        else "pending",
+        "negotiator": "ok"
+        if (
+            "negotiator" in completed
+            or pending_interrupt
+            or result.get("latest_agent_probe_question")
+        )
+        else "pending",
+        "preference_tracker": "updated"
+        if (
+            "preference_tracker" in completed
+            or int(result.get("negotiation_turns") or 0) > 0
+        )
+        else "waiting",
+    }
+    return progress
+
+
+def _run_status(thread_id: str, pending_interrupt: str | None) -> str:
+    record = _RUNS.get(thread_id) or {}
+    status = str(record.get("status") or "idle")
+    task = record.get("task")
+    if task is not None and not task.done():
+        return "running"
+    if pending_interrupt:
+        return "interrupt"
+    if status in {"running", "completed", "interrupt", "error"}:
+        return status
+    return "idle"
+
+
+def _payload_from_values(
+    *,
+    thread_id: str,
+    result: dict,
     mode: str,
+    interrupt_value: object | None = None,
     include_pending: bool = True,
 ) -> dict:
-    interrupt_value = _interrupt_value(result)
     pending_value = (
-        interrupt_value or _pending_interrupt_value(req.thread_id)
+        interrupt_value or _pending_interrupt_value(thread_id)
         if include_pending
         else None
     )
     pending_meta = _interrupt_meta(pending_value)
     pending_interrupt = _interrupt_text_from_value(pending_value)
     reply = pending_interrupt or result.get("latest_agent_probe_question")
-    messages = result.get("messages") or []
-    if not reply and messages:
-        reply = str(messages[-1].content)
+    if not reply:
+        reply = _message_reply(result)
     if mode == "feedback":
         navigation_intent = result.get("navigation_intent")
         if navigation_intent == "finalize":
@@ -124,10 +212,32 @@ def _response_payload(
             reply = "正在换一个方向继续比较。"
         else:
             reply = "偏好已更新。"
+    record = _RUNS.get(thread_id)
+    run_status = _run_status(thread_id, pending_interrupt)
+    if record and record.get("status") == "error":
+        run_status = "error"
+    workflow_progress = _node_status_from_state(
+        result,
+        pending_interrupt=pending_interrupt,
+        run_record=record,
+    )
+    api_status = (
+        "interrupt"
+        if pending_interrupt
+        else "running"
+        if run_status == "running"
+        else "error"
+        if run_status == "error"
+        else "completed"
+    )
     return {
-        "thread_id": req.thread_id,
+        "thread_id": thread_id,
         "mode": mode,
-        "status": "interrupt" if pending_interrupt else "completed",
+        "status": api_status,
+        "run_status": run_status,
+        "run_error": record.get("error") if record else None,
+        "completed_nodes": list(record.get("completed_nodes", [])) if record else [],
+        "workflow_progress": workflow_progress,
         "reply": reply or "",
         "pending_interrupt": pending_interrupt,
         "constraints": result.get("constraints", {}),
@@ -173,9 +283,134 @@ def _response_payload(
     }
 
 
+def _response_payload(
+    req: ChatRequest,
+    result: dict,
+    *,
+    mode: str,
+    include_pending: bool = True,
+) -> dict:
+    return _payload_from_values(
+        thread_id=req.thread_id,
+        result=result,
+        mode=mode,
+        interrupt_value=_interrupt_value(result),
+        include_pending=include_pending,
+    )
+
+
+def _remember_completed_node(record: dict[str, Any], node_name: str) -> None:
+    if node_name not in _NODE_ORDER:
+        return
+    completed = record.setdefault("completed_nodes", [])
+    if node_name not in completed:
+        completed.append(node_name)
+
+
+async def _drain_graph_stream(
+    thread_id: str,
+    payload: object,
+    *,
+    mode: str,
+) -> None:
+    record = _RUNS[thread_id]
+    record.update({"status": "running", "mode": mode, "error": None})
+    try:
+        async for event in graph.astream(payload, config=_graph_config(thread_id)):
+            record["last_event_at"] = time.time()
+            if not isinstance(event, dict):
+                continue
+            for key in event:
+                if key == "__interrupt__":
+                    record["status"] = "interrupt"
+                    _remember_completed_node(record, "negotiator")
+                else:
+                    _remember_completed_node(record, key)
+        pending = _pending_interrupt_value(thread_id)
+        record["status"] = "interrupt" if pending else "completed"
+        record["finished_at"] = time.time()
+    except Exception as exc:  # pragma: no cover - exercised through API contract
+        record["status"] = "error"
+        record["error"] = f"{type(exc).__name__}: {exc}"
+        record["finished_at"] = time.time()
+
+
+def _active_task(record: dict[str, Any] | None) -> asyncio.Task | None:
+    task = record.get("task") if record else None
+    return task if isinstance(task, asyncio.Task) and not task.done() else None
+
+
+def _start_background_run(thread_id: str, payload: object, *, mode: str) -> None:
+    record = _RUNS.setdefault(thread_id, {})
+    task = _active_task(record)
+    if task is not None:
+        return
+    record.update(
+        {
+            "status": "running",
+            "mode": mode,
+            "started_at": time.time(),
+            "finished_at": None,
+            "error": None,
+            "completed_nodes": [],
+        }
+    )
+    record["task"] = asyncio.create_task(
+        _drain_graph_stream(thread_id, payload, mode=mode)
+    )
+
+
+def _current_state_payload(thread_id: str, *, mode: str = "state") -> dict:
+    values = dict(getattr(_snapshot(thread_id), "values", None) or {})
+    record = _RUNS.get(thread_id) or {}
+    hide_stale_pending = record.get("status") == "running" and record.get("mode") in {
+        "continue",
+        "resume",
+    }
+    if hide_stale_pending:
+        values["latest_agent_probe_question"] = None
+    return _payload_from_values(
+        thread_id=thread_id,
+        result=values,
+        mode=mode,
+        include_pending=not hide_stale_pending,
+    )
+
+
+@router.post("/chat/runs")
+async def start_chat_run(req: ChatRequest) -> dict:
+    action = str(req.action or "").strip().lower()
+    try:
+        pending_value = _pending_interrupt_value(req.thread_id)
+        pending_interrupt = _interrupt_text_from_value(pending_value)
+        if action == CHAT_ACTION_FEEDBACK:
+            raise HTTPException(status_code=400, detail="反馈更新请调用 /api/v1/chat。")
+        if action == CHAT_ACTION_CONTINUE:
+            payload: object = Command(goto="radar")
+            mode = "continue"
+        elif pending_interrupt:
+            payload = Command(resume=req.message)
+            mode = "resume"
+        else:
+            payload = {"messages": [HumanMessage(content=req.message)]}
+            mode = "message"
+        _start_background_run(req.thread_id, payload, mode=mode)
+        return _current_state_payload(req.thread_id, mode=mode)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@router.get("/chat/state/{thread_id}")
+async def chat_state(thread_id: str) -> dict:
+    try:
+        return _current_state_payload(thread_id)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
 @router.post("/chat")
 async def chat(req: ChatRequest) -> dict:
-    config = {"configurable": {"thread_id": req.thread_id}}
+    config = _graph_config(req.thread_id)
     try:
         action = str(req.action or "").strip().lower()
         pending_value = _pending_interrupt_value(req.thread_id)

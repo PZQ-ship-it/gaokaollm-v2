@@ -748,7 +748,7 @@
             <dt>Thread</dt>
             <dd id="thread-id"></dd>
             <dt>接口</dt>
-            <dd>POST /api/v1/chat</dd>
+            <dd>POST /api/v1/chat/runs + GET /api/v1/chat/state</dd>
             <dt>状态</dt>
             <dd id="call-state">未调用</dd>
             <dt>轮次</dt>
@@ -903,6 +903,7 @@
 
     let threadId = makeThreadId();
     let lastData = null;
+    let activePoll = null;
     const dialogue = [];
 
     const el = {
@@ -1593,12 +1594,13 @@
     }
 
     function renderTrace(data) {
+      const progress = data?.workflow_progress || {};
       const nodes = [
-        ["S", "semantic_normalizer", data?.rewritten_query ? "ok" : "pending"],
-        ["G", "gatekeeper", data?.constraints && Object.keys(data.constraints).length ? "ok" : "pending"],
-        ["R", "radar", data?.probe_plan?.length ? "ok" : "pending"],
-        ["N", "negotiator", data?.reply ? "ok" : "pending"],
-        ["B", "preference_tracker", Number(data?.negotiation_turns || 0) > 0 ? "updated" : "waiting"]
+        ["S", "semantic_normalizer", progress.semantic_normalizer || (data?.rewritten_query ? "ok" : "pending")],
+        ["G", "gatekeeper", progress.gatekeeper || (data?.constraints && Object.keys(data.constraints).length ? "ok" : "pending")],
+        ["R", "radar", progress.radar || (data?.probe_plan?.length ? "ok" : "pending")],
+        ["N", "negotiator", progress.negotiator || (data?.reply ? "ok" : "pending")],
+        ["B", "preference_tracker", progress.preference_tracker || (Number(data?.negotiation_turns || 0) > 0 ? "updated" : "waiting")]
       ];
       el.trace.innerHTML = nodes.map(([mark, name, state]) => (
         `<div class="trace-node"><i>${mark}</i><span>${traceLabels[name] || name} · ${traceLabels[state] || state}</span></div>`
@@ -1659,6 +1661,7 @@
         候选概况: el.candidateCount.textContent,
         交互类型: data?.latest_question_kind || "none",
         追问来源: data?.latest_question_source || "none",
+        运行状态: data?.run_status || data?.status || "idle",
         轮次: Number(data?.negotiation_turns || 0)
       };
       el.debug.textContent = JSON.stringify(summary, null, 2);
@@ -1680,61 +1683,15 @@
       renderDebug(data);
     }
 
-    async function submit(messageOverride) {
-      const message = (messageOverride || el.message.value).trim();
-      if (!message) return;
-      if (lastData?.pending_interrupt || lastData?.latest_agent_probe_question) {
-        await submitFeedback(message);
-        return;
-      }
-      el.send.disabled = true;
-      for (const btn of document.querySelectorAll(".choice-btn")) btn.disabled = true;
-      setStatus("busy", "正在调用真实推荐系统");
-      dialogue.push({role: "user", text: message});
-      renderDialogue();
-      try {
-        const started = performance.now();
-        const response = await fetch("/api/v1/chat", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({thread_id: threadId, message})
-        });
-        if (!response.ok) {
-          let detail = "";
-          try {
-            const errorPayload = await response.json();
-            detail = errorPayload?.detail ? `：${errorPayload.detail}` : "";
-          } catch (_error) {
-            detail = "";
-          }
-          throw new Error(`HTTP ${response.status}${detail}`);
-        }
-        const data = await response.json();
-        const elapsed = Math.round(performance.now() - started);
-        dialogue.push({role: "system", text: data.reply || "系统未返回文本回复。"});
-        renderDialogue();
-        render(data);
-        setStatus("ok", `${data.status === "interrupt" ? "等待用户取舍反馈" : "调用完成"} · ${elapsed}ms`);
-      } catch (error) {
-        dialogue.push({role: "system", text: `调用失败：${error.message}`, error: true});
-        renderDialogue();
-        setStatus("err", "调用失败，请检查服务、数据库或模型配置");
-      } finally {
-        el.send.disabled = false;
-        renderChoice(lastData);
+    function stopPolling() {
+      if (activePoll) {
+        clearTimeout(activePoll);
+        activePoll = null;
       }
     }
 
-    async function postChat(message, action = null) {
-      const response = await fetch("/api/v1/chat", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          thread_id: threadId,
-          message,
-          ...(action ? {action} : {})
-        })
-      });
+    async function fetchJson(url, options = {}) {
+      const response = await fetch(url, options);
       if (!response.ok) {
         let detail = "";
         try {
@@ -1746,6 +1703,94 @@
         throw new Error(`HTTP ${response.status}${detail}`);
       }
       return response.json();
+    }
+
+    async function postChatRun(message, action = null) {
+      return fetchJson("/api/v1/chat/runs", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          thread_id: threadId,
+          message,
+          ...(action ? {action} : {})
+        })
+      });
+    }
+
+    async function getChatState() {
+      return fetchJson(`/api/v1/chat/state/${encodeURIComponent(threadId)}`);
+    }
+
+    async function pollUntilSettled(started, {appendReply = true} = {}) {
+      stopPolling();
+      return new Promise((resolve, reject) => {
+        const tick = async () => {
+          try {
+            const data = await getChatState();
+            render(data);
+            const elapsed = Math.round(performance.now() - started);
+            if (data.status === "running" || data.run_status === "running") {
+              setStatus("busy", `推荐流程运行中 · ${elapsed}ms`);
+              activePoll = setTimeout(tick, 450);
+              return;
+            }
+            activePoll = null;
+            if (data.status === "error" || data.run_status === "error") {
+              throw new Error(data.run_error || "后台推荐流程失败");
+            }
+            if (appendReply) {
+              dialogue.push({role: "system", text: data.reply || "系统未返回文本回复。"});
+              renderDialogue();
+            }
+            setStatus("ok", `${data.status === "interrupt" ? "等待用户取舍反馈" : "调用完成"} · ${elapsed}ms`);
+            resolve(data);
+          } catch (error) {
+            activePoll = null;
+            reject(error);
+          }
+        };
+        activePoll = setTimeout(tick, 250);
+      });
+    }
+
+    async function submit(messageOverride) {
+      const message = (messageOverride || el.message.value).trim();
+      if (!message) return;
+      if (lastData?.pending_interrupt || lastData?.latest_agent_probe_question) {
+        await submitFeedback(message);
+        return;
+      }
+      el.send.disabled = true;
+      for (const btn of document.querySelectorAll(".choice-btn")) btn.disabled = true;
+      setStatus("busy", "正在启动真实推荐系统");
+      dialogue.push({role: "user", text: message});
+      renderDialogue();
+      try {
+        const started = performance.now();
+        const initialData = await postChatRun(message);
+        render(initialData);
+        setStatus("busy", "流程已启动，正在读取中间状态");
+        await pollUntilSettled(started);
+      } catch (error) {
+        dialogue.push({role: "system", text: `调用失败：${error.message}`, error: true});
+        renderDialogue();
+        setStatus("err", "调用失败，请检查服务、数据库或模型配置");
+      } finally {
+        el.send.disabled = false;
+        renderChoice(lastData);
+      }
+    }
+
+    async function postChat(message, action = null) {
+      return fetchJson("/api/v1/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          thread_id: threadId,
+          message,
+          ...(action ? {action} : {})
+        })
+      });
     }
 
     async function submitFeedback(feedback) {
@@ -1769,12 +1814,9 @@
         setStatus("busy", `偏好已更新 · ${feedbackElapsed}ms，正在生成下一轮问题`);
 
         const continueStarted = performance.now();
-        const data = await postChat("继续生成下一轮取舍问题。", "continue");
-        const continueElapsed = Math.round(performance.now() - continueStarted);
-        dialogue.push({role: "system", text: data.reply || "系统未返回文本回复。"});
-        renderDialogue();
-        render(data);
-        setStatus("ok", `${data.status === "interrupt" ? "等待用户取舍反馈" : "调用完成"} · ${continueElapsed}ms`);
+        const initialData = await postChatRun("继续生成下一轮取舍问题。", "continue");
+        render(initialData);
+        await pollUntilSettled(continueStarted);
       } catch (error) {
         dialogue.push({role: "system", text: `调用失败：${error.message}`, error: true});
         renderDialogue();
@@ -1786,6 +1828,7 @@
     }
 
     function resetThread() {
+      stopPolling();
       threadId = makeThreadId();
       dialogue.length = 0;
       lastData = null;
